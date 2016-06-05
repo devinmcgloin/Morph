@@ -1,0 +1,14 @@
+{
+  "name": "morph",
+  "description": "Morph is a simple photography app",
+  "keywords": [
+    "morph",
+    "photography",
+    "portfolio",
+    "golang"
+  ],
+  "image": "heroku/go:1.6",
+  "mount_dir": "src/github.com/devinmcgloin/morph",
+  "website": "http://github.com/devinmcgloin/morph",
+  "repository": "http://github.com/devinmcgloin/morph"
+}
