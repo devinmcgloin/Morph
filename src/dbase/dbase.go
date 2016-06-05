@@ -24,7 +24,6 @@ func GetDB() *sql.DB {
 func GetPage(imdID string, db *sql.DB) schema.ImgPage {
 
 	var page schema.ImgPage
-	rows, err := db.Query("select ", args)
 
 	return page
 }
