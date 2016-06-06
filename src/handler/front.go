@@ -17,14 +17,23 @@ func IndexHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	title := r.URL.Path
 	log.Printf("page_t= %s", title)
 
-	page := dbase.GetAllImgs(dbase.DB)
+	page, err := dbase.GetAllImgs(dbase.DB)
+	if err != nil {
+		log.Printf("Error while getting all images from DB %s", err)
+		http.Error(w, http.StatusText(500), 500)
+	}
 
 	t, err := template.ParseFiles("views/index.html")
 	if err != nil {
-		panic(err)
+		log.Printf("Error while parsing template %s", err)
+		http.Error(w, http.StatusText(500), 500)
 	}
 
-	t.Execute(w, page)
+	err = t.Execute(w, page)
+	if err != nil {
+		log.Printf("Error while executing template %s", err)
+		http.Error(w, http.StatusText(500), 500)
+	}
 }
 
 // PictureHandler handles the page for individual pictures.
@@ -32,16 +41,22 @@ func PictureHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 	log.Print("Picture Handler")
 	log.Printf("url_p = %s", r.URL.Path)
 	title := ps.ByName("p_id")
-	Img := dbase.GetImg(title, dbase.DB)
+	Img, err := dbase.GetImg(title, dbase.DB)
+	if err != nil {
+		log.Printf("Error while getting images from DB %s", err)
+		http.Error(w, http.StatusText(500), 500)
+	}
 	log.Printf("page_t= %s", title)
 
 	t, err := template.ParseFiles("views/content/photo.html")
 	if err != nil {
-		panic(err)
+		log.Printf("Error while parsing template %s", err)
+		http.Error(w, http.StatusText(500), 500)
 	}
 
 	err = t.Execute(w, Img)
 	if err != nil {
-		panic(err)
+		log.Printf("Error while executing template %s", err)
+		http.Error(w, http.StatusText(500), 500)
 	}
 }

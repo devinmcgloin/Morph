@@ -2,11 +2,9 @@ package handler
 
 import (
 	"bytes"
-	"io"
 	"log"
 	"mime/multipart"
 	"net/http"
-	"os"
 	"strconv"
 
 	"github.com/devinmcgloin/morph/src/dbase"
@@ -33,53 +31,34 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 			infile, err = hdr.Open()
 
 			if err != nil {
-				log.Fatal(err)
+				log.Printf("Error while reading in image %s", err)
+				http.Error(w, http.StatusText(500), 500)
 			}
 
 			var buf bytes.Buffer
 			var written int64
-			written, err := buf.ReadFrom(infile)
+			written, err = buf.ReadFrom(infile)
 			if err != nil {
-				log.Fatal(err)
+				log.Printf("Error while reading in image %s", err)
+				http.Error(w, http.StatusText(500), 500)
 			}
 
-			URL := dbase.UploadImageAWS(buf.Bytes(), written, hdr.Filename, "morph-content", "us-east-1")
-
+			var URL string
+			URL, err = dbase.UploadImageAWS(buf.Bytes(), written, hdr.Filename, "morph-content", "us-east-1")
+			if err != nil {
+				log.Printf("Error while uploading image %s", err)
+				http.Error(w, http.StatusText(500), 500)
+			}
 			Img.URL = URL
 			w.Write([]byte("uploaded file:" + hdr.Filename + ";length:" + strconv.Itoa(int(written))))
 		}
 	}
 
 	log.Printf("%v", Img)
-	dbase.AddImg(Img, dbase.DB)
-
-}
-
-func demoHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	r.ParseMultipartForm(32 << 20)
-
-	var (
-		err error
-	)
-
-	for _, fheaders := range r.MultipartForm.File {
-		for _, hdr := range fheaders {
-			// open uploaded
-			var infile multipart.File
-			if infile, err = hdr.Open(); nil != err {
-				log.Fatal(err)
-			}
-			// open destination
-			var outfile *os.File
-			if outfile, err = os.Create("./content/" + hdr.Filename); nil != err {
-				log.Fatal(err)
-			}
-			// 32K buffer copy
-			var written int64
-			if written, err = io.Copy(outfile, infile); nil != err {
-				log.Fatal(err)
-			}
-			w.Write([]byte("uploaded file:" + hdr.Filename + ";length:" + strconv.Itoa(int(written))))
-		}
+	err = dbase.AddImg(Img, dbase.DB)
+	if err != nil {
+		log.Printf("Error while adding image to DB %s", err)
+		http.Error(w, http.StatusText(500), 500)
 	}
+
 }

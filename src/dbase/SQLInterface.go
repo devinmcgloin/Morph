@@ -13,19 +13,20 @@ import (
 var DB *sql.DB
 
 // SetDB returns a reference to a sql.DB object. It's best to keep these long lived.
-func SetDB() *sql.DB {
+func SetDB() (*sql.DB, error) {
 	log.Printf("DB_URL = %s", env.Getenv("DB_URL", "root:@/morph"))
 
 	// Create the database handle, confirm driver is
 	db, err := sql.Open("mysql", env.Getenv("DB_URL", "root:@/morph"))
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
+		return nil, err
 	}
 	DB = db
-	return db
+	return db, nil
 }
 
-func GetImg(pID string, db *sql.DB) schema.Img {
+func GetImg(pID string, db *sql.DB) (schema.Img, error) {
 
 	var page schema.Img
 
@@ -44,7 +45,8 @@ func GetImg(pID string, db *sql.DB) schema.Img {
 			`, pID)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
+		return schema.Img{}, err
 	}
 	defer rows.Close()
 
@@ -53,19 +55,21 @@ func GetImg(pID string, db *sql.DB) schema.Img {
 			&page.PhotoMeta.ISO, &page.PhotoMeta.FOV, &page.PhotoMeta.ShutterSpeed, &page.Category)
 
 		if err != nil {
-			log.Fatal(err)
+			log.Print(err)
+			return schema.Img{}, err
 		}
 		log.Println(page)
 	}
 
 	err = rows.Err()
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
+		return schema.Img{}, err
 	}
-	return page
+	return page, nil
 }
 
-func AddImg(img schema.Img, db *sql.DB) {
+func AddImg(img schema.Img, db *sql.DB) error {
 
 	stmt, err := db.Prepare(
 		`INSERT INTO photos
@@ -83,33 +87,38 @@ func AddImg(img schema.Img, db *sql.DB) {
 			           ?, ?, ?, ?, ?)`)
 
 	if err != nil {
-		log.Fatalf("db.Prepare failed %s", err)
+		log.Print(err)
+		return err
 	}
 
 	res, err := stmt.Exec("NULL", img.Title, img.Desc, img.URL, img.PhotoMeta.FStop, img.PhotoMeta.ISO,
 		img.PhotoMeta.FOV, img.PhotoMeta.ShutterSpeed, img.Category, "NULL")
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
+		return err
 	}
 	lastID, err := res.LastInsertId()
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
+		return err
 	}
 	rowCnt, err := res.RowsAffected()
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
+		return err
 	}
 	log.Printf("ID = %d, affected = %d\n", lastID, rowCnt)
 	stmt.Close()
+	return nil
 }
 
-func getCollection(collectionTag string, db *sql.DB) schema.ImgCollection {
+func getCollection(collectionTag string, db *sql.DB) (schema.ImgCollection, error) {
 	var collectionPage schema.ImgCollection
 
-	return collectionPage
+	return collectionPage, nil
 }
 
-func GetAllImgs(db *sql.DB) schema.ImgCollection {
+func GetAllImgs(db *sql.DB) (schema.ImgCollection, error) {
 	var collectionPage schema.ImgCollection
 
 	var page schema.Img
@@ -128,7 +137,8 @@ func GetAllImgs(db *sql.DB) schema.ImgCollection {
 			`)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
+		return schema.ImgCollection{}, err
 	}
 	defer rows.Close()
 
@@ -137,23 +147,19 @@ func GetAllImgs(db *sql.DB) schema.ImgCollection {
 			&page.PhotoMeta.ISO, &page.PhotoMeta.FOV, &page.PhotoMeta.ShutterSpeed, &page.Category)
 
 		if err != nil {
-			log.Fatal(err)
+			log.Print(err)
+			return schema.ImgCollection{}, err
 		}
 		collectionPage.Images = append(collectionPage.Images, page)
 	}
 
 	err = rows.Err()
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
+		return schema.ImgCollection{}, err
 	}
 
 	collectionPage.NumImg = len(collectionPage.Images)
 	collectionPage.Title = "Home"
-	return collectionPage
-}
-
-func checkErr(err error) {
-	if err != nil {
-		panic(err)
-	}
+	return collectionPage, nil
 }

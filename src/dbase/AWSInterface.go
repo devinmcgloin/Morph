@@ -11,22 +11,24 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-func UploadImageAWS(file []byte, size int64, filename string, bucketURI string, region string) string {
+func UploadImageAWS(file []byte, size int64, filename string, bucketURI string, region string) (string, error) {
 
 	svc := s3.New(session.New(&aws.Config{Region: aws.String(region)}))
 	destPath := "/content/" + filename
 	params, err := formatParams(file, size, bucketURI, destPath)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("Error while creating AWS params %s", err)
+		return "", err
 	}
 
 	_, err = svc.PutObject(params)
 	if err != nil {
-		log.Printf("Upload Failed: %s", err)
+		log.Printf("Error while uploading to aws %s", err)
+		return "", err
 	}
 
-	return fmt.Sprintf("https://s3.amazonaws.com/%s%s", bucketURI, destPath)
+	return fmt.Sprintf("https://s3.amazonaws.com/%s%s", bucketURI, destPath), nil
 }
 
 func formatParams(buffer []byte, size int64, bucketName string, path string) (*s3.PutObjectInput, error) {

@@ -16,9 +16,13 @@ func AdminHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 	t, err := template.ParseFiles(path)
 	if err != nil {
-		log.Fatalf("Redirecting from %s", page)
-
+		log.Printf("Error while parsing template %s", err)
+		http.Error(w, http.StatusText(500), 500)
 	}
 
-	t.Execute(w, page)
+	err = t.Execute(w, page)
+	if err != nil {
+		log.Printf("Error while executing template %s", err)
+		http.Error(w, http.StatusText(500), 500)
+	}
 }
