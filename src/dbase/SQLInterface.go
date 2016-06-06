@@ -14,6 +14,7 @@ var DB *sql.DB
 
 // SetDB returns a reference to a sql.DB object. It's best to keep these long lived.
 func SetDB() *sql.DB {
+	log.Printf("DB_URL = %s", env.Getenv("DB_URL", "root:@/morph"))
 
 	// Create the database handle, confirm driver is
 	db, err := sql.Open("mysql", env.Getenv("DB_URL", "root:@/morph"))
