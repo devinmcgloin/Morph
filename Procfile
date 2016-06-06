@@ -1,1 +1,1 @@
-web: morph
+web: morph-serve
