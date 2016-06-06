@@ -33,6 +33,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 			if err != nil {
 				log.Printf("Error while reading in image %s", err)
 				http.Error(w, http.StatusText(500), 500)
+				return
 			}
 
 			var buf bytes.Buffer
@@ -41,6 +42,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 			if err != nil {
 				log.Printf("Error while reading in image %s", err)
 				http.Error(w, http.StatusText(500), 500)
+				return
 			}
 
 			var URL string
@@ -48,6 +50,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 			if err != nil {
 				log.Printf("Error while uploading image %s", err)
 				http.Error(w, http.StatusText(500), 500)
+				return
 			}
 			Img.URL = URL
 			w.Write([]byte("uploaded file:" + hdr.Filename + ";length:" + strconv.Itoa(int(written))))
@@ -59,6 +62,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	if err != nil {
 		log.Printf("Error while adding image to DB %s", err)
 		http.Error(w, http.StatusText(500), 500)
+		return
 	}
 
 }

@@ -18,11 +18,13 @@ func AdminHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 	if err != nil {
 		log.Printf("Error while parsing template %s", err)
 		http.Error(w, http.StatusText(500), 500)
+		return
 	}
 
 	err = t.Execute(w, page)
 	if err != nil {
 		log.Printf("Error while executing template %s", err)
 		http.Error(w, http.StatusText(500), 500)
+		return
 	}
 }

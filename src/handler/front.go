@@ -21,18 +21,21 @@ func IndexHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	if err != nil {
 		log.Printf("Error while getting all images from DB %s", err)
 		http.Error(w, http.StatusText(500), 500)
+		return
 	}
 
 	t, err := template.ParseFiles("views/index.html")
 	if err != nil {
 		log.Printf("Error while parsing template %s", err)
 		http.Error(w, http.StatusText(500), 500)
+		return
 	}
 
 	err = t.Execute(w, page)
 	if err != nil {
 		log.Printf("Error while executing template %s", err)
 		http.Error(w, http.StatusText(500), 500)
+		return
 	}
 }
 
@@ -45,6 +48,7 @@ func PictureHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 	if err != nil {
 		log.Printf("Error while getting images from DB %s", err)
 		http.Error(w, http.StatusText(500), 500)
+		return
 	}
 	log.Printf("page_t= %s", title)
 
@@ -52,11 +56,13 @@ func PictureHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 	if err != nil {
 		log.Printf("Error while parsing template %s", err)
 		http.Error(w, http.StatusText(500), 500)
+		return
 	}
 
 	err = t.Execute(w, Img)
 	if err != nil {
 		log.Printf("Error while executing template %s", err)
 		http.Error(w, http.StatusText(500), 500)
+		return
 	}
 }
