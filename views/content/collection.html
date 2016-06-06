@@ -1,1 +1,42 @@
-This is a collection of photos.
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta charset="utf-8">
+      <link rel="stylesheet" href="/assets/css/normalize.css">
+      <link rel="stylesheet" href="/assets/css/main.css">
+
+   </head>
+   <body>
+
+      <div class="container">
+        <div class="index-img">
+            <span>
+               <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 0 102 102" enable-background="new 0 0 102 102" xml:space="preserve">
+                  <g>
+                     <polygon points="96.863,0.999 5.136,0.999 51,46.862  "></polygon>
+                     <rect x="61.677" y="35.213" transform="matrix(0.7072 0.7071 -0.7071 0.7072 58.7443 -39.8364)" width="31.573" height="31.571"></rect>
+                     <polygon points="31.6,74.537 70.4,74.537 51,55.137  "></polygon>
+                     <polygon points="1,5.136 1,96.862 46.864,50.999  "></polygon>
+                     <polygon points="25.75,80.389 5.136,101.001 49.79,101.001 70.402,80.389  "></polygon>
+                     <polygon points="101,101.001 101,58.063 58.063,101.001  "></polygon>
+                     <polygon points="81.601,24.537 101,43.938 101,5.137  "></polygon>
+                  </g>
+               </svg>
+            </span>
+         </div>
+
+         <h1>{{.Title}}</h1>
+         <p>There are {{.NumImg}} photos this collection</p>
+
+         {{range .Images}}
+         <div class="img">
+           <h2><a href="/p/{{.PID}}">{{.Title}}</a></h2>
+           <p>{{.Desc}} - {{.Category}}</p>
+
+           <img class="photo" src={{.URL}}>
+         </div>
+         {{end}}
+       </div>
+
+   </body>
+</html>

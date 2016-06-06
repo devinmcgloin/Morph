@@ -203,3 +203,15 @@ pre > code {
     margin-right: auto;
     margin-bottom: 2rem;
 }
+
+.form-div {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.center {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
