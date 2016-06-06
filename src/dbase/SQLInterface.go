@@ -161,6 +161,6 @@ func GetAllImgs(db *sql.DB) (schema.ImgCollection, error) {
 	}
 
 	collectionPage.NumImg = len(collectionPage.Images)
-	collectionPage.Title = "Home"
+	collectionPage.Title = "Morph"
 	return collectionPage, nil
 }
