@@ -11,6 +11,10 @@ import (
 )
 
 func main() {
+
+	flag := log.LstdFlags | log.Lmicroseconds | log.Lshortfile
+	log.SetFlags(flag)
+
 	port := os.Getenv("PORT")
 
 	if port == "" {
@@ -20,15 +24,14 @@ func main() {
 	router := httprouter.New()
 
 	log.Printf("Serving at http://localhost:%s", port)
+
 	router.GET("/", handler.IndexHandler)
-	router.GET("/p/:p_id", handler.PictureHandler)
+	router.GET("/p/:i_id", handler.PictureHandler)
 	router.GET("/admin/:type", handler.AdminHandler)
 	router.POST("/upload", handler.UploadHandler)
 	router.ServeFiles("/assets/*filepath", http.Dir("assets/"))
+
 	dbase.SetDB()
-	err := dbase.DB.Ping()
-	if err != nil {
-		log.Fatal("Database not connected. Ping Failed.")
-	}
+
 	http.ListenAndServe(":"+port, router)
 }

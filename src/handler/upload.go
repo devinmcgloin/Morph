@@ -58,7 +58,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	}
 
 	log.Printf("%v", Img)
-	err = dbase.AddImg(Img, dbase.DB)
+	err = dbase.AddImg(Img)
 	if err != nil {
 		log.Printf("Error while adding image to DB %s", err)
 		http.Error(w, http.StatusText(500), 500)

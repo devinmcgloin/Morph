@@ -1,21 +1,16 @@
 package schema
 
-// PhotoMeta contains all the meta information about a specific image
-type PhotoMeta struct {
-	FStop        int
-	ShutterSpeed int
-	FOV          int
-	ISO          int
-}
-
 // Img contains all the proper information for rendering a single photo
 type Img struct {
-	PID       int
-	Title     string
-	Desc      string
-	URL       string
-	Category  string
-	PhotoMeta PhotoMeta
+	IID          int    `db:"i_id"`
+	Title        string `db:"i_title"`
+	Desc         string `db:"i_desc"`
+	URL          string `db:"i_url"`
+	Category     string `db:"i_category"`
+	FStop        int    `db:"i_fstop"`
+	ShutterSpeed int    `db:"i_shutter_speed"`
+	FOV          int    `db:"i_fov"`
+	ISO          int    `db:"i_iso"`
 }
 
 // ImgCollection includes a title and collection of Images.

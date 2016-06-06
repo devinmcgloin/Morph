@@ -17,7 +17,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	title := r.URL.Path
 	log.Printf("page_t= %s", title)
 
-	page, err := dbase.GetAllImgs(dbase.DB)
+	page, err := dbase.GetAllImgs()
 	if err != nil {
 		log.Printf("Error while getting all images from DB %s", err)
 		http.Error(w, http.StatusText(500), 500)
@@ -43,8 +43,8 @@ func IndexHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 func PictureHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	log.Print("Picture Handler")
 	log.Printf("url_p = %s", r.URL.Path)
-	title := ps.ByName("p_id")
-	Img, err := dbase.GetImg(title, dbase.DB)
+	title := ps.ByName("i_id")
+	Img, err := dbase.GetImg(title)
 	if err != nil {
 		log.Printf("Error while getting images from DB %s", err)
 		http.Error(w, http.StatusText(500), 500)

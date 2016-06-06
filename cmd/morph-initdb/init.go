@@ -26,22 +26,22 @@ func main() {
 	log.Println("Initializing db tables...")
 
 	createPhotosTable := `
-	CREATE TABLE IF NOT EXISTS photos
+	CREATE TABLE IF NOT EXISTS images
 	  (
-	     p_id            INT NOT NULL auto_increment,
-	     p_title         TEXT(30) DEFAULT NULL,
-	     p_desc          TEXT(255) DEFAULT NULL,
-	     p_url           TEXT DEFAULT NULL,
-	     p_fstop         INT DEFAULT NULL,
-	     p_iso           INT DEFAULT NULL,
-	     p_fov           INT DEFAULT NULL,
-	     p_shutter_speed INT DEFAULT NULL,
-	     p_category      TEXT DEFAULT NULL,
-	     p_publish_date  DATETIME DEFAULT CURRENT_TIMESTAMP,
-	     PRIMARY KEY(p_id)
+	     i_id            INT NOT NULL auto_increment,
+	     i_title         TEXT(30) DEFAULT NULL,
+	     i_desc          TEXT(255) DEFAULT NULL,
+	     i_url           TEXT DEFAULT NULL,
+	     i_fstop         INT DEFAULT NULL,
+	     i_iso           INT DEFAULT NULL,
+	     i_fov           INT DEFAULT NULL,
+	     i_shutter_speed INT DEFAULT NULL,
+	     i_category      TEXT DEFAULT NULL,
+	     i_publish_date  DATETIME DEFAULT CURRENT_TIMESTAMP,
+	     PRIMARY KEY(i_id)
 	  );
 `
-	addTable(db, createPhotosTable)
+	executeSQL(db, createPhotosTable)
 
 	createConfigTable := `
 	CREATE TABLE IF NOT EXISTS config
@@ -55,7 +55,7 @@ func main() {
 	     CONSTRAINT ck_config_locked CHECK (conf_lock='X')
 	  );
 	`
-	addTable(db, createConfigTable)
+	executeSQL(db, createConfigTable)
 
 	log.Println("Table creation completed.")
 
@@ -63,7 +63,7 @@ func main() {
 
 }
 
-func addTable(db *sql.DB, sqlCreateTable string) {
+func executeSQL(db *sql.DB, sqlCreateTable string) {
 	stmt, err := db.Prepare(sqlCreateTable)
 	if err != nil {
 		log.Fatal(err)
