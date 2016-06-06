@@ -10,6 +10,7 @@ type PhotoMeta struct {
 
 // Img contains all the proper information for rendering a single photo
 type Img struct {
+	PID       int
 	Title     string
 	Desc      string
 	URL       string

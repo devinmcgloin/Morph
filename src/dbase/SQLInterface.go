@@ -125,7 +125,8 @@ func GetAllImgs(db *sql.DB) (schema.ImgCollection, error) {
 
 	rows, err := db.Query(
 		`
-			SELECT p_title,
+			SELECT p_id,
+						 p_title,
 			       p_desc,
 			       p_url,
 			       p_fstop,
@@ -143,7 +144,7 @@ func GetAllImgs(db *sql.DB) (schema.ImgCollection, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		err := rows.Scan(&page.Title, &page.Desc, &page.URL, &page.PhotoMeta.FStop,
+		err := rows.Scan(&page.PID, &page.Title, &page.Desc, &page.URL, &page.PhotoMeta.FStop,
 			&page.PhotoMeta.ISO, &page.PhotoMeta.FOV, &page.PhotoMeta.ShutterSpeed, &page.Category)
 
 		if err != nil {
