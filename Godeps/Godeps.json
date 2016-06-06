@@ -122,6 +122,10 @@
 			"Rev": "72ba3e6b9e6b87e0c74c9a7a4dc86e8dd8ba4355"
 		},
 		{
+			"ImportPath": "github.com/go-ozzo/ozzo-dbx",
+			"Rev": "3151453be7ed53636bc59b5dbd4978c1b7f5949e"
+		},
+		{
 			"ImportPath": "github.com/go-sql-driver/mysql",
 			"Comment": "v1.2-196-g3654d25",
 			"Rev": "3654d25ec346ee8ce71a68431025458d52a38ac0"

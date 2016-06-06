@@ -99,7 +99,7 @@ func GetAllImgs() (schema.ImgCollection, error) {
 
 	var images []schema.Img
 
-	sql := "SELECT i_id, i_title, i_desc, i_url, i_category, i_fstop, i_shutter_speed, i_fov, i_iso, i_publish_date name FROM images ORDER BY i_publish_date"
+	sql := "SELECT i_id, i_title, i_desc, i_url, i_category, i_fstop, i_shutter_speed, i_fov, i_iso, i_publish_date name FROM images ORDER BY i_publish_date DESC"
 
 	q := db.NewQuery(sql)
 	err := q.All(&images)
