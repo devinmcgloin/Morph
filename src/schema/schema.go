@@ -8,21 +8,20 @@ type PhotoMeta struct {
 	ISO          int
 }
 
-// ImgPage contains all the proper information for rendering a single photo
-type ImgPage struct {
+// Img contains all the proper information for rendering a single photo
+type Img struct {
 	Title     string
 	Desc      string
-	ImgURL    string
+	URL       string
+	Category  string
 	PhotoMeta PhotoMeta
-	PageMeta  PageMeta
 }
 
 // ImgCollection includes a title and collection of Images.
 type ImgCollection struct {
-	Title    string
-	NumImg   int
-	Images   []ImgPage
-	PageMeta PageMeta
+	Title  string
+	NumImg int
+	Images []Img
 }
 
 // PageMeta is a type for the meta tags found at the top of the page.

@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/devinmcgloin/morph/src/schema"
+	"github.com/devinmcgloin/morph/src/dbase"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -17,9 +17,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	title := r.URL.Path
 	log.Printf("page_t= %s", title)
 
-	page := schema.ImgCollection{
-		Title:  "Index",
-		NumImg: 10}
+	page := dbase.GetAllImgs(dbase.DB)
 
 	t, err := template.ParseFiles("views/index.html")
 	if err != nil {
@@ -33,12 +31,8 @@ func IndexHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 func PictureHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	log.Print("Picture Handler")
 	log.Printf("url_p = %s", r.URL.Path)
-	title := ps.ByName("img")
-	image := schema.ImgPage{
-		Title:     title,
-		ImgURL:    "/content/beegden-the_netherlands-55.jpg",
-		Desc:      "The Netherlands",
-		PhotoMeta: schema.PhotoMeta{FStop: 20, ShutterSpeed: 250, FOV: 12, ISO: 200}}
+	title := ps.ByName("p_id")
+	Img := dbase.GetImg(title, dbase.DB)
 	log.Printf("page_t= %s", title)
 
 	t, err := template.ParseFiles("views/content/photo.html")
@@ -46,5 +40,8 @@ func PictureHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 		panic(err)
 	}
 
-	t.Execute(w, image)
+	err = t.Execute(w, Img)
+	if err != nil {
+		panic(err)
+	}
 }

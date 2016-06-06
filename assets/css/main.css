@@ -6,3 +6,16 @@
 .photo-feature {
   width: 800px;
 }
+
+.container {
+  width: 95%;
+}
+
+.img {
+  width: auto;
+  align-items: center;
+}
+
+.photo {
+  width: 100%;
+}

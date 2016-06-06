@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/devinmcgloin/morph/src/dbase"
 	"github.com/devinmcgloin/morph/src/handler"
 	"github.com/julienschmidt/httprouter"
 )
@@ -18,10 +19,13 @@ func main() {
 
 	router := httprouter.New()
 
-	log.Printf("Serving at port:%s", port)
+	log.Printf("Serving at http://localhost:%s", port)
 	router.GET("/", handler.IndexHandler)
-	router.GET("/p/:img", handler.PictureHandler)
+	router.GET("/p/:p_id", handler.PictureHandler)
+	router.GET("/admin/:type", handler.AdminHandler)
+	router.POST("/upload", handler.UploadHandler)
 	router.ServeFiles("/assets/*filepath", http.Dir("assets/"))
 	router.ServeFiles("/content/*filepath", http.Dir("content/"))
+	dbase.SetDB()
 	http.ListenAndServe(":"+port, router)
 }
