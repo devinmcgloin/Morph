@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"html/template"
 	"log"
 	"net/http"
 
@@ -37,7 +36,7 @@ func PictureHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 	}
 	log.Printf("page_t= %s", title)
 
-	t, err := template.ParseFiles("views/content/image.html")
+	t, err := StandardTemplate("views/content/image.tmpl")
 	if err != nil {
 		log.Printf("Error while parsing template %s", err)
 		http.Error(w, http.StatusText(500), 500)
@@ -66,7 +65,7 @@ func CategoryHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 
 func renderCollection(w http.ResponseWriter, collection schema.ImgCollection) {
 
-	t, err := template.ParseFiles("views/content/collection.html")
+	t, err := StandardTemplate("views/content/collection.tmpl")
 	if err != nil {
 		log.Printf("Error while parsing template %s", err)
 		http.Error(w, http.StatusText(500), 500)

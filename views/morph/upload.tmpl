@@ -1,0 +1,22 @@
+<html>
+<head>
+    <title>Upload Image</title>
+    <link rel="stylesheet" href="/assets/css/normalize.css">
+    <link rel="stylesheet" href="/assets/css/main.css">
+</head>
+<body>
+  <div class="container">
+    {{ template "logo" }}
+
+
+<form enctype="multipart/form-data" action="/api/upload" method="post">
+      <input type="file" name="uploadfile" />
+      <input type="hidden" name="token" value="{{.}}"/><br>
+      <input type="text" placeholder="Title" name="Title"><br>
+      <input type="text" placeholder="Description" name="Desc"><br>
+      <input type="text" placeholder="Category" name="Category"><br>
+      <input type="submit" value="upload" />
+</form>
+</div>
+</body>
+</html>

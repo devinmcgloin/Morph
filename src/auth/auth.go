@@ -7,7 +7,7 @@ import (
 )
 
 func LoggedIn(r *http.Request) bool {
-	return false
+	return true
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {

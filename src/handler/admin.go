@@ -2,7 +2,6 @@ package handler
 
 import (
 	"fmt"
-	"html/template"
 	"log"
 	"net/http"
 
@@ -21,12 +20,12 @@ func AdminHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 	}
 
 	page := ps.ByName("type")
-	path := fmt.Sprintf("views/morph/%s.html", page)
+	path := fmt.Sprintf("views/morph/%s.tmpl", page)
 
-	t, err := template.ParseFiles(path)
+	t, err := StandardTemplate(path)
 	if err != nil {
 		log.Printf("Error while parsing template %s", err)
-		http.Error(w, http.StatusText(500), 500)
+		http.Redirect(w, r, "/morph", 301)
 		return
 	}
 
@@ -39,14 +38,18 @@ func AdminHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 }
 
 func LoginDisplay(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	path := "views/morph/login.html"
 
-	t, err := template.ParseFiles(path)
+	log.Printf("Entering login display")
+
+	path := "views/morph/login.tmpl"
+
+	t, err := StandardTemplate(path)
 	if err != nil {
 		log.Printf("Error while parsing template %s", err)
-		http.Error(w, http.StatusText(500), 500)
+		NotFound(w, r)
 		return
 	}
+	log.Print(auth.LoggedIn(r))
 
 	err = t.Execute(w, nil)
 	if err != nil {

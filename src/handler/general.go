@@ -8,8 +8,8 @@ import (
 
 func NotFound(w http.ResponseWriter, r *http.Request) {
 
-	path := "views/content/404.html"
-	t, err := template.ParseFiles(path)
+	path := "views/content/404.tmpl"
+	t, err := StandardTemplate(path)
 	if err != nil {
 		log.Printf("Error while parsing template %s", err)
 		http.Error(w, http.StatusText(500), 500)
@@ -22,4 +22,11 @@ func NotFound(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(500), 500)
 		return
 	}
+}
+
+func StandardTemplate(filepaths ...string) (*template.Template, error) {
+	paths := append(filepaths, "templates/footer.tmpl",
+		"templates/metatags.tmpl", "templates/logo.tmpl")
+	t, err := template.ParseFiles(paths...)
+	return t, err
 }

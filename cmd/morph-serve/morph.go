@@ -33,8 +33,8 @@ func main() {
 	router.GET("/p/:i_id", handler.PictureHandler)
 	router.GET("/category/:category", handler.CategoryHandler)
 	router.POST("/api/upload", api.UploadHandler)
-	router.GET("/morph/:type", handler.AdminHandler)
 	router.GET("/morph", handler.LoginDisplay)
+	router.GET("/morph/:type", handler.AdminHandler)
 
 	router.POST("/api/auth", auth.LoginHandler)
 

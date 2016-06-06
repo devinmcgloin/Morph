@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta charset="utf-8">
+      <link rel="stylesheet" href="/assets/css/normalize.css">
+      <link rel="stylesheet" href="/assets/css/main.css">
+
+   </head>
+   <body>
+      <div class="container">
+        {{ template "logo" }}
+
+         <h2>{{.Title}}</h2>
+         <p>{{.Desc}} - {{.Category}}</p>
+
+         <img class="photo-feature" src={{.URL}}>
+         <p>f/{{.FStop}} 1/{{.ShutterSpeed}} sec {{.FOV}}mm ISO {{.ISO}}</p>
+
+      </div>
+   </body>
+</html>
