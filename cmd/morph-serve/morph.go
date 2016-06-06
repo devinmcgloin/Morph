@@ -25,7 +25,6 @@ func main() {
 	router.GET("/admin/:type", handler.AdminHandler)
 	router.POST("/upload", handler.UploadHandler)
 	router.ServeFiles("/assets/*filepath", http.Dir("assets/"))
-	router.ServeFiles("/content/*filepath", http.Dir("content/"))
 	dbase.SetDB()
 	err := dbase.DB.Ping()
 	if err != nil {
