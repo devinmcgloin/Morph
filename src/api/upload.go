@@ -1,11 +1,10 @@
-package handler
+package api
 
 import (
 	"bytes"
 	"log"
 	"mime/multipart"
 	"net/http"
-	"strconv"
 
 	"github.com/devinmcgloin/morph/src/dbase"
 	"github.com/devinmcgloin/morph/src/schema"
@@ -53,7 +52,6 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 				return
 			}
 			Img.URL = URL
-			w.Write([]byte("uploaded file:" + hdr.Filename + ";length:" + strconv.Itoa(int(written))))
 		}
 	}
 
@@ -64,5 +62,6 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 		http.Error(w, http.StatusText(500), 500)
 		return
 	}
+	http.Redirect(w, r, "/morph/manage", 302)
 
 }

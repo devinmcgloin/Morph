@@ -22,13 +22,15 @@
         </span>
      </div>
 
-     <div class="form-div">
-       <form action="/login" method="post">
-           <input type="text" placeholder="username" name="username"><br>
-           <input type="password" placeholder="password" name="password"><br>
-           <input type="submit" value="Login">
-      </form>
-    </div>
+
+<form enctype="multipart/form-data" action="/api/upload" method="post">
+      <input type="file" name="uploadfile" />
+      <input type="hidden" name="token" value="{{.}}"/><br>
+      <input type="text" placeholder="Title" name="Title"><br>
+      <input type="text" placeholder="Description" name="Desc"><br>
+      <input type="text" placeholder="Category" name="Category"><br>
+      <input type="submit" value="upload" />
+</form>
 </div>
 </body>
 </html>

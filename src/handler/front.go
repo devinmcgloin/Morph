@@ -6,37 +6,22 @@ import (
 	"net/http"
 
 	"github.com/devinmcgloin/morph/src/dbase"
+	"github.com/devinmcgloin/morph/src/schema"
 	"github.com/julienschmidt/httprouter"
 )
 
 // IndexHandler handles the index page which is a grid of pictures
 func IndexHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	log.Print("Index Handler")
-	log.Printf("url_p = %s", r.URL.Path)
-	log.Printf("url   = %s", r.URL.Query())
-	title := r.URL.Path
-	log.Printf("page_t= %s", title)
 
-	page, err := dbase.GetAllImgs()
+	collection, err := dbase.GetAllImgs()
 	if err != nil {
 		log.Printf("Error while getting all images from DB %s", err)
 		http.Error(w, http.StatusText(500), 500)
 		return
 	}
 
-	t, err := template.ParseFiles("views/index.html")
-	if err != nil {
-		log.Printf("Error while parsing template %s", err)
-		http.Error(w, http.StatusText(500), 500)
-		return
-	}
+	renderCollection(w, collection)
 
-	err = t.Execute(w, page)
-	if err != nil {
-		log.Printf("Error while executing template %s", err)
-		http.Error(w, http.StatusText(500), 500)
-		return
-	}
 }
 
 // PictureHandler handles the page for individual pictures.
@@ -52,7 +37,7 @@ func PictureHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 	}
 	log.Printf("page_t= %s", title)
 
-	t, err := template.ParseFiles("views/content/photo.html")
+	t, err := template.ParseFiles("views/content/image.html")
 	if err != nil {
 		log.Printf("Error while parsing template %s", err)
 		http.Error(w, http.StatusText(500), 500)
@@ -60,6 +45,35 @@ func PictureHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 	}
 
 	err = t.Execute(w, Img)
+	if err != nil {
+		log.Printf("Error while executing template %s", err)
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+}
+
+func CategoryHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	category := ps.ByName("category")
+	collection, err := dbase.GetCategory(category)
+	if err != nil {
+		log.Printf("Error while getting all images from DB %s", err)
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	renderCollection(w, collection)
+}
+
+func renderCollection(w http.ResponseWriter, collection schema.ImgCollection) {
+
+	t, err := template.ParseFiles("views/content/collection.html")
+	if err != nil {
+		log.Printf("Error while parsing template %s", err)
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	err = t.Execute(w, collection)
 	if err != nil {
 		log.Printf("Error while executing template %s", err)
 		http.Error(w, http.StatusText(500), 500)
