@@ -8,7 +8,7 @@
   <div class="container">
     {{ template "logo" }}
 
-
+<div class="form-div">
 <form enctype="multipart/form-data" action="/api/upload" method="post">
       <input type="file" name="uploadfile" />
       <input type="hidden" name="token" value="{{.}}"/><br>
@@ -17,6 +17,7 @@
       <input type="text" placeholder="Category" name="Category"><br>
       <input type="submit" value="upload" />
 </form>
+</div>
 </div>
 </body>
 </html>

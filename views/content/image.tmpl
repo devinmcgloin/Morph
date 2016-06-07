@@ -12,7 +12,7 @@
 
          <h2>{{.Title}}</h2>
          <p>{{.Desc}} - {{.Category}}</p>
-
+         <p>{{.PublishDate.Format "2006 Jan 02" }}</p>
          <img class="photo-feature" src={{.URL}}>
          <p>f/{{.FStop}} 1/{{.ShutterSpeed}} sec {{.FOV}}mm ISO {{.ISO}}</p>
 

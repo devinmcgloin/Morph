@@ -2,6 +2,7 @@ package handler
 
 import (
 	"html/template"
+	"io/ioutil"
 	"log"
 	"net/http"
 )
@@ -25,8 +26,12 @@ func NotFound(w http.ResponseWriter, r *http.Request) {
 }
 
 func StandardTemplate(filepaths ...string) (*template.Template, error) {
-	paths := append(filepaths, "templates/footer.tmpl",
-		"templates/metatags.tmpl", "templates/logo.tmpl")
-	t, err := template.ParseFiles(paths...)
+
+	files, _ := ioutil.ReadDir("./templates")
+	for _, f := range files {
+		filepaths = append(filepaths, "templates/"+f.Name())
+	}
+
+	t, err := template.ParseFiles(filepaths...)
 	return t, err
 }
