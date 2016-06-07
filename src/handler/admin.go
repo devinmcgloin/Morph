@@ -41,6 +41,10 @@ func LoginDisplay(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 	log.Printf("Entering login display")
 
+	if auth.LoggedIn(r) {
+		http.Redirect(w, r, "/morph/dashboard", 301)
+	}
+
 	path := "views/morph/login.tmpl"
 
 	t, err := StandardTemplate(path)

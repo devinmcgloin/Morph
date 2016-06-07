@@ -215,3 +215,45 @@ pre > code {
   margin-left: auto;
   margin-right: auto;
 }
+
+
+input[type=text], input[type=password] {
+  margin: .5rem;
+  padding: .2rem;
+  border: none;
+  background-color: #ededed;
+  color: black;
+  width: 50%;
+}
+
+input[type=file], input[type=submit] {
+  margin: .5rem;
+  padding: .4rem;
+  border-radius: 4px;
+  background-color: #ededed;
+  border: none;
+  width: 50%;
+}
+
+::-webkit-input-placeholder {
+   color: black;
+   text-align: center;
+}
+
+:-moz-placeholder { /* Firefox 18- */
+   color: black;
+   text-align: center;
+
+}
+
+::-moz-placeholder {  /* Firefox 19+ */
+   color: black;
+   text-align: center;
+
+}
+
+:-ms-input-placeholder {
+   color: black;
+   text-align: center;
+
+}

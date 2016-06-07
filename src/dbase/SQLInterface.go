@@ -1,18 +1,18 @@
 package dbase
 
 import (
-	"time"
+	"strings"
 
 	"github.com/devinmcgloin/morph/src/env"
 	"github.com/devinmcgloin/morph/src/schema"
-	"github.com/go-ozzo/ozzo-dbx"
+	"github.com/jmoiron/sqlx"
 
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql" // Drives we have to import to use database/sql
 
 	"log"
 )
 
-var db *dbx.DB
+var db *sqlx.DB
 
 // SetDB returns a reference to a sql.DB object. It's best to keep these long lived.
 func SetDB() error {
@@ -20,16 +20,11 @@ func SetDB() error {
 
 	var err error
 	// Create the database handle, confirm driver is
-	db, err = dbx.Open("mysql", env.Getenv("DB_URL", "root:@/morph"))
+	db, err = sqlx.Connect("mysql", env.Getenv("DB_URL", "root:@/morph")+"?parseTime=true")
 	if err != nil {
 		log.Print(err)
 		return err
 	}
-	err = db.DB().Ping()
-	if err != nil {
-		log.Fatal("Error connecting to db, ping failed.")
-	}
-	log.Printf("Database successfully launched with %s driver.", db.DriverName())
 	return nil
 }
 
@@ -37,12 +32,9 @@ func GetImg(iID string) (schema.Img, error) {
 
 	var img schema.Img
 
-	sql := "SELECT i_id, i_title, i_desc, i_url, i_category, i_fstop, i_shutter_speed, i_fov, i_iso, i_publish_date name FROM images WHERE i_id={:iID}"
-
-	q := db.NewQuery(sql)
-	err := q.Bind(dbx.Params{"iID": iID}).One(&img)
+	err := db.Get(&img, "SELECT * FROM images WHERE i_id = ?", iID)
 	if err != nil {
-		return schema.Img{}, err
+		return schema.Img{}, nil
 	}
 
 	log.Printf("Image: %v", img)
@@ -51,28 +43,27 @@ func GetImg(iID string) (schema.Img, error) {
 }
 
 func AddImg(img schema.Img) error {
-	tx, err := db.Begin()
-	if err != nil {
-		return err
-	}
 
-	_, err = tx.Insert("images", dbx.Params{
-		"i_title":         img.Title,
-		"i_desc":          img.Desc,
-		"i_url":           img.URL,
-		"i_category":      img.Category,
-		"i_fstop":         img.FStop,
-		"i_shutter_speed": img.ShutterSpeed,
-		"i_fov":           img.FOV,
-		"i_iso":           img.ISO,
-		"i_publish_date":  time.Now(),
-	}).Execute()
+	_, err := db.NamedExec(`
+		INSERT INTO images (i_id, i_title, i_desc, i_url, i_category, i_fstop, i_shutter_speed, i_fov, i_iso, i_publish_date)
+			VALUES (:id, :title, :desc, :url, :category, :fstop, :shutter, :fov, :iso, :publish_date)`,
+		map[string]interface{}{
+			"id":           img.IID,
+			"title":        img.Title,
+			"desc":         img.Desc,
+			"url":          img.URL,
+			"category":     img.Category,
+			"fstop":        img.FStop,
+			"shutter":      img.ShutterSpeed,
+			"fov":          img.FOV,
+			"iso":          img.ISO,
+			"publish_date": img.PublishDate,
+		})
 	if err != nil {
-		tx.Rollback()
 		return err
 	}
-	tx.Commit()
 	return nil
+
 }
 
 func GetCategory(collectionTag string) (schema.ImgCollection, error) {
@@ -80,17 +71,14 @@ func GetCategory(collectionTag string) (schema.ImgCollection, error) {
 
 	var images []schema.Img
 
-	sql := "SELECT i_id, i_title, i_desc, i_url, i_category, i_fstop, i_shutter_speed, i_fov, i_iso, i_publish_date name FROM images WHERE i_category={:category}"
-
-	q := db.NewQuery(sql)
-	err := q.Bind(dbx.Params{"category": collectionTag}).All(&images)
+	err := db.Select(&images, "SELECT * FROM images WHERE i_category = ?", collectionTag)
 	if err != nil {
 		return schema.ImgCollection{}, err
 	}
 
 	collectionPage.Images = images
 	collectionPage.NumImg = len(collectionPage.Images)
-	collectionPage.Title = "Morph"
+	collectionPage.Title = collectionTag
 	return collectionPage, nil
 }
 
@@ -99,18 +87,21 @@ func GetAllImgs() (schema.ImgCollection, error) {
 
 	var images []schema.Img
 
-	sql := "SELECT i_id, i_title, i_desc, i_url, i_category, i_fstop, i_shutter_speed, i_fov, i_iso, i_publish_date name FROM images ORDER BY i_publish_date DESC"
-
-	q := db.NewQuery(sql)
-	err := q.All(&images)
+	err := db.Select(&images, "SELECT * FROM images ORDER BY i_publish_date DESC")
 	if err != nil {
 		return schema.ImgCollection{}, err
 	}
-
-	log.Printf("Length of all Images = %d", len(images))
 
 	collectionPage.Images = images
 	collectionPage.NumImg = len(collectionPage.Images)
 	collectionPage.Title = "Morph"
 	return collectionPage, nil
+}
+
+func generateQuestionMarks(num int) string {
+	var qs []string
+	for i := 0; i < num; i++ {
+		qs = append(qs, "?")
+	}
+	return strings.Join(qs, ", ")
 }

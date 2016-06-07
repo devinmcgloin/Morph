@@ -25,8 +25,6 @@ func IndexHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 // PictureHandler handles the page for individual pictures.
 func PictureHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	log.Print("Picture Handler")
-	log.Printf("url_p = %s", r.URL.Path)
 	title := ps.ByName("i_id")
 	Img, err := dbase.GetImg(title)
 	if err != nil {
@@ -34,7 +32,6 @@ func PictureHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 		http.Error(w, http.StatusText(500), 500)
 		return
 	}
-	log.Printf("page_t= %s", title)
 
 	t, err := StandardTemplate("views/content/image.tmpl")
 	if err != nil {

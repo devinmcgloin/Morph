@@ -5,6 +5,7 @@ import (
 	"log"
 	"mime/multipart"
 	"net/http"
+	"time"
 
 	"github.com/devinmcgloin/morph/src/dbase"
 	"github.com/devinmcgloin/morph/src/schema"
@@ -17,9 +18,10 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	var err error
 
 	Img := schema.Img{
-		Title:    r.FormValue("Title"),
-		Desc:     r.FormValue("Desc"),
-		Category: r.FormValue("Category"),
+		Title:       r.FormValue("Title"),
+		Desc:        r.FormValue("Desc"),
+		Category:    r.FormValue("Category"),
+		PublishDate: time.Now(),
 	}
 
 	for _, fheaders := range r.MultipartForm.File {
@@ -62,6 +64,6 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 		http.Error(w, http.StatusText(500), 500)
 		return
 	}
-	http.Redirect(w, r, "/morph/manage", 302)
+	http.Redirect(w, r, "/morph/upload", 302)
 
 }
