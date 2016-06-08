@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/devinmcgloin/morph/src/dbase"
-	"github.com/devinmcgloin/morph/src/schema"
+	"github.com/devinmcgloin/morph/src/content"
+	"github.com/devinmcgloin/morph/src/storage"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -17,11 +17,15 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 
 	var err error
 
-	Img := schema.Img{
+	img := content.Img{
 		Title:       r.FormValue("Title"),
 		Desc:        r.FormValue("Desc"),
-		Album:       r.FormValue("Category"),
+		Album:       r.FormValue("Album"),
 		PublishTime: time.Now(),
+	}
+
+	source := content.ImgSource{
+		Size: "orig",
 	}
 
 	for _, fheaders := range r.MultipartForm.File {
@@ -46,24 +50,29 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 				return
 			}
 
-			var URL string
-			URL, err = dbase.UploadImageAWS(buf.Bytes(), written, hdr.Filename, "morph-content", "us-east-1")
+			source.URL, err = storage.UploadImageAWS(buf.Bytes(), written, hdr.Filename, "morph-content", "us-east-1")
 			if err != nil {
 				log.Printf("Error while uploading image %s", err)
 				http.Error(w, http.StatusText(500), 500)
 				return
 			}
-			log.Printf(URL)
+
 		}
 	}
-
-	log.Printf("%v", Img)
-	err = dbase.AddImg(Img)
+	err = content.AddImg(img)
 	if err != nil {
 		log.Printf("Error while adding image to DB %s", err)
 		http.Error(w, http.StatusText(500), 500)
 		return
 	}
+
+	err = content.AddSrc(source)
+	if err != nil {
+		log.Printf("Error while adding image to DB %s", err)
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
 	http.Redirect(w, r, "/morph/upload", 302)
 
 }

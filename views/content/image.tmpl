@@ -10,11 +10,11 @@
       <div class="container">
         {{ template "logo" }}
 
-         <h2>{{.Title}}</h2>
-         <p>{{.Desc}} - {{.Category}}</p>
-         <p>{{.PublishDate.Format "2006 Jan 02" }}</p>
-         <img class="photo-feature" src={{.URL}}>
-         <p>f/{{.FStop}} 1/{{.ShutterSpeed}} sec {{.FOV}}mm ISO {{.ISO}}</p>
+         <h2>{{.Img.Title}}</h2>
+         <p>{{.Img.Desc}} - {{.Img.Album}}</p>
+         <p>{{.Img.PublishTime.Format "2006 Jan 02" }}</p>
+         <img class="photo-feature" src={{.Src.URL}}>
+         <p>f/{{.Img.Aperture}} 1/{{.Img.ExposureTime}} sec {{.Img.FocalLength}}mm ISO {{.Img.ISO}}</p>
 
       </div>
    </body>

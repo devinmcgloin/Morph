@@ -7,7 +7,7 @@ import (
 
 	"github.com/devinmcgloin/morph/src/api"
 	"github.com/devinmcgloin/morph/src/auth"
-	"github.com/devinmcgloin/morph/src/dbase"
+	"github.com/devinmcgloin/morph/src/content"
 	"github.com/devinmcgloin/morph/src/handler"
 	"github.com/julienschmidt/httprouter"
 )
@@ -40,7 +40,7 @@ func main() {
 
 	router.ServeFiles("/assets/*filepath", http.Dir("assets/"))
 
-	dbase.SetDB()
+	content.SetDB()
 
 	http.ListenAndServe(":"+port, router)
 }

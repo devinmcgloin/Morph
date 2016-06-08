@@ -48,16 +48,16 @@ CREATE TABLE IF NOT EXISTS users
 `
 
 var sourceSchema = `
-CREATE TABLE IF NOT EXISTS source
+CREATE TABLE IF NOT EXISTS sources
   (
      s_id         INT NOT NULL auto_increment,
      i_id         INT DEFAULT NULL,
-     i_url        TEXT DEFAULT NULL,
-     u_resolution INT DEFAULT NULL,
-     u_width      INT DEFAULT NULL,
-	 s_length 	  INT DEFAULT NULL,
-	 s_size       INT DEFAULT 0,
-	 s_file_type  INT DEFAULT NULL,
+     s_url        TEXT DEFAULT NULL,
+     s_resolution INT DEFAULT NULL,
+     s_width      INT DEFAULT NULL,
+		 s_height 	  INT DEFAULT NULL,
+		 s_size       TEXT DEFAULT NULL,
+		 s_file_type  TEXT DEFAULT NULL,
      PRIMARY KEY(s_id)
   );
 `
