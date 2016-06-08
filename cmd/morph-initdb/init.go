@@ -1,12 +1,11 @@
 package main
 
 import (
+	"github.com/devinmcgloin/morph/src/env"
 	_ "github.com/go-sql-driver/mysql" // want sql drivers to init, work with the database/sql package.
 	"github.com/jmoiron/sqlx"
 
 	"log"
-
-	"github.com/devinmcgloin/morph/src/env"
 )
 
 var imageSchema = `
@@ -51,13 +50,13 @@ var sourceSchema = `
 CREATE TABLE IF NOT EXISTS sources
   (
      s_id         INT NOT NULL auto_increment,
-     i_id         INT DEFAULT NULL,
-     s_url        TEXT DEFAULT NULL,
+     i_id         INT NOT NULL,
+     s_url        TEXT NOT NULL,
      s_resolution INT DEFAULT NULL,
      s_width      INT DEFAULT NULL,
-		 s_height 	  INT DEFAULT NULL,
-		 s_size       TEXT DEFAULT NULL,
-		 s_file_type  TEXT DEFAULT NULL,
+     s_height 	  INT DEFAULT NULL,
+     s_size       TEXT DEFAULT NULL,
+     s_file_type  TEXT DEFAULT NULL,
      PRIMARY KEY(s_id)
   );
 `

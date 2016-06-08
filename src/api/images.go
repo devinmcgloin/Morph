@@ -1,10 +1,10 @@
-package content
+package api
 
-func (img Img) GetLocation() Location {
+func GetLocation(img Img) Location {
 	return Location{}
 }
 
-func (img Img) GetImageUrl(kind string) (ImgSource, error) {
+func GetImageUrl(img Img, kind string) (ImgSource, error) {
 	var origImg ImgSource
 
 	imageID := img.ID
@@ -77,40 +77,10 @@ func AddImg(img Img) error {
 	return nil
 }
 
-func GetAlbum(albumTag string) (ImgCollection, error) {
-	var collectionPage ImgCollection
+func GetAlbum(albumTag string, size string) (ImgCollection, error) {
 
-	var images []Img
-	var sources []ImgSource
-
-	err := db.Select(&images, "SELECT * FROM images WHERE i_album = ?", albumTag)
-	if err != nil {
-		return ImgCollection{}, err
-	}
-
-	err := db.Select(&images, "SELECT * FROM sources WHERE i_album = ?", albumTag)
-	if err != nil {
-		return ImgCollection{}, err
-	}
-
-	collectionPage.Images = images
-	collectionPage.NumImg = len(collectionPage.Images)
-	collectionPage.Title = albumTag
-	return collectionPage, nil
 }
 
-func GetAllImgs() (ImgCollection, error) {
-	var collectionPage ImgCollection
+func GetNumMostRecentImg(limit int) (ImgCollection, error) {
 
-	var images []Img
-
-	err := db.Select(&images, "SELECT * FROM images ORDER BY i_publish_time DESC")
-	if err != nil {
-		return ImgCollection{}, err
-	}
-
-	collectionPage.Images = images
-	collectionPage.NumImg = len(collectionPage.Images)
-	collectionPage.Title = "Morph"
-	return collectionPage, nil
 }

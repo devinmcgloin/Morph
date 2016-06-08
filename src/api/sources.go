@@ -1,4 +1,4 @@
-package content
+package api
 
 import "log"
 
@@ -32,5 +32,9 @@ func AddSrc(src ImgSource) error {
 		log.Println(err)
 		return err
 	}
+	return nil
+}
+
+func GetSrc(srcId string) error {
 	return nil
 }

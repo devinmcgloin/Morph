@@ -1,4 +1,4 @@
-package api
+package endpoint
 
 import (
 	"bytes"
@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/devinmcgloin/morph/src/content"
-	"github.com/devinmcgloin/morph/src/storage"
+	"github.com/devinmcgloin/morph/src/api"
+	"github.com/devinmcgloin/morph/src/api/AWS"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -17,7 +17,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 
 	var err error
 
-	img := content.Img{
+	img := api.Img{
 		Title:       r.FormValue("Title"),
 		Desc:        r.FormValue("Desc"),
 		Album:       r.FormValue("Album"),
@@ -25,7 +25,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 		CaptureTime: time.Now(),
 	}
 
-	source := content.ImgSource{
+	source := api.ImgSource{
 		Size: "orig",
 	}
 
@@ -51,7 +51,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 				return
 			}
 
-			source.URL, err = storage.UploadImageAWS(buf.Bytes(), written, hdr.Filename, "morph-content", "us-east-1")
+			Source.Url, err = AWS.UploadImageAWS(buf.Bytes(), written, hdr.Filename, "morph-content", "us-east-1")
 			if err != nil {
 				log.Printf("Error while uploading image %s", err)
 				http.Error(w, http.StatusText(500), 500)
@@ -60,14 +60,14 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 
 		}
 	}
-	err = content.AddImg(img)
+	err = api.AddImg(img)
 	if err != nil {
 		log.Printf("Error while adding image to DB %s", err)
 		http.Error(w, http.StatusText(500), 500)
 		return
 	}
 
-	err = content.AddSrc(source)
+	err = api.AddSrc(source)
 	if err != nil {
 		log.Printf("Error while adding image to DB %s", err)
 		http.Error(w, http.StatusText(500), 500)

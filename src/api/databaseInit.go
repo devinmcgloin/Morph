@@ -1,4 +1,4 @@
-package content
+package api
 
 import (
 	"github.com/devinmcgloin/morph/src/env"

@@ -1,4 +1,4 @@
-package content
+package api
 
 import "time"
 
@@ -47,11 +47,4 @@ type ImgSource struct {
 
 type User struct {
 	ID int `db:"u_id"`
-}
-
-// ImgCollection includes a title and collection of Images.
-type ImgCollection struct {
-	Title  string
-	NumImg int
-	Images []Img
 }

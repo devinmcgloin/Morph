@@ -6,9 +6,7 @@ import (
 	"os"
 
 	"github.com/devinmcgloin/morph/src/api"
-	"github.com/devinmcgloin/morph/src/auth"
-	"github.com/devinmcgloin/morph/src/content"
-	"github.com/devinmcgloin/morph/src/handler"
+	"github.com/devinmcgloin/morph/src/api/endpoint"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -25,22 +23,17 @@ func main() {
 
 	router := httprouter.New()
 
-	router.NotFound = http.HandlerFunc(handler.NotFound)
-
 	log.Printf("Serving at http://localhost:%s", port)
 
-	router.GET("/", handler.IndexHandler)
-	router.GET("/p/:i_id", handler.PictureHandler)
-	router.GET("/album/:album", handler.CategoryHandler)
-	router.POST("/api/upload", api.UploadHandler)
-	router.GET("/morph", handler.LoginDisplay)
-	router.GET("/morph/:page", handler.AdminHandler)
-
-	router.POST("/api/auth", auth.LoginHandler)
+	router.POST("/api/v0/upload", endpoint.UploadHandler)
+	router.POST("/api/v0/auth", endpoint.LoginHandler)
+	router.POST("/api/v0/users/:user", endpoint.UserHandler)
+	router.POST("/api/v0/photos/:p_id", endpoint.ImageHandler)
 
 	router.ServeFiles("/assets/*filepath", http.Dir("assets/"))
 
-	content.SetDB()
+	api.SetDB()
 
-	http.ListenAndServe(":"+port, router)
+	log.Fatal(http.ListenAndServe(":"+port, router))
+
 }

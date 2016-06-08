@@ -1,4 +1,4 @@
-package auth
+package endpoint
 
 import (
 	"net/http"
