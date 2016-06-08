@@ -26,10 +26,10 @@ func AddSrc(src ImgSource) error {
 	return nil
 }
 
-func GetImageUrl(img Img, kind string) (ImgSource, error) {
+func GetImageUrl(iID uint64, kind string) (ImgSource, error) {
 	var origImg ImgSource
 
-	err := db.Get(&origImg, "SELECT * FROM sources WHERE i_id = ?, s_size = ?", img.IID, kind)
+	err := db.Get(&origImg, "SELECT * FROM sources WHERE i_id = ?, s_size = ?", iID, kind)
 	if err != nil {
 		return ImgSource{}, err
 	}

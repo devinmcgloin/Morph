@@ -5,12 +5,11 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/devinmcgloin/morph/src/api"
+	"github.com/devinmcgloin/morph/src/api/SQL"
 	"github.com/devinmcgloin/morph/src/api/endpoint"
-
-	"github.com/devinmcgloin/morph/src/viewHandler/editView"
-	"github.com/devinmcgloin/morph/src/viewHandler/publicView"
-	"github.com/devinmcgloin/morph/src/viewHandler/settings"
+	"github.com/devinmcgloin/morph/src/views/editView"
+	"github.com/devinmcgloin/morph/src/views/publicView"
+	"github.com/devinmcgloin/morph/src/views/settings"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -57,7 +56,7 @@ func main() {
 	// ASSETS
 	router.ServeFiles("/assets/*filepath", http.Dir("assets/"))
 
-	api.InitializeDataStores()
+	SQL.SetDB()
 
 	log.Fatal(http.ListenAndServe(":"+port, router))
 

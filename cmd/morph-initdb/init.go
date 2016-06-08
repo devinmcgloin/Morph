@@ -78,13 +78,13 @@ CREATE TABLE IF NOT EXISTS locations
 var albumSchema = `
 CREATE TABLE IF NOT EXISTS albums
   (
-     a_id   INT NOT NULL auto_increment,
-     u_id   INT NOT NULL,
-		 a_desc TEXT DEFAULT NULL,
-     a_title  TEXT DEFAULT NULL,
-     a_viewType  TEXT DEFAULT NULL,
+     a_id       INT NOT NULL auto_increment,
+     u_id       INT NOT NULL,
+     a_desc     TEXT DEFAULT NULL,
+     a_title    TEXT DEFAULT NULL,
+     a_viewtype TEXT DEFAULT NULL,
      PRIMARY KEY(a_id)
-  );
+  ); 
 `
 
 func main() {

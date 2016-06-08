@@ -1,6 +1,6 @@
 package SQL
 
-func GetImg(iID string) (Img, error) {
+func GetImg(iID uint64) (Img, error) {
 
 	var img Img
 
