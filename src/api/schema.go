@@ -4,7 +4,7 @@ import "time"
 
 // Img contains all the proper information for rendering a single photo
 type Img struct {
-	ID           int       `db:"i_id"`
+	IID          int       `db:"i_id"`
 	Title        string    `db:"i_title"`
 	Desc         string    `db:"i_desc"`
 	Aperture     int       `db:"i_aperture"`
@@ -17,12 +17,12 @@ type Img struct {
 	TagOne       string    `db:"i_tag_1"`
 	TagTwo       string    `db:"i_tag_2"`
 	TagThree     string    `db:"i_tag_3"`
-	Album        string    `db:"i_album"`
+	AID          int       `db:"a_id"`
 	CaptureTime  time.Time `db:"i_capture_time"`
 	PublishTime  time.Time `db:"i_publish_time"`
 	ImgDirection float64   `db:"i_direction"`
-	User         int       `db:"u_id"`
-	Location     int       `db:"l_id"`
+	UID          int       `db:"u_id"`
+	LID          int       `db:"l_id"`
 }
 
 type Location struct {
@@ -35,7 +35,7 @@ type Location struct {
 // ImgSource includes the information about the image itself.
 // Size indicates how large the image is.
 type ImgSource struct {
-	ID         int    `db:"s_id"`
+	SID        int    `db:"s_id"`
 	IID        int    `db:"i_id"`
 	URL        string `db:"s_url"`
 	Resolution int    `db:"s_resolution"`
@@ -46,5 +46,20 @@ type ImgSource struct {
 }
 
 type User struct {
-	ID int `db:"u_id"`
+	UID       int    `db:"u_id"`
+	Usernmae  string `db:"u_username"`
+	Email     string `db:"u_email"`
+	FirstName string `db:"u_first_name"`
+	LastName  string `db:"u_first_name"`
+	Bio       string `db:"u_bio"`
+	LID       int    `db:"u_loc"`
+	AvatarURL string `db:"u_avatar_url"`
+}
+
+type Album struct {
+	AID      int    `db:"a_id"`
+	UID      int    `db:"u_id"`
+	Desc     string `db:"a_desc"`
+	Title    string `db:"a_title"`
+	ViewType string `db:"a_view_type"`
 }

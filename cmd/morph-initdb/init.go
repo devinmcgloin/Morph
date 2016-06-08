@@ -42,6 +42,9 @@ CREATE TABLE IF NOT EXISTS users
      u_email      TEXT DEFAULT NULL,
      u_first_name TEXT DEFAULT NULL,
      u_last_name  TEXT DEFAULT NULL,
+		 u_bio        TEXT DEFAULT NULL,
+		 u_avatar_url TEXT DEFAULT NULL,
+		 l_id         INT DEFAULT NULL,
      PRIMARY KEY(u_id)
   );
 `
@@ -72,6 +75,18 @@ CREATE TABLE IF NOT EXISTS locations
   );
 `
 
+var albumSchema = `
+CREATE TABLE IF NOT EXISTS albums
+  (
+     a_id   INT NOT NULL auto_increment,
+     u_id   INT NOT NULL,
+		 a_desc TEXT DEFAULT NULL,
+     a_title  TEXT DEFAULT NULL,
+     a_viewType  TEXT DEFAULT NULL,
+     PRIMARY KEY(a_id)
+  );
+`
+
 func main() {
 	log.Println("Connecting to db...")
 
@@ -94,6 +109,8 @@ func main() {
 	db.MustExec(sourceSchema)
 
 	db.MustExec(locationSchema)
+
+	db.MustExec(albumSchema)
 
 	log.Println("Tables Initialized")
 

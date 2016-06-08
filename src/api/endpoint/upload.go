@@ -20,7 +20,6 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	img := api.Img{
 		Title:       r.FormValue("Title"),
 		Desc:        r.FormValue("Desc"),
-		Album:       r.FormValue("Album"),
 		PublishTime: time.Now(),
 		CaptureTime: time.Now(),
 	}
@@ -51,7 +50,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 				return
 			}
 
-			Source.Url, err = AWS.UploadImageAWS(buf.Bytes(), written, hdr.Filename, "morph-content", "us-east-1")
+			source.URL, err = AWS.UploadImageAWS(buf.Bytes(), written, hdr.Filename, "morph-content", "us-east-1")
 			if err != nil {
 				log.Printf("Error while uploading image %s", err)
 				http.Error(w, http.StatusText(500), 500)
