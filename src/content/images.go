@@ -48,11 +48,9 @@ func AddImg(img Img) error {
 				i_album,
 				i_capture_time,
 				i_publish_time,
-				i_lat,
-				i_lon,
 				i_direction,
-				i_loc,
-				i_user)
+				l_id,
+				u_id)
 		VALUES (
 			:i_id,
 			:i_title,
@@ -70,32 +68,9 @@ func AddImg(img Img) error {
 			:i_album,
 			:i_capture_time,
 			:i_publish_time,
-			:i_lat,
-			:i_lon,
 			:i_direction,
-			:i_loc,
-			:i_user)`,
-		map[string]interface{}{
-			":i_id":            img.ID,
-			":i_title":         img.Title,
-			":i_desc":          img.Desc,
-			":i_aperture":      img.Aperture,
-			":i_exposure_time": img.ExposureTime,
-			":i_focal_length":  img.FocalLength,
-			":i_iso":           img.ISO,
-			":i_orientation":   img.Orientation,
-			":i_camera_body":   img.CameraBody,
-			":i_lens":          img.Lens,
-			":i_tag_1":         img.TagOne,
-			":i_tag_2":         img.TagTwo,
-			":i_tag_3":         img.TagThree,
-			":i_album":         img.Album,
-			":i_capture_time":  img.CaptureTime,
-			":i_publish_time":  img.PublishTime,
-			":i_direction":     img.ImgDirection,
-			":l_loc":           img.Location,
-			":u_id":            img.User,
-		})
+			:l_id,
+			:u_id)`, img)
 	if err != nil {
 		return err
 	}
@@ -106,8 +81,14 @@ func GetAlbum(albumTag string) (ImgCollection, error) {
 	var collectionPage ImgCollection
 
 	var images []Img
+	var sources []ImgSource
 
 	err := db.Select(&images, "SELECT * FROM images WHERE i_album = ?", albumTag)
+	if err != nil {
+		return ImgCollection{}, err
+	}
+
+	err := db.Select(&images, "SELECT * FROM sources WHERE i_album = ?", albumTag)
 	if err != nil {
 		return ImgCollection{}, err
 	}

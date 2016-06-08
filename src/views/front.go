@@ -1,4 +1,4 @@
-package handler
+package views
 
 import (
 	"log"
@@ -11,6 +11,13 @@ import (
 type page struct {
 	Img content.Img
 	Src content.ImgSource
+}
+
+type collection struct {
+	Title   string
+	NumImg  int
+	Images  []content.Img
+	Sources []content.ImgSource
 }
 
 // IndexHandler handles the index page which is a grid of pictures
@@ -71,7 +78,7 @@ func CategoryHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 	renderCollection(w, collection)
 }
 
-func renderCollection(w http.ResponseWriter, collection content.ImgCollection) {
+func renderCollection(w http.ResponseWriter, collection collection) {
 
 	t, err := StandardTemplate("views/content/collection.tmpl")
 	if err != nil {

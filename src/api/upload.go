@@ -22,6 +22,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 		Desc:        r.FormValue("Desc"),
 		Album:       r.FormValue("Album"),
 		PublishTime: time.Now(),
+		CaptureTime: time.Now(),
 	}
 
 	source := content.ImgSource{
