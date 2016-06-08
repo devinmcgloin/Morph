@@ -20,8 +20,8 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	Img := schema.Img{
 		Title:       r.FormValue("Title"),
 		Desc:        r.FormValue("Desc"),
-		Category:    r.FormValue("Category"),
-		PublishDate: time.Now(),
+		Album:       r.FormValue("Category"),
+		PublishTime: time.Now(),
 	}
 
 	for _, fheaders := range r.MultipartForm.File {
@@ -53,7 +53,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 				http.Error(w, http.StatusText(500), 500)
 				return
 			}
-			Img.URL = URL
+			log.Printf(URL)
 		}
 	}
 

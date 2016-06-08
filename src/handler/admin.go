@@ -19,7 +19,7 @@ func AdminHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 		return
 	}
 
-	page := ps.ByName("type")
+	page := ps.ByName("page")
 	path := fmt.Sprintf("views/morph/%s.tmpl", page)
 
 	t, err := StandardTemplate(path)

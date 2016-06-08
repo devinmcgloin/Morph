@@ -1,5 +1,5 @@
 
-# Created by https://www.gitignore.io/api/osx,go
+# Created by https://www.gitignore.io/api/osx,go,vim
 
 ### OSX ###
 *.DS_Store
@@ -54,3 +54,16 @@ _testmain.go
 *.exe
 *.test
 *.prof
+
+
+### Vim ###
+# swap
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
+# session
+Session.vim
+# temporary
+.netrwhist
+*~
+# auto-generated tag files
+tags

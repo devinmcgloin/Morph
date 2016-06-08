@@ -1,8 +1,6 @@
 package dbase
 
 import (
-	"strings"
-
 	"github.com/devinmcgloin/morph/src/env"
 	"github.com/devinmcgloin/morph/src/schema"
 	"github.com/jmoiron/sqlx"
@@ -45,40 +43,91 @@ func GetImg(iID string) (schema.Img, error) {
 func AddImg(img schema.Img) error {
 
 	_, err := db.NamedExec(`
-		INSERT INTO images (i_id, i_title, i_desc, i_url, i_category, i_fstop, i_shutter_speed, i_fov, i_iso, i_publish_date)
-			VALUES (:id, :title, :desc, :url, :category, :fstop, :shutter, :fov, :iso, :publish_date)`,
+			INSERT INTO images (
+				i_id,
+				i_title,
+				i_desc,
+				i_aperture,
+				i_exposure_time,
+				i_focal_length,
+				i_iso,
+				i_orientation,
+				i_camera_body,
+				i_lens,
+				i_tag_1,
+				i_tag_2,
+				i_tag_3,
+				i_album,
+				i_capture_time,
+				i_publish_time,
+				i_lat,
+				i_lon,
+				i_direction,
+				i_loc,
+				i_user)
+		VALUES (
+			:i_id,
+			:i_title,
+			:i_desc,
+			:i_aperture,
+			:i_exposure_time,
+			:i_focal_length,
+			:i_iso,
+			:i_orientation,
+			:i_camera_body,
+			:i_lens,
+			:i_tag_1,
+			:i_tag_2,
+			:i_tag_3,
+			:i_album,
+			:i_capture_time,
+			:i_publish_time,
+			:i_lat,
+			:i_lon,
+			:i_direction,
+			:i_loc,
+			:i_user)`,
 		map[string]interface{}{
-			"id":           img.IID,
-			"title":        img.Title,
-			"desc":         img.Desc,
-			"url":          img.URL,
-			"category":     img.Category,
-			"fstop":        img.FStop,
-			"shutter":      img.ShutterSpeed,
-			"fov":          img.FOV,
-			"iso":          img.ISO,
-			"publish_date": img.PublishDate,
+			":i_id":            img.ID,
+			":i_title":         img.Title,
+			":i_desc":          img.Desc,
+			":i_aperture":      img.Aperture,
+			":i_exposure_time": img.ExposureTime,
+			":i_focal_length":  img.FocalLength,
+			":i_iso":           img.ISO,
+			":i_orientation":   img.Orientation,
+			":i_camera_body":   img.CameraBody,
+			":i_lens":          img.Lens,
+			":i_tag_1":         img.TagOne,
+			":i_tag_2":         img.TagTwo,
+			":i_tag_3":         img.TagThree,
+			":i_album":         img.Album,
+			":i_capture_time":  img.CaptureTime,
+			":i_publish_time":  img.PublishTime,
+			":i_direction":     img.ImgDirection,
+			":l_loc":           img.Location,
+			":u_user":          img.User,
 		})
+	log.Printf("DB Error Type = %s", err.Error())
 	if err != nil {
 		return err
 	}
 	return nil
-
 }
 
-func GetCategory(collectionTag string) (schema.ImgCollection, error) {
+func GetAlbum(albumTag string) (schema.ImgCollection, error) {
 	var collectionPage schema.ImgCollection
 
 	var images []schema.Img
 
-	err := db.Select(&images, "SELECT * FROM images WHERE i_category = ?", collectionTag)
+	err := db.Select(&images, "SELECT * FROM images WHERE i_album = ?", albumTag)
 	if err != nil {
 		return schema.ImgCollection{}, err
 	}
 
 	collectionPage.Images = images
 	collectionPage.NumImg = len(collectionPage.Images)
-	collectionPage.Title = collectionTag
+	collectionPage.Title = albumTag
 	return collectionPage, nil
 }
 
@@ -96,12 +145,4 @@ func GetAllImgs() (schema.ImgCollection, error) {
 	collectionPage.NumImg = len(collectionPage.Images)
 	collectionPage.Title = "Morph"
 	return collectionPage, nil
-}
-
-func generateQuestionMarks(num int) string {
-	var qs []string
-	for i := 0; i < num; i++ {
-		qs = append(qs, "?")
-	}
-	return strings.Join(qs, ", ")
 }

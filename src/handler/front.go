@@ -49,8 +49,8 @@ func PictureHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 }
 
 func CategoryHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	category := ps.ByName("category")
-	collection, err := dbase.GetCategory(category)
+	album := ps.ByName("album")
+	collection, err := dbase.GetAlbum(album)
 	if err != nil {
 		log.Printf("Error while getting all images from DB %s", err)
 		http.Error(w, http.StatusText(500), 500)
