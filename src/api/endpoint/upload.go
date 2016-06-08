@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/devinmcgloin/morph/src/api"
 	"github.com/devinmcgloin/morph/src/api/AWS"
 	"github.com/devinmcgloin/morph/src/api/SQL"
 	"github.com/julienschmidt/httprouter"
@@ -21,14 +20,14 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 
 	var err error
 
-	img := api.Img{
+	img := SQL.Img{
 		Title:       r.FormValue("Title"),
 		Desc:        r.FormValue("Desc"),
 		PublishTime: time.Now(),
 		CaptureTime: time.Now(),
 	}
 
-	source := api.ImgSource{
+	source := SQL.ImgSource{
 		Size: "orig",
 	}
 

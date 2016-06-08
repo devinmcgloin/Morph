@@ -6,4 +6,4 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func AlbumView(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {}
+func LocationView(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {}

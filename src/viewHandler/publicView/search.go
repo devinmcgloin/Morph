@@ -6,4 +6,4 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func Search(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {}
+func SearchView(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {}

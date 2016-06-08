@@ -1,7 +1,5 @@
 package SQL
 
-import "github.com/devinmcgloin/morph/src/api"
-
-func GetLocation(img api.Img) api.Location {
-	return api.Location{}
+func GetLocation(img Img) Location {
+	return Location{}
 }

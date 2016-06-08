@@ -8,8 +8,9 @@ import (
 	"github.com/devinmcgloin/morph/src/api"
 	"github.com/devinmcgloin/morph/src/api/endpoint"
 
+	"github.com/devinmcgloin/morph/src/viewHandler/editView"
 	"github.com/devinmcgloin/morph/src/viewHandler/publicView"
-	"github.com/devinmcgloin/morph/src/viewHandler/secureView"
+	"github.com/devinmcgloin/morph/src/viewHandler/settings"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -39,24 +40,24 @@ func main() {
 	router.GET("/i/:IID", publicView.FeatureImgView)
 	router.GET("/tag/:tag", publicView.CollectionTagView)
 	router.GET("/tag/:tag/:IID", publicView.CollectionTagFeatureView)
-	router.GET("/album/:AID", publicView.AlbumCollectionView)
+	router.GET("/album/:AID", publicView.AlbumView)
 	router.GET("/u/:UID", publicView.UserProfileView)
 	router.GET("/login", publicView.UserLoginView)
 	router.GET("/loc/:LID", publicView.LocationView)
 	router.GET("/search/*query", publicView.SearchView)
 
 	// CONTENT EDIT ROUTES
-	router.GET("/i/:IID/edit", publicView.FeatureImgEditView)
-	router.GET("/album/:AID/edit", publicView.AlbumCollectionEditView)
-	router.GET("/u/:UID/edit", publicView.UserProfileEditView)
+	router.GET("/i/:IID/edit", editView.FeatureImgEditView)
+	router.GET("/album/:AID/edit", editView.AlbumEditView)
+	router.GET("/u/:UID/edit", editView.UserProfileEditView)
 
 	// BACKEND MANAGE ROUTES
-	router.GET("/settings", secureView.UserSettingsView)
+	router.GET("/settings", settings.UserSettingsView)
 
 	// ASSETS
 	router.ServeFiles("/assets/*filepath", http.Dir("assets/"))
 
-	api.SetDB()
+	api.InitializeDataStores()
 
 	log.Fatal(http.ListenAndServe(":"+port, router))
 
