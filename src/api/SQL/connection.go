@@ -1,4 +1,4 @@
-package api
+package SQL
 
 import (
 	"github.com/devinmcgloin/morph/src/env"

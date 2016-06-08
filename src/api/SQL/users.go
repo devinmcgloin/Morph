@@ -1,5 +1,7 @@
-package api
+package SQL
 
-func AddUser(user User) error {
+import "github.com/devinmcgloin/morph/src/api"
+
+func AddUser(user api.User) error {
 	return nil
 }

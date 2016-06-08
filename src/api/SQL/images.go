@@ -1,18 +1,20 @@
-package api
+package SQL
 
-func GetImg(iID string) (Img, error) {
+import "github.com/devinmcgloin/morph/src/api"
 
-	var img Img
+func GetImg(iID string) (api.Img, error) {
+
+	var img api.Img
 
 	err := db.Get(&img, "SELECT * FROM images WHERE i_id = ?", iID)
 	if err != nil {
-		return Img{}, err
+		return api.Img{}, err
 	}
 
 	return img, nil
 }
 
-func AddImg(img Img) error {
+func AddImg(img api.Img) error {
 
 	_, err := db.NamedExec(`
 			INSERT INTO images *

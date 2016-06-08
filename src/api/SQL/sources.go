@@ -1,8 +1,12 @@
-package api
+package SQL
 
-import "log"
+import (
+	"log"
 
-func AddSrc(src ImgSource) error {
+	"github.com/devinmcgloin/morph/src/api"
+)
+
+func AddSrc(src api.ImgSource) error {
 
 	sql := `
       INSERT INTO sources *
@@ -26,14 +30,14 @@ func AddSrc(src ImgSource) error {
 	return nil
 }
 
-func GetImageUrl(img Img, kind string) (ImgSource, error) {
-	var origImg ImgSource
+func GetImageUrl(img api.Img, kind string) (api.ImgSource, error) {
+	var origImg api.ImgSource
 
 	imageID := img.IID
 
 	err := db.Get(&origImg, "SELECT * FROM sources WHERE i_id = ?, s_size = ?", imageID, kind)
 	if err != nil {
-		return ImgSource{}, err
+		return api.ImgSource{}, err
 	}
 	return origImg, nil
 }

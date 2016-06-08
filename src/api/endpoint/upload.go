@@ -9,9 +9,13 @@ import (
 
 	"github.com/devinmcgloin/morph/src/api"
 	"github.com/devinmcgloin/morph/src/api/AWS"
+	"github.com/devinmcgloin/morph/src/api/SQL"
 	"github.com/julienschmidt/httprouter"
 )
 
+// UploadHandler manages uploading the original file to aws.
+// TODO: In the future it should also spin off worker threads to
+// handle compression, and rendering other sizes for the image.
 func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	r.ParseMultipartForm(32 << 20)
 
@@ -59,14 +63,14 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 
 		}
 	}
-	err = api.AddImg(img)
+	err = SQL.AddImg(img)
 	if err != nil {
 		log.Printf("Error while adding image to DB %s", err)
 		http.Error(w, http.StatusText(500), 500)
 		return
 	}
 
-	err = api.AddSrc(source)
+	err = SQL.AddSrc(source)
 	if err != nil {
 		log.Printf("Error while adding image to DB %s", err)
 		http.Error(w, http.StatusText(500), 500)
