@@ -3,17 +3,23 @@
 <html>
 {{template "head"}}
    <body>
-     {{ template "header" }}
+     {{ template "public-header" }}
       <div class="container">
 
 
-         <h2>{{.FirstName}} {{.UserLastName}}</h2>
-         <p>{{.Bio}}</p>
-         <p>{{.Username}}</p>
+         <h2>{{.FirstName.Value}} {{.LastName.Value}}</h2>
+         <p>{{.Bio.Value}}</p>
+         <p>{{.UserName}}</p>
 
-         
-         <img class="photo-feature" src={{.URL}}>
-         <p>f/{{.Aperture.Value}} 1/{{.ExposureTime.Value}} sec {{.FocalLength.Value}}mm ISO {{.ISO.Value}}</p>
+
+         {{range .Images}}
+         <div class="img">
+           <h2><a href="/p/{{.Img.IID}}">{{.Title.Value}}</a></h2>
+           <p>{{.Desc.Value}}</p>
+
+           <img class="photo" src={{.ImgSource.URL}}>
+         </div>
+         {{end}}
 
       </div>
    </body>

@@ -25,6 +25,4 @@ func SomethingsWrong(w http.ResponseWriter, r *http.Request, outsideError error)
 		http.Error(w, http.StatusText(500), 500)
 		return
 	}
-
-	log.Println("Everything should have worked.")
 }

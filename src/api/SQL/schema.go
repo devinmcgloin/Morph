@@ -57,10 +57,10 @@ type ImgSource struct {
 
 type User struct {
 	UID       uint64         `db:"u_id"`
-	Usernmae  string         `db:"u_username"`
+	UserName  string         `db:"u_username"`
 	Email     string         `db:"u_email"`
-	FirstName string         `db:"u_first_name"`
-	LastName  string         `db:"u_last_name"`
+	FirstName sql.NullString `db:"u_first_name"`
+	LastName  sql.NullString `db:"u_last_name"`
 	Bio       sql.NullString `db:"u_bio"`
 	LID       sql.NullInt64  `db:"u_loc"`
 	AvatarURL string         `db:"u_avatar_url"`
@@ -90,6 +90,8 @@ type SingleImgView struct {
 // ROUTE: /tag/:tag, /search/*query, /loc/:LID, /tag/:tag/:IID
 type CollectionView struct {
 	Images []SingleImgView
+	Query  string
+	Type   string
 }
 
 /// USER VIEW

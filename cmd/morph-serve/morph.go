@@ -56,6 +56,7 @@ func main() {
 
 	// ASSETS
 	router.ServeFiles("/assets/*filepath", http.Dir("assets/"))
+	router.ServeFiles("/content/*filepath", http.Dir("content/"))
 
 	SQL.SetDB()
 

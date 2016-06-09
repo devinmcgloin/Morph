@@ -42,10 +42,13 @@ func AddImg(img Img) error {
 	return nil
 }
 
-// func GetAlbum(albumTag string, size string) (ImgCollection, error) {
-//
-// }
-//
-// func GetNumMostRecentImg(limit int, size string) (ImgCollection, error) {
-//
-// }
+func ExistsIID(IID uint64) bool {
+	var count int
+
+	query := `SELECT count(*) FROM images WHERE i_id = ?`
+	db.Get(&count, query, IID)
+	if count > 0 {
+		return true
+	}
+	return false
+}

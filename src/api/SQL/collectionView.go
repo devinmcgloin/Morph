@@ -59,27 +59,31 @@ func GetCollectionViewByTag(tag string) (CollectionView, error) {
 		log.Println(err)
 		return CollectionView{}, err
 	}
+	tagCollectionView.Query = tag
+	tagCollectionView.Type = "tag"
 
 	return tagCollectionView, nil
 }
 
-func GetCollectionViewByLocation(LID uint64) (CollectionView, error) {
-	var locCollectionView CollectionView
+func GetNumMostRecentImg(limit int, size string) (CollectionView, error) {
+	var imgCollectionView CollectionView
 
+	var images []SingleImgView
 	query := `SELECT * FROM images
-						INNER JOIN users
-						ON images.u_id=users.u_id
-						INNER JOIN sources
-						ON images.i_id=sources.i_id
-						WHERE images.LID = ? AND
-									source.s_size=?`
+					 INNER JOIN users
+					 ON images.u_id=users.u_id
+					 INNER JOIN sources
+					 ON images.i_id=sources.i_id
+					 WHERE sources.s_size=?
+					 ORDER BY images.i_publish_time`
 
-	err := db.Select(&locCollectionView.Images, query, LID, "orig")
+	err := db.Select(&images, query, "orig")
 
 	if err != nil {
 		log.Println(err)
 		return CollectionView{}, err
 	}
 
-	return locCollectionView, nil
+	imgCollectionView.Images = images
+	return imgCollectionView, nil
 }

@@ -2,7 +2,9 @@ package endpoint
 
 import (
 	"bytes"
+	"fmt"
 	"log"
+	"math/rand"
 	"mime/multipart"
 	"net/http"
 	"time"
@@ -20,14 +22,21 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 
 	var err error
 
+	var IID uint64
+
+	IID = uint64(rand.Int63())
+	for !SQL.ExistsIID(IID) {
+		IID = uint64(rand.Int63())
+	}
+
 	img := SQL.Img{
-		Title:       SQL.ToNullString(r.FormValue("Title")),
-		Desc:        SQL.ToNullString(r.FormValue("Desc")),
+		IID:         IID,
 		PublishTime: time.Now(),
 		CaptureTime: time.Now(),
 	}
 
 	source := SQL.ImgSource{
+		IID:  IID,
 		Size: "orig",
 	}
 
@@ -53,7 +62,9 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 				return
 			}
 
-			source.URL, err = AWS.UploadImageAWS(buf.Bytes(), written, hdr.Filename, "morph-content", "us-east-1")
+			filename := fmt.Sprintf("%d_orig.jpg", IID)
+
+			source.URL, err = AWS.UploadImageAWS(buf.Bytes(), written, filename, "morph-content", "us-east-1")
 			if err != nil {
 				log.Printf("Error while uploading image %s", err)
 				http.Error(w, http.StatusText(500), 500)

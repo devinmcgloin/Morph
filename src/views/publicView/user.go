@@ -19,11 +19,13 @@ func UserProfileView(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 		return
 	}
 	log.Printf("Accessing user:%d", uint64(UID))
-	img, err := SQL.GetUserProfileView(uint64(UID))
+	user, err := SQL.GetUserProfileView(uint64(UID))
 	if err != nil {
 		common.SomethingsWrong(w, r, err)
 		return
 	}
+
+	log.Printf("%v", user.Images[0])
 
 	t, err := common.StandardTemplate("templates/pages/userView.tmpl")
 	if err != nil {
@@ -31,7 +33,7 @@ func UserProfileView(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 		return
 	}
 
-	err = t.Execute(w, img)
+	err = t.Execute(w, user)
 	if err != nil {
 		common.SomethingsWrong(w, r, err)
 		return
