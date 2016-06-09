@@ -50,7 +50,7 @@ type User struct {
 	Usernmae  string `db:"u_username"`
 	Email     string `db:"u_email"`
 	FirstName string `db:"u_first_name"`
-	LastName  string `db:"u_first_name"`
+	LastName  string `db:"u_last_name"`
 	Bio       string `db:"u_bio"`
 	LID       uint64 `db:"u_loc"`
 	AvatarURL string `db:"u_avatar_url"`

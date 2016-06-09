@@ -17,10 +17,11 @@ func GetAlbumCollectionView(AID uint64) (AlbumCollectionView, error) {
 		return AlbumCollectionView{}, err
 	}
 
-	//TODO switch to join here
 	var albumImages []SingleImgView
 	query = `SELECT * FROM images
-            WHERE a_id = ?`
+					 INNER JOIN users
+					 ON images.u_id=users.u_id
+           WHERE a_id = ?`
 
 	err = db.Select(&albumImages, query, AID)
 
@@ -39,8 +40,9 @@ func GetCollectionViewByTag(tag string) (CollectionView, error) {
 
 	var tagCollectionView CollectionView
 
-	// TODO switch to join here
 	query := `SELECT * FROM images
+						INNER JOIN users
+						ON images.u_id=users.u_id
 						WHERE images.i_tag_1 = ?
 						OR images.i_tag_2 = ?
 						OR images.i_tag_3 = ?`
@@ -58,8 +60,9 @@ func GetCollectionViewByTag(tag string) (CollectionView, error) {
 func GetCollectionViewByLocation(LID uint64) (CollectionView, error) {
 	var locCollectionView CollectionView
 
-	//TODO switch to join here
 	query := `SELECT * FROM images
+						INNER JOIN users
+						ON images.u_id=users.u_id
 						WHERE images.LID = ?`
 
 	err := db.Select(&locCollectionView.Images, query, LID)

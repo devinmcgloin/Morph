@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS images
      i_tag_1         TEXT DEFAULT NULL,
      i_tag_2         TEXT DEFAULT NULL,
      i_tag_3         TEXT DEFAULT NULL,
-     i_album         TEXT DEFAULT NULL,
+     a_id            TEXT DEFAULT NULL,
      i_capture_time  DATETIME DEFAULT NULL,
      i_publish_time  DATETIME DEFAULT CURRENT_TIMESTAMP,
      i_direction     FLOAT DEFAULT NULL,
@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS albums
      a_title    TEXT DEFAULT NULL,
      a_viewtype TEXT DEFAULT NULL,
      PRIMARY KEY(a_id)
-  ); 
+  );
 `
 
 func main() {

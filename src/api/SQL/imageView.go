@@ -8,7 +8,7 @@ func GetFeatureSingleImgView(IID uint64) (SingleImgView, error) {
 	query := `SELECT * FROM images
 						INNER JOIN users
 						ON images.u_id=users.u_id
-						WHERE images.u_id = ?`
+						WHERE images.i_id = ?`
 
 	err := db.Get(&singleImgView, query, IID)
 
