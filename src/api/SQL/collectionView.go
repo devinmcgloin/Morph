@@ -21,9 +21,12 @@ func GetAlbumCollectionView(AID uint64) (AlbumCollectionView, error) {
 	query = `SELECT * FROM images
 					 INNER JOIN users
 					 ON images.u_id=users.u_id
-           WHERE a_id = ?`
+					 INNER JOIN sources
+					 ON images.i_id=sources.i_id
+           WHERE images.a_id = ? AND
+					 			 sources.s_size=?`
 
-	err = db.Select(&albumImages, query, AID)
+	err = db.Select(&albumImages, query, AID, "orig")
 
 	if err != nil {
 		log.Println(err)
@@ -43,11 +46,14 @@ func GetCollectionViewByTag(tag string) (CollectionView, error) {
 	query := `SELECT * FROM images
 						INNER JOIN users
 						ON images.u_id=users.u_id
-						WHERE images.i_tag_1 = ?
+						INNER JOIN sources
+						ON images.i_id=sources.i_id
+						WHERE (images.i_tag_1 = ?
 						OR images.i_tag_2 = ?
-						OR images.i_tag_3 = ?`
+						OR images.i_tag_3 = ?) AND
+						sources.s_size=?`
 
-	err := db.Select(&tagCollectionView.Images, query, tag, tag, tag)
+	err := db.Select(&tagCollectionView.Images, query, tag, tag, tag, "orig")
 
 	if err != nil {
 		log.Println(err)
@@ -63,9 +69,12 @@ func GetCollectionViewByLocation(LID uint64) (CollectionView, error) {
 	query := `SELECT * FROM images
 						INNER JOIN users
 						ON images.u_id=users.u_id
-						WHERE images.LID = ?`
+						INNER JOIN sources
+						ON images.i_id=sources.i_id
+						WHERE images.LID = ? AND
+									source.s_size=?`
 
-	err := db.Select(&locCollectionView.Images, query, LID)
+	err := db.Select(&locCollectionView.Images, query, LID, "orig")
 
 	if err != nil {
 		log.Println(err)

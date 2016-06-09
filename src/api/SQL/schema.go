@@ -1,67 +1,77 @@
 package SQL
 
-import "time"
+// TODO consider what can be null and what cannot and set DB settings to reflect
+// this.
+
+// sql.Nullxxx Have a valid field and a value field. Drive knows how to handle
+// them. Just need to check before working with these types.
+
+import (
+	"database/sql"
+	"strconv"
+	"time"
+)
 
 // Img contains all the proper information for rendering a single photo
 type Img struct {
-	IID          uint64    `db:"i_id"`
-	Title        string    `db:"i_title"`
-	Desc         string    `db:"i_desc"`
-	Aperture     uint64    `db:"i_aperture"`
-	ExposureTime uint64    `db:"i_exposure_time"`
-	FocalLength  uint64    `db:"i_focal_length"`
-	ISO          uint64    `db:"i_iso"`
-	Orientation  string    `db:"i_orientation"`
-	CameraBody   string    `db:"i_camera_body"`
-	Lens         string    `db:"i_lens"`
-	TagOne       string    `db:"i_tag_1"`
-	TagTwo       string    `db:"i_tag_2"`
-	TagThree     string    `db:"i_tag_3"`
-	AID          uint64    `db:"a_id"`
-	CaptureTime  time.Time `db:"i_capture_time"`
-	PublishTime  time.Time `db:"i_publish_time"`
-	ImgDirection float64   `db:"i_direction"`
-	UID          uint64    `db:"u_id"`
-	LID          uint64    `db:"l_id"`
+	IID          uint64          `db:"i_id"`
+	Title        sql.NullString  `db:"i_title"`
+	Desc         sql.NullString  `db:"i_desc"`
+	Aperture     sql.NullInt64   `db:"i_aperture"`
+	ExposureTime sql.NullInt64   `db:"i_exposure_time"`
+	FocalLength  sql.NullInt64   `db:"i_focal_length"`
+	ISO          sql.NullInt64   `db:"i_iso"`
+	Orientation  sql.NullString  `db:"i_orientation"`
+	CameraBody   sql.NullString  `db:"i_camera_body"`
+	Lens         sql.NullString  `db:"i_lens"`
+	TagOne       sql.NullString  `db:"i_tag_1"`
+	TagTwo       sql.NullString  `db:"i_tag_2"`
+	TagThree     sql.NullString  `db:"i_tag_3"`
+	AID          sql.NullInt64   `db:"a_id"`
+	CaptureTime  time.Time       `db:"i_capture_time"`
+	PublishTime  time.Time       `db:"i_publish_time"`
+	ImgDirection sql.NullFloat64 `db:"i_direction"`
+	UID          sql.NullInt64   `db:"u_id"`
+	LID          sql.NullInt64   `db:"l_id"`
 }
 
 type Location struct {
-	LID       uint64  `db:"l_id"`
-	Latitude  float64 `db:"l_lat"`
-	Longitude float64 `db:"l_lon"`
-	Desc      string  `db:"l_desc"`
+	LID       uint64          `db:"l_id"`
+	Latitude  sql.NullFloat64 `db:"l_lat"`
+	Longitude sql.NullFloat64 `db:"l_lon"`
+	Desc      sql.NullString  `db:"l_desc"`
 }
 
 // ImgSource includes the information about the image itself.
 // Size indicates how large the image is.
 type ImgSource struct {
-	SID        uint64 `db:"s_id"`
-	IID        uint64 `db:"i_id"`
-	URL        string `db:"s_url"`
-	Resolution uint64 `db:"s_resolution"`
-	Width      uint64 `db:"s_width"`
-	Height     uint64 `db:"s_height"`
-	Size       string `db:"s_size"`
-	FileType   string `db:"s_file_type"`
+	SID        uint64        `db:"s_id"`
+	IID        uint64        `db:"i_id"`
+	URL        string        `db:"s_url"`
+	Resolution sql.NullInt64 `db:"s_resolution"`
+	Width      sql.NullInt64 `db:"s_width"`
+	Height     sql.NullInt64 `db:"s_height"`
+	Size       string        `db:"s_size"`
+	FileType   string        `db:"s_file_type"`
 }
 
 type User struct {
-	UID       uint64 `db:"u_id"`
-	Usernmae  string `db:"u_username"`
-	Email     string `db:"u_email"`
-	FirstName string `db:"u_first_name"`
-	LastName  string `db:"u_last_name"`
-	Bio       string `db:"u_bio"`
-	LID       uint64 `db:"u_loc"`
-	AvatarURL string `db:"u_avatar_url"`
+	UID       uint64         `db:"u_id"`
+	Usernmae  string         `db:"u_username"`
+	Email     string         `db:"u_email"`
+	FirstName string         `db:"u_first_name"`
+	LastName  string         `db:"u_last_name"`
+	Bio       sql.NullString `db:"u_bio"`
+	LID       sql.NullInt64  `db:"u_loc"`
+	AvatarURL string         `db:"u_avatar_url"`
 }
 
 type Album struct {
-	AID      uint64 `db:"a_id"`
-	UID      uint64 `db:"u_id"`
-	Desc     string `db:"a_desc"`
-	Title    string `db:"a_title"`
-	ViewType string `db:"a_view_type"`
+	AID      uint64         `db:"a_id"`
+	UID      uint64         `db:"u_id"`
+	Desc     sql.NullString `db:"a_desc"`
+	Title    string         `db:"a_title"`
+	ViewType string         `db:"a_view_type"`
 }
 
 ///IMAGE VIEW
@@ -71,6 +81,7 @@ type Album struct {
 type SingleImgView struct {
 	User
 	Img
+	ImgSource
 }
 
 /// COLLECTION VIEW
@@ -87,7 +98,8 @@ type CollectionView struct {
 // ROUTE: /u/:UID, /settings
 type UserProfileView struct {
 	User
-	Images []Img
+	Location
+	Images []SingleImgView
 }
 
 /// ALBUM VIEW
@@ -132,3 +144,12 @@ type AlbumCollectionView struct {
 // 	Title    string
 // 	ViewType string
 // }
+
+func ToNullInt64(s string) sql.NullInt64 {
+	i, err := strconv.Atoi(s)
+	return sql.NullInt64{Int64: int64(i), Valid: err == nil}
+}
+
+func ToNullString(s string) sql.NullString {
+	return sql.NullString{String: s, Valid: s != ""}
+}

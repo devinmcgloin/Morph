@@ -1,21 +1,17 @@
 
 <!DOCTYPE html>
 <html>
-   <head>
-      <meta charset="utf-8">
-      <link rel="stylesheet" href="/assets/css/normalize.css">
-      <link rel="stylesheet" href="/assets/css/main.css">
-
-   </head>
+{{template "head"}}
    <body>
+     {{ template "header" }}
       <div class="container">
-        {{ template "logo" }}
 
-         <h2>{{.Title}}</h2>
-         <p>{{.Desc}}</p>
+
+         <h2>{{.Title.Value}}</h2>
+         <p>{{.Desc.Value}}</p>
          <p>{{.PublishTime.Format "2006 Jan 02" }}</p>
-         <!-- <img class="photo-feature"> -->
-         <p>f/{{.Aperture}} 1/{{.ExposureTime}} sec {{.FocalLength}}mm ISO {{.ISO}}</p>
+         <img class="photo-feature" src={{.URL}}>
+         <p>f/{{.Aperture.Value}} 1/{{.ExposureTime.Value}} sec {{.FocalLength.Value}}mm ISO {{.ISO.Value}}</p>
 
       </div>
    </body>

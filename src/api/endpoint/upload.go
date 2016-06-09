@@ -21,8 +21,8 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	var err error
 
 	img := SQL.Img{
-		Title:       r.FormValue("Title"),
-		Desc:        r.FormValue("Desc"),
+		Title:       SQL.ToNullString(r.FormValue("Title")),
+		Desc:        SQL.ToNullString(r.FormValue("Desc")),
 		PublishTime: time.Now(),
 		CaptureTime: time.Now(),
 	}

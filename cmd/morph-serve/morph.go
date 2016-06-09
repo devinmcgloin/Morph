@@ -49,6 +49,7 @@ func main() {
 	router.GET("/i/:IID/edit", editView.FeatureImgEditView)
 	router.GET("/album/:AID/edit", editView.AlbumEditView)
 	router.GET("/u/:UID/edit", editView.UserProfileEditView)
+	router.GET("/upload", editView.UploadView)
 
 	// BACKEND MANAGE ROUTES
 	router.GET("/settings", settings.UserSettingsView)
