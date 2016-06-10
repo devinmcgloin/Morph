@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/devinmcgloin/morph/src/env"
+	_ "github.com/go-sql-driver/mysql" // want sql drivers to init, work with the database/sql package.
 	"github.com/jmoiron/sqlx"
 )
 
