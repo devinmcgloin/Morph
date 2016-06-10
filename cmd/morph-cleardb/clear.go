@@ -23,15 +23,15 @@ func main() {
 
 	log.Println("Clearing db tables...")
 
-	db.MustExec("DROP TABLE users")
+	db.Exec("DROP TABLE users")
 
-	db.MustExec("DROP TABLE images")
+	db.Exec("DROP TABLE images")
 
-	db.MustExec("DROP TABLE sources")
+	db.Exec("DROP TABLE sources")
 
-	db.MustExec("DROP TABLE locations")
+	db.Exec("DROP TABLE locations")
 
-	db.MustExec("DROP TABLE albums")
+	db.Exec("DROP TABLE albums")
 
 	log.Println("Tables Cleared")
 
