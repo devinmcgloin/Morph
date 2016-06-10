@@ -11,19 +11,29 @@ import (
 	"github.com/devinmcgloin/morph/src/views/editView"
 	"github.com/devinmcgloin/morph/src/views/publicView"
 	"github.com/devinmcgloin/morph/src/views/settings"
+	"github.com/gorilla/sessions"
 	"github.com/julienschmidt/httprouter"
 	"github.com/markbates/goth"
+	"github.com/markbates/goth/gothic"
 	"github.com/markbates/goth/providers/github"
 )
 
-func main() {
+func init() {
+	flag := log.LstdFlags | log.Lmicroseconds | log.Lshortfile
+	log.SetFlags(flag)
 
 	goth.UseProviders(
 		github.New(os.Getenv("GITHUB_KEY"), os.Getenv("GITHUB_SECRET"), "/auth/github/callback"),
 	)
 
-	flag := log.LstdFlags | log.Lmicroseconds | log.Lshortfile
-	log.SetFlags(flag)
+	// TODO this is a temp store not to be left in production. Just to check goth integration
+	gothic.Store = sessions.NewFilesystemStore(os.TempDir(), []byte("goth-example"))
+
+	SQL.SetDB()
+
+}
+
+func main() {
 
 	port := os.Getenv("PORT")
 
@@ -75,8 +85,6 @@ func main() {
 
 	//FIXME Temp to test locally.
 	router.ServeFiles("/content/*filepath", http.Dir("content/"))
-
-	SQL.SetDB()
 
 	log.Fatal(http.ListenAndServe(":"+port, router))
 
