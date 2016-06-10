@@ -127,6 +127,20 @@
 			"Rev": "3654d25ec346ee8ce71a68431025458d52a38ac0"
 		},
 		{
+			"ImportPath": "github.com/gorilla/context",
+			"Comment": "v1.1-4-gaed02d1",
+			"Rev": "aed02d124ae4a0e94fea4541c8effd05bf0c8296"
+		},
+		{
+			"ImportPath": "github.com/gorilla/securecookie",
+			"Comment": "v1.1-2-gff35634",
+			"Rev": "ff356348f74133a59d3e93aa24b5b4551b6fe90d"
+		},
+		{
+			"ImportPath": "github.com/gorilla/sessions",
+			"Rev": "56ba4b0a11da87516629a57408a5f7e4c8ea7b0b"
+		},
+		{
 			"ImportPath": "github.com/jmespath/go-jmespath",
 			"Comment": "0.2.2-12-g0b12d6b",
 			"Rev": "0b12d6b521d83fc7f755e7cfc1b1fbdd35a01a74"
@@ -145,6 +159,18 @@
 			"ImportPath": "github.com/julienschmidt/httprouter",
 			"Comment": "v1.1-29-g77366a4",
 			"Rev": "77366a47451a56bb3ba682481eed85b64fea14e8"
+		},
+		{
+			"ImportPath": "github.com/markbates/goth",
+			"Rev": "7ad66b42e9cc2635ffb45a9ad9e627021ed6eb1e"
+		},
+		{
+			"ImportPath": "github.com/markbates/goth/gothic",
+			"Rev": "7ad66b42e9cc2635ffb45a9ad9e627021ed6eb1e"
+		},
+		{
+			"ImportPath": "github.com/markbates/goth/providers/github",
+			"Rev": "7ad66b42e9cc2635ffb45a9ad9e627021ed6eb1e"
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/bcrypt",
