@@ -82,6 +82,7 @@ type SingleImgView struct {
 	User
 	Img
 	ImgSource
+	UserAuth
 }
 
 /// COLLECTION VIEW
@@ -92,6 +93,7 @@ type CollectionView struct {
 	Images []SingleImgView
 	Query  string
 	Type   string
+	UserAuth
 }
 
 /// USER VIEW
@@ -102,6 +104,7 @@ type UserProfileView struct {
 	User
 	Location
 	Images []SingleImgView
+	UserAuth
 }
 
 /// ALBUM VIEW
@@ -111,41 +114,13 @@ type AlbumCollectionView struct {
 	User
 	Images []SingleImgView
 	Album
+	UserAuth
 }
 
-// type Image struct {
-// 	IID          int
-// 	UID          int
-// 	LID          int
-// 	URL          string
-// 	Title        string
-// 	Description  string
-// 	CaptureTime  time.Time
-// 	Publishtime  time.Time
-// 	Tag1         string
-// 	Tag2         string
-// 	Tag3         string
-// 	Lon          float64
-// 	Lat          float64
-// 	LocationDesc string
-// }
-//
-// type User struct {
-// 	UID       int
-// 	LID       int
-// 	FirstName string
-// 	LastName  string
-// 	Bio       string
-// 	Location  string
-// 	AvatarURL string
-// }
-//
-// type Album struct {
-// 	AID      int
-// 	Desc     string
-// 	Title    string
-// 	ViewType string
-// }
+type UserAuth struct {
+	LoggedIn     bool
+	LoggedInUser User
+}
 
 func ToNullInt64(s string) sql.NullInt64 {
 	i, err := strconv.Atoi(s)

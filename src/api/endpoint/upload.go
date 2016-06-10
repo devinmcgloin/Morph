@@ -24,9 +24,10 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 
 	var IID uint64
 
-	IID = uint64(rand.Int63())
-	for !SQL.ExistsIID(IID) {
-		IID = uint64(rand.Int63())
+	IID = uint64(rand.Int63n(10000))
+	for SQL.ExistsIID(IID) {
+		IID = uint64(rand.Int63n(10000))
+		fmt.Println(IID)
 	}
 
 	img := SQL.Img{
@@ -38,6 +39,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	source := SQL.ImgSource{
 		IID:  IID,
 		Size: "orig",
+		SID:  uint64(rand.Int63n(10000)),
 	}
 
 	for _, fheaders := range r.MultipartForm.File {
@@ -73,20 +75,21 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 
 		}
 	}
-	err = SQL.AddImg(img)
-	if err != nil {
-		log.Printf("Error while adding image to DB %s", err)
-		http.Error(w, http.StatusText(500), 500)
-		return
-	}
 
 	err = SQL.AddSrc(source)
 	if err != nil {
-		log.Printf("Error while adding image to DB %s", err)
 		http.Error(w, http.StatusText(500), 500)
 		return
 	}
 
-	http.Redirect(w, r, "/morph/upload", 302)
+	err = SQL.AddImg(img)
+	if err != nil {
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	newURL := fmt.Sprintf("/i/%d/edit", IID)
+
+	http.Redirect(w, r, newURL, 302)
 
 }

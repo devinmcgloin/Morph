@@ -1,11 +1,14 @@
 package SQL
 
+import "log"
+
 func GetImg(iID uint64) (Img, error) {
 
 	var img Img
 
 	err := db.Get(&img, "SELECT * FROM images WHERE i_id = ?", iID)
 	if err != nil {
+		log.Println(err)
 		return Img{}, err
 	}
 
@@ -15,7 +18,7 @@ func GetImg(iID uint64) (Img, error) {
 func AddImg(img Img) error {
 
 	_, err := db.NamedExec(`
-			INSERT INTO images *
+			INSERT INTO images
 		VALUES (
 			:i_id,
 			:i_title,
@@ -30,13 +33,15 @@ func AddImg(img Img) error {
 			:i_tag_1,
 			:i_tag_2,
 			:i_tag_3,
-			:i_album,
 			:i_capture_time,
 			:i_publish_time,
 			:i_direction,
 			:u_id,
-			:l_id)`, img)
+			:l_id,
+			:a_id
+			);`, img)
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 	return nil
@@ -47,8 +52,8 @@ func ExistsIID(IID uint64) bool {
 
 	query := `SELECT count(*) FROM images WHERE i_id = ?`
 	db.Get(&count, query, IID)
-	if count > 0 {
-		return true
+	if count == 0 {
+		return false
 	}
-	return false
+	return true
 }

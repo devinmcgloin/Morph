@@ -165,20 +165,6 @@ pre > code {
     margin-bottom: auto;
 }
 
-.header-img-custom {
-    width: 100%;
-    height: auto;
-    width: 5rem;
-    float:left;
-    vertical-align:middle;
-    margin-top:auto;
-    margin-bottom: auto;
-}
-
-.header-img-custom:hover {
-     content:url("/public/icon.svg")
-}
-
 .header-title {
     vertical-align:middle;
     margin-top:1rem;
@@ -197,11 +183,12 @@ pre > code {
     margin-bottom: 1rem;
 }
 
-.index-img {
-    max-width: 8rem;
+.index-logo {
+    max-width: 3rem;
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 2rem;
+    /*float: left;*/
 }
 
 .form-div {

@@ -3,10 +3,11 @@ package SQL
 import "log"
 
 func AddSrc(src ImgSource) error {
+	log.Println(src)
 
 	sql := `
-      INSERT INTO sources *
-    Values (
+      INSERT INTO sources
+    Value (
       :s_id,
       :i_id,
       :s_url,

@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/devinmcgloin/morph/src/api/SQL"
+	"github.com/devinmcgloin/morph/src/api/auth"
 	"github.com/devinmcgloin/morph/src/api/endpoint"
 	"github.com/devinmcgloin/morph/src/views/editView"
 	"github.com/devinmcgloin/morph/src/views/publicView"
@@ -29,10 +30,15 @@ func main() {
 	log.Printf("Serving at http://localhost:%s", port)
 
 	// API POST ROUTES
+	//TODO need to figure out api formatting and tokens.
+	//TODO maybe these are the best routes for posting changes.
 
 	router.POST("/api/v0/upload", endpoint.UploadHandler)
 	router.POST("/api/v0/users/:user", endpoint.UserHandler)
 	router.POST("/api/v0/photos/:p_id", endpoint.ImageHandler)
+
+	//TODO these really should be done based on a semantic thing, not ID.
+	//TODO consider phasing out numerical id's entirely for hex strings.
 
 	// CONTENT VIEW ROUTES
 	router.GET("/", publicView.MostRecentView)
@@ -41,7 +47,6 @@ func main() {
 	router.GET("/tag/:tag/:IID", publicView.CollectionTagFeatureView)
 	router.GET("/album/:AID", publicView.AlbumView)
 	router.GET("/u/:UID", publicView.UserProfileView)
-	router.GET("/login", publicView.UserLoginView)
 	router.GET("/loc/:LID", publicView.LocationView)
 	router.GET("/search/*query", publicView.SearchView)
 
@@ -51,11 +56,18 @@ func main() {
 	router.GET("/u/:UID/edit", editView.UserProfileEditView)
 	router.GET("/upload", editView.UploadView)
 
+	//TODO need to setup similar content post routes for sending back edits.
+
 	// BACKEND MANAGE ROUTES
+	router.GET("/login", publicView.UserLoginView)
+	router.GET("/auth/:provider", auth.BeginAuthHAndler)
+	router.GET("/auth/:provider/callback", auth.UserLoginCallback)
 	router.GET("/settings", settings.UserSettingsView)
 
 	// ASSETS
 	router.ServeFiles("/assets/*filepath", http.Dir("assets/"))
+
+	//FIXME Temp to test locally.
 	router.ServeFiles("/content/*filepath", http.Dir("content/"))
 
 	SQL.SetDB()
