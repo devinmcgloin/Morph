@@ -12,9 +12,15 @@ import (
 	"github.com/devinmcgloin/morph/src/views/publicView"
 	"github.com/devinmcgloin/morph/src/views/settings"
 	"github.com/julienschmidt/httprouter"
+	"github.com/markbates/goth"
+	"github.com/markbates/goth/providers/github"
 )
 
 func main() {
+
+	goth.UseProviders(
+		github.New(os.Getenv("GITHUB_KEY"), os.Getenv("GITHUB_SECRET"), "/auth/github/callback"),
+	)
 
 	flag := log.LstdFlags | log.Lmicroseconds | log.Lshortfile
 	log.SetFlags(flag)
@@ -60,7 +66,7 @@ func main() {
 
 	// BACKEND MANAGE ROUTES
 	router.GET("/login", publicView.UserLoginView)
-	router.GET("/auth/:provider", auth.BeginAuthHAndler)
+	router.GET("/auth/:provider", auth.BeginAuthHandler)
 	router.GET("/auth/:provider/callback", auth.UserLoginCallback)
 	router.GET("/settings", settings.UserSettingsView)
 
