@@ -122,10 +122,6 @@
 			"Rev": "72ba3e6b9e6b87e0c74c9a7a4dc86e8dd8ba4355"
 		},
 		{
-			"ImportPath": "github.com/go-ozzo/ozzo-dbx",
-			"Rev": "3151453be7ed53636bc59b5dbd4978c1b7f5949e"
-		},
-		{
 			"ImportPath": "github.com/go-sql-driver/mysql",
 			"Comment": "v1.2-196-g3654d25",
 			"Rev": "3654d25ec346ee8ce71a68431025458d52a38ac0"
@@ -136,9 +132,43 @@
 			"Rev": "0b12d6b521d83fc7f755e7cfc1b1fbdd35a01a74"
 		},
 		{
+			"ImportPath": "github.com/jmoiron/sqlx",
+			"Comment": "sqlx-v1.1-67-ge4a302b",
+			"Rev": "e4a302b8d3a49ad2790f2232df7fcd668f54366f"
+		},
+		{
+			"ImportPath": "github.com/jmoiron/sqlx/reflectx",
+			"Comment": "sqlx-v1.1-67-ge4a302b",
+			"Rev": "e4a302b8d3a49ad2790f2232df7fcd668f54366f"
+		},
+		{
 			"ImportPath": "github.com/julienschmidt/httprouter",
 			"Comment": "v1.1-29-g77366a4",
 			"Rev": "77366a47451a56bb3ba682481eed85b64fea14e8"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/bcrypt",
+			"Rev": "89d9e62992539701a49a19c52ebb33e84cbbe80f"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/blowfish",
+			"Rev": "89d9e62992539701a49a19c52ebb33e84cbbe80f"
+		},
+		{
+			"ImportPath": "golang.org/x/net/context",
+			"Rev": "c4c3ea71919de159c9e246d7be66deb7f0a39a58"
+		},
+		{
+			"ImportPath": "golang.org/x/oauth2",
+			"Rev": "71d9edd725fe4ce4c692fcb20765be558df45ad3"
+		},
+		{
+			"ImportPath": "golang.org/x/oauth2/internal",
+			"Rev": "71d9edd725fe4ce4c692fcb20765be558df45ad3"
+		},
+		{
+			"ImportPath": "gopkg.in/authboss.v0",
+			"Rev": "586415a7db9d2b1538cd2c05ca2dbbce0ee9cc62"
 		}
 	]
 }
