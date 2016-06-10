@@ -173,14 +173,6 @@
 			"Rev": "7ad66b42e9cc2635ffb45a9ad9e627021ed6eb1e"
 		},
 		{
-			"ImportPath": "golang.org/x/crypto/bcrypt",
-			"Rev": "89d9e62992539701a49a19c52ebb33e84cbbe80f"
-		},
-		{
-			"ImportPath": "golang.org/x/crypto/blowfish",
-			"Rev": "89d9e62992539701a49a19c52ebb33e84cbbe80f"
-		},
-		{
 			"ImportPath": "golang.org/x/net/context",
 			"Rev": "c4c3ea71919de159c9e246d7be66deb7f0a39a58"
 		},
@@ -191,10 +183,6 @@
 		{
 			"ImportPath": "golang.org/x/oauth2/internal",
 			"Rev": "71d9edd725fe4ce4c692fcb20765be558df45ad3"
-		},
-		{
-			"ImportPath": "gopkg.in/authboss.v0",
-			"Rev": "586415a7db9d2b1538cd2c05ca2dbbce0ee9cc62"
 		}
 	]
 }
