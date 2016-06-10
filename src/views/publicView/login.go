@@ -8,5 +8,5 @@ import (
 )
 
 func UserLoginView(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	common.RenderStatic(w, r, "templates/pages/uploadView.tmpl")
+	common.RenderStatic(w, r, "templates/pages/loginView.tmpl")
 }
