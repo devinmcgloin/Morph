@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+{{template "head"}}
+   <body>
+     {{ template "header" }}
+      <div class="container">
+         <img class="photo-feature" src={{.URL}}>
+         <div class="form-div">
+         <form enctype="multipart/form-data" action="/i/{{.IID}}/edit" method="post">
+               <input type="file" name="uploadfile" />
+               <input type="hidden" name="token" value="{{.}}"/>
+               <input type="submit" value="upload" />
+         </form>
+         </div>
+      </div>
+   </body>
+</html>

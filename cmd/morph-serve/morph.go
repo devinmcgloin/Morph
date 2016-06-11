@@ -22,12 +22,11 @@ func init() {
 	flag := log.LstdFlags | log.Lmicroseconds | log.Lshortfile
 	log.SetFlags(flag)
 
-	goth.UseProviders(
-		github.New(os.Getenv("GITHUB_KEY"), os.Getenv("GITHUB_SECRET"), "/auth/github/callback"),
-	)
-
-	// TODO this is a temp store not to be left in production. Just to check goth integration
 	gothic.Store = sessions.NewFilesystemStore(os.TempDir(), []byte("goth-example"))
+
+	goth.UseProviders(
+		github.New(os.Getenv("GITHUB_KEY"), os.Getenv("GITHUB_SECRET"), "https://morph.devinmcgloin.com/auth/github/callback"),
+	)
 
 	SQL.SetDB()
 
@@ -49,9 +48,10 @@ func main() {
 	//TODO need to figure out api formatting and tokens.
 	//TODO maybe these are the best routes for posting changes.
 
-	router.POST("/api/v0/upload", endpoint.UploadHandler)
-	router.POST("/api/v0/users/:user", endpoint.UserHandler)
-	router.POST("/api/v0/photos/:p_id", endpoint.ImageHandler)
+	router.POST("/upload", endpoint.UploadHandler)
+	router.POST("/u/:UID/edit", endpoint.UserHandler)
+	router.POST("/i/:IID/edit", endpoint.ImageHandler)
+	router.POST("/album/:AID/edit", endpoint.AlbumHandler)
 
 	//TODO these really should be done based on a semantic thing, not ID.
 	//TODO consider phasing out numerical id's entirely for hex strings.
@@ -71,8 +71,6 @@ func main() {
 	router.GET("/album/:AID/edit", editView.AlbumEditView)
 	router.GET("/u/:UID/edit", editView.UserProfileEditView)
 	router.GET("/upload", editView.UploadView)
-
-	//TODO need to setup similar content post routes for sending back edits.
 
 	// BACKEND MANAGE ROUTES
 	router.GET("/login", publicView.UserLoginView)
