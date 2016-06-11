@@ -11,10 +11,12 @@ import (
 
 // BeginAuthHandler
 func BeginAuthHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	log.Println("Entered BeginAuthHandler")
 	gothic.BeginAuthHandler(w, r)
 }
 
 func UserLoginCallback(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	log.Println("Entered UserLoginCallback")
 	fmt.Println(gothic.GetState(r))
 	user, err := gothic.CompleteUserAuth(w, r)
 	if err != nil {
