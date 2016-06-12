@@ -34,6 +34,6 @@ func UserLoginCallback(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 
 func getProvider(r *http.Request) (string, error) {
 	url := r.URL.String()
-	provider := strings.Split(url, "/")[1]
+	provider := strings.Split(url, "/")[2]
 	return provider, nil
 }
