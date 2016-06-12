@@ -11,6 +11,7 @@ import (
 )
 
 func FeatureImgEditView(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
 	IID, err := strconv.Atoi(ps.ByName("IID"))
 	if err != nil {
 		log.Println(err)

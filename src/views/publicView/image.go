@@ -11,6 +11,7 @@ import (
 )
 
 func FeatureImgView(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
 	IID, err := strconv.Atoi(ps.ByName("IID"))
 	if err != nil {
 		log.Println(err)
@@ -20,7 +21,7 @@ func FeatureImgView(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 	log.Printf("Accessing img:%d", uint64(IID))
 	img, err := SQL.GetFeatureSingleImgView(uint64(IID))
 	if err != nil {
-		common.SomethingsWrong(w, r, err)
+		common.NotFound(w, r)
 		return
 	}
 

@@ -1,9 +1,9 @@
 package auth
 
 import (
-	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/markbates/goth/gothic"
@@ -17,7 +17,10 @@ func BeginAuthHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 
 func UserLoginCallback(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	log.Println("Entered UserLoginCallback")
-	fmt.Println(gothic.GetState(r))
+
+	log.Println(gothic.GetState(r))
+	gothic.GetProviderName = getProvider
+
 	user, err := gothic.CompleteUserAuth(w, r)
 	if err != nil {
 		panic(err)
@@ -27,4 +30,10 @@ func UserLoginCallback(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 
 	http.Redirect(w, r, "/", 301)
 
+}
+
+func getProvider(r *http.Request) (string, error) {
+	url := r.URL.String()
+	provider := strings.Split(url, "/")[1]
+	return provider, nil
 }
