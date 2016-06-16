@@ -7,6 +7,10 @@
 	],
 	"Deps": [
 		{
+			"ImportPath": "github.com/Masterminds/squirrel",
+			"Rev": "caff2d522d550f0998629c85898ad35e8a603328"
+		},
+		{
 			"ImportPath": "github.com/aws/aws-sdk-go/aws",
 			"Comment": "v1.1.32-1-g1608a1f",
 			"Rev": "1608a1f6ffe7f327007d2aca50ebf1d26c285ef2"
@@ -132,6 +136,10 @@
 			"Rev": "aed02d124ae4a0e94fea4541c8effd05bf0c8296"
 		},
 		{
+			"ImportPath": "github.com/gorilla/schema",
+			"Rev": "08023a0215e7fc27a9aecd8b8c50913c40019478"
+		},
+		{
 			"ImportPath": "github.com/gorilla/securecookie",
 			"Comment": "v1.1-2-gff35634",
 			"Rev": "ff356348f74133a59d3e93aa24b5b4551b6fe90d"
@@ -159,6 +167,14 @@
 			"ImportPath": "github.com/julienschmidt/httprouter",
 			"Comment": "v1.1-29-g77366a4",
 			"Rev": "77366a47451a56bb3ba682481eed85b64fea14e8"
+		},
+		{
+			"ImportPath": "github.com/lann/builder",
+			"Rev": "f22ce00fd9394014049dad11c244859432bd6820"
+		},
+		{
+			"ImportPath": "github.com/lann/ps",
+			"Rev": "62de8c46ede02a7675c4c79c84883eb164cb71e3"
 		},
 		{
 			"ImportPath": "github.com/markbates/goth",
