@@ -30,7 +30,7 @@ func init() {
 	flag := log.LstdFlags | log.Lmicroseconds | log.Lshortfile
 	log.SetFlags(flag)
 
-	gothic.Store = sessions.NewCookieStore(securecookie.GenerateRandomKey())
+	gothic.Store = sessions.NewCookieStore(securecookie.GenerateRandomKey(16))
 
 	goth.UseProviders(
 		github.New(os.Getenv("GITHUB_KEY"), os.Getenv("GITHUB_SECRET"), "https://morph.devinmcgloin.com/auth/github/callback"),
