@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"log"
-	"math/rand"
 	"mime/multipart"
 	"net/http"
 	"time"
@@ -24,22 +23,20 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 
 	var IID uint64
 
-	IID = uint64(rand.Int63n(10000))
-	for SQL.ExistsIID(IID) {
-		IID = uint64(rand.Int63n(10000))
-		fmt.Println(IID)
-	}
+	IID = getNewIID()
 
 	img := SQL.Img{
 		IID:         IID,
 		PublishTime: time.Now(),
 		CaptureTime: time.Now(),
+		UID:         1,
+		LID:         SQL.ToNullInt64("0"),
 	}
 
 	source := SQL.ImgSource{
 		IID:  IID,
 		Size: "orig",
-		SID:  uint64(rand.Int63n(10000)),
+		SID:  getNewSID(),
 	}
 
 	for _, fheaders := range r.MultipartForm.File {
@@ -76,6 +73,8 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 		}
 	}
 
+	log.Println(source.URL)
+
 	err = SQL.AddSrc(source)
 	if err != nil {
 		http.Error(w, http.StatusText(500), 500)
@@ -89,6 +88,8 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	}
 
 	newURL := fmt.Sprintf("/i/%d/edit", IID)
+
+	log.Println(newURL)
 
 	http.Redirect(w, r, newURL, 302)
 

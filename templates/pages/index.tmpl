@@ -3,16 +3,15 @@
 <html>
 {{template "head"}}
    <body>
-     {{ template "public-header" }}
-
       <div class="container">
+         {{ template "header" }}
 
          {{range .Images}}
          <div class="img">
-           <h2><a href="/p/{{.Img.IID}}">{{.Title.Value}}</a></h2>
-           <p>{{.Desc.Value}}</p>
+           <h2><a href="/i/{{.IID}}">{{.Title.Value}}</a></h2>
+           <p>{{.ImgDesc.Value}}</p>
 
-           <img class="photo" src={{.ImgSource.URL}}>
+           <img class="photo" src={{.URL}}>
          </div>
          {{end}}
 

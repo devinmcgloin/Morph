@@ -18,6 +18,8 @@ func BeginAuthHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 func UserLoginCallback(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	log.Println("Entered UserLoginCallback")
 
+	//TODO need to add the user account here and log them in.
+
 	log.Println(gothic.GetState(r))
 	gothic.GetProviderName = getProvider
 

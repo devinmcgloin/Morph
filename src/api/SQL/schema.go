@@ -31,7 +31,7 @@ type Img struct {
 	CaptureTime  time.Time       `db:"i_capture_time"`
 	PublishTime  time.Time       `db:"i_publish_time"`
 	ImgDirection sql.NullFloat64 `db:"i_direction"`
-	UID          sql.NullInt64   `db:"u_id"`
+	UID          uint64          `db:"u_id"`
 	LID          sql.NullInt64   `db:"l_id"`
 }
 
@@ -72,54 +72,6 @@ type Album struct {
 	Desc     sql.NullString `db:"a_desc"`
 	Title    string         `db:"a_title"`
 	ViewType string         `db:"a_view_type"`
-}
-
-///IMAGE VIEW
-
-// FeatureSingleImgView is a view of a single image on the page.
-// ROUTE: /i/:ID
-type SingleImgView struct {
-	User
-	Img
-	ImgSource
-	UserAuth
-}
-
-/// COLLECTION VIEW
-
-// CollectionView is a list of images in a collection
-// ROUTE: /tag/:tag, /search/*query, /loc/:LID, /tag/:tag/:IID
-type CollectionView struct {
-	Images []SingleImgView
-	Query  string
-	Type   string
-	UserAuth
-}
-
-/// USER VIEW
-
-// UserProfileView is a view of a users profile.
-// ROUTE: /u/:UID, /settings
-type UserProfileView struct {
-	User
-	Location
-	Images []SingleImgView
-	UserAuth
-}
-
-/// ALBUM VIEW
-
-// ROUTE: /album/:AID
-type AlbumCollectionView struct {
-	User
-	Images []SingleImgView
-	Album
-	UserAuth
-}
-
-type UserAuth struct {
-	LoggedIn     bool
-	LoggedInUser User
 }
 
 func ToNullInt64(s string) sql.NullInt64 {

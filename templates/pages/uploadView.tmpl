@@ -3,11 +3,11 @@
 <html>
 {{template "head"}}
    <body>
-     {{ template "public-header" }}
+     {{ template "header" }}
       <div class="container">
 
         <div class="form-div">
-        <form enctype="multipart/form-data" action="/upload" method="post">
+        <form enctype="multipart/form-data" action="/api/upload" method="post">
               <input type="file" name="uploadfile" />
               <input type="hidden" name="token" value="{{.}}"/>
               <input type="submit" value="upload" />

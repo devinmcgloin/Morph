@@ -145,8 +145,14 @@ pre > code {
   padding: 0;
 }
 
-.container {
+.body-container {
   max-width: 40rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.header-container {
+  max-width: 60rem;
   margin: 0 auto;
   padding: 0 1rem;
 }
@@ -167,8 +173,8 @@ pre > code {
 
 .header-title {
     vertical-align:middle;
-    margin-top:1rem;
-    margin-bottom:1rem;
+    padding-top:1rem;
+    padding-bottom:1rem;
     padding-left: 1.5rem;
 }
 

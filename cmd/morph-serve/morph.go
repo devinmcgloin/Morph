@@ -19,6 +19,13 @@ import (
 )
 
 func init() {
+
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		log.Fatal("Port must be set")
+	}
+
 	flag := log.LstdFlags | log.Lmicroseconds | log.Lshortfile
 	log.SetFlags(flag)
 
@@ -34,13 +41,8 @@ func init() {
 
 func main() {
 
-	port := os.Getenv("PORT")
-
-	if port == "" {
-		log.Fatal("Port must be set")
-	}
-
 	router := httprouter.New()
+	port := os.Getenv("PORT")
 
 	log.Printf("Serving at http://localhost:%s", port)
 
@@ -48,10 +50,10 @@ func main() {
 	//TODO need to figure out api formatting and tokens.
 	//TODO maybe these are the best routes for posting changes.
 
-	router.POST("/upload", endpoint.UploadHandler)
-	router.POST("/u/:UID/edit", endpoint.UserHandler)
-	router.POST("/i/:IID/edit", endpoint.ImageHandler)
-	router.POST("/album/:AID/edit", endpoint.AlbumHandler)
+	router.POST("/api/upload", endpoint.UploadHandler)
+	router.POST("/api/u/:UserName/edit", endpoint.UserHandler)
+	router.POST("/api/i/:IID/edit", endpoint.ImageHandler)
+	router.POST("/api/album/:AID/edit", endpoint.AlbumHandler)
 
 	//TODO these really should be done based on a semantic thing, not ID.
 	//TODO consider phasing out numerical id's entirely for hex strings.
@@ -62,14 +64,14 @@ func main() {
 	router.GET("/tag/:tag", publicView.CollectionTagView)
 	router.GET("/tag/:tag/:IID", publicView.CollectionTagFeatureView)
 	router.GET("/album/:AID", publicView.AlbumView)
-	router.GET("/u/:UID", publicView.UserProfileView)
+	router.GET("/u/:UserName", publicView.UserProfileView)
 	router.GET("/loc/:LID", publicView.LocationView)
 	router.GET("/search/*query", publicView.SearchView)
 
 	// CONTENT EDIT ROUTES
 	router.GET("/i/:IID/edit", editView.FeatureImgEditView)
 	router.GET("/album/:AID/edit", editView.AlbumEditView)
-	router.GET("/u/:UID/edit", editView.UserProfileEditView)
+	router.GET("/u/:UserName/edit", editView.UserProfileEditView)
 	router.GET("/upload", editView.UploadView)
 
 	// BACKEND MANAGE ROUTES
