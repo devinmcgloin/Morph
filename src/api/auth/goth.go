@@ -28,6 +28,7 @@ func UserLoginCallback(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 	if err != nil {
 		log.Println(err)
 		common.SomethingsWrong(w, r, err)
+		return
 	}
 
 	log.Printf("%v", user)

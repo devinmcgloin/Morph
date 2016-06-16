@@ -11,6 +11,7 @@ import (
 	"github.com/devinmcgloin/morph/src/views/editView"
 	"github.com/devinmcgloin/morph/src/views/publicView"
 	"github.com/devinmcgloin/morph/src/views/settings"
+	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
 	"github.com/julienschmidt/httprouter"
 	"github.com/markbates/goth"
@@ -29,7 +30,7 @@ func init() {
 	flag := log.LstdFlags | log.Lmicroseconds | log.Lshortfile
 	log.SetFlags(flag)
 
-	gothic.Store = sessions.NewFilesystemStore(os.TempDir(), []byte("goth-example"))
+	gothic.Store = sessions.NewCookieStore(securecookie.GenerateRandomKey())
 
 	goth.UseProviders(
 		github.New(os.Getenv("GITHUB_KEY"), os.Getenv("GITHUB_SECRET"), "https://morph.devinmcgloin.com/auth/github/callback"),
