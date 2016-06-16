@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/devinmcgloin/morph/src/views/common"
 	"github.com/julienschmidt/httprouter"
 	"github.com/markbates/goth/gothic"
 )
@@ -25,7 +26,8 @@ func UserLoginCallback(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 
 	user, err := gothic.CompleteUserAuth(w, r)
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		common.SomethingsWrong(w, r, err)
 	}
 
 	log.Printf("%v", user)
