@@ -6,6 +6,7 @@ import (
 )
 
 func NotFound(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(404)
 	RenderStatic(w, r, "templates/pages/404.tmpl")
 }
 

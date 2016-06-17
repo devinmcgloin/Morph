@@ -11,15 +11,9 @@ html {
 }
 
 body {
-  margin: 2rem 0 5rem;
   color: #333;
 }
 
-@media (min-width: 30rem) {
-  body {
-    margin-top: 5rem;
-  }
-}
 
 a {
   color: #0074d9; /* From http://clrs.cc */
@@ -114,6 +108,7 @@ img, iframe {
 img {
   margin: 0 auto;
   display: block;
+  margin-bottom: 1rem;
 }
 
 table {
@@ -146,40 +141,21 @@ pre > code {
 }
 
 .body-container {
-  max-width: 40rem;
+  max-width: 80rem;
   margin: 0 auto;
   padding: 0 1rem;
 }
 
 .header-container {
-  max-width: 60rem;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
-.quote-source {
-    padding-left: 1.5rem;
-    font-size: 80%;
-}
-
-.header-img {
-    width: 100%;
-    max-width: 5rem;
-    float: left;
-    vertical-align: middle;
-    margin-top: auto;
-    margin-bottom: auto;
+  max-width: 80rem;
+  padding-top: 2rem;
+  padding-bottom: 1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
 
 .header-title {
-    vertical-align:middle;
-    padding-top:1rem;
-    padding-bottom:1rem;
-    padding-left: 1.5rem;
-}
-
-.header-title h1 {
-    margin-bottom:0;
+    float: left;
 }
 
 .header-div{
@@ -189,13 +165,6 @@ pre > code {
     margin-bottom: 1rem;
 }
 
-.index-logo {
-    max-width: 3rem;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 2rem;
-    /*float: left;*/
-}
 
 .form-div {
   text-align: center;
@@ -249,4 +218,26 @@ input[type=file], input[type=submit] {
    color: black;
    text-align: center;
 
+}
+
+.header-nav ul {
+  list-style-type: none;
+margin: 0;
+padding: 0;
+overflow: hidden;
+}
+
+.header-nav li{
+  float: right;
+}
+
+.header-nav li a {
+  display: block;
+   text-align: center;
+   padding: 14px 16px;
+}
+
+
+.login-links {
+  text-align: center;
 }

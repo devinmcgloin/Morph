@@ -1,0 +1,11 @@
+{{define "imageView"}}
+<div class="img">
+  <h2><a href="/i/{{.IID}}">{{.Title.Value}}</a></h2>
+
+  <a href="/i/{{.IID}}">
+  <img class="photo" src={{.URL}}>
+  </a>
+  <p class="center"><small>{{.ImgDesc.Value}}</small></p>
+
+</div>
+{{end}}

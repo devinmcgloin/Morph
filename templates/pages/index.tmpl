@@ -3,16 +3,12 @@
 <html>
 {{template "head"}}
    <body>
-      <div class="container">
-         {{ template "header" }}
+     {{ template "header" }}
+      <div class="body-container">
+
 
          {{range .Images}}
-         <div class="img">
-           <h2><a href="/i/{{.IID}}">{{.Title.Value}}</a></h2>
-           <p>{{.ImgDesc.Value}}</p>
-
-           <img class="photo" src={{.URL}}>
-         </div>
+         {{template "imageView" .}}
          {{end}}
 
       </div>

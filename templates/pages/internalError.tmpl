@@ -1,18 +1,11 @@
-
 <!DOCTYPE html>
 <html>
-   <head>
-      <meta charset="utf-8">
-      <link rel="stylesheet" href="/assets/css/normalize.css">
-      <link rel="stylesheet" href="/assets/css/main.css">
-
-   </head>
+  {{template "head"}}
    <body>
-      <div class="container">
-        {{ template "logo" }}
-
-         <h1>Internal Server Error!</h1>
-         <p>We seem to be having some trouble right now: {{.}}</p>
+     {{ template "header" }}
+      <div class="body-container">
+         <h2>Internal Server Error!</h2>
+         <p>{{.}}</p>
       </div>
    </body>
 </html>
