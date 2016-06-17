@@ -180,14 +180,6 @@ func GetNumMostRecentImg(limit uint64, size string) (common.CollectionView, erro
 		log.Println(err)
 		return common.CollectionView{}, err
 	}
-	// `SELECT * FROM images
-	// 				 INNER JOIN users
-	// 				 ON images.u_id=users.u_id
-	// 				 INNER JOIN sources
-	// 				 ON images.i_id=sources.i_id
-	// 				 WHERE sources.s_size=?
-	// 				 ORDER BY images.i_publish_time
-	// 				 LIMIT ?`
 
 	err = db.Select(&images, query, "orig")
 
