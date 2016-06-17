@@ -10,14 +10,14 @@ import (
 func GetUserProfileView(UserName string) (common.UserProfileView, error) {
 	var userProfileView common.UserProfileView
 
-	query, _, err := users.Where(sq.Eq{"u_id": UserName}).ToSql()
+	query, _, err := users.Where(sq.Eq{"u_username": UserName}).ToSql()
 	if err != nil {
 		log.Println(err)
 		return common.UserProfileView{}, err
 	}
 
 	log.Println(query)
-	err = db.Get(&userProfileView, query)
+	err = db.Get(&userProfileView, query, UserName)
 
 	if err != nil {
 		log.Println(err)
@@ -26,7 +26,6 @@ func GetUserProfileView(UserName string) (common.UserProfileView, error) {
 
 	log.Println(userProfileView)
 
-	var userProfileImages []common.SingleImg
 	query, _, err = singleImg.Where(sq.Eq{"images.u_id": userProfileView.UID,
 		"sources.s_size": "orig"}).ToSql()
 	if err != nil {
@@ -34,14 +33,12 @@ func GetUserProfileView(UserName string) (common.UserProfileView, error) {
 		return common.UserProfileView{}, err
 	}
 
-	err = db.Select(&userProfileImages, query)
+	err = db.Select(&userProfileView.Images, query, userProfileView.UID, "orig")
 
 	if err != nil {
 		log.Println(err)
 		return common.UserProfileView{}, err
 	}
-
-	userProfileView.Images = userProfileImages
 
 	return userProfileView, nil
 }
@@ -54,13 +51,6 @@ func GetFeatureSingleImgView(IID uint64) (common.SingleImgView, error) {
 		log.Println(err)
 		return common.SingleImgView{}, err
 	}
-	// `SELECT * FROM images
-	// 					INNER JOIN users
-	// 					ON images.u_id=users.u_id
-	// 					INNER JOIN sources
-	// 					ON images.i_id=sources.i_id
-	// 					WHERE images.i_id = ? AND
-	// 								sources.s_size = ?`
 
 	err = db.Get(&singleImgView, query, IID, "orig")
 
@@ -71,29 +61,36 @@ func GetFeatureSingleImgView(IID uint64) (common.SingleImgView, error) {
 	return singleImgView, nil
 }
 
-func GetCollectionViewByLocation(LID uint64) (common.TagCollectionView, error) {
-	// var locCollectionView CollectionView
-	//
-	// query := `SELECT * FROM images
-	// 					INNER JOIN users
-	// 					ON images.u_id=users.u_id
-	// 					INNER JOIN sources
-	// 					ON images.i_id=sources.i_id
-	// 					WHERE images.l_id = ? AND
-	// 								sources.s_size=?`
-	//
-	// err := db.Select(&locCollectionView.Images, query, LID, "orig")
-	//
-	// if err != nil {
-	// 	log.Println(err)
-	// 	return CollectionView{}, err
-	// }
-	//
-	// locCollectionView.Query = string(LID)
-	// locCollectionView.Type = "loc"
-	//
-	// return locCollectionView, nil
-	return common.TagCollectionView{}, nil
+func GetCollectionViewByLocation(LID uint64) (common.LocCollectionView, error) {
+	var locCollectionView common.LocCollectionView
+
+	// Fetching the location data
+	query, _, err := singleImg.Where(sq.Eq{"l_id": LID}).ToSql()
+	if err != nil {
+		log.Println(err)
+		return common.LocCollectionView{}, err
+	}
+
+	err = db.Select(&locCollectionView, query, LID)
+	if err != nil {
+		log.Println(err)
+		return common.LocCollectionView{}, err
+	}
+
+	// Fetching images with matching location
+	query, _, err = singleImg.Where(sq.Eq{"images.l_id": LID, "sources.s_size": "orig"}).ToSql()
+	if err != nil {
+		log.Println(err)
+		return common.LocCollectionView{}, err
+	}
+
+	err = db.Select(&locCollectionView.Images, query, LID, "orig")
+	if err != nil {
+		log.Println(err)
+		return common.LocCollectionView{}, err
+	}
+
+	return locCollectionView, nil
 }
 
 func GetAlbumCollectionView(AID uint64) (common.AlbumCollectionView, error) {

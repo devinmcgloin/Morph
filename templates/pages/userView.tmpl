@@ -3,22 +3,15 @@
 <html>
 {{template "head"}}
    <body>
-     {{ template "public-header" }}
-      <div class="container">
-
+     {{ template "header" }}
+      <div class="body-container">
 
          <h2>{{.FirstName.Value}} {{.LastName.Value}}</h2>
          <p>{{.Bio.Value}}</p>
          <p>{{.UserName}}</p>
 
-
          {{range .Images}}
-         <div class="img">
-           <h2><a href="/p/{{.Img.IID}}">{{.Title.Value}}</a></h2>
-           <p>{{.Desc.Value}}</p>
-
-           <img class="photo" src={{.ImgSource.URL}}>
-         </div>
+          {{template "imageView" .}}
          {{end}}
 
       </div>

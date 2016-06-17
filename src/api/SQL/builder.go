@@ -12,4 +12,7 @@ var images = sq.Select("images.i_id", "i_title", "i_desc", "i_aperture",
 var singleImg = sq.Select("images.i_id", "i_title", "i_desc",
 	"s_url").From("images").Join("sources ON images.i_id = sources.i_id")
 
-var users = sq.Select("*").From("users").Join("locations ON users.l_id = locations.l_id")
+var users = sq.Select("u_id", "u_username", "u_email", "u_first_name", "u_last_name", "u_bio",
+	"u_avatar_url", "l_lat", "l_lon", "l_desc").From("users").Join("locations ON users.l_id = locations.l_id")
+
+var location = sq.Select("l_lat", "l_lon", "l_desc").From("locations")

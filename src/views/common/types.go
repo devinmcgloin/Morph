@@ -52,6 +52,13 @@ type TagCollectionView struct {
 	Tag    string
 }
 
+type LocCollectionView struct {
+	Images    []SingleImg
+	Latitude  sql.NullFloat64 `db:"l_lat"`
+	Longitude sql.NullFloat64 `db:"l_lon"`
+	Desc      sql.NullString  `db:"l_desc"`
+}
+
 type CollectionView struct {
 	Images []SingleImg
 }

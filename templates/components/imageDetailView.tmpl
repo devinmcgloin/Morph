@@ -1,5 +1,6 @@
 {{define "imageDetailView"}}
 <h2>{{.Title.Value}}</h2>
+<p> by <a href="/u/{{.UserName}}">{{.UserName}}</a></p>
 <p>{{.ImgDesc.Value}}</p>
 <p>{{.PublishTime.Format "2006 Jan 02" }}</p>
 <img class="photo-feature" src={{.URL}}>
