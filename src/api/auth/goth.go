@@ -34,11 +34,14 @@ func UserLoginCallback(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 	log.Printf("%v", user)
 
 	http.Redirect(w, r, "/", 301)
-
 }
 
 func getProvider(r *http.Request) (string, error) {
 	url := r.URL.String()
 	provider := strings.Split(url, "/")[2]
 	return provider, nil
+}
+
+func LoggedIn(r *http.Request) bool {
+	return false
 }
