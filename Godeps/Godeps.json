@@ -174,6 +174,10 @@
 			"Rev": "77366a47451a56bb3ba682481eed85b64fea14e8"
 		},
 		{
+			"ImportPath": "github.com/kpawlik/geojson",
+			"Rev": "06aeea8c5561aef0aee9ec036a1fd3fb55aea653"
+		},
+		{
 			"ImportPath": "github.com/lann/builder",
 			"Rev": "f22ce00fd9394014049dad11c244859432bd6820"
 		},
@@ -194,6 +198,14 @@
 			"Rev": "7ad66b42e9cc2635ffb45a9ad9e627021ed6eb1e"
 		},
 		{
+			"ImportPath": "github.com/rwcarlsen/goexif/exif",
+			"Rev": "709fab3d192d7c62f86043caff1e7e3fb0f42bd8"
+		},
+		{
+			"ImportPath": "github.com/rwcarlsen/goexif/tiff",
+			"Rev": "709fab3d192d7c62f86043caff1e7e3fb0f42bd8"
+		},
+		{
 			"ImportPath": "golang.org/x/net/context",
 			"Rev": "c4c3ea71919de159c9e246d7be66deb7f0a39a58"
 		},
@@ -204,6 +216,26 @@
 		{
 			"ImportPath": "golang.org/x/oauth2/internal",
 			"Rev": "71d9edd725fe4ce4c692fcb20765be558df45ad3"
+		},
+		{
+			"ImportPath": "gopkg.in/mgo.v2",
+			"Comment": "r2016.02.04-3-g29cc868",
+			"Rev": "29cc868a5ca65f401ff318143f9408d02f4799cc"
+		},
+		{
+			"ImportPath": "gopkg.in/mgo.v2/bson",
+			"Comment": "r2016.02.04-3-g29cc868",
+			"Rev": "29cc868a5ca65f401ff318143f9408d02f4799cc"
+		},
+		{
+			"ImportPath": "gopkg.in/mgo.v2/internal/sasl",
+			"Comment": "r2016.02.04-3-g29cc868",
+			"Rev": "29cc868a5ca65f401ff318143f9408d02f4799cc"
+		},
+		{
+			"ImportPath": "gopkg.in/mgo.v2/internal/scram",
+			"Comment": "r2016.02.04-3-g29cc868",
+			"Rev": "29cc868a5ca65f401ff318143f9408d02f4799cc"
 		}
 	]
 }
