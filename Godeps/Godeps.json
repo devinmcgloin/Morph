@@ -7,10 +7,6 @@
 	],
 	"Deps": [
 		{
-			"ImportPath": "github.com/Masterminds/squirrel",
-			"Rev": "caff2d522d550f0998629c85898ad35e8a603328"
-		},
-		{
 			"ImportPath": "github.com/aws/aws-sdk-go/aws",
 			"Comment": "v1.1.32-1-g1608a1f",
 			"Rev": "1608a1f6ffe7f327007d2aca50ebf1d26c285ef2"
@@ -176,14 +172,6 @@
 		{
 			"ImportPath": "github.com/kpawlik/geojson",
 			"Rev": "06aeea8c5561aef0aee9ec036a1fd3fb55aea653"
-		},
-		{
-			"ImportPath": "github.com/lann/builder",
-			"Rev": "f22ce00fd9394014049dad11c244859432bd6820"
-		},
-		{
-			"ImportPath": "github.com/lann/ps",
-			"Rev": "62de8c46ede02a7675c4c79c84883eb164cb71e3"
 		},
 		{
 			"ImportPath": "github.com/markbates/goth",
