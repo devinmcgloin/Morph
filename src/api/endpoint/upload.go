@@ -8,8 +8,10 @@ import (
 	"net/http"
 	"time"
 
+	"gopkg.in/mgo.v2/bson"
+
 	"github.com/devinmcgloin/morph/src/api/AWS"
-	"github.com/devinmcgloin/morph/src/api/SQL"
+	"github.com/devinmcgloin/morph/src/model"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -21,22 +23,18 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 
 	var err error
 
-	var IID uint64
+	// TODO need to include shortext data here
 
-	IID = getNewIID()
+	var imageSources []model.ImgSource
+	imageSources = append(imageSources, model.ImgSource{Size: "orig"})
 
-	img := SQL.Img{
-		IID:         IID,
+	ID := bson.NewObjectId()
+	image := model.Image{
+		ID:          ID,
 		PublishTime: time.Now(),
 		CaptureTime: time.Now(),
-		UID:         1,
-		LID:         SQL.ToNullInt64("0"),
-	}
-
-	source := SQL.ImgSource{
-		IID:  IID,
-		Size: "orig",
-		SID:  getNewSID(),
+		Sources:     imageSources,
+		ShortTitle:  mongo.GetShortTitle(),
 	}
 
 	for _, fheaders := range r.MultipartForm.File {
@@ -61,9 +59,10 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 				return
 			}
 
-			filename := fmt.Sprintf("%d_orig.jpg", IID)
+			filename := fmt.Sprintf("%s_orig.jpg", image.ShortTitle)
+			log.Printf("Filename = %s", filename)
 
-			source.URL, err = AWS.UploadImageAWS(buf.Bytes(), written, filename, "morph-content", "us-east-1")
+			image.Sources[0].URL, err = AWS.UploadImageAWS(buf.Bytes(), written, filename, "morph-content", "us-east-1")
 			if err != nil {
 				log.Printf("Error while uploading image %s", err)
 				http.Error(w, http.StatusText(500), 500)
@@ -73,21 +72,16 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 		}
 	}
 
-	log.Println(source.URL)
+	log.Println(image.Sources[0].URL)
 
-	err = SQL.AddSrc(source)
+	err = mongo.AddImg(image)
 	if err != nil {
 		http.Error(w, http.StatusText(500), 500)
 		return
 	}
 
-	err = SQL.AddImg(img)
-	if err != nil {
-		http.Error(w, http.StatusText(500), 500)
-		return
-	}
-
-	newURL := fmt.Sprintf("/i/%d/edit", IID)
+	//TODO need to set image short title here
+	newURL := fmt.Sprintf("/i/%s/edit", image.ShortTitle)
 
 	log.Println(newURL)
 

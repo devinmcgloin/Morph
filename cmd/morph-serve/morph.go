@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/devinmcgloin/morph/src/api/SQL"
 	"github.com/devinmcgloin/morph/src/api/auth"
 	"github.com/devinmcgloin/morph/src/api/endpoint"
 	"github.com/devinmcgloin/morph/src/views/editView"
@@ -37,8 +36,6 @@ func init() {
 		github.New(os.Getenv("GITHUB_KEY"), os.Getenv("GITHUB_SECRET"), "https://morph.devinmcgloin.com/auth/github/callback"),
 	)
 
-	SQL.SetDB()
-
 }
 
 func main() {
@@ -59,17 +56,17 @@ func main() {
 
 	// CONTENT VIEW ROUTES
 	router.GET("/", publicView.MostRecentView)
-	router.GET("/i/:IID", publicView.FeatureImgView)
+	router.GET("/i/:slug", publicView.FeatureImgView)
 	router.GET("/tag/:tag", publicView.CollectionTagView)
-	router.GET("/tag/:tag/:IID", publicView.CollectionTagFeatureView)
-	router.GET("/album/:AID", publicView.AlbumView)
+	router.GET("/tag/:tag/:slug", publicView.CollectionTagFeatureView)
+	router.GET("/album/:UserName/:Album", publicView.AlbumView)
 	router.GET("/u/:UserName", publicView.UserProfileView)
-	router.GET("/loc/:LID", publicView.LocationView)
+	router.GET("/loc/:slug", publicView.LocationView)
 	router.GET("/search/*query", publicView.SearchView)
 
 	// CONTENT EDIT ROUTES
-	router.GET("/i/:IID/edit", editView.FeatureImgEditView)
-	router.GET("/album/:AID/edit", editView.AlbumEditView)
+	router.GET("/i/:ImageShortTitle/edit", editView.FeatureImgEditView)
+	router.GET("/album/:UserName/:slug/edit", editView.AlbumEditView)
 	router.GET("/u/:UserName/edit", editView.UserProfileEditView)
 	router.GET("/upload", editView.UploadView)
 

@@ -3,14 +3,13 @@ package publicView
 import (
 	"net/http"
 
-	"github.com/devinmcgloin/morph/src/api/SQL"
 	"github.com/devinmcgloin/morph/src/views/common"
 	"github.com/julienschmidt/httprouter"
 )
 
 func MostRecentView(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	locations, err := SQL.GetNumMostRecentImg(10, "orig")
+	locations, err := mongo.GetNumMostRecentImg(10)
 	if err != nil {
 		common.SomethingsWrong(w, r, err)
 		return

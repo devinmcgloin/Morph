@@ -1,25 +1,17 @@
 package publicView
 
 import (
-	"log"
 	"net/http"
-	"strconv"
 
-	"github.com/devinmcgloin/morph/src/api/SQL"
 	"github.com/devinmcgloin/morph/src/views/common"
 	"github.com/julienschmidt/httprouter"
 )
 
 func LocationView(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	LID, err := strconv.Atoi(ps.ByName("LID"))
-	if err != nil {
-		log.Println(err)
-		common.NotFound(w, r)
-		return
-	}
+	locShortText := ps.ByName("LocShortText")
 
-	locations, err := SQL.GetCollectionViewByLocation(uint64(LID))
+	locations, err := mongo.GetCollectionViewByLocations(locShortText)
 	if err != nil {
 		common.SomethingsWrong(w, r, err)
 		return

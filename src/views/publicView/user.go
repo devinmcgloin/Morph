@@ -4,7 +4,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/devinmcgloin/morph/src/api/SQL"
 	"github.com/devinmcgloin/morph/src/views/common"
 	"github.com/julienschmidt/httprouter"
 )
@@ -14,7 +13,7 @@ func UserProfileView(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 	UserName := ps.ByName("UserName")
 
 	log.Printf("Accessing user:%s", UserName)
-	user, err := SQL.GetUserProfileView(UserName)
+	user, err := mongo.GetUserProfileView(UserName)
 	if err != nil {
 		common.SomethingsWrong(w, r, err)
 		return

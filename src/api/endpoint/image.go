@@ -4,27 +4,24 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 
-	"github.com/devinmcgloin/morph/src/api/SQL"
 	"github.com/devinmcgloin/morph/src/views/common"
+	"github.com/gorilla/schema"
 	"github.com/julienschmidt/httprouter"
 )
 
+var decoder = schema.NewDecoder()
+
 func ImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	IID, err := strconv.ParseUint(ps.ByName("IID"), 10, 64)
+	imageShortTitle := ps.ByName("ImageShortTitle")
+
+	err := r.ParseForm()
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	err = r.ParseForm()
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	img, err := SQL.GetImg(IID)
+	img, err := mongo.GetImageByTitle(imageShortTitle)
 	if err != nil {
 		log.Println(err)
 		common.NotFound(w, r)
@@ -43,9 +40,9 @@ func ImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 		return
 	}
 
-	SQL.UpdateImg(img)
+	mongo.UpdateImage(img)
 
-	newUrl := fmt.Sprintf("/i/%d/edit", IID)
+	newUrl := fmt.Sprintf("/i/%s/edit", imageShortTitle)
 
 	http.Redirect(w, r, newUrl, 302)
 

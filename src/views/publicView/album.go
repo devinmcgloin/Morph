@@ -1,11 +1,7 @@
 package publicView
 
 import (
-	"log"
 	"net/http"
-	"strconv"
-
-	"github.com/devinmcgloin/morph/src/api/SQL"
 
 	"github.com/devinmcgloin/morph/src/views/common"
 	"github.com/julienschmidt/httprouter"
@@ -13,14 +9,10 @@ import (
 
 func AlbumView(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	AID, err := strconv.Atoi(ps.ByName("AID"))
-	if err != nil {
-		log.Println(err)
-		common.NotFound(w, r)
-		return
-	}
-	log.Printf("Accessing user:%d", uint64(AID))
-	album, err := SQL.GetAlbumCollectionView(uint64(AID))
+	userName := ps.ByName("UserName")
+	albumTitle := ps.ByName("Album")
+
+	album, err := mongo.GetAlbumCollectionView(userName, albumTitle)
 	if err != nil {
 		common.SomethingsWrong(w, r, err)
 		return
