@@ -34,7 +34,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 		PublishTime: time.Now(),
 		CaptureTime: time.Now(),
 		Sources:     imageSources,
-		ShortTitle:  mongo.GetShortTitle(),
+		ShortCode:   mongo.GetNewImageShortCode(),
 	}
 
 	for _, fheaders := range r.MultipartForm.File {
@@ -59,7 +59,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 				return
 			}
 
-			filename := fmt.Sprintf("%s_orig.jpg", image.ShortTitle)
+			filename := fmt.Sprintf("%s_orig.jpg", image.ShortCode)
 			log.Printf("Filename = %s", filename)
 
 			image.Sources[0].URL, err = AWS.UploadImageAWS(buf.Bytes(), written, filename, "morph-content", "us-east-1")
@@ -81,7 +81,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	}
 
 	//TODO need to set image short title here
-	newURL := fmt.Sprintf("/i/%s/edit", image.ShortTitle)
+	newURL := fmt.Sprintf("/i/%s/edit", image.ShortCode)
 
 	log.Println(newURL)
 

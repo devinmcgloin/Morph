@@ -46,28 +46,28 @@ func main() {
 	log.Printf("Serving at http://localhost:%s", port)
 
 	// API POST ROUTES
-	//TODO need to figure out api formatting and tokens.
-	//TODO maybe these are the best routes for posting changes.
+	// TODO need to figure out api formatting and tokens.
+	// TODO make shortcodes a primary field in mongo and index by those.
 
 	router.POST("/api/upload", endpoint.UploadHandler)
-	router.POST("/api/u/:UserName/edit", endpoint.UserHandler)
-	router.POST("/api/i/:IID/edit", endpoint.ImageHandler)
-	router.POST("/api/album/:AID/edit", endpoint.AlbumHandler)
+	router.POST("/api/u/:username/edit", endpoint.UserHandler)
+	router.POST("/api/i/:shortcode/edit", endpoint.ImageHandler)
+	router.POST("/api/album/:username/:shortcode/edit", endpoint.AlbumHandler)
 
 	// CONTENT VIEW ROUTES
 	router.GET("/", publicView.MostRecentView)
-	router.GET("/i/:slug", publicView.FeatureImgView)
+	router.GET("/i/:shortcode", publicView.FeatureImgView)
 	router.GET("/tag/:tag", publicView.CollectionTagView)
-	router.GET("/tag/:tag/:slug", publicView.CollectionTagFeatureView)
-	router.GET("/album/:UserName/:Album", publicView.AlbumView)
-	router.GET("/u/:UserName", publicView.UserProfileView)
-	router.GET("/loc/:slug", publicView.LocationView)
+	router.GET("/tag/:tag/:shortcode", publicView.CollectionTagFeatureView)
+	router.GET("/album/:username/:shortcode", publicView.AlbumView)
+	router.GET("/u/:username", publicView.UserProfileView)
+	router.GET("/loc/*query", publicView.LocationView) //TODO not sure about shortcodes for locations
 	router.GET("/search/*query", publicView.SearchView)
 
 	// CONTENT EDIT ROUTES
-	router.GET("/i/:ImageShortTitle/edit", editView.FeatureImgEditView)
-	router.GET("/album/:UserName/:slug/edit", editView.AlbumEditView)
-	router.GET("/u/:UserName/edit", editView.UserProfileEditView)
+	router.GET("/i/:shortcode/edit", editView.FeatureImgEditView)
+	router.GET("/album/:username/:shortcode/edit", editView.AlbumEditView)
+	router.GET("/u/:username/edit", editView.UserProfileEditView)
 	router.GET("/upload", editView.UploadView)
 
 	// BACKEND MANAGE ROUTES

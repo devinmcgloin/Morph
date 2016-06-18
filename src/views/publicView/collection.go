@@ -1,6 +1,7 @@
 package publicView
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/devinmcgloin/morph/src/views/common"
@@ -8,6 +9,9 @@ import (
 )
 
 func MostRecentView(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	log.Println(r.Cookie("_gothic_session"))
+	log.Println(r.Cookies())
 
 	locations, err := mongo.GetNumMostRecentImg(10)
 	if err != nil {

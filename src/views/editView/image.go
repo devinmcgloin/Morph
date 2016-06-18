@@ -10,10 +10,10 @@ import (
 
 func FeatureImgEditView(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	imageShortTitle := ps.ByName("ImageShortTitle")
+	shortcode := ps.ByName("shortcode")
 
-	log.Printf("Accessing img:%s", imageShortTitle)
-	img, err := mongo.GetFeatureSingleImgView(imageShortTitle)
+	log.Printf("Accessing img:%s", shortcode)
+	img, err := mongo.GetFeatureSingleImgView(shortcode)
 	if err != nil {
 		common.SomethingsWrong(w, r, err)
 		return

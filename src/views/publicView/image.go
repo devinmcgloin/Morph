@@ -1,6 +1,7 @@
 package publicView
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/devinmcgloin/morph/src/views/common"
@@ -9,7 +10,7 @@ import (
 
 func FeatureImgView(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	ShortTitle := ps.ByName("ImageShortTitle")
+	ShortTitle := ps.ByName("shortcode")
 
 	img, err := mongo.GetFeatureSingleImgView(ShortTitle)
 	if err != nil {
@@ -22,6 +23,8 @@ func FeatureImgView(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 		common.SomethingsWrong(w, r, err)
 		return
 	}
+
+	log.Println(img)
 
 	err = t.Execute(w, img)
 	if err != nil {

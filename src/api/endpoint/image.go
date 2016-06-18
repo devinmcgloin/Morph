@@ -13,7 +13,7 @@ import (
 var decoder = schema.NewDecoder()
 
 func ImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	imageShortTitle := ps.ByName("ImageShortTitle")
+	shortcode := ps.ByName("shortcode")
 
 	err := r.ParseForm()
 	if err != nil {
@@ -21,7 +21,7 @@ func ImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 		return
 	}
 
-	img, err := mongo.GetImageByTitle(imageShortTitle)
+	img, err := mongo.GetImageByShortCode(shortcode)
 	if err != nil {
 		log.Println(err)
 		common.NotFound(w, r)
@@ -42,8 +42,8 @@ func ImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 	mongo.UpdateImage(img)
 
-	newUrl := fmt.Sprintf("/i/%s/edit", imageShortTitle)
+	newURL := fmt.Sprintf("/i/%s/edit", shortcode)
 
-	http.Redirect(w, r, newUrl, 302)
+	http.Redirect(w, r, newURL, 302)
 
 }
