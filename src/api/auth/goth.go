@@ -5,15 +5,22 @@ import (
 	"net/http"
 	"strings"
 
+	"gopkg.in/mgo.v2/bson"
+
 	"github.com/devinmcgloin/morph/src/api/store"
 	"github.com/devinmcgloin/morph/src/model"
 	"github.com/devinmcgloin/morph/src/views/common"
+	"github.com/gorilla/securecookie"
 	"github.com/julienschmidt/httprouter"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
 )
 
 var mongo = store.NewStore()
+
+var hashKey = securecookie.GenerateRandomKey(64)
+var blockKey = securecookie.GenerateRandomKey(32)
+var s = securecookie.New(hashKey, blockKey)
 
 // BeginAuthHandler
 func BeginAuthHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -35,7 +42,26 @@ func UserLoginCallback(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 		return
 	}
 
-	log.Printf("%v", user)
+	internalUser := ConvertGothUser(user)
+	err = RegisterUser(internalUser)
+	if err != nil {
+		http.Redirect(w, r, "/", 301)
+	}
+
+	value := map[string]string{
+		"provider":    internalUser.Provider,
+		"provider_id": internalUser.ProviderID,
+		"username":    internalUser.UserName,
+	}
+
+	if encoded, err := s.Encode("morph", value); err == nil {
+		cookie := &http.Cookie{
+			Name:  "morph",
+			Value: encoded,
+			Path:  "/",
+		}
+		http.SetCookie(w, cookie)
+	}
 
 	http.Redirect(w, r, "/", 301)
 }
@@ -49,27 +75,27 @@ func getProvider(r *http.Request) (string, error) {
 // CheckUser looks at the request, matches the cookie with the user and updates the
 // cookie if it is close to expiration. Also returns the user object.
 func CheckUser(r *http.Request) (bool, model.User) {
-	log.Println(r.Cookies())
-	gothicCookie, err := r.Cookie("_gothic_session")
+	cookie, err := r.Cookie("morph")
 	if err != nil {
 		log.Println(err)
 		return false, model.User{}
 	}
-	log.Println(gothicCookie.Name)
-	log.Println(gothicCookie.Expires)
+	value := make(map[string]string)
 
-	log.Println(gothicCookie.Value)
-	log.Println(gothicCookie.Raw)
-	log.Println(gothicCookie.Secure)
-
-	session, err := gothic.Store.Get(r, gothic.SessionName)
+	err = s.Decode("morph", cookie.Value, &value)
 	if err != nil {
 		log.Println(err)
 		return false, model.User{}
 	}
 
-	log.Println(session)
-	return true, model.User{}
+	username := value["username"]
+	user, err := mongo.GetUserByUserName(username)
+	if err != nil {
+		log.Println(err)
+		return false, model.User{}
+	}
+
+	return true, user
 }
 
 func RegisterUser(user model.User) error {
@@ -91,9 +117,10 @@ func ConvertGothUser(user goth.User) model.User {
 
 	modelUser.Email = user.Email
 	modelUser.Provider = user.Provider
-	modelUser.UserName = user.NickName
+	modelUser.UserName = user.NickName // TODO need to check username here
 	modelUser.Name = user.Name
 	modelUser.Bio = user.Description
+	modelUser.ID = bson.NewObjectId()
 
 	return modelUser
 }

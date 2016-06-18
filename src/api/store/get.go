@@ -42,6 +42,38 @@ func (ds *MgoStore) GetImageByShortCode(imageShortCode string) (model.Image, err
 
 }
 
+func (ds *MgoStore) GetUserByID(userID bson.ObjectId) (model.User, error) {
+	session := ds.session.Copy()
+	defer session.Close()
+
+	var user model.User
+
+	c := session.DB(dbname).C("users")
+
+	err := c.FindId(userID).One(&user)
+	if err != nil {
+		log.Println(err)
+		return model.User{}, err
+	}
+	return user, nil
+}
+
+func (ds *MgoStore) GetUserByUserName(username string) (model.User, error) {
+	session := ds.session.Copy()
+	defer session.Close()
+
+	var user model.User
+
+	c := session.DB(dbname).C("users")
+
+	err := c.Find(bson.M{"username": username}).One(&user)
+	if err != nil {
+		log.Println(err)
+		return model.User{}, err
+	}
+	return user, nil
+}
+
 func (ds *MgoStore) GetUserProfileView(UserName string) (model.UserProfileView, error) {
 	session := ds.session.Copy()
 	defer session.Close()
