@@ -62,7 +62,7 @@ func CheckUser(r *http.Request) (bool, model.User) {
 	log.Println(gothicCookie.Raw)
 	log.Println(gothicCookie.Secure)
 
-	session, err := gothic.Store.Get(r, gothicCookie.Name)
+	session, err := gothic.Store.Get(r, gothic.SessionName)
 	if err != nil {
 		log.Println(err)
 		return false, model.User{}
