@@ -50,6 +50,13 @@ func getProvider(r *http.Request) (string, error) {
 // cookie if it is close to expiration. Also returns the user object.
 func CheckUser(r *http.Request) (bool, model.User) {
 	gothicCookie, err := r.Cookie("_gothic_session")
+	log.Println(gothicCookie.Name)
+	log.Println(gothicCookie.Expires)
+
+	log.Println(gothicCookie.Value)
+	log.Println(gothicCookie.Raw)
+	log.Println(gothicCookie.Secure)
+
 	if err != nil {
 		log.Println(err)
 		return false, model.User{}
