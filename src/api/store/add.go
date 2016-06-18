@@ -13,7 +13,7 @@ func (ds *MgoStore) AddSrc(imageID bson.ObjectId, src model.ImgSource) error {
 	session := ds.session.Copy()
 	defer session.Close()
 
-	c := session.DB("morph").C("images")
+	c := session.DB(dbname).C("images")
 
 	err := c.UpdateId(imageID, bson.M{"$push": bson.M{"sources": src}})
 	if err != nil {
@@ -30,7 +30,7 @@ func (ds *MgoStore) AddUser(user model.User) error {
 
 	user.ID = bson.NewObjectId()
 
-	c := session.DB("morph").C("users")
+	c := session.DB(dbname).C("users")
 
 	err := c.Insert(user)
 	if err != nil {
@@ -48,7 +48,7 @@ func (ds *MgoStore) AddImg(image model.Image) error {
 
 	image.ID = bson.NewObjectId()
 
-	c := session.DB("morph").C("images")
+	c := session.DB(dbname).C("images")
 
 	err := c.Insert(image)
 	if err != nil {

@@ -26,7 +26,6 @@ func UserLoginCallback(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 
 	//TODO need to add the user account here and log them in.
 
-	log.Println(gothic.GetState(r))
 	gothic.GetProviderName = getProvider
 
 	user, err := gothic.CompleteUserAuth(w, r)
@@ -47,7 +46,9 @@ func getProvider(r *http.Request) (string, error) {
 	return provider, nil
 }
 
-func LoggedIn(r *http.Request) (bool, model.User) {
+// CheckUser looks at the request, matches the cookie with the user and updates the
+// cookie if it is close to expiration. Also returns the user object.
+func CheckUser(r *http.Request) (bool, model.User) {
 	return false, model.User{}
 }
 

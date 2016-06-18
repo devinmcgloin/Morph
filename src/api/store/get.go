@@ -14,7 +14,7 @@ func (ds *MgoStore) GetImageByID(imageID bson.ObjectId) (model.Image, error) {
 
 	var image model.Image
 
-	c := session.DB("morph").C("images")
+	c := session.DB(dbname).C("images")
 
 	err := c.FindId(imageID).One(&image)
 	if err != nil {
@@ -31,7 +31,7 @@ func (ds *MgoStore) GetImageByShortCode(imageShortCode string) (model.Image, err
 
 	var image model.Image
 
-	c := session.DB("morph").C("images")
+	c := session.DB(dbname).C("images")
 
 	err := c.Find(bson.M{"shortcode": imageShortCode}).One(&image)
 	if err != nil {
@@ -48,14 +48,14 @@ func (ds *MgoStore) GetUserProfileView(UserName string) (model.UserProfileView, 
 
 	var userProfileView model.UserProfileView
 
-	c := session.DB("morph").C("users")
+	c := session.DB(dbname).C("users")
 	err := c.Find(bson.M{"username": UserName}).One(&userProfileView.User)
 	if err != nil {
 		log.Println(err)
 		return model.UserProfileView{}, err
 	}
 
-	c = session.DB("morph").C("images")
+	c = session.DB(dbname).C("images")
 	err = c.Find(bson.M{"user_id": userProfileView.User.ID}).All(&userProfileView.Images)
 	if err != nil {
 		log.Println(err)
@@ -73,14 +73,14 @@ func (ds *MgoStore) GetFeatureSingleImgView(imageShortCode string) (model.Single
 
 	log.Println(imageShortCode)
 
-	c := session.DB("morph").C("images")
+	c := session.DB(dbname).C("images")
 	err := c.Find(bson.M{"shortcode": imageShortCode}).One(&singleImgView.Image)
 	if err != nil {
 		log.Println(err)
 		return model.SingleImgView{}, err
 	}
 
-	c = session.DB("morph").C("users")
+	c = session.DB(dbname).C("users")
 	err = c.FindId(singleImgView.User.ID).One(&singleImgView.User)
 	if err != nil {
 		log.Println(err)
@@ -95,7 +95,7 @@ func (ds *MgoStore) GetCollectionViewByLocations(locationShortText ...string) (m
 	defer session.Close()
 
 	var locCollectionView model.LocCollectionView
-	_ = session.DB("morph").C("images")
+	_ = session.DB(dbname).C("images")
 	// Can use MongoDB $in tag here. Need to normalize location schema though.
 	//err := c.Find(bson.M{})
 
@@ -108,21 +108,21 @@ func (ds *MgoStore) GetAlbumCollectionView(albumTitle string, userName string) (
 
 	var albumCollectionView model.AlbumCollectionView
 
-	c := session.DB("morph").C("albums")
+	c := session.DB(dbname).C("albums")
 	err := c.Find(bson.M{"Title": albumTitle, "username": userName}).One(&albumCollectionView.Album)
 	if err != nil {
 		log.Println(err)
 		return model.AlbumCollectionView{}, nil
 	}
 
-	c = session.DB("morph").C("images")
+	c = session.DB(dbname).C("images")
 	err = c.Find(bson.M{"$in": bson.M{"_id": albumCollectionView.Album.Images}}).All(&albumCollectionView.Images)
 	if err != nil {
 		log.Println(err)
 		return model.AlbumCollectionView{}, nil
 	}
 
-	c = session.DB("morph").C("users")
+	c = session.DB(dbname).C("users")
 	err = c.Find(bson.M{"_id": albumCollectionView.Album.UserID}).One(&albumCollectionView.User)
 	if err != nil {
 		log.Println(err)
@@ -138,7 +138,7 @@ func (ds *MgoStore) GetCollectionViewByTags(tags ...string) (model.TagCollection
 	defer session.Close()
 
 	var tagCollectionView model.TagCollectionView
-	c := session.DB("morph").C("images")
+	c := session.DB(dbname).C("images")
 	err := c.Find(bson.M{"$in": bson.M{"_id": tags}}).All(&tagCollectionView.Images)
 	if err != nil {
 		log.Println(err)
@@ -154,7 +154,7 @@ func (ds *MgoStore) GetNumMostRecentImg(limit int) (model.CollectionView, error)
 	defer session.Close()
 
 	var imgCollectionView model.CollectionView
-	c := session.DB("morph").C("images")
+	c := session.DB(dbname).C("images")
 	err := c.Find(nil).Sort("publish_time").Limit(limit).All(&imgCollectionView.Images)
 	if err != nil {
 		log.Println(err)

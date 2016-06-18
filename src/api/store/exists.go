@@ -10,7 +10,7 @@ func (ds *MgoStore) ExistsUserName(userName string) bool {
 	session := ds.session.Copy()
 	defer session.Close()
 
-	c := session.DB("morph").C("users")
+	c := session.DB(dbname).C("users")
 	n, err := c.Find(bson.M{"username": userName}).Count()
 	if err != nil {
 		log.Println(err)
@@ -26,7 +26,7 @@ func (ds *MgoStore) ExistsAlbumShortCode(shortCode string) bool {
 	session := ds.session.Copy()
 	defer session.Close()
 
-	c := session.DB("morph").C("album")
+	c := session.DB(dbname).C("album")
 	n, err := c.Find(bson.M{"shortcode": shortCode}).Count()
 	if err != nil {
 		log.Println(err)
@@ -42,7 +42,7 @@ func (ds *MgoStore) ExistsImageShortCode(shortCode string) bool {
 	session := ds.session.Copy()
 	defer session.Close()
 
-	c := session.DB("morph").C("images")
+	c := session.DB(dbname).C("images")
 	n, err := c.Find(bson.M{"shortcode": shortCode}).Count()
 	if err != nil {
 		log.Println(err)
@@ -58,7 +58,7 @@ func (ds *MgoStore) ExistsUser(provider string, providerID string) bool {
 	session := ds.session.Copy()
 	defer session.Close()
 
-	c := session.DB("morph").C("users")
+	c := session.DB(dbname).C("users")
 	n, err := c.Find(bson.M{"provider": provider, "provider_id": providerID}).Count()
 	if err != nil {
 		log.Println(err)

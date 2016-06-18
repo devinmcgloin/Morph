@@ -14,6 +14,8 @@ func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
 }
 
+var dbname = env.Getenv("MONGODB_NAME", "morph")
+
 type MgoStore struct {
 	session *mgo.Session
 }
