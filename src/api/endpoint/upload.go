@@ -11,19 +11,25 @@ import (
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/devinmcgloin/morph/src/api/AWS"
+	"github.com/devinmcgloin/morph/src/api/auth"
 	"github.com/devinmcgloin/morph/src/model"
-	"github.com/julienschmidt/httprouter"
 )
 
 // UploadHandler manages uploading the original file to aws.
 // TODO: In the future it should also spin off worker threads to
 // handle compression, and rendering other sizes for the image.
-func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func UploadHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(32 << 20)
 
 	var err error
 
 	// TODO need to include shortext data here
+
+	loggedIn, user := auth.CheckUser(r)
+	if !loggedIn {
+		http.Redirect(w, r, "/login", 301)
+		return
+	}
 
 	var imageSources []model.ImgSource
 	imageSources = append(imageSources, model.ImgSource{Size: "orig"})
@@ -31,6 +37,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	ID := bson.NewObjectId()
 	image := model.Image{
 		ID:          ID,
+		UserID:      user.ID,
 		PublishTime: time.Now(),
 		CaptureTime: time.Now(),
 		Sources:     imageSources,

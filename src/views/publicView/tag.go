@@ -5,12 +5,12 @@ import (
 	"net/http"
 
 	"github.com/devinmcgloin/morph/src/views/common"
-	"github.com/julienschmidt/httprouter"
+	"github.com/gorilla/mux"
 )
 
-func CollectionTagView(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func CollectionTagView(w http.ResponseWriter, r *http.Request) {
 
-	tag := ps.ByName("tag")
+	tag := mux.Vars(r)["tag"]
 
 	log.Printf("Accessing tag:%s", tag)
 	taggedImages, err := mongo.GetCollectionViewByTags(tag)
@@ -38,4 +38,4 @@ func CollectionTagView(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 
 }
 
-func CollectionTagFeatureView(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {}
+func CollectionTagFeatureView(w http.ResponseWriter, r *http.Request) {}

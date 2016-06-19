@@ -5,15 +5,18 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/devinmcgloin/morph/src/model"
 	"github.com/devinmcgloin/morph/src/views/common"
+	"github.com/gorilla/mux"
 	"github.com/gorilla/schema"
-	"github.com/julienschmidt/httprouter"
 )
 
 var decoder = schema.NewDecoder()
 
-func ImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	shortcode := ps.ByName("shortcode")
+func ImageHandler(w http.ResponseWriter, r *http.Request) {
+	shortcode := mux.Vars(r)["shortcode"]
+
+	var image model.Image
 
 	err := r.ParseForm()
 	if err != nil {
@@ -21,18 +24,14 @@ func ImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 		return
 	}
 
-	img, err := mongo.GetImageByShortCode(shortcode)
+	image, err = mongo.GetImageByShortCode(shortcode)
 	if err != nil {
 		log.Println(err)
 		common.NotFound(w, r)
 		return
 	}
 
-	err = decoder.Decode(&img, r.PostForm)
-
-	log.Println(r.PostForm)
-
-	log.Println(img)
+	err = decoder.Decode(&image, r.PostForm)
 
 	if err != nil {
 		log.Println(err)
@@ -40,7 +39,7 @@ func ImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 		return
 	}
 
-	mongo.UpdateImage(img)
+	mongo.UpdateImage(image)
 
 	newURL := fmt.Sprintf("/i/%s/edit", shortcode)
 

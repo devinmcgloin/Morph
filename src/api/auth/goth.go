@@ -11,7 +11,6 @@ import (
 	"github.com/devinmcgloin/morph/src/model"
 	"github.com/devinmcgloin/morph/src/views/common"
 	"github.com/gorilla/securecookie"
-	"github.com/julienschmidt/httprouter"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
 )
@@ -23,12 +22,12 @@ var blockKey = securecookie.GenerateRandomKey(32)
 var s = securecookie.New(hashKey, blockKey)
 
 // BeginAuthHandler
-func BeginAuthHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func BeginAuthHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Entered BeginAuthHandler")
 	gothic.BeginAuthHandler(w, r)
 }
 
-func UserLoginCallback(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func UserLoginCallback(w http.ResponseWriter, r *http.Request) {
 	log.Println("Entered UserLoginCallback")
 
 	//TODO need to add the user account here and log them in.

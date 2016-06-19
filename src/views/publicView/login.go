@@ -4,10 +4,9 @@ import (
 	"net/http"
 
 	"github.com/devinmcgloin/morph/src/views/common"
-	"github.com/julienschmidt/httprouter"
 )
 
-func UserLoginView(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func UserLoginView(w http.ResponseWriter, r *http.Request) {
 
-	common.RenderStatic(w, r, "templates/pages/loginView.tmpl")
+	common.ExecuteTemplate(w, r, "templates/pages/loginView.tmpl", nil)
 }

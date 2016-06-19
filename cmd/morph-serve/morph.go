@@ -10,10 +10,11 @@ import (
 	"github.com/devinmcgloin/morph/src/views/editView"
 	"github.com/devinmcgloin/morph/src/views/publicView"
 	"github.com/devinmcgloin/morph/src/views/settings"
+	"github.com/gorilla/context"
 	"github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
-	"github.com/julienschmidt/httprouter"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
 	"github.com/markbates/goth/providers/github"
@@ -40,7 +41,7 @@ func init() {
 
 func main() {
 
-	router := httprouter.New()
+	router := mux.NewRouter()
 	port := os.Getenv("PORT")
 
 	log.Printf("Serving at http://localhost:%s", port)
@@ -49,36 +50,46 @@ func main() {
 	// TODO need to figure out api formatting and tokens.
 	// TODO make shortcodes a primary field in mongo and index by those.
 
-	router.POST("/api/upload", endpoint.UploadHandler)
-	router.POST("/api/u/:username/edit", endpoint.UserHandler)
-	router.POST("/api/i/:shortcode/edit", endpoint.ImageHandler)
-	router.POST("/api/album/:username/:shortcode/edit", endpoint.AlbumHandler)
+	router.HandleFunc("/api/upload", setAuthContext(endpoint.UploadHandler)).Methods("POST")
+	router.HandleFunc("/api/u/{username}/edit", setAuthContext(endpoint.UserHandler)).Methods("POST")
+	router.HandleFunc("/api/i/{shortcode}/edit", setAuthContext(endpoint.ImageHandler)).Methods("POST")
+	router.HandleFunc("/api/album/{username}/{shortcode}/edit", setAuthContext(endpoint.AlbumHandler)).Methods("POST")
 
 	// CONTENT VIEW ROUTES
-	router.GET("/", publicView.MostRecentView)
-	router.GET("/i/:shortcode", publicView.FeatureImgView)
-	router.GET("/tag/:tag", publicView.CollectionTagView)
-	router.GET("/tag/:tag/:shortcode", publicView.CollectionTagFeatureView)
-	router.GET("/album/:username/:shortcode", publicView.AlbumView)
-	router.GET("/u/:username", publicView.UserProfileView)
-	router.GET("/loc/*query", publicView.LocationView) //TODO not sure about shortcodes for locations
-	router.GET("/search/*query", publicView.SearchView)
+	router.HandleFunc("/", setAuthContext(publicView.MostRecentView)).Methods("GET")
+	router.HandleFunc("/i/{shortcode}", setAuthContext(publicView.FeatureImgView)).Methods("GET")
+	router.HandleFunc("/tag/{tag}", setAuthContext(publicView.CollectionTagView)).Methods("GET")
+	router.HandleFunc("/tag/{tag}/{shortcode}", setAuthContext(publicView.CollectionTagFeatureView)).Methods("GET")
+	router.HandleFunc("/album/{username}/{shortcode}", setAuthContext(publicView.AlbumView)).Methods("GET")
+	router.HandleFunc("/u/{username}", setAuthContext(publicView.UserProfileView)).Methods("GET")
+	router.HandleFunc("/loc/*query", setAuthContext(publicView.LocationView)).Methods("GET") //TODO not sure about shortcodes for locations
+	router.HandleFunc("/search/*query", setAuthContext(publicView.SearchView)).Methods("GET")
 
 	// CONTENT EDIT ROUTES
-	router.GET("/i/:shortcode/edit", editView.FeatureImgEditView)
-	router.GET("/album/:username/:shortcode/edit", editView.AlbumEditView)
-	router.GET("/u/:username/edit", editView.UserProfileEditView)
-	router.GET("/upload", editView.UploadView)
+	router.HandleFunc("/i/{shortcode}/edit", setAuthContext(editView.FeatureImgEditView)).Methods("GET")
+	router.HandleFunc("/album/{username}/{shortcode}/edit", setAuthContext(editView.AlbumEditView)).Methods("GET")
+	router.HandleFunc("/u/{username}/edit", setAuthContext(editView.UserProfileEditView)).Methods("GET")
+	router.HandleFunc("/upload", setAuthContext(editView.UploadView)).Methods("GET")
 
 	// BACKEND MANAGE ROUTES
-	router.GET("/login", publicView.UserLoginView)
-	router.GET("/auth/:provider", auth.BeginAuthHandler)
-	router.GET("/auth/:provider/callback", auth.UserLoginCallback)
-	router.GET("/settings", settings.UserSettingsView)
+	router.HandleFunc("/login", setAuthContext(publicView.UserLoginView)).Methods("GET")
+	router.HandleFunc("/auth/{provider}", setAuthContext(auth.BeginAuthHandler)).Methods("GET")
+	router.HandleFunc("/auth/{provider}/callback", setAuthContext(auth.UserLoginCallback)).Methods("GET")
+	router.HandleFunc("/settings", setAuthContext(settings.UserSettingsView)).Methods("GET")
 
 	// ASSETS
-	router.ServeFiles("/assets/*filepath", http.Dir("assets/"))
+	router.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets/"))))
 
 	log.Fatal(http.ListenAndServe(":"+port, handlers.LoggingHandler(os.Stdout, router)))
 
+}
+
+func setAuthContext(handler func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		loggedIn, user := auth.CheckUser(r)
+		if loggedIn {
+			context.Set(r, "userAuth", user)
+		}
+		handler(w, r)
+	})
 }

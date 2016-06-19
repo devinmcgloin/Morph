@@ -1,9 +1,5 @@
 package endpoint
 
-import (
-	"net/http"
+import "net/http"
 
-	"github.com/julienschmidt/httprouter"
-)
-
-func AlbumHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {}
+func AlbumHandler(w http.ResponseWriter, r *http.Request) {}

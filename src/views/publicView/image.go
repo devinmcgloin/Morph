@@ -5,12 +5,12 @@ import (
 	"net/http"
 
 	"github.com/devinmcgloin/morph/src/views/common"
-	"github.com/julienschmidt/httprouter"
+	"github.com/gorilla/mux"
 )
 
-func FeatureImgView(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func FeatureImgView(w http.ResponseWriter, r *http.Request) {
 
-	ShortTitle := ps.ByName("shortcode")
+	ShortTitle := mux.Vars(r)["shortcode"]
 
 	img, err := mongo.GetFeatureSingleImgView(ShortTitle)
 	if err != nil {

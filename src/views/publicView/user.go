@@ -5,12 +5,12 @@ import (
 	"net/http"
 
 	"github.com/devinmcgloin/morph/src/views/common"
-	"github.com/julienschmidt/httprouter"
+	"github.com/gorilla/mux"
 )
 
-func UserProfileView(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func UserProfileView(w http.ResponseWriter, r *http.Request) {
 
-	UserName := ps.ByName("UserName")
+	UserName := mux.Vars(r)["username"]
 
 	log.Printf("Accessing user:%s", UserName)
 	user, err := mongo.GetUserProfileView(UserName)

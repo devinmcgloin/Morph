@@ -3,7 +3,6 @@ package common
 import (
 	"html/template"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
@@ -18,18 +17,17 @@ func StandardTemplate(filepaths ...string) (*template.Template, error) {
 	return t, err
 }
 
-func RenderStatic(w http.ResponseWriter, r *http.Request, resources string) {
-	t, err := StandardTemplate(resources)
+func ExecuteTemplate(w http.ResponseWriter, r *http.Request, template string, data interface{}) {
+
+	t, err := StandardTemplate(template)
 	if err != nil {
-		log.Printf("Error while parsing template %s", err)
-		http.Error(w, http.StatusText(500), 500)
+		SomethingsWrong(w, r, err)
 		return
 	}
 
-	err = t.Execute(w, nil)
+	err = t.Execute(w, data)
 	if err != nil {
-		log.Printf("Error while executing template %s", err)
-		http.Error(w, http.StatusText(500), 500)
+		SomethingsWrong(w, r, err)
 		return
 	}
 }

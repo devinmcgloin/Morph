@@ -4,13 +4,13 @@ import (
 	"net/http"
 
 	"github.com/devinmcgloin/morph/src/views/common"
-	"github.com/julienschmidt/httprouter"
+	"github.com/gorilla/mux"
 )
 
-func AlbumView(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-
-	userName := ps.ByName("UserName")
-	albumTitle := ps.ByName("Album")
+func AlbumView(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	userName := vars["username"]
+	albumTitle := vars["Album"]
 
 	album, err := mongo.GetAlbumCollectionView(userName, albumTitle)
 	if err != nil {

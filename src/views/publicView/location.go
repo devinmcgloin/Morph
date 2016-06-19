@@ -4,12 +4,12 @@ import (
 	"net/http"
 
 	"github.com/devinmcgloin/morph/src/views/common"
-	"github.com/julienschmidt/httprouter"
+	"github.com/gorilla/mux"
 )
 
-func LocationView(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func LocationView(w http.ResponseWriter, r *http.Request) {
 
-	locShortText := ps.ByName("LocShortText")
+	locShortText := mux.Vars(r)["shortcode"] // TODO this needs to turn into a query
 
 	locations, err := mongo.GetCollectionViewByLocations(locShortText)
 	if err != nil {
