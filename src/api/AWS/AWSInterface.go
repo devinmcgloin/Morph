@@ -44,7 +44,7 @@ func formatParams(buffer []byte, size int64, bucketName string, path string) (*s
 		Key:           aws.String(path),
 		Body:          fileBytes,
 		ContentLength: aws.Int64(size),
-		ContentType:   aws.String("image/jpeg"),
+		ContentType:   aws.String(fileType),
 	}
 	return params, nil
 
