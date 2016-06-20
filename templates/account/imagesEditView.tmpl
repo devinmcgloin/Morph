@@ -2,13 +2,12 @@
 <html>
 {{template "head"}}
    <body>
-      <div class="body-container">
-        {{ template "header" }}
-        <div>
+
+        {{ template "header" .Auth }}
+
         {{range .Images}}
         {{template "imageEditView" .}}
         {{end}}
-      </div>
-      </div>
+
    </body>
 </html>

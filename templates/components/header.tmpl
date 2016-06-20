@@ -1,15 +1,12 @@
 {{define "header"}}
-<div class="header-container">
+<div id="header" class="container">
+  <div class="rows">
 
-        <!-- <a href="/">
-          <img class="header-img" src="/assets/img/icon.svg" alt="/assets/img/icon.png">
-        </a> -->
-
-      <div class="header-title">
-        <h1><a href="/">Morph</a></h1>
+      <div class="two columns">
+        <h1>Morph</h1>
       </div>
 
-      <div class="header-nav">
+      <div id="nav" class="ten columns">
         <ul>
           {{if .UserName}}
           <li><a href="/account/">Account</a></li>
@@ -23,5 +20,6 @@
         </ul>
       </div>
     </div>
+  </div>
 
 {{end}}

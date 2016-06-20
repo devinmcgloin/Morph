@@ -1,12 +1,9 @@
 {{define "imageView"}}
-<div class="img">
-  <h2><a href="/i/{{.ShortCode}}/">{{.Title}}</a></h2>
-
+<div class="container">
   <a href="/i/{{.ShortCode}}/">
   {{$sourceImg := index .Sources 0}}
-  <img class="photo" src="{{$sourceImg.URL}}">
+  <img class="u-full-width" src="{{$sourceImg.URL}}">
   </a>
-  <p class="center"><small>{{.Desc}}</small></p>
 
 </div>
 {{end}}

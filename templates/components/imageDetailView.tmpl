@@ -1,9 +1,9 @@
 {{define "imageDetailView"}}
-<h2>{{.Image.Title}}</h2>
-<p> by <a href="/u/{{.User.UserName}}/">{{.User.UserName}}</a></p>
-<p>{{.Image.Desc}}</p>
-<p>{{.Image.PublishTime.Format "2006 Jan 02" }}</p>
-{{$sourceImg := index .Image.Sources 0}}
-<img class="photo-feature" src="{{$sourceImg.URL}}">
-<p>f/{{.Image.Aperture}} 1/{{.Image.ExposureTime}} sec {{.Image.FocalLength}}mm ISO {{.Image.ISO}}</p>
+<div class="container">
+  <p><a href="/u/{{.User.UserName}}/">{{.User.UserName}}</a></p>
+  <p>{{.Image.PublishTime.Format "2006 Jan 02" }}</p>
+  {{$sourceImg := index .Image.Sources 0}}
+  <img class="u-full-width" src="{{$sourceImg.URL}}">
+  <p>f/{{.Image.Aperture.Rep}} {{.Image.ExposureTime.Rep}} sec {{.Image.FocalLength.Rep}}mm ISO {{.Image.ISO}}</p>
+</div>
 {{end}}

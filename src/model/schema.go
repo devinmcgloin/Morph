@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"time"
 
 	gj "github.com/kpawlik/geojson"
@@ -11,8 +12,6 @@ import (
 type Image struct {
 	ID           bson.ObjectId `bson:"_id"`
 	ShortCode    string        `bson:"shortcode"`
-	Title        string        `bson:"title,omitempty"`
-	Desc         string        `bson:"desc,omitempty"`
 	Aperture     Ratio         `bson:"aperture,omitempty"`
 	ExposureTime Ratio         `bson:"exposure_time,omitempty"`
 	FocalLength  Ratio         `bson:"focal_length,omitempty"`
@@ -54,13 +53,18 @@ type ImgSource struct {
 }
 
 type Ratio struct {
-	Num int64
-	Den int64
+	Num int64  `bson:"num"`
+	Den int64  `bson:"den"`
+	Rep string `bson:"rep"`
 }
 
-// Ratio is a shortcut to make ratio types
-func NewRatio(num, den int64) Ratio {
-	return Ratio{Num: num, Den: den}
+func (r Ratio) Format() string {
+	return fmt.Sprintf("%d", (r.Num / r.Den))
+}
+
+// NewRatio is a shortcut to make ratio types
+func NewRatio(num, den int64, rep string) Ratio {
+	return Ratio{Num: num, Den: den, Rep: rep}
 }
 
 // User collection schema

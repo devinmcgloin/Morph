@@ -3,6 +3,7 @@ package metadata
 import (
 	"io"
 	"log"
+	"strconv"
 
 	"github.com/devinmcgloin/morph/src/model"
 	"github.com/devinmcgloin/morph/src/morphError"
@@ -10,29 +11,29 @@ import (
 	"github.com/rwcarlsen/goexif/exif"
 )
 
-func GetExif(image io.Reader) (*exif.Exif, *gj.Point, error) {
+func GetExif(image io.Reader) (*exif.Exif, error) {
 	exifDat, err := exif.Decode(image)
 	if err != nil {
-		return &exif.Exif{}, &gj.Point{}, morphError.New(err, "Unable to parse exif", 523)
+		return &exif.Exif{}, morphError.New(err, "Unable to parse exif", 523)
 	}
 
-	lat, lon, err := exifDat.LatLong()
-	if err != nil {
-		return &exif.Exif{}, &gj.Point{}, morphError.New(err, "Unable to parse exif long lat", 523)
-	}
-	point := gj.NewPoint(gj.Coordinate{gj.CoordType(lon), gj.CoordType(lat)})
-	point.Type = "Point"
-	return exifDat, point, nil
+	return exifDat, nil
 }
 
 func SetMetadata(file io.Reader, image *model.Image) error {
-	x, point, err := GetExif(file)
+	x, err := GetExif(file)
 	if err != nil {
-		return morphError.New(err, "Unable to get metadata", 523)
+		return nil
 	}
 
 	// TODO: Could add altitude data here.
-	image.Location = *point
+	lat, lon, err := x.LatLong()
+	if err == nil {
+		point := gj.NewPoint(gj.Coordinate{gj.CoordType(lon), gj.CoordType(lat)})
+		point.Type = "Point"
+		image.Location = *point
+	}
+
 	tmp, err := x.DateTime()
 	if err == nil {
 		image.CaptureTime = tmp
@@ -44,8 +45,9 @@ func SetMetadata(file io.Reader, image *model.Image) error {
 	ExposureTime, err := x.Get(exif.ExposureTime)
 	if err == nil {
 		num, den, err := ExposureTime.Rat2(0)
+
 		if err == nil {
-			image.ExposureTime = model.NewRatio(num, den)
+			image.ExposureTime = model.NewRatio(num, den, strconv.FormatInt(num, 10)+"/"+strconv.FormatInt(den, 10))
 		} else {
 			log.Println(err)
 		}
@@ -55,7 +57,7 @@ func SetMetadata(file io.Reader, image *model.Image) error {
 	if err == nil {
 		num, den, err := Aperture.Rat2(0)
 		if err == nil {
-			image.Aperture = model.NewRatio(num, den)
+			image.Aperture = model.NewRatio(num, den, strconv.FormatInt(num/den, 10))
 		}
 	}
 
@@ -63,7 +65,7 @@ func SetMetadata(file io.Reader, image *model.Image) error {
 	if err == nil {
 		num, den, err := FocalLength.Rat2(0)
 		if err == nil {
-			image.FocalLength = model.NewRatio(num, den)
+			image.FocalLength = model.NewRatio(num, den, strconv.FormatInt(num/den, 10))
 		}
 	}
 
@@ -105,15 +107,6 @@ func SetMetadata(file io.Reader, image *model.Image) error {
 		str, err := LensModel.StringVal()
 		if err == nil {
 			image.LensModel = str
-		}
-	}
-
-	// Descriptions
-	ImageDescription, err := x.Get(exif.ImageDescription)
-	if err == nil {
-		str, err := ImageDescription.StringVal()
-		if err == nil {
-			image.Desc = str
 		}
 	}
 
