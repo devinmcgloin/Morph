@@ -2,9 +2,9 @@
 
 A simple photography site written in Go.
 
-## API Reference
+# API Overview
 
-### Resources
+## Resources
 
 * Images
   * Location
@@ -24,9 +24,9 @@ A simple photography site written in Go.
   * Images
   * Users
 
-### Routes
+# Routes
 
-#### CRUD
+## CRUD
 
 Default behavior for the standard getters `GET /collections/:ID` is to include
 all sub fields up to a depth of 1. This means if you ask for a collection,
@@ -46,7 +46,7 @@ you want returned, and you'll only get the data you need.
 }
 ```
 
-##### Images
+### Images
 | Method | Endpoint                | Returns |
 |:-------|:------------------------|:--------|
 | GET    | /images/:ID             |         |
@@ -63,7 +63,7 @@ you want returned, and you'll only get the data you need.
 |        | /images/:ID/metadata    |         |
 |        | /images/:ID/tags        |         |
 
-##### Users
+### Users
 | Method | Endpoint            | Returns |
 |:-------|:--------------------|:--------|
 | GET    | /users/:ID          |         |
@@ -76,7 +76,7 @@ you want returned, and you'll only get the data you need.
 | PATCH  | /users/:ID/bio      |         |
 |        | /users/:ID/name     |         |
 
-##### Collections
+### Collections
 | Method | Endpoint                     | Returns |
 |:-------|:-----------------------------|:--------|
 | GET    | /collections/:ID             |         |
@@ -91,7 +91,7 @@ you want returned, and you'll only get the data you need.
 |        | /collections/:ID/description |         |
 |        | /collections/:ID/tags        |         |
 
-##### User Albums
+### User Albums
 | Method | Endpoint                | Returns |
 |:-------|:------------------------|:--------|
 | GET    | /albums/:ID             |         |
@@ -106,7 +106,7 @@ you want returned, and you'll only get the data you need.
 |        | /albums/:ID/tags        |         |
 
 
-#### Queries
+## Queries
 
 All queries are called on the root path for that resource with a JSON body
 indicating the query.
@@ -121,4 +121,4 @@ these queries is TBD.
 |        | /collections |         |
 |        | /albums      |         |
 
-### Error Codes
+# Error Codes
