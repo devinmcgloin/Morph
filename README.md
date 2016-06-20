@@ -1,5 +1,11 @@
 # Morph
 
-A simple photography site written in Go. 
+A simple photography site written in Go.
 
-Morph is based around a simple api.
+
+## Emphasis
+
+* Exposing the meta data to the users
+  * This means through explicit searching and filter
+* Pull in lots of metadata
+  * Location is a big one
