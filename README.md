@@ -47,71 +47,63 @@ you want returned, and you'll only get the data you need.
 ```
 
 ##### Images
-GET /images/:ID
-GET /images/:ID?fields
-GET /images/:ID/user
-GET /images/:ID/collections
-GET /images/:ID/album
-
-POST /images
-
-PUT /images/:ID/featured
-
-DELETE /images/:ID
-DELETE /images/:ID/featured
-DELETE /images/:ID?params
-
-PATCH /images/:ID
-PATCH /images/:ID/metadata
-PATCH /images/:ID/tags
+| Method | Endpoint                | Returns |
+|:-------|:------------------------|:--------|
+| GET    | /images/:ID             |         |
+|        | /images/:ID             |         |
+|        | /images/:ID/user        |         |
+|        | /images/:ID/collections |         |
+|        | /images/:ID/album       |         |
+| POST   | /images                 |         |
+| PUT    | /images/:ID/featured    |         |
+| DELTE  | /images/:ID             |         |
+|        | /images/:ID/featured    |         |
+|        | /images/:ID?params      |         |
+| PATCH  | /images/:ID             |         |
+|        | /images/:ID/metadata    |         |
+|        | /images/:ID/tags        |         |
 
 ##### Users
-GET /users/:ID
-GET /users/:ID?fields
-GET /users/:ID/location
-
-POST /users
-
-PUT /users/:ID/avatar
-
-DELETE /users/:ID
-DELETE /users/:ID?fields
-
-PATCH /users/:ID/bio
-PATCH /users/:ID/name
+| Method | Endpoint            | Returns |
+|:-------|:--------------------|:--------|
+| GET    | /users/:ID          |         |
+|        | /users/:ID?fields   |         |
+|        | /users/:ID/location |         |
+| POST   | /users              |         |
+| PUT    | /users/:ID/avatar   |         |
+| DELETE | /users/:ID          |         |
+|        | /users/:ID          |         |
+| PATCH  | /users/:ID/bio      |         |
+|        | /users/:ID/name     |         |
 
 ##### Collections
-GET /collections/:ID
-GET /collections/:ID?fields
-GET /collections/:ID/users
-GET /collections/:ID/images
-
-POST /collections
-
-PUT /collections/:ID/images
-
-DELETE /collections
-DELETE /collections/:ID/images/:ID
-
-PATCH /collections/:ID/title
-PATCH /collections/:ID/description
-PATCH /collections/:ID/tags
+| Method | Endpoint                     | Returns |
+|:-------|:-----------------------------|:--------|
+| GET    | /collections/:ID             |         |
+|        | /collections/:ID?fields      |         |
+|        | /collections/:ID/users       |         |
+|        | /collections/:ID/images      |         |
+| POST   | /collections                 |         |
+| PUT    | /collections/:ID/images      |         |
+| DELETE | /collections                 |         |
+|        | /collections/:ID/images/:ID  |         |
+| PATCH  | /collections/:ID/title       |         |
+|        | /collections/:ID/description |         |
+|        | /collections/:ID/tags        |         |
 
 ##### User Albums
-GET /albums/:ID
-GET /albums/:ID?fields
-GET /albums/:ID/images
-
-POST /albums
-
-PUT /albums/:ID/images
-
-DELETE /albums
-DELETE /albums/:ID/images/:ID
-
-PATCH /albums/:ID/title
-PATCH /albums/:ID/description
-PATCH /albums/:ID/tags
+| Method | Endpoint                | Returns |
+|:-------|:------------------------|:--------|
+| GET    | /albums/:ID             |         |
+|        | /albums/:ID?fields      |         |
+|        | /albums/:ID/images      |         |
+| POST   | /albums                 |         |
+| PUT    | /albums/:ID/images      |         |
+| DELETE | /albums                 |         |
+|        | /albums/:ID/images/:ID  |         |
+| PATCH  | /albums/:ID/title       |         |
+|        | /albums/:ID/description |         |
+|        | /albums/:ID/tags        |         |
 
 
 #### Queries
@@ -122,7 +114,11 @@ indicating the query.
 I'm planning on allowing sorting, filtering and searching, but the format for
 these queries is TBD.
 
-GET /users
-GET /images
-GET /collections
-GET /albums
+| Method | Endpoint     | Returns |
+|:-------|:-------------|:--------|
+| GET    | /users       |         |
+|        | /images      |         |
+|        | /collections |         |
+|        | /albums      |         |
+
+### Error Codes
