@@ -1,4 +1,4 @@
-package store
+package generator
 
 import (
 	"math/rand"
@@ -23,7 +23,7 @@ func int63() int64 {
 	return v
 }
 
-func randString(n int) string {
+func RandString(n int) string {
 	b := make([]byte, n)
 	// A src.Int63() generates 63 random bits, enough for letterIdxMax characters!
 	for i, cache, remain := n-1, int63(), letterIdxMax; i >= 0; {
@@ -39,20 +39,4 @@ func randString(n int) string {
 	}
 
 	return string(b)
-}
-
-func (ds *MgoStore) GetNewImageShortCode() string {
-	randTitle := randString(12)
-	if ds.ExistsImageShortCode(randTitle) {
-		randTitle = randString(12)
-	}
-	return randTitle
-}
-
-func (ds *MgoStore) GetNewAlbumShortCode() string {
-	randTitle := randString(12)
-	if ds.ExistsAlbumShortCode(randTitle) {
-		randTitle = randString(12)
-	}
-	return randTitle
 }

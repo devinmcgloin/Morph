@@ -3,9 +3,14 @@
 <html>
 {{template "head"}}
    <body>
-     {{ template "header" }}
+     {{ template "header" .Auth}}
       <div class="body-container">
-         {{template "imageDetailView" .}}
+
+
+         {{range .Images}}
+         {{template "imageView" .}}
+         {{end}}
+
       </div>
    </body>
 </html>

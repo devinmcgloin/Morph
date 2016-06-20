@@ -1,41 +1,38 @@
 package publicView
 
 import (
-	"log"
 	"net/http"
 
+	"github.com/devinmcgloin/morph/src/api/session"
+	"github.com/devinmcgloin/morph/src/morphError"
 	"github.com/devinmcgloin/morph/src/views/common"
 	"github.com/gorilla/mux"
 )
 
-func CollectionTagView(w http.ResponseWriter, r *http.Request) {
+func CollectionTagView(w http.ResponseWriter, r *http.Request) error {
 
 	tag := mux.Vars(r)["tag"]
 
-	log.Printf("Accessing tag:%s", tag)
 	taggedImages, err := mongo.GetCollectionViewByTags(tag)
 	if err != nil {
-		common.SomethingsWrong(w, r, err)
-		return
+		return morphError.New(err, "Unable to get collection", 523)
+
 	}
 
 	if len(taggedImages.Images) == 0 {
-		common.NotFound(w, r)
-		return
+		return morphError.New(err, "Collection was Empty", 404)
+
 	}
 
-	t, err := common.StandardTemplate("templates/pages/tagView.tmpl")
-	if err != nil {
-		common.SomethingsWrong(w, r, err)
-		return
+	usr, valid := session.GetUser(r)
+	if valid {
+		taggedImages.Auth = usr
 	}
 
-	err = t.Execute(w, taggedImages)
-	if err != nil {
-		common.SomethingsWrong(w, r, err)
-		return
-	}
+	return common.ExecuteTemplate(w, r, "templates/public/tagView.tmpl", taggedImages)
 
 }
 
-func CollectionTagFeatureView(w http.ResponseWriter, r *http.Request) {}
+func CollectionTagFeatureView(w http.ResponseWriter, r *http.Request) error {
+	return morphError.New(nil, "Not Implemented", 404)
+}

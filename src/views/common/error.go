@@ -7,7 +7,7 @@ import (
 
 func NotFound(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(404)
-	t, err := StandardTemplate("templates/pages/404.tmpl")
+	t, err := StandardTemplate("templates/public/404.tmpl")
 	if err != nil {
 		log.Printf("Error while parsing template: %s", err)
 		http.Error(w, http.StatusText(500), 500)
@@ -23,7 +23,7 @@ func NotFound(w http.ResponseWriter, r *http.Request) {
 }
 
 func SomethingsWrong(w http.ResponseWriter, r *http.Request, outsideError error) {
-	t, err := StandardTemplate("templates/pages/internalError.tmpl")
+	t, err := StandardTemplate("templates/public/internalError.tmpl")
 	if err != nil {
 		log.Printf("Error while parsing template: %s", err)
 		http.Error(w, http.StatusText(500), 500)

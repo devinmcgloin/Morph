@@ -3,26 +3,25 @@ package publicView
 import (
 	"net/http"
 
-	"github.com/devinmcgloin/morph/src/api/auth"
+	"github.com/devinmcgloin/morph/src/api/session"
 	"github.com/devinmcgloin/morph/src/model"
+	"github.com/devinmcgloin/morph/src/morphError"
 	"github.com/devinmcgloin/morph/src/views/common"
 )
 
-func MostRecentView(w http.ResponseWriter, r *http.Request) {
+func MostRecentView(w http.ResponseWriter, r *http.Request) error {
 
 	var images model.CollectionView
 
-	loggedIn, user := auth.CheckUser(r)
-	if loggedIn {
-		images.Auth = user
-	}
-
 	images, err := mongo.GetNumMostRecentImg(10)
 	if err != nil {
-		common.SomethingsWrong(w, r, err)
-		return
+		return morphError.New(err, "Unable to get collection", 523)
+
 	}
 
-	common.ExecuteTemplate(w, r, "templates/pages/index.tmpl", images)
-	return
+	usr, valid := session.GetUser(r)
+	if valid {
+		images.Auth = usr
+	}
+	return common.ExecuteTemplate(w, r, "templates/public/index.tmpl", images)
 }

@@ -1,6 +1,6 @@
 {{define "imageDetailView"}}
 <h2>{{.Image.Title}}</h2>
-<p> by <a href="/u/{{.User.UserName}}">{{.User.UserName}}</a></p>
+<p> by <a href="/u/{{.User.UserName}}/">{{.User.UserName}}</a></p>
 <p>{{.Image.Desc}}</p>
 <p>{{.Image.PublishTime.Format "2006 Jan 02" }}</p>
 {{$sourceImg := index .Image.Sources 0}}

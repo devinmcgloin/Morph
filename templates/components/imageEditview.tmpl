@@ -1,0 +1,16 @@
+{{define "imageEditView"}}
+{{$sourceImg := index .Sources 0}}
+
+<div class="photo-edit">
+ <img class="photo-edit-image" src="{{$sourceImg.URL}}">
+
+   <div class="form-div" id="{{.ShortCode}}">
+     <form action="/api/i/{{.ShortCode}}/edit" method="post">
+           <input type="text" name="Title" placeholder="Title" value="{{.Title}}" /><br>
+           <input type="textarea" name="Desc" placeholder="Description" value="{{.Desc}}"/><br>
+           <input type="text" name="Tags" placeholder="Tags" value="{{.Tags}}" /><br>
+           <input type="submit" value="Save" />
+     </form>
+   </div>
+ </div>
+{{end}}

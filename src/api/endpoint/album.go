@@ -1,5 +1,12 @@
 package endpoint
 
-import "net/http"
+import (
+	"net/http"
 
-func AlbumHandler(w http.ResponseWriter, r *http.Request) {}
+	"github.com/devinmcgloin/morph/src/morphError"
+)
+
+func AlbumHandler(w http.ResponseWriter, r *http.Request) error {
+
+	return morphError.New(nil, "Not Implemented", 404)
+}

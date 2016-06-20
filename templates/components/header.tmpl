@@ -11,15 +11,15 @@
 
       <div class="header-nav">
         <ul>
-          {{if .UserAuth}}
-          <li><a href="/settings">{{.User.Name}}</a></li>
+          {{if .UserName}}
+          <li><a href="/account/">Account</a></li>
           {{else}}
-          <li><a href="/login">Login</a></li>
+          <li><a href="/login/">Login</a></li>
           {{end}}
-          <li><a href="/search">Search</a></li>
-          <li><a href="/tags">Tags</a></li>
-          <li><a href="/albums">Albums</a></li>
-          <li><a href="/featured">Featured</a></li>
+          <li><a href="/search/">Search</a></li>
+          <li><a href="/tags/">Tags</a></li>
+          <li><a href="/albums/">Albums</a></li>
+          <li><a href="/featured/">Featured</a></li>
         </ul>
       </div>
     </div>

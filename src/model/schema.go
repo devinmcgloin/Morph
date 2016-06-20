@@ -13,20 +13,22 @@ type Image struct {
 	ShortCode    string        `bson:"shortcode"`
 	Title        string        `bson:"title,omitempty"`
 	Desc         string        `bson:"desc,omitempty"`
-	Aperture     int64         `bson:"aperture,omitempty"`
-	ExposureTime int64         `bson:"exposure_time,omitempty"`
-	FocalLength  int64         `bson:"focal_length,omitempty"`
-	ISO          int64         `bson:"iso,omitempty"`
+	Aperture     Ratio         `bson:"aperture,omitempty"`
+	ExposureTime Ratio         `bson:"exposure_time,omitempty"`
+	FocalLength  Ratio         `bson:"focal_length,omitempty"`
+	ISO          int           `bson:"iso,omitempty"`
 	Orientation  string        `bson:"orientation,omitempty"`
-	CameraBody   string        `bson:"camera_body,omitempty"`
-	Lens         string        `bson:"lens,omitempty"`
+	Make         string        `bson:"make,omitempty"`
+	Model        string        `bson:"model,omitempty"`
+	LensMake     string        `bson:"lens_make,omitempty"`
+	LensModel    string        `bson:"lens_model,omitempty"`
 	Tags         []string      `bson:"tags,omitempty"`
 	MachineTags  []string      `bson:"machine_tags,omitempty"`
 	AlbumID      bson.ObjectId `bson:"album_id,omitempty"`
 	CaptureTime  time.Time     `bson:"capture_time"`
 	PublishTime  time.Time     `bson:"publish_time"`
-	ImgDirection float64       `bson:"direction"`
-	UserID       bson.ObjectId `bson:"user_id,omitempty"` // FIXME omitempty is temp for testing.
+	ImgDirection float64       `bson:"direction,omitempty"`
+	UserID       bson.ObjectId `bson:"user_id"`
 	Location     gj.Point      `bson:"location,omitempty"`
 	Sources      []ImgSource   `bson:"sources"`
 	Featured     bool          `bson:"featured,omitempty"`
@@ -43,12 +45,22 @@ type Location struct {
 // ImgSource includes the information about the image itself.
 // Size indicates how large the image is.
 type ImgSource struct {
-	URL        string `bson:"url"`
-	Resolution int64  `bson:"resolution,omitempty"`
-	Width      int64  `bson:"width,omitempty"`
-	Height     int64  `bson:"height,omitempty"`
-	Size       string `bson:"size"`
-	FileType   string `bson:"file_type"`
+	URL             string `bson:"url"`
+	Resolution      int64  `bson:"resolution,omitempty"`
+	PixelXDimension int64  `bson:"pixel_xd,omitempty"`
+	PixelYDimension int64  `bson:"pixel_yd,omitempty"`
+	Size            string `bson:"size"`
+	FileType        string `bson:"file_type"`
+}
+
+type Ratio struct {
+	Num int64
+	Den int64
+}
+
+// Ratio is a shortcut to make ratio types
+func NewRatio(num, den int64) Ratio {
+	return Ratio{Num: num, Den: den}
 }
 
 // User collection schema

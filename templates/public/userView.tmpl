@@ -3,12 +3,12 @@
 <html>
 {{template "head"}}
    <body>
-     {{ template "header" }}
+     {{ template "header" .Auth}}
       <div class="body-container">
 
-         <h2>{{.FirstName.Value}} {{.LastName.Value}}</h2>
-         <p>{{.Bio.Value}}</p>
-         <p>{{.UserName}}</p>
+         <h2>{{.User.Name}}</h2>
+         <p>{{.User.Bio}}</p>
+         <p>{{.User.UserName}}</p>
 
          {{range .Images}}
           {{template "imageView" .}}

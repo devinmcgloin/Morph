@@ -1,8 +1,8 @@
 {{define "imageView"}}
 <div class="img">
-  <h2><a href="/i/{{.ShortCode}}">{{.Title}}</a></h2>
+  <h2><a href="/i/{{.ShortCode}}/">{{.Title}}</a></h2>
 
-  <a href="/i/{{.ShortCode}}">
+  <a href="/i/{{.ShortCode}}/">
   {{$sourceImg := index .Sources 0}}
   <img class="photo" src="{{$sourceImg.URL}}">
   </a>

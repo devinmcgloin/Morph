@@ -103,8 +103,6 @@ func (ds *MgoStore) GetFeatureSingleImgView(imageShortCode string) (model.Single
 
 	var singleImgView model.SingleImgView
 
-	log.Println(imageShortCode)
-
 	c := session.DB(dbname).C("images")
 	err := c.Find(bson.M{"shortcode": imageShortCode}).One(&singleImgView.Image)
 	if err != nil {
@@ -113,12 +111,13 @@ func (ds *MgoStore) GetFeatureSingleImgView(imageShortCode string) (model.Single
 	}
 
 	c = session.DB(dbname).C("users")
-	err = c.FindId(singleImgView.User.ID).One(&singleImgView.User)
+	err = c.FindId(singleImgView.Image.UserID).One(&singleImgView.User)
 	if err != nil {
+		// if !strings.HasPrefix(err.Error(), "ObjectIDs must be exactly 12 bytes long") {
 		log.Println(err)
 		return model.SingleImgView{}, err
+		// }
 	}
-
 	return singleImgView, nil
 }
 
@@ -187,7 +186,7 @@ func (ds *MgoStore) GetNumMostRecentImg(limit int) (model.CollectionView, error)
 
 	var imgCollectionView model.CollectionView
 	c := session.DB(dbname).C("images")
-	err := c.Find(nil).Sort("publish_time").Limit(limit).All(&imgCollectionView.Images)
+	err := c.Find(nil).Sort("-publish_time").Limit(limit).All(&imgCollectionView.Images)
 	if err != nil {
 		log.Println(err)
 		return model.CollectionView{}, err

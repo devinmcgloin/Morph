@@ -70,3 +70,4 @@ tags
 
 # content for testing without internet access
 content
+.env

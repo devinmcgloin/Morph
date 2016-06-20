@@ -1,4 +1,4 @@
-package editView
+package account
 
 import "github.com/devinmcgloin/morph/src/api/store"
 
