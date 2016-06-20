@@ -1,39 +1,27 @@
 package publicView
 
 import (
-	"log"
 	"net/http"
-	"strconv"
 
-	"github.com/devinmcgloin/morph/src/api/SQL"
+	"github.com/devinmcgloin/morph/src/api/session"
+	"github.com/devinmcgloin/morph/src/morphError"
 	"github.com/devinmcgloin/morph/src/views/common"
-	"github.com/julienschmidt/httprouter"
+	"github.com/gorilla/mux"
 )
 
-func FeatureImgView(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func FeatureImgView(w http.ResponseWriter, r *http.Request) error {
 
-	IID, err := strconv.Atoi(ps.ByName("IID"))
+	shortcode := mux.Vars(r)["shortcode"]
+
+	img, err := mongo.GetFeatureSingleImgView(shortcode)
 	if err != nil {
-		log.Println(err)
-		common.NotFound(w, r)
-		return
-	}
-	log.Printf("Accessing img:%d", uint64(IID))
-	img, err := SQL.GetFeatureSingleImgView(uint64(IID))
-	if err != nil {
-		common.NotFound(w, r)
-		return
+		return morphError.New(err, "Unable to get image", 523)
 	}
 
-	t, err := common.StandardTemplate("templates/pages/imageView.tmpl")
-	if err != nil {
-		common.SomethingsWrong(w, r, err)
-		return
+	usr, valid := session.GetUser(r)
+	if valid {
+		img.Auth = usr
 	}
 
-	err = t.Execute(w, img)
-	if err != nil {
-		common.SomethingsWrong(w, r, err)
-		return
-	}
+	return common.ExecuteTemplate(w, r, "templates/public/imageView.tmpl", img)
 }

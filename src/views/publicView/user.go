@@ -1,36 +1,28 @@
 package publicView
 
 import (
-	"log"
 	"net/http"
 
-	"github.com/devinmcgloin/morph/src/api/SQL"
+	"github.com/devinmcgloin/morph/src/api/session"
+	"github.com/devinmcgloin/morph/src/morphError"
 	"github.com/devinmcgloin/morph/src/views/common"
-	"github.com/julienschmidt/httprouter"
+	"github.com/gorilla/mux"
 )
 
-func UserProfileView(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func UserProfileView(w http.ResponseWriter, r *http.Request) error {
 
-	UserName := ps.ByName("UserName")
+	UserName := mux.Vars(r)["username"]
 
-	log.Printf("Accessing user:%s", UserName)
-	user, err := SQL.GetUserProfileView(UserName)
+	user, err := mongo.GetUserProfileView(UserName)
 	if err != nil {
-		common.SomethingsWrong(w, r, err)
-		return
+		return morphError.New(err, "Unable to fetch user", 523)
 	}
 
-	log.Printf("%v", user.Images[0])
-
-	t, err := common.StandardTemplate("templates/pages/userView.tmpl")
-	if err != nil {
-		common.SomethingsWrong(w, r, err)
-		return
+	usr, valid := session.GetUser(r)
+	if valid {
+		user.Auth = usr
 	}
 
-	err = t.Execute(w, user)
-	if err != nil {
-		common.SomethingsWrong(w, r, err)
-		return
-	}
+	return common.ExecuteTemplate(w, r, "templates/public/userView.tmpl", user)
+
 }

@@ -7,10 +7,6 @@
 	],
 	"Deps": [
 		{
-			"ImportPath": "github.com/Masterminds/squirrel",
-			"Rev": "caff2d522d550f0998629c85898ad35e8a603328"
-		},
-		{
 			"ImportPath": "github.com/aws/aws-sdk-go/aws",
 			"Comment": "v1.1.32-1-g1608a1f",
 			"Rev": "1608a1f6ffe7f327007d2aca50ebf1d26c285ef2"
@@ -141,6 +137,11 @@
 			"Rev": "66e6c6f01d8da976ee113437745ca029c2b585a6"
 		},
 		{
+			"ImportPath": "github.com/gorilla/mux",
+			"Comment": "v1.1-13-g9fa818a",
+			"Rev": "9fa818a44c2bf1396a17f9d5a3c0f6dd39d2ff8e"
+		},
+		{
 			"ImportPath": "github.com/gorilla/schema",
 			"Rev": "08023a0215e7fc27a9aecd8b8c50913c40019478"
 		},
@@ -174,12 +175,8 @@
 			"Rev": "77366a47451a56bb3ba682481eed85b64fea14e8"
 		},
 		{
-			"ImportPath": "github.com/lann/builder",
-			"Rev": "f22ce00fd9394014049dad11c244859432bd6820"
-		},
-		{
-			"ImportPath": "github.com/lann/ps",
-			"Rev": "62de8c46ede02a7675c4c79c84883eb164cb71e3"
+			"ImportPath": "github.com/kpawlik/geojson",
+			"Rev": "06aeea8c5561aef0aee9ec036a1fd3fb55aea653"
 		},
 		{
 			"ImportPath": "github.com/markbates/goth",
@@ -194,6 +191,14 @@
 			"Rev": "7ad66b42e9cc2635ffb45a9ad9e627021ed6eb1e"
 		},
 		{
+			"ImportPath": "github.com/rwcarlsen/goexif/exif",
+			"Rev": "709fab3d192d7c62f86043caff1e7e3fb0f42bd8"
+		},
+		{
+			"ImportPath": "github.com/rwcarlsen/goexif/tiff",
+			"Rev": "709fab3d192d7c62f86043caff1e7e3fb0f42bd8"
+		},
+		{
 			"ImportPath": "golang.org/x/net/context",
 			"Rev": "c4c3ea71919de159c9e246d7be66deb7f0a39a58"
 		},
@@ -204,6 +209,26 @@
 		{
 			"ImportPath": "golang.org/x/oauth2/internal",
 			"Rev": "71d9edd725fe4ce4c692fcb20765be558df45ad3"
+		},
+		{
+			"ImportPath": "gopkg.in/mgo.v2",
+			"Comment": "r2016.02.04-3-g29cc868",
+			"Rev": "29cc868a5ca65f401ff318143f9408d02f4799cc"
+		},
+		{
+			"ImportPath": "gopkg.in/mgo.v2/bson",
+			"Comment": "r2016.02.04-3-g29cc868",
+			"Rev": "29cc868a5ca65f401ff318143f9408d02f4799cc"
+		},
+		{
+			"ImportPath": "gopkg.in/mgo.v2/internal/sasl",
+			"Comment": "r2016.02.04-3-g29cc868",
+			"Rev": "29cc868a5ca65f401ff318143f9408d02f4799cc"
+		},
+		{
+			"ImportPath": "gopkg.in/mgo.v2/internal/scram",
+			"Comment": "r2016.02.04-3-g29cc868",
+			"Rev": "29cc868a5ca65f401ff318143f9408d02f4799cc"
 		}
 	]
 }

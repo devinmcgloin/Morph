@@ -1,0 +1,29 @@
+{{define "imageEditView"}}
+{{$sourceImg := index .Sources 0}}
+
+<div class="container">
+
+  <h3>{{.Title}}</h3>
+  <p>{{.Desc}}</p>
+
+  <div class="row">
+
+    <div class="six columns">
+      <img class="u-full-width" src="{{$sourceImg.URL}}">
+    </div>
+
+   <div class="six columns" id="{{.ShortCode}}">
+     <form action="/api/i/{{.ShortCode}}/edit" method="post">
+
+           <label for="Title">Title</label>
+           <input type="text" class="u-full-width" name="Title" placeholder="Title" />
+
+           <label for="Desc">Description</label>
+           <textarea class="u-full-width" name="Desc" placeholder="Description"></textarea>
+
+           <input class="button-primary" type="submit" value="Save" />
+     </form>
+   </div>
+ </div>
+ </div>
+{{end}}

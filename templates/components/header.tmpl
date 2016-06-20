@@ -1,25 +1,25 @@
 {{define "header"}}
+<div id="header" class="container">
+  <div class="rows">
 
-
-<div class="header-container">
-
-        <!-- <a href="/">
-          <img class="header-img" src="/assets/img/icon.svg" alt="/assets/img/icon.png">
-        </a> -->
-
-      <div class="header-title">
-        <h1><a href="/">Morph</a></h1>
+      <div class="two columns">
+        <h1>Morph</h1>
       </div>
 
-      <div class="header-nav">
+      <div id="nav" class="ten columns">
         <ul>
-          <li><a href="/login">Login</a></li>
-          <li><a href="/search">Search</a></li>
-          <li><a href="/tags">Tags</a></li>
-          <li><a href="/albums">Albums</a></li>
-          <li><a href="/featured">Featured</a></li>
+          {{if .UserName}}
+          <li><a href="/account/">Account</a></li>
+          {{else}}
+          <li><a href="/login/">Login</a></li>
+          {{end}}
+          <li><a href="/search/">Search</a></li>
+          <li><a href="/tags/">Tags</a></li>
+          <li><a href="/albums/">Albums</a></li>
+          <li><a href="/featured/">Featured</a></li>
         </ul>
       </div>
     </div>
+  </div>
 
 {{end}}

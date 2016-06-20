@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+{{template "head"}}
+   <body>
+
+        {{ template "header" .Auth }}
+
+        {{range .Images}}
+        {{template "imageEditView" .}}
+        {{end}}
+
+   </body>
+</html>

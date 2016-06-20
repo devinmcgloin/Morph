@@ -3,40 +3,45 @@ package endpoint
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"mime/multipart"
 	"net/http"
 	"time"
 
+	"gopkg.in/mgo.v2/bson"
+
 	"github.com/devinmcgloin/morph/src/api/AWS"
-	"github.com/devinmcgloin/morph/src/api/SQL"
-	"github.com/julienschmidt/httprouter"
+	"github.com/devinmcgloin/morph/src/api/auth"
+	"github.com/devinmcgloin/morph/src/api/metadata"
+	"github.com/devinmcgloin/morph/src/model"
+	"github.com/devinmcgloin/morph/src/morphError"
 )
 
 // UploadHandler manages uploading the original file to aws.
 // TODO: In the future it should also spin off worker threads to
 // handle compression, and rendering other sizes for the image.
-func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func UploadHandler(w http.ResponseWriter, r *http.Request) error {
 	r.ParseMultipartForm(32 << 20)
 
 	var err error
 
-	var IID uint64
+	// TODO need to include shortext data here
 
-	IID = getNewIID()
-
-	img := SQL.Img{
-		IID:         IID,
-		PublishTime: time.Now(),
-		CaptureTime: time.Now(),
-		UID:         1,
-		LID:         SQL.ToNullInt64("0"),
+	loggedIn, user := auth.CheckUser(r)
+	if !loggedIn {
+		http.Redirect(w, r, "/login", 302)
+		return nil
 	}
 
-	source := SQL.ImgSource{
-		IID:  IID,
-		Size: "orig",
-		SID:  getNewSID(),
+	var imageSources []model.ImgSource
+	imageSources = append(imageSources, model.ImgSource{Size: "orig"})
+
+	image := model.Image{
+		ID:          bson.NewObjectId(),
+		UserID:      user.ID,
+		PublishTime: time.Now(),
+		CaptureTime: time.Now(),
+		Sources:     imageSources,
+		ShortCode:   mongo.GetNewImageShortCode(),
 	}
 
 	for _, fheaders := range r.MultipartForm.File {
@@ -45,52 +50,51 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 			// open uploaded
 			var infile multipart.File
 			infile, err = hdr.Open()
-
 			if err != nil {
-				log.Printf("Error while reading in image %s", err)
-				http.Error(w, http.StatusText(500), 500)
-				return
+				return morphError.New(err, "Error while reading in image", 500)
+			}
+
+			err := metadata.SetMetadata(infile, &image)
+			if err != nil {
+				return morphError.New(err, "Error while reading image metadata", 500)
+			}
+
+			infile, err = hdr.Open()
+			if err != nil {
+				return morphError.New(err, "Error while reading in image", 500)
 			}
 
 			var buf bytes.Buffer
 			var written int64
 			written, err = buf.ReadFrom(infile)
 			if err != nil {
-				log.Printf("Error while reading in image %s", err)
-				http.Error(w, http.StatusText(500), 500)
-				return
+				return morphError.New(err, "Error while reading in image", 500)
 			}
 
-			filename := fmt.Sprintf("%d_orig.jpg", IID)
+			filename := fmt.Sprintf("%s_orig.jpg", image.ShortCode)
 
-			source.URL, err = AWS.UploadImageAWS(buf.Bytes(), written, filename, "morph-content", "us-east-1")
+			image.Sources[0].URL, err = AWS.UploadImageAWS(buf.Bytes(), written, filename, "morph-content", "us-east-1")
 			if err != nil {
-				log.Printf("Error while uploading image %s", err)
-				http.Error(w, http.StatusText(500), 500)
-				return
+				return morphError.New(err, "Error while uploading image", 500)
 			}
-
 		}
 	}
 
-	log.Println(source.URL)
-
-	err = SQL.AddSrc(source)
+	err = mongo.AddImg(image)
 	if err != nil {
-		http.Error(w, http.StatusText(500), 500)
-		return
+		return morphError.New(err, "Error while adding image to db", 500)
 	}
 
-	err = SQL.AddImg(img)
+	err = mongo.AddUserImage(user.ID, image.ID)
 	if err != nil {
-		http.Error(w, http.StatusText(500), 500)
-		return
+		return morphError.New(err, "Error while adding image to user", 500)
+
 	}
 
-	newURL := fmt.Sprintf("/i/%d/edit", IID)
-
-	log.Println(newURL)
+	//TODO need to set image short title here
+	newURL := fmt.Sprintf("/i/%s/", image.ShortCode)
 
 	http.Redirect(w, r, newURL, 302)
 
+	return nil
 }
