@@ -28,17 +28,18 @@ A simple photography site written in Go.
 
 ## CRUD
 
-Default behavior for the standard getters `GET /collections/:ID` is to include
-all sub fields up to a depth of 1. This means if you ask for a collection,
-you'll get the image fields filled out, and not a reference, but you will get an
-ID when looking at a images album.
+Default behavior for the standard getters `GET /api/v0/collections/:ID` is to
+include all sub fields up to a depth of 1. This means if you ask for a
+collection, you'll get the image fields filled out, and not a reference, but you
+will get an ID when looking at a images album.
 
 NOTE: You can get the collections and album two different ways. One if you hold
 a reference to an image that belongs to an album or collection and the second if
 you have direct references to those items themselves.
 
-For GET requests on resources (EG: `GET /images/:ID`) you may specify the fields
-you want returned, and you'll only get the data you need.
+For GET requests on resources (EG: `GET /api/v0/images/:ID`) you may specify the
+fields you want returned in the JSON body. If not specified you will receive the
+default behavior specified above.  
 
 ```json
 {
@@ -47,63 +48,52 @@ you want returned, and you'll only get the data you need.
 ```
 
 ### Images
-| Method | Endpoint                | Returns |
-|:-------|:------------------------|:--------|
-| GET    | /images/:ID             |         |
-|        | /images/:ID             |         |
-|        | /images/:ID/user        |         |
-|        | /images/:ID/collections |         |
-|        | /images/:ID/album       |         |
-| POST   | /images                 |         |
-| PUT    | /images/:ID/featured    |         |
-| DELTE  | /images/:ID             |         |
-|        | /images/:ID/featured    |         |
-|        | /images/:ID?params      |         |
-| PATCH  | /images/:ID             |         |
-|        | /images/:ID/metadata    |         |
-|        | /images/:ID/tags        |         |
+| Method | Endpoint                       | Returns |
+|:-------|:-------------------------------|:--------|
+| GET    | /api/v0/images/:ID             |         |
+|        | /api/v0/images/:ID/user        |         |
+|        | /api/v0/images/:ID/collections |         |
+|        | /api/v0/images/:ID/album       |         |
+| POST   | /api/v0/images                 |         |
+| PUT    | /api/v0/images/:ID/featured    |         |
+| DELTE  | /api/v0/images/:ID             |         |
+|        | /api/v0/images/:ID/featured    |         |
+| PATCH  | /api/v0/images/:ID             |         |
 
 ### Users
-| Method | Endpoint            | Returns |
-|:-------|:--------------------|:--------|
-| GET    | /users/:ID          |         |
-|        | /users/:ID?fields   |         |
-|        | /users/:ID/location |         |
-| POST   | /users              |         |
-| PUT    | /users/:ID/avatar   |         |
-| DELETE | /users/:ID          |         |
-|        | /users/:ID          |         |
-| PATCH  | /users/:ID/bio      |         |
-|        | /users/:ID/name     |         |
+| Method | Endpoint                         | Returns |
+|:-------|:---------------------------------|:--------|
+| GET    | /api/v0/users/:username          |         |
+|        | /api/v0/users/:username/location |         |
+| POST   | /api/v0/users                    |         |
+| PUT    | /api/v0/users/:username/avatar   |         |
+| DELETE | /api/v0/users/:username          |         |
+| PATCH  | /api/v0/users/:username          |         |
 
 ### Collections
-| Method | Endpoint                     | Returns |
-|:-------|:-----------------------------|:--------|
-| GET    | /collections/:ID             |         |
-|        | /collections/:ID?fields      |         |
-|        | /collections/:ID/users       |         |
-|        | /collections/:ID/images      |         |
-| POST   | /collections                 |         |
-| PUT    | /collections/:ID/images      |         |
-| DELETE | /collections                 |         |
-|        | /collections/:ID/images/:ID  |         |
-| PATCH  | /collections/:ID/title       |         |
-|        | /collections/:ID/description |         |
-|        | /collections/:ID/tags        |         |
+| Method | Endpoint                                 | Returns |
+|:-------|:-----------------------------------------|:--------|
+| GET    | /api/v0/collections/:CID                 |         |
+|        | /api/v0/collections/:CID/users           |         |
+|        | /api/v0/collections/:CID/images          |         |
+| POST   | /api/v0/collections                      |         |
+| PUT    | /api/v0/collections/:CID/images          |         |
+|        | /api/v0/collections/:CID/users           |         |
+| DELETE | /api/v0/collections                      |         |
+|        | /api/v0/collections/:CID/images/:IID     |         |
+|        | /api/v0/collections/:CID/users/:username |         |
+| PATCH  | /api/v0/collections/:CID                 |         |
 
 ### User Albums
-| Method | Endpoint                | Returns |
-|:-------|:------------------------|:--------|
-| GET    | /albums/:ID             |         |
-|        | /albums/:ID?fields      |         |
-|        | /albums/:ID/images      |         |
-| POST   | /albums                 |         |
-| PUT    | /albums/:ID/images      |         |
-| DELETE | /albums                 |         |
-|        | /albums/:ID/images/:ID  |         |
-| PATCH  | /albums/:ID/title       |         |
-|        | /albums/:ID/description |         |
-|        | /albums/:ID/tags        |         |
+| Method | Endpoint                        | Returns |
+|:-------|:--------------------------------|:--------|
+| GET    | /api/v0/albums/:AID             |         |
+|        | /api/v0/albums/:AID/images      |         |
+| POST   | /api/v0/albums                  |         |
+| PUT    | /api/v0/albums/:AID/images      |         |
+| DELETE | /api/v0/albums                  |         |
+|        | /api/v0/albums/:AID/images/:IID |         |
+| PATCH  | /api/v0/albums/:AID             |         |
 
 
 ## Queries
@@ -114,11 +104,11 @@ indicating the query.
 I'm planning on allowing sorting, filtering and searching, but the format for
 these queries is TBD.
 
-| Method | Endpoint     | Returns |
-|:-------|:-------------|:--------|
-| GET    | /users       |         |
-|        | /images      |         |
-|        | /collections |         |
-|        | /albums      |         |
+| Method | Endpoint            | Returns |
+|:-------|:--------------------|:--------|
+| GET    | /api/v0/users       |         |
+|        | /api/v0/images      |         |
+|        | /api/v0/collections |         |
+|        | /api/v0/albums      |         |
 
 # Error Codes
