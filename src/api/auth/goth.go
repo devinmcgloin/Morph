@@ -16,7 +16,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-var mongo = store.NewStore()
+var mongo = store.ConnectStore()
 
 var hashKey = securecookie.GenerateRandomKey(64)
 var blockKey = securecookie.GenerateRandomKey(32)
