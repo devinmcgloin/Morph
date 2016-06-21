@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/devinmcgloin/morph/src/api/auth"
-	"github.com/devinmcgloin/morph/src/api/session"
+	"github.com/devinmcgloin/sprioc/src/api/auth"
+	"github.com/devinmcgloin/sprioc/src/api/session"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )

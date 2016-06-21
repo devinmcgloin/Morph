@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/devinmcgloin/morph/src/api/session"
-	"github.com/devinmcgloin/morph/src/morphError"
+	"github.com/devinmcgloin/sprioc/src/api/session"
+	"github.com/devinmcgloin/sprioc/src/spriocError"
 )
 
 func ImageEditorView(w http.ResponseWriter, r *http.Request) error {
@@ -14,7 +14,7 @@ func ImageEditorView(w http.ResponseWriter, r *http.Request) error {
 	images, err := mongo.GetUserProfileView(usr.UserName)
 	if err != nil {
 
-		return morphError.New(err, "Unable to get user profile view", 523)
+		return spriocError.New(err, "Unable to get user profile view", 523)
 	}
 
 	images.Auth = usr
@@ -26,7 +26,7 @@ func ImageEditorView(w http.ResponseWriter, r *http.Request) error {
 	err = json.NewEncoder(w).Encode(images)
 
 	if err != nil {
-		return morphError.New(err, "Unable to write JSON", 523)
+		return spriocError.New(err, "Unable to write JSON", 523)
 	}
 	return nil
 

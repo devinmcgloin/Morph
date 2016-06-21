@@ -1,6 +1,6 @@
 {
-  "name": "morph",
-  "description": "Morph is a simple photography app",
+  "name": "sprioc",
+  "description": "Sprioc is a simple photography app",
   "keywords": [
     "morph",
     "photography",
@@ -8,7 +8,7 @@
     "golang"
   ],
   "image": "heroku/go:1.6",
-  "mount_dir": "src/github.com/devinmcgloin/morph",
-  "website": "http://github.com/devinmcgloin/morph",
-  "repository": "http://github.com/devinmcgloin/morph"
+  "mount_dir": "src/github.com/devinmcgloin/sprioc",
+  "website": "http://sprioc.xyz",
+  "repository": "http://github.com/devinmcgloin/sprioc"
 }

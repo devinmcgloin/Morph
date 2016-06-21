@@ -7,13 +7,13 @@ import (
 	"net/http"
 	"time"
 
-	"gopkg.in/mgo.v2/bson"
+	"github.com/devinmcgloin/sprioc/src/api/AWS"
+	"github.com/devinmcgloin/sprioc/src/api/auth"
+	"github.com/devinmcgloin/sprioc/src/api/metadata"
+	"github.com/devinmcgloin/sprioc/src/model"
+	"github.com/devinmcgloin/sprioc/src/spriocError"
 
-	"github.com/devinmcgloin/morph/src/api/AWS"
-	"github.com/devinmcgloin/morph/src/api/auth"
-	"github.com/devinmcgloin/morph/src/api/metadata"
-	"github.com/devinmcgloin/morph/src/model"
-	"github.com/devinmcgloin/morph/src/morphError"
+	"gopkg.in/mgo.v2/bson"
 )
 
 // UploadHandler manages uploading the original file to aws.
@@ -51,24 +51,24 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) error {
 			var infile multipart.File
 			infile, err = hdr.Open()
 			if err != nil {
-				return morphError.New(err, "Error while reading in image", 500)
+				return spriocError.New(err, "Error while reading in image", 500)
 			}
 
 			err := metadata.SetMetadata(infile, &image)
 			if err != nil {
-				return morphError.New(err, "Error while reading image metadata", 500)
+				return spriocError.New(err, "Error while reading image metadata", 500)
 			}
 
 			infile, err = hdr.Open()
 			if err != nil {
-				return morphError.New(err, "Error while reading in image", 500)
+				return spriocError.New(err, "Error while reading in image", 500)
 			}
 
 			var buf bytes.Buffer
 			var written int64
 			written, err = buf.ReadFrom(infile)
 			if err != nil {
-				return morphError.New(err, "Error while reading in image", 500)
+				return spriocError.New(err, "Error while reading in image", 500)
 			}
 
 			filename := fmt.Sprintf("%s_orig.jpg", image.ShortCode)
@@ -76,19 +76,19 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) error {
 
 			image.Sources[0].URL, err = AWS.UploadImageAWS(buf.Bytes(), written, filename, "morph-content", "us-east-1")
 			if err != nil {
-				return morphError.New(err, "Error while uploading image", 500)
+				return spriocError.New(err, "Error while uploading image", 500)
 			}
 		}
 	}
 
 	err = mongo.AddImg(image)
 	if err != nil {
-		return morphError.New(err, "Error while adding image to db", 500)
+		return spriocError.New(err, "Error while adding image to db", 500)
 	}
 
 	err = mongo.AddUserImage(user.ID, image.ID)
 	if err != nil {
-		return morphError.New(err, "Error while adding image to user", 500)
+		return spriocError.New(err, "Error while adding image to user", 500)
 
 	}
 

@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/devinmcgloin/morph/src/api/session"
-	"github.com/devinmcgloin/morph/src/morphError"
+	"github.com/devinmcgloin/sprioc/src/api/session"
+	"github.com/devinmcgloin/sprioc/src/spriocError"
 	"github.com/gorilla/mux"
 )
 
@@ -15,7 +15,7 @@ func FeatureImgView(w http.ResponseWriter, r *http.Request) error {
 
 	img, err := mongo.GetFeatureSingleImgView(shortcode)
 	if err != nil {
-		return morphError.New(err, "Unable to get image", 523)
+		return spriocError.New(err, "Unable to get image", 523)
 	}
 
 	usr, valid := session.GetUser(r)
@@ -30,7 +30,7 @@ func FeatureImgView(w http.ResponseWriter, r *http.Request) error {
 	err = json.NewEncoder(w).Encode(img)
 
 	if err != nil {
-		return morphError.New(err, "Unable to write JSON", 523)
+		return spriocError.New(err, "Unable to write JSON", 523)
 	}
 	return nil
 }

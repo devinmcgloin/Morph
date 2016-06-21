@@ -3,8 +3,8 @@ package endpoint
 import (
 	"net/http"
 
-	"github.com/devinmcgloin/morph/src/model"
-	"github.com/devinmcgloin/morph/src/morphError"
+	"github.com/devinmcgloin/sprioc/src/model"
+	"github.com/devinmcgloin/sprioc/src/spriocError"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/schema"
 )
@@ -19,19 +19,19 @@ func ImageHandler(w http.ResponseWriter, r *http.Request) error {
 	err := r.ParseForm()
 	if err != nil {
 
-		return morphError.New(err, "Unable to Parse Form", 523)
+		return spriocError.New(err, "Unable to Parse Form", 523)
 
 	}
 
 	image, err = mongo.GetImageByShortCode(shortcode)
 	if err != nil {
-		return morphError.New(err, "Image Not Found", 404)
+		return spriocError.New(err, "Image Not Found", 404)
 	}
 
 	err = decoder.Decode(&image, r.PostForm)
 
 	if err != nil {
-		return morphError.New(err, "Unable to decode form", 523)
+		return spriocError.New(err, "Unable to decode form", 523)
 	}
 
 	mongo.UpdateImage(image)

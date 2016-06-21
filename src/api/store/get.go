@@ -3,7 +3,7 @@ package store
 import (
 	"log"
 
-	"github.com/devinmcgloin/morph/src/model"
+	"github.com/devinmcgloin/sprioc/src/model"
 	"gopkg.in/mgo.v2/bson"
 )
 

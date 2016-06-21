@@ -5,16 +5,15 @@ import (
 	"net/http"
 	"time"
 
-	"gopkg.in/mgo.v2/bson"
-
-	"github.com/devinmcgloin/morph/src/api/session"
-	"github.com/devinmcgloin/morph/src/api/store"
-	"github.com/devinmcgloin/morph/src/model"
-	"github.com/devinmcgloin/morph/src/morphError"
+	"github.com/devinmcgloin/sprioc/src/api/session"
+	"github.com/devinmcgloin/sprioc/src/api/store"
+	"github.com/devinmcgloin/sprioc/src/model"
+	"github.com/devinmcgloin/sprioc/src/spriocError"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
+	"gopkg.in/mgo.v2/bson"
 )
 
 var mongo = store.NewStore()
@@ -39,13 +38,13 @@ func UserLoginCallback(w http.ResponseWriter, r *http.Request) error {
 
 	user, err := gothic.CompleteUserAuth(w, r)
 	if err != nil {
-		return morphError.New(err, "Could not complete user Auth", 523)
+		return spriocError.New(err, "Could not complete user Auth", 523)
 	}
 
 	internalUser := ConvertGothUser(user)
 	err = RegisterUser(internalUser)
 	if err != nil {
-		return morphError.New(err, "Could not register user", 523)
+		return spriocError.New(err, "Could not register user", 523)
 
 	}
 
@@ -69,13 +68,13 @@ func UserLoginCallback(w http.ResponseWriter, r *http.Request) error {
 
 	internalUser, err = mongo.GetUserByUserName(internalUser.UserName)
 	if err != nil {
-		return morphError.New(err, "Could not get user", 523)
+		return spriocError.New(err, "Could not get user", 523)
 
 	}
 
 	err = session.SetUserID(sessionID, internalUser.ID)
 	if err != nil {
-		return morphError.New(err, "Could not set user session", 523)
+		return spriocError.New(err, "Could not set user session", 523)
 	}
 
 	http.Redirect(w, r, "/", 302)

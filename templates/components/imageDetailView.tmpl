@@ -1,9 +1,0 @@
-{{define "imageDetailView"}}
-<div class="container">
-  <p><a href="/u/{{.User.UserName}}/">{{.User.UserName}}</a></p>
-  <p>{{.Image.PublishTime.Format "2006 Jan 02" }}</p>
-  {{$sourceImg := index .Image.Sources 0}}
-  <img class="u-full-width" src="{{$sourceImg.URL}}">
-  <p>f/{{.Image.Aperture.Rep}} {{.Image.ExposureTime.Rep}} sec {{.Image.FocalLength.Rep}}mm ISO {{.Image.ISO}}</p>
-</div>
-{{end}}

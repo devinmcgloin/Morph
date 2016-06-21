@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/devinmcgloin/morph/src/api/session"
-	"github.com/devinmcgloin/morph/src/morphError"
+	"github.com/devinmcgloin/sprioc/src/api/session"
+	"github.com/devinmcgloin/sprioc/src/spriocError"
 	"github.com/gorilla/mux"
 )
 
@@ -16,7 +16,7 @@ func AlbumView(w http.ResponseWriter, r *http.Request) error {
 
 	album, err := mongo.GetAlbumCollectionView(userName, albumTitle)
 	if err != nil {
-		return morphError.New(err, "Unable to get collection", 523)
+		return spriocError.New(err, "Unable to get collection", 523)
 	}
 
 	usr, valid := session.GetUser(r)
@@ -31,7 +31,7 @@ func AlbumView(w http.ResponseWriter, r *http.Request) error {
 	err = json.NewEncoder(w).Encode(album)
 
 	if err != nil {
-		return morphError.New(err, "Unable to write JSON", 523)
+		return spriocError.New(err, "Unable to write JSON", 523)
 	}
 	return nil
 }

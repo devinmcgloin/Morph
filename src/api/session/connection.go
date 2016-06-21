@@ -3,7 +3,7 @@ package session
 import (
 	"time"
 
-	"github.com/devinmcgloin/morph/src/env"
+	"github.com/devinmcgloin/sprioc/src/env"
 	"github.com/garyburd/redigo/redis"
 )
 

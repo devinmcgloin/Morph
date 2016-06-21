@@ -4,10 +4,9 @@ import (
 	"log"
 	"time"
 
-	"gopkg.in/mgo.v2/bson"
-
-	"github.com/devinmcgloin/morph/src/api/generator"
+	"github.com/devinmcgloin/sprioc/src/api/generator"
 	"github.com/garyburd/redigo/redis"
+	"gopkg.in/mgo.v2/bson"
 )
 
 // This REDIS follows the follwoing schema

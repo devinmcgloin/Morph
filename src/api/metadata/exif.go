@@ -5,8 +5,8 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/devinmcgloin/morph/src/model"
-	"github.com/devinmcgloin/morph/src/morphError"
+	"github.com/devinmcgloin/sprioc/src/model"
+	"github.com/devinmcgloin/sprioc/src/spriocError"
 	gj "github.com/kpawlik/geojson"
 	"github.com/rwcarlsen/goexif/exif"
 )
@@ -14,7 +14,7 @@ import (
 func GetExif(image io.Reader) (*exif.Exif, error) {
 	exifDat, err := exif.Decode(image)
 	if err != nil {
-		return &exif.Exif{}, morphError.New(err, "Unable to parse exif", 523)
+		return &exif.Exif{}, spriocError.New(err, "Unable to parse exif", 523)
 	}
 
 	return exifDat, nil

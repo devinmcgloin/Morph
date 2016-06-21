@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/devinmcgloin/morph/src/api/session"
-	"github.com/devinmcgloin/morph/src/morphError"
+	"github.com/devinmcgloin/sprioc/src/api/session"
+	"github.com/devinmcgloin/sprioc/src/spriocError"
 	"github.com/gorilla/mux"
 )
 
@@ -15,12 +15,12 @@ func CollectionTagView(w http.ResponseWriter, r *http.Request) error {
 
 	taggedImages, err := mongo.GetCollectionViewByTags(tag)
 	if err != nil {
-		return morphError.New(err, "Unable to get collection", 523)
+		return spriocError.New(err, "Unable to get collection", 523)
 
 	}
 
 	if len(taggedImages.Images) == 0 {
-		return morphError.New(err, "Collection was Empty", 404)
+		return spriocError.New(err, "Collection was Empty", 404)
 
 	}
 
@@ -36,12 +36,12 @@ func CollectionTagView(w http.ResponseWriter, r *http.Request) error {
 	err = json.NewEncoder(w).Encode(taggedImages)
 
 	if err != nil {
-		return morphError.New(err, "Unable to write JSON", 523)
+		return spriocError.New(err, "Unable to write JSON", 523)
 	}
 	return nil
 
 }
 
 func CollectionTagFeatureView(w http.ResponseWriter, r *http.Request) error {
-	return morphError.New(nil, "Not Implemented", 404)
+	return spriocError.New(nil, "Not Implemented", 404)
 }

@@ -3,7 +3,7 @@ package session
 import (
 	"net/http"
 
-	"github.com/devinmcgloin/morph/src/model"
+	"github.com/devinmcgloin/sprioc/src/model"
 	"github.com/gorilla/context"
 )
 

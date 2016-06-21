@@ -3,7 +3,7 @@ package account
 import (
 	"net/http"
 
-	"github.com/devinmcgloin/morph/src/api/auth"
+	"github.com/devinmcgloin/sprioc/src/api/auth"
 )
 
 func UserLogoutView(w http.ResponseWriter, r *http.Request) error {

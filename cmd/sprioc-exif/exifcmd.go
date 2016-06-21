@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/devinmcgloin/morph/src/api/metadata"
+	"github.com/devinmcgloin/sprioc/src/api/metadata"
 	"github.com/rwcarlsen/goexif/exif"
 	"github.com/rwcarlsen/goexif/tiff"
 )
