@@ -72,6 +72,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) error {
 			}
 
 			filename := fmt.Sprintf("%s_orig.jpg", image.ShortCode)
+			image.Sources[0].FileType = http.DetectContentType(buf.Bytes())
 
 			image.Sources[0].URL, err = AWS.UploadImageAWS(buf.Bytes(), written, filename, "morph-content", "us-east-1")
 			if err != nil {

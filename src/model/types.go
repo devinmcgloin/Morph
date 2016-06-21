@@ -5,9 +5,9 @@ type DefaultView struct {
 }
 
 type SingleImgView struct {
-	User  User
-	Image Image
-	Auth  User
+	User  User  `json:"user"`
+	Image Image `json:"image"`
+	Auth  User  `json:"auth,omitempty"`
 }
 
 type TagCollectionView struct {
