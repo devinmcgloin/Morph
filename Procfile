@@ -1,1 +1,1 @@
-web: morph-serve
+web: sprioc

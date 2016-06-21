@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/devinmcgloin/morph",
+	"ImportPath": "github.com/devinmcgloin/sprioc",
 	"GoVersion": "go1.6",
 	"GodepVersion": "v74",
 	"Packages": [
