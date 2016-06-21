@@ -1,4 +1,4 @@
-package account
+package search
 
 import (
 	"encoding/json"
@@ -9,13 +9,13 @@ import (
 	"github.com/devinmcgloin/sprioc/src/spriocError"
 )
 
-func UploadView(w http.ResponseWriter, r *http.Request) error {
+func LocationView(w http.ResponseWriter, r *http.Request) error {
 
-	var view model.DefaultView
+	var locations model.LocCollectionView
 
 	usr, valid := session.GetUser(r)
 	if valid {
-		view.Auth = usr
+		locations.Auth = usr
 	}
 
 	w.Header().Set("Content-Type", "application/json")

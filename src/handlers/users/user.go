@@ -1,4 +1,4 @@
-package publicView
+package users
 
 import (
 	"encoding/json"
@@ -8,6 +8,10 @@ import (
 	"github.com/devinmcgloin/sprioc/src/spriocError"
 	"github.com/gorilla/mux"
 )
+
+func UserHandler(w http.ResponseWriter, r *http.Request) error {
+	return spriocError.New(nil, "Not implemented", 404)
+}
 
 func UserProfileView(w http.ResponseWriter, r *http.Request) error {
 

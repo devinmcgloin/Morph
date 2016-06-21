@@ -1,23 +1,28 @@
-package account
+package collections
 
 import (
 	"encoding/json"
 	"net/http"
 
 	"github.com/devinmcgloin/sprioc/src/api/session"
+	"github.com/devinmcgloin/sprioc/src/model"
 	"github.com/devinmcgloin/sprioc/src/spriocError"
 )
 
-func ImageEditorView(w http.ResponseWriter, r *http.Request) error {
-	usr, _ := session.GetUser(r)
+func MostRecentView(w http.ResponseWriter, r *http.Request) error {
 
-	images, err := mongo.GetUserProfileView(usr.UserName)
+	var images model.CollectionView
+
+	images, err := mongo.GetNumMostRecentImg(10)
 	if err != nil {
+		return spriocError.New(err, "Unable to get collection", 523)
 
-		return spriocError.New(err, "Unable to get user profile view", 523)
 	}
 
-	images.Auth = usr
+	usr, valid := session.GetUser(r)
+	if valid {
+		images.Auth = usr
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Cache-Control", "no-cache")

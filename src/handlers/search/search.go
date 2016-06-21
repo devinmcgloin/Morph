@@ -1,4 +1,4 @@
-package account
+package search
 
 import (
 	"encoding/json"
@@ -9,12 +9,13 @@ import (
 	"github.com/devinmcgloin/sprioc/src/spriocError"
 )
 
-func UserSettingsView(w http.ResponseWriter, r *http.Request) error {
-	var view model.DefaultView
+func SearchView(w http.ResponseWriter, r *http.Request) error {
+
+	var collection model.CollectionView
 
 	usr, valid := session.GetUser(r)
 	if valid {
-		view.Auth = usr
+		collection.Auth = usr
 	}
 
 	w.Header().Set("Content-Type", "application/json")

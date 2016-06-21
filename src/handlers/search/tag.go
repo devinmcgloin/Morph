@@ -1,4 +1,4 @@
-package publicView
+package search
 
 import (
 	"encoding/json"
