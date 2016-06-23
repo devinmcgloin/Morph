@@ -6,7 +6,7 @@ A simple photography site written in Go.
 
 ## Resources
 
-* Images
+* Images1
   * Location
   * Tags
   * MachineTags
@@ -28,10 +28,10 @@ A simple photography site written in Go.
 
 ## CRUD
 
-Default behavior for the standard getters `GET /api/v0/collections/:ID` is to
+Default behavior for the standard getters GET /api/v0/collections/:ID is to
 include all sub fields up to a depth of 1. This means if you ask for a
 collection, you'll get the image fields filled out, and not a reference, but you
-will get an ID when looking at a images album.
+will get a reference when looking at a images album.
 
 NOTE: You can get the collections and album two different ways. One if you hold
 a reference to an image that belongs to an album or collection and the second if
@@ -48,52 +48,59 @@ default behavior specified above.
 ```
 
 ### Images
-| Method | Endpoint                       | Returns |
-|:-------|:-------------------------------|:--------|
-| GET    | /api/v0/images/:ID             |         |
-|        | /api/v0/images/:ID/user        |         |
-|        | /api/v0/images/:ID/collections |         |
-|        | /api/v0/images/:ID/album       |         |
-| POST   | /api/v0/images                 |         |
-| PUT    | /api/v0/images/:ID/featured    |         |
-| DELTE  | /api/v0/images/:ID             |         |
-|        | /api/v0/images/:ID/featured    |         |
-| PATCH  | /api/v0/images/:ID             |         |
+| Method | Endpoint                    | Body | Returns                                                            |
+|:-------|:----------------------------|:-----|:-------------------------------------------------------------------|
+| GET    | /api/v0/images/:ID          |      | Image view that contains a filled out user field.                  |
+| POST   | /api/v0/images              |      | create a new image with the authenticated user                     |
+| PUT    | /api/v0/images/:ID/featured |      | feature this image, only works if the request maker owns the image |
+|        | /api/v0/images/:ID/favorite |      | favorite the image                                                 |
+| DELETE | /api/v0/images/:ID          |      | delete the image, only works if the request maker owns the image   |
+|        | /api/v0/images/:ID/featured |      | un-feature the image.                                              |
+|        | /api/v0/images/:ID/favorite |      | unfavorite the image                                               |
+| PATCH  | /api/v0/images/:ID          |      | make changes to the image (See notes on patch requests)            |
 
 ### Users
-| Method | Endpoint                         | Returns |
-|:-------|:---------------------------------|:--------|
-| GET    | /api/v0/users/:username          |         |
-|        | /api/v0/users/:username/location |         |
-| POST   | /api/v0/users                    |         |
-| PUT    | /api/v0/users/:username/avatar   |         |
-| DELETE | /api/v0/users/:username          |         |
-| PATCH  | /api/v0/users/:username          |         |
+| Method | Endpoint                          | Body | Returns                                                    |
+|:-------|:----------------------------------|:-----|:-----------------------------------------------------------|
+| GET    | /api/v0/users/:username           |      | full user view that does not contain filled out sub fields |
+| POST   | /api/v0/users                     |      | create new user                                            |
+| PUT    | /api/v0/users/:username/avatar    |      | update avatar image                                        |
+|        | /api/v0/images/:username/favorite |      | favorite this user                                         |
+|        | /api/v0/images/:username/follow   |      | follow this user                                           |
+| DELETE | /api/v0/users/:username           |      | Delete this user account                                   |
+|        | /api/v0/images/:username/favorite |      | unfavorite this user                                       |
+|        | /api/v0/images/:username/follow   |      | unfollow this user                                         |
+| PATCH  | /api/v0/users/:username           |      | make changes to the user (See notes on patch requests)     |
 
 ### Collections
-| Method | Endpoint                                 | Returns |
-|:-------|:-----------------------------------------|:--------|
-| GET    | /api/v0/collections/:CID                 |         |
-|        | /api/v0/collections/:CID/users           |         |
-|        | /api/v0/collections/:CID/images          |         |
-| POST   | /api/v0/collections                      |         |
-| PUT    | /api/v0/collections/:CID/images          |         |
-|        | /api/v0/collections/:CID/users           |         |
-| DELETE | /api/v0/collections                      |         |
-|        | /api/v0/collections/:CID/images/:IID     |         |
-|        | /api/v0/collections/:CID/users/:username |         |
-| PATCH  | /api/v0/collections/:CID                 |         |
+| Method | Endpoint                                 | Body | Returns |
+|:-------|:-----------------------------------------|:-----|:--------|
+| GET    | /api/v0/collections/:CID                 |      |         |
+| POST   | /api/v0/collections                      |      |         |
+| PUT    | /api/v0/collections/:CID/images          |      |         |
+|        | /api/v0/collections/:CID/users           |      |         |
+|        | /api/v0/collections/:CID/favorite        |      |         |
+|        | /api/v0/collections/:CID/follow          |      |         |
+| DELETE | /api/v0/collections                      |      |         |
+|        | /api/v0/collections/:CID/images/:IID     |      |         |
+|        | /api/v0/collections/:CID/users/:username |      |         |
+|        | /api/v0/collections/:CID/favorite        |      |         |
+|        | /api/v0/collections/:CID/follow          |      |         |
+| PATCH  | /api/v0/collections/:CID                 |      |         |
 
-### User Albums
-| Method | Endpoint                        | Returns |
-|:-------|:--------------------------------|:--------|
-| GET    | /api/v0/albums/:AID             |         |
-|        | /api/v0/albums/:AID/images      |         |
-| POST   | /api/v0/albums                  |         |
-| PUT    | /api/v0/albums/:AID/images      |         |
-| DELETE | /api/v0/albums                  |         |
-|        | /api/v0/albums/:AID/images/:IID |         |
-| PATCH  | /api/v0/albums/:AID             |         |
+### Albums
+| Method | Endpoint                          | Body | Returns |
+|:-------|:----------------------------------|:-----|:--------|
+| GET    | /api/v0/albums/:AID               |      |         |
+| POST   | /api/v0/albums                    |      |         |
+| PUT    | /api/v0/albums/:AID/images        |      |         |
+|        | /api/v0/collections/:AID/favorite |      |         |
+|        | /api/v0/collections/:AID/follow   |      |         |
+| DELETE | /api/v0/albums                    |      |         |
+|        | /api/v0/albums/:AID/images/:IID   |      |         |
+|        | /api/v0/collections/:AID/favorite |      |         |
+|        | /api/v0/collections/:AID/follow   |      |         |
+| PATCH  | /api/v0/albums/:AID               |      |         |
 
 
 ## Queries
@@ -104,11 +111,13 @@ indicating the query.
 I'm planning on allowing sorting, filtering and searching, but the format for
 these queries is TBD.
 
-| Method | Endpoint            | Returns |
-|:-------|:--------------------|:--------|
-| GET    | /api/v0/users       |         |
-|        | /api/v0/images      |         |
-|        | /api/v0/collections |         |
-|        | /api/v0/albums      |         |
+| Method | Endpoint            | Body | Returns |
+|:-------|:--------------------|:-----|:--------|
+| GET    | /api/v0/users       |      |         |
+|        | /api/v0/images      |      |         |
+|        | /api/v0/collections |      |         |
+|        | /api/v0/albums      |      |         |
+|        | /api/v0/search      |      |         |
+|        | /api/v0/stream      |      |         |
 
 # Error Codes

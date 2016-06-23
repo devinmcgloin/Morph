@@ -3,17 +3,18 @@ package session
 import (
 	"net/http"
 
-	"github.com/devinmcgloin/sprioc/src/model"
+	"gopkg.in/mgo.v2"
+
 	"github.com/gorilla/context"
 )
 
-func GetUser(r *http.Request) (model.User, bool) {
+func GetUser(r *http.Request) (mgo.DBRef, bool) {
 	if user := context.Get(r, "authUser"); user != nil {
-		return user.(model.User), true
+		return user.(mgo.DBRef), true
 	}
-	return model.User{}, false
+	return mgo.DBRef{}, false
 }
 
-func SetUser(r *http.Request, user model.User) {
+func SetUser(r *http.Request, user mgo.DBRef) {
 	context.Set(r, "authUser", user)
 }

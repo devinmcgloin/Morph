@@ -1,40 +1,34 @@
 package users
 
 import (
-	"encoding/json"
 	"net/http"
 
-	"github.com/devinmcgloin/sprioc/src/api/session"
+	"gopkg.in/mgo.v2/bson"
+
+	"github.com/devinmcgloin/sprioc/src/api/store"
+	"github.com/devinmcgloin/sprioc/src/model"
 	"github.com/devinmcgloin/sprioc/src/spriocError"
-	"github.com/gorilla/mux"
 )
 
-func UserHandler(w http.ResponseWriter, r *http.Request) error {
-	return spriocError.New(nil, "Not implemented", 404)
+var mongo = store.ConnectStore()
+
+func SignupHandler(w http.ResponseWriter, r *http.Request) error {
+	return spriocError.New(nil, "Not Implemented", http.StatusNotImplemented)
 }
 
-func UserProfileView(w http.ResponseWriter, r *http.Request) error {
+func AvatarUploadHander(w http.ResponseWriter, r *http.Request) error {
+	return spriocError.New(nil, "Not Implemented", http.StatusNotImplemented)
 
-	UserName := mux.Vars(r)["username"]
+}
 
-	user, err := mongo.GetUserProfileView(UserName)
-	if err != nil {
-		return spriocError.New(err, "Unable to fetch user", 523)
+func formatSources(ID bson.ObjectId) model.ImgSource {
+	const prefix = "https://images.sprioc.xyz/avatars/"
+	var resourceBaseURL = prefix + ID.Hex()
+	return model.ImgSource{
+		Raw:    model.URL(resourceBaseURL),
+		Large:  model.URL(resourceBaseURL + "?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy"),
+		Medium: model.URL(resourceBaseURL + "?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&w=1080&fit=max"),
+		Small:  model.URL(resourceBaseURL + "?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&w=400&fit=max"),
+		Thumb:  model.URL(resourceBaseURL + "?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&w=200&fit=max"),
 	}
-
-	usr, valid := session.GetUser(r)
-	if valid {
-		user.Auth = usr
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Cache-Control", "no-cache")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-
-	err = json.NewEncoder(w).Encode(usr)
-
-	if err != nil {
-		return spriocError.New(err, "Unable to write JSON", 523)
-	}
-	return nil
 }

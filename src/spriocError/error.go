@@ -13,5 +13,8 @@ func New(err error, message string, code int) SpriocError {
 }
 
 func (err SpriocError) Error() string {
-	return fmt.Sprintf("Code: %d; %s\n%s", err.Code, err.Message, err.Err.Error())
+	if err.Err != nil {
+		return fmt.Sprintf("Code: %d; %s\n%s\n", err.Code, err.Message, err.Err.Error())
+	}
+	return fmt.Sprintf("Code: %d; %s\n", err.Code, err.Message)
 }

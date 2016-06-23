@@ -1,12 +1,12 @@
-var ImageBox = React.createClass({
+var App = React.createClass({
   render: function() {
     return (
-        <h1>Images</h1>
+        <h1>Sprioc</h1>
     );
   }
 });
 
 ReactDOM.render(
-  <ImageBox/>,
+  <App/>,
   document.getElementById('content')
 );

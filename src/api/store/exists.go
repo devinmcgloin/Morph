@@ -22,44 +22,32 @@ func (ds *MgoStore) ExistsUserName(userName string) bool {
 	return false
 }
 
-func (ds *MgoStore) ExistsAlbumShortCode(shortCode string) bool {
-	session := ds.session.Copy()
-	defer session.Close()
-
-	c := session.DB(dbname).C("album")
-	n, err := c.Find(bson.M{"shortcode": shortCode}).Count()
-	if err != nil {
-		log.Println(err)
-		return false
-	}
-	if n > 0 {
-		return true
-	}
-	return false
+func (ds *MgoStore) ExistsAlbumID(id bson.ObjectId) bool {
+	return exists(ds, id, "albums")
 }
 
-func (ds *MgoStore) ExistsImageShortCode(shortCode string) bool {
-	session := ds.session.Copy()
-	defer session.Close()
-
-	c := session.DB(dbname).C("images")
-	n, err := c.Find(bson.M{"shortcode": shortCode}).Count()
-	if err != nil {
-		log.Println(err)
-		return false
-	}
-	if n > 0 {
-		return true
-	}
-	return false
+func (ds *MgoStore) ExistsImageID(id bson.ObjectId) bool {
+	return exists(ds, id, "images")
 }
 
-func (ds *MgoStore) ExistsUser(provider string, providerID string) bool {
+func (ds *MgoStore) ExistsUserID(id bson.ObjectId) bool {
+	return exists(ds, id, "users")
+}
+
+func (ds *MgoStore) ExistsEventID(id bson.ObjectId) bool {
+	return exists(ds, id, "events")
+}
+
+func (ds *MgoStore) ExistsCollectionID(id bson.ObjectId) bool {
+	return exists(ds, id, "collections")
+}
+
+func exists(ds *MgoStore, id bson.ObjectId, collection string) bool {
 	session := ds.session.Copy()
 	defer session.Close()
 
-	c := session.DB(dbname).C("users")
-	n, err := c.Find(bson.M{"provider": provider, "provider_id": providerID}).Count()
+	c := session.DB(dbname).C(collection)
+	n, err := c.FindId(id).Count()
 	if err != nil {
 		log.Println(err)
 		return false

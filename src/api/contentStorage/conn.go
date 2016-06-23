@@ -1,4 +1,4 @@
-package collections
+package contentStorage
 
 import "github.com/devinmcgloin/sprioc/src/api/store"
 

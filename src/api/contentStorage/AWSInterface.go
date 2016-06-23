@@ -1,8 +1,7 @@
-package AWS
+package contentStorage
 
 import (
 	"bytes"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -11,7 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-func UploadImageAWS(file []byte, size int64, filename string, bucketURI string, region string) (string, error) {
+func UploadImageAWS(file []byte, size int64, filename string, bucketURI string, region string) error {
 
 	svc := s3.New(session.New(&aws.Config{Region: aws.String(region)}))
 	destPath := "/content/" + filename
@@ -19,16 +18,16 @@ func UploadImageAWS(file []byte, size int64, filename string, bucketURI string, 
 
 	if err != nil {
 		log.Printf("Error while creating AWS params %s", err)
-		return "", err
+		return err
 	}
 
 	_, err = svc.PutObject(params)
 	if err != nil {
 		log.Printf("Error while uploading to aws %s", err)
-		return "", err
+		return err
 	}
 
-	return fmt.Sprintf("https://s3.amazonaws.com/%s%s", bucketURI, destPath), nil
+	return nil
 }
 
 func formatParams(buffer []byte, size int64, bucketName string, path string) (*s3.PutObjectInput, error) {

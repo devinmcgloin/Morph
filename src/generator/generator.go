@@ -1,6 +1,8 @@
 package generator
 
 import (
+	crypto "crypto/rand"
+	"encoding/hex"
 	"math/rand"
 	"sync"
 	"time"
@@ -39,4 +41,19 @@ func RandString(n int) string {
 	}
 
 	return string(b)
+}
+
+func GenerateSecureString(size int) (string, error) {
+	b, err := generateRandomBytes(size)
+	return hex.EncodeToString(b), err
+}
+
+func generateRandomBytes(n int) ([]byte, error) {
+	b := make([]byte, n)
+	_, err := crypto.Read(b)
+
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
 }

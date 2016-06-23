@@ -4,7 +4,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/devinmcgloin/sprioc/src/api/generator"
+	"github.com/devinmcgloin/sprioc/src/generator"
 	"github.com/garyburd/redigo/redis"
 	"gopkg.in/mgo.v2/bson"
 )

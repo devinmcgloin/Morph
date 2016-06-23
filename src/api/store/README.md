@@ -1,9 +1,4 @@
-# Views
+# store
 
-Views manages specific web views, and makes the proper queries in order to get
-the content in a form that the viewHandler package can manage.
-
-## View Types
-
-* MostRecentView
-  * Requires a Collection 
+Store defines query functions to be executed in mongo. It does not worry about
+authentication, but does synchronize two way relations. 

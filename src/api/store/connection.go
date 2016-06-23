@@ -14,8 +14,8 @@ func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
 }
 
-var dbname = env.Getenv("MONGODB_NAME", "morph")
-var dbURI = env.Getenv("MONGODB_URI", "mongodb://localhost:27017/morph")
+var dbname = env.Getenv("MONGODB_NAME", "sprioc")
+var dbURI = env.Getenv("MONGODB_URI", "mongodb://localhost:27017/sprioc")
 
 type MgoStore struct {
 	session *mgo.Session
@@ -33,4 +33,8 @@ func ConnectStore() MgoStore {
 	}
 
 	return MgoStore{session}
+}
+
+func (ds *MgoStore) getSession() *mgo.Session {
+	return ds.session.Copy()
 }
