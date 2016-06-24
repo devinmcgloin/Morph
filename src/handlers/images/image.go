@@ -41,7 +41,7 @@ func GetImage(w http.ResponseWriter, r *http.Request) error {
 		return spriocError.New(err, "Unable to write JSON", 523)
 	}
 
-	return spriocError.New(nil, "Success", 200)
+	return nil
 }
 
 func UploadImage(w http.ResponseWriter, r *http.Request) error {
@@ -93,10 +93,10 @@ func formatSources(ID bson.ObjectId) model.ImgSource {
 	const prefix = "https://images.sprioc.xyz/content/"
 	var resourceBaseURL = prefix + ID.Hex()
 	return model.ImgSource{
-		Raw:    model.URL(resourceBaseURL),
-		Large:  model.URL(resourceBaseURL + "?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy"),
-		Medium: model.URL(resourceBaseURL + "?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&w=1080&fit=max"),
-		Small:  model.URL(resourceBaseURL + "?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&w=400&fit=max"),
-		Thumb:  model.URL(resourceBaseURL + "?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&w=200&fit=max"),
+		Raw:    resourceBaseURL,
+		Large:  resourceBaseURL + "?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy",
+		Medium: resourceBaseURL + "?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&w=1080&fit=max",
+		Small:  resourceBaseURL + "?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&w=400&fit=max",
+		Thumb:  resourceBaseURL + "?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&w=200&fit=max",
 	}
 }

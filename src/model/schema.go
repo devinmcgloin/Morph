@@ -50,11 +50,11 @@ type ImageMetaData struct {
 // ImgSource includes the information about the image itself.
 // Size indicates how large the image is.
 type ImgSource struct {
-	Thumb  URL
-	Small  URL
-	Medium URL
-	Large  URL
-	Raw    URL
+	Thumb  string
+	Small  string
+	Medium string
+	Large  string
+	Raw    string
 }
 
 type User struct {
@@ -62,16 +62,15 @@ type User struct {
 	Images     []mgo.DBRef   `bson:"images"`
 	Followes   []mgo.DBRef   `bson:"followes"`
 	Favorites  []mgo.DBRef   `bson:"favorites"`
-	UserName   UserName      `bson:"username"`
+	UserName   string        `bson:"username"`
 	Email      string        `bson:"email"`
-	Pass       string        `bson:"-" json:"-"`
-	Salt       string        `bson:"-" json:"-"`
+	Pass       string        `bson:"password" json:"-"`
+	Salt       string        `bson:"salt" json:"-"`
 	Name       string        `bson:"name"`
 	Bio        string        `bson:"bio,omitempty"`
-	URL        URL           `bson:"url"`
+	URL        string        `bson:"url"`
 	Location   gj.Feature    `bson:"loc"`
 	AvatarURL  ImgSource     `bson:"avatar_url"`
-	Provider   string        `bson:"provider"`
 	Followers  []mgo.DBRef   `bson:"followers"`
 	Favoriters []mgo.DBRef   `bson:"favoriters"`
 }

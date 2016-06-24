@@ -22,6 +22,22 @@ func (ds *MgoStore) ExistsUserName(userName string) bool {
 	return false
 }
 
+func (ds *MgoStore) ExistsEmail(email string) bool {
+	session := ds.session.Copy()
+	defer session.Close()
+
+	c := session.DB(dbname).C("users")
+	n, err := c.Find(bson.M{"email": email}).Count()
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+	if n > 0 {
+		return true
+	}
+	return false
+}
+
 func (ds *MgoStore) ExistsAlbumID(id bson.ObjectId) bool {
 	return exists(ds, id, "albums")
 }

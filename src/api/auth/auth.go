@@ -1,18 +1,24 @@
 package auth
 
 import (
+	"crypto/rand"
+	"crypto/rsa"
 	"crypto/sha1"
+	"crypto/x509"
 	"encoding/hex"
 	"errors"
 	"fmt"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
+	"encoding/pem"
+
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 
 	"github.com/devinmcgloin/sprioc/src/api/store"
+	"github.com/devinmcgloin/sprioc/src/env"
 	"github.com/devinmcgloin/sprioc/src/generator"
 	"github.com/devinmcgloin/sprioc/src/model"
 	"github.com/dgrijalva/jwt-go"
@@ -21,21 +27,37 @@ import (
 
 var mongo = store.ConnectStore()
 
-var hmacSecret = os.Getenv("HMAC_SECRET")
-var dbase = os.Getenv("MONGODB_NAME")
+var privKey *rsa.PrivateKey
+var pubKey *rsa.PublicKey
+var dbase = env.Getenv("MONGODB_NAME", "morph")
 
 var sessionLifetime = time.Minute * 10
 var refreshAt = time.Minute * 1
 
-func ValidateCredentialsByUserName(username string, password string) (bool, error) {
-	user, err := mongo.GetByUserName(model.UserName(username))
+func init() {
+	var err error
+
+	privKey, err = rsa.GenerateKey(rand.Reader, 2014)
 	if err != nil {
-		return false, errors.New("Invalid Credentials")
+		fmt.Println(err)
+		return
+	}
+	err = privKey.Validate()
+	if err != nil {
+		fmt.Println("Validation failed.", err)
+	}
+	pubKey = &privKey.PublicKey
+}
+
+func ValidateCredentialsByUserName(username string, password string) (bool, model.User, error) {
+	user, err := mongo.GetByUserName(username)
+	if err != nil {
+		return false, model.User{}, errors.New("Invalid Credentials")
 	}
 	return validUser(user, password)
 }
 
-func validUser(user model.User, password string) (bool, error) {
+func validUser(user model.User, password string) (bool, model.User, error) {
 	salt := user.Salt
 	hasher := sha1.New()
 
@@ -46,9 +68,9 @@ func validUser(user model.User, password string) (bool, error) {
 	shaString := hex.EncodeToString(sha)
 
 	if strings.Compare(user.Pass, shaString) == 0 {
-		return true, nil
+		return true, user, nil
 	}
-	return false, errors.New("Invalid Credentials")
+	return false, model.User{}, errors.New("Invalid Credentials")
 }
 
 func GetSaltPass(password string) (string, string, error) {
@@ -74,12 +96,12 @@ func CheckUser(r *http.Request) (model.User, error) {
 
 	userRef, err := VerifyJWT(tokenString)
 	if err != nil {
-		return model.User{}, errors.New("Malformed Header")
+		return model.User{}, err
 	}
 
 	user, err := mongo.GetUser(userRef)
 	if err != nil {
-		return model.User{}, errors.New("Not Found")
+		return model.User{}, err
 	}
 
 	return user, nil
@@ -94,27 +116,28 @@ func CreateJWT(u model.User) (string, error) {
 		Subject:   u.ID.Hex(),
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS384, claims)
-	ss, err := token.SignedString(hmacSecret)
+	token := jwt.NewWithClaims(jwt.SigningMethodRS512, claims)
+	ss, err := token.SignedString(privKey)
 	if err != nil {
 		return "", err
 	}
+
 	return ss, nil
 }
 
 func VerifyJWT(tokenString string) (mgo.DBRef, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
-		return hmacSecret, nil
+		return pubKey, nil
 	})
 
 	if token.Valid {
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if token.Valid && ok {
-			id := claims["sub"]
-			return mgo.DBRef{Database: dbase, Collection: "users", Id: id}, nil
+			id := claims["sub"].(string)
+			return mgo.DBRef{Database: dbase, Collection: "users", Id: bson.ObjectIdHex(id)}, nil
 		}
 	} else if err, ok := err.(*jwt.ValidationError); ok {
 		if err.Errors&jwt.ValidationErrorMalformed != 0 {
@@ -126,5 +149,21 @@ func VerifyJWT(tokenString string) (mgo.DBRef, error) {
 		}
 	}
 
-	return mgo.DBRef{}, errors.New("Token is Malformed")
+	return mgo.DBRef{}, errors.New("Token is Invalid")
+}
+
+func GetPublicKey() []byte {
+
+	pub, err := x509.MarshalPKIXPublicKey(pubKey)
+	if err != nil {
+		fmt.Println("Failed to get der format for PublicKey.", err)
+		return []byte{}
+	}
+
+	pubBLK := pem.Block{
+		Type:    "PUBLIC KEY",
+		Headers: nil,
+		Bytes:   pub,
+	}
+	return pem.EncodeToMemory(&pubBLK)
 }

@@ -1,16 +1,25 @@
 package store
 
 import (
+	"errors"
+
+	"github.com/devinmcgloin/sprioc/src/model"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
-func (ds *MgoStore) GetAlbum(IDs mgo.DBRef) (mgo.DBRef, error) {
-	documents, err := get(ds, IDs)
+func (ds *MgoStore) GetAlbum(albRef mgo.DBRef) (model.Album, error) {
+	session := ds.getSession()
+	defer session.Close()
+
+	var document model.Album
+
+	err := session.FindRef(&albRef).One(&document)
 	if err != nil {
-		return mgo.DBRef{}, err
+		return model.Album{}, errors.New("Not found")
 	}
-	return documents.(mgo.DBRef), nil
+
+	return document, nil
 }
 
 func (ds *MgoStore) CreateAlbum(Album mgo.DBRef) error {

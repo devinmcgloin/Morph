@@ -16,17 +16,10 @@ func get(ds *MgoStore, ID mgo.DBRef) (interface{}, error) {
 
 	var document interface{}
 
-	c := session.DB(dbname).C(ID.Collection)
-
-	err := c.FindId(ID.Id).One(&document)
+	err := session.FindRef(&ID).One(&document)
 	if err != nil {
-		log.Println(err)
 		return nil, errors.New("Not found")
 	}
-
-	log.Println(document)
-
-	resolveRefs(document)
 
 	return document, nil
 }
@@ -43,25 +36,6 @@ func create(ds *MgoStore, collection string, document interface{}) error {
 		return errors.New("Unable to add document to DB")
 	}
 	return nil
-}
-
-func resolveRefs(document interface{}) (interface{}, error) {
-	m := document.(map[string]interface{})
-
-	for k, v := range m {
-		switch vv := v.(type) {
-		case mgo.DBRef:
-			fmt.Println(k, "is a DBRef", vv)
-		case []mgo.DBRef:
-			fmt.Println(k, "is an array of DBRef:")
-			for i, u := range vv {
-				fmt.Println(i, u)
-			}
-		default:
-			fmt.Println(k, "is of a type I don't know how to handle")
-		}
-	}
-	return nil, nil
 }
 
 func delete(ds *MgoStore, ID mgo.DBRef) error {
@@ -90,7 +64,7 @@ func verifyModificationOps(ops bson.M) error {
 	for _, v := range ops {
 		valid := in(v.(string), validOps)
 		if !valid {
-			return errors.New(fmt.Sprintf("Operation %s is not valid", v))
+			return fmt.Errorf("Operation %s is not valid", v)
 		}
 	}
 	return nil

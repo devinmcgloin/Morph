@@ -1,20 +1,25 @@
 package spriocError
 
-import "fmt"
+import (
+	"encoding/json"
+	"log"
+)
 
 type SpriocError struct {
-	Err     error
-	Message string
-	Code    int
+	Err     error  `json:"-"`
+	Message string `json:"error"`
+	Code    int    `json:"code"`
 }
 
 func New(err error, message string, code int) SpriocError {
 	return SpriocError{Err: err, Message: message, Code: code}
 }
 
-func (err SpriocError) Error() string {
-	if err.Err != nil {
-		return fmt.Sprintf("Code: %d; %s\n%s\n", err.Code, err.Message, err.Err.Error())
+func (spriocErr SpriocError) Error() string {
+	byteError, err := json.Marshal(spriocErr)
+	if err != nil {
+		log.Println(err)
+		return ""
 	}
-	return fmt.Sprintf("Code: %d; %s\n", err.Code, err.Message)
+	return string(byteError)
 }

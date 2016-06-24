@@ -113,11 +113,9 @@ these queries is TBD.
 
 | Method | Endpoint            | Body | Returns |
 |:-------|:--------------------|:-----|:--------|
-| GET    | /api/v0/users       |      |         |
+| POST   | /api/v0/users       |      |         |
 |        | /api/v0/images      |      |         |
 |        | /api/v0/collections |      |         |
 |        | /api/v0/albums      |      |         |
 |        | /api/v0/search      |      |         |
 |        | /api/v0/stream      |      |         |
-
-# Error Codes

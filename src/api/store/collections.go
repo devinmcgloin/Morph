@@ -1,16 +1,25 @@
 package store
 
 import (
+	"errors"
+
+	"github.com/devinmcgloin/sprioc/src/model"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
-func (ds *MgoStore) GetCollection(IDs mgo.DBRef) (mgo.DBRef, error) {
-	documents, err := get(ds, IDs)
+func (ds *MgoStore) GetCollection(colRef mgo.DBRef) (model.Collection, error) {
+	session := ds.getSession()
+	defer session.Close()
+
+	var document model.Collection
+
+	err := session.FindRef(&colRef).One(&document)
 	if err != nil {
-		return mgo.DBRef{}, err
+		return model.Collection{}, errors.New("Not found")
 	}
-	return documents.(mgo.DBRef), nil
+
+	return document, nil
 }
 
 func (ds *MgoStore) CreateCollection(Collection mgo.DBRef) error {

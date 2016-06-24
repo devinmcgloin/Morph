@@ -1,6 +1,8 @@
 package store
 
 import (
+	"errors"
+
 	"github.com/devinmcgloin/sprioc/src/model"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -8,12 +10,18 @@ import (
 
 // TODO perhaps it would be good to do validation here.
 
-func (ds *MgoStore) GetImage(ID mgo.DBRef) (model.Image, error) {
-	documents, err := get(ds, ID)
+func (ds *MgoStore) GetImage(imgRef mgo.DBRef) (model.Image, error) {
+	session := ds.getSession()
+	defer session.Close()
+
+	var document model.Image
+
+	err := session.FindRef(&imgRef).One(&document)
 	if err != nil {
-		return model.Image{}, err
+		return model.Image{}, errors.New("Not found")
 	}
-	return documents.(model.Image), nil
+
+	return document, nil
 }
 
 func (ds *MgoStore) CreateImage(image model.Image) error {

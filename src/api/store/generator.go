@@ -36,3 +36,11 @@ func (ds *MgoStore) GetNewCollectionID() bson.ObjectId {
 	}
 	return id
 }
+
+func (ds *MgoStore) GetNewUserID() bson.ObjectId {
+	id := bson.ObjectId(generator.RandString(12))
+	if ds.ExistsUserID(id) {
+		id = bson.ObjectId(generator.RandString(12))
+	}
+	return id
+}

@@ -41,6 +41,7 @@ func main() {
 	registerAlbumRoutes(api)
 	registerSearchRoutes(api)
 	registerLuckyRoutes(api)
+	registerAuthRoutes(router)
 
 	router.HandleFunc("/", serveHTML)
 
@@ -60,7 +61,7 @@ func serveHTML(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "./assets/index.html")
 }
 
-func wrappedMiddle(f func(http.ResponseWriter, *http.Request) error) func(http.ResponseWriter, *http.Request) {
+func secureWrappedMiddle(f func(http.ResponseWriter, *http.Request) error) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		user, err := auth.CheckUser(r)
@@ -75,7 +76,24 @@ func wrappedMiddle(f func(http.ResponseWriter, *http.Request) error) func(http.R
 		if err != nil {
 			custErr := err.(spriocError.SpriocError)
 			if custErr.Code != 0 {
-				http.Error(w, err.Error(), custErr.Code)
+				http.Error(w, custErr.Error(), custErr.Code)
+				log.Printf("error handling %q: %v", r.RequestURI, err)
+				return
+			}
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			log.Printf("unknown error handling %q: %v", r.RequestURI, err)
+			return
+		}
+	}
+}
+
+func unsecureWrappedMiddle(f func(http.ResponseWriter, *http.Request) error) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		err := f(w, r)
+		if err != nil {
+			custErr := err.(spriocError.SpriocError)
+			if custErr.Code != 0 {
+				http.Error(w, custErr.Error(), custErr.Code)
 				log.Printf("error handling %q: %v", r.RequestURI, err)
 				return
 			}

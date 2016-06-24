@@ -2,6 +2,7 @@ package store
 
 import (
 	"errors"
+	"log"
 
 	"github.com/devinmcgloin/sprioc/src/model"
 	"gopkg.in/mgo.v2"
@@ -9,11 +10,17 @@ import (
 )
 
 func (ds *MgoStore) GetUser(userRef mgo.DBRef) (model.User, error) {
-	documents, err := get(ds, userRef)
+	session := ds.getSession()
+	defer session.Close()
+
+	var document model.User
+
+	err := session.FindRef(&userRef).One(&document)
 	if err != nil {
-		return model.User{}, err
+		return model.User{}, errors.New("Not found")
 	}
-	return documents.(model.User), nil
+
+	return document, nil
 }
 
 func (ds *MgoStore) CreateUser(user model.User) error {
@@ -28,8 +35,8 @@ func (ds *MgoStore) ModifyUser(userRef mgo.DBRef, diff bson.M) error {
 	return modify(ds, userRef, diff)
 }
 
-func (ds *MgoStore) ModifyAvatar(userRef mgo.DBRef, url model.URL) error {
-	return modify(ds, userRef, bson.M{"$set": bson.M{"avatar_url": url}})
+func (ds *MgoStore) ModifyAvatar(userRef mgo.DBRef, urls model.ImgSource) error {
+	return modify(ds, userRef, bson.M{"$set": bson.M{"avatar_url": urls}})
 }
 
 func (ds *MgoStore) FavoriteUser(actor mgo.DBRef, recipient mgo.DBRef) error {
@@ -49,7 +56,7 @@ func (ds *MgoStore) UnFollowUser(actor mgo.DBRef, recipient mgo.DBRef) error {
 	return link(ds, actor, recipient, "follow", false)
 }
 
-func (ds *MgoStore) GetByUserName(username model.UserName) (model.User, error) {
+func (ds *MgoStore) GetByUserName(username string) (model.User, error) {
 	session := ds.getSession()
 	defer session.Close()
 
@@ -59,6 +66,7 @@ func (ds *MgoStore) GetByUserName(username model.UserName) (model.User, error) {
 
 	err := c.Find(bson.M{"username": username}).One(&document)
 	if err != nil {
+		log.Println(err)
 		return model.User{}, errors.New("Not Found")
 	}
 
