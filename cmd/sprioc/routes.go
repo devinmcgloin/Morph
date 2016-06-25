@@ -9,10 +9,10 @@ func registerImageRoutes(api *mux.Router) {
 	img := api.PathPrefix("/images").Subrouter()
 
 	get := img.Methods("GET").Subrouter()
-	get.HandleFunc("/{ID}", secure(handlers.GetImage))
-	get.HandleFunc("/{ID}/user", secure(NotImplemented))
-	get.HandleFunc("/{ID}/collections", secure(NotImplemented))
-	get.HandleFunc("/{ID}/album", secure(NotImplemented))
+	get.HandleFunc("/{ID}", unsecure(handlers.GetImage))
+	get.HandleFunc("/{ID}/user", unsecure(NotImplemented))
+	get.HandleFunc("/{ID}/collections", unsecure(NotImplemented))
+	get.HandleFunc("/{ID}/album", unsecure(NotImplemented))
 
 	post := api.Methods("POST").Subrouter()
 	post.HandleFunc("/images", secure(handlers.UploadImage))
@@ -34,8 +34,8 @@ func registerUserRoutes(api *mux.Router) {
 	usr := api.PathPrefix("/users").Subrouter()
 
 	get := usr.Methods("GET").Subrouter()
-	get.HandleFunc("/{username}", secure(handlers.GetUserHandler))
-	get.HandleFunc("/{username}/location", secure(NotImplemented))
+	get.HandleFunc("/{username}", unsecure(handlers.GetUserHandler))
+	get.HandleFunc("/{username}/location", unsecure(NotImplemented))
 
 	post := api.Methods("POST").Subrouter()
 	post.HandleFunc("/users", unsecure(handlers.SignupHandler))
@@ -58,9 +58,9 @@ func registerCollectionRoutes(api *mux.Router) {
 	col := api.PathPrefix("/collections").Subrouter()
 
 	get := col.Methods("GET").Subrouter()
-	get.HandleFunc("/{CID}", secure(NotImplemented))
-	get.HandleFunc("/{CID}/users", secure(NotImplemented))
-	get.HandleFunc("/{CID}/images", secure(NotImplemented))
+	get.HandleFunc("/{CID}", unsecure(NotImplemented))
+	get.HandleFunc("/{CID}/users", unsecure(NotImplemented))
+	get.HandleFunc("/{CID}/images", unsecure(NotImplemented))
 
 	post := api.Methods("POST").Subrouter()
 	post.HandleFunc("/collections", secure(NotImplemented))
@@ -86,8 +86,8 @@ func registerAlbumRoutes(api *mux.Router) {
 	alb := api.PathPrefix("/albums").Subrouter()
 
 	get := alb.Methods("GET").Subrouter()
-	get.HandleFunc("/{AID}", secure(NotImplemented))
-	get.HandleFunc("/{AID}/images", secure(NotImplemented))
+	get.HandleFunc("/{AID}", unsecure(NotImplemented))
+	get.HandleFunc("/{AID}/images", unsecure(NotImplemented))
 
 	post := api.Methods("POST").Subrouter()
 	post.HandleFunc("/albums", secure(NotImplemented))
@@ -110,11 +110,11 @@ func registerAlbumRoutes(api *mux.Router) {
 func registerSearchRoutes(api *mux.Router) {
 	get := api.Methods("GET").Subrouter()
 
-	get.HandleFunc("/images", secure(NotImplemented))
-	get.HandleFunc("/uers", secure(NotImplemented))
-	get.HandleFunc("/collections", secure(NotImplemented))
-	get.HandleFunc("/albums", secure(NotImplemented))
-	get.HandleFunc("/search", secure(NotImplemented))
+	get.HandleFunc("/images", unsecure(NotImplemented))
+	get.HandleFunc("/uers", unsecure(NotImplemented))
+	get.HandleFunc("/collections", unsecure(NotImplemented))
+	get.HandleFunc("/albums", unsecure(NotImplemented))
+	get.HandleFunc("/search", unsecure(NotImplemented))
 
 }
 

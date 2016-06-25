@@ -52,39 +52,12 @@ func delete(ds *MgoStore, ID model.DBRef) error {
 }
 
 func modify(ds *MgoStore, ID model.DBRef, changes bson.M) error {
-	err := verifyModificationOps(changes)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
 	session := ds.getSession()
 	defer session.Close()
 
 	c := session.DB(dbname).C(ID.Collection)
 
 	return c.Update(bson.M{"shortcode": ID.Shortcode}, changes)
-}
-
-// Checks to see if the operations used are allowed operations.
-func verifyModificationOps(ops bson.M) error {
-	var validOps = []string{"$inc", "$set", "$unset", "$push", "$pull"}
-
-	for k := range ops {
-		valid := in(k, validOps)
-		if !valid {
-			return fmt.Errorf("Operation %s is not valid", k)
-		}
-	}
-	return nil
-}
-
-func in(contentType string, opts []string) bool {
-	for _, opt := range opts {
-		if strings.Compare(contentType, opt) == 0 {
-			return true
-		}
-	}
-	return false
 }
 
 func link(ds *MgoStore, actor model.DBRef, recipient model.DBRef, relation string, link bool) error {
@@ -151,4 +124,13 @@ func linkType(relation string) (string, string, error) {
 		return "", "", fmt.Errorf("Invalid link type: %s", relation)
 	}
 	return forwards, backwards, nil
+}
+
+func in(contentType string, opts []string) bool {
+	for _, opt := range opts {
+		if strings.Compare(contentType, opt) == 0 {
+			return true
+		}
+	}
+	return false
 }

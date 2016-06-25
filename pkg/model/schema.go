@@ -96,7 +96,6 @@ type Event struct {
 	Desc      string        `bson:"desc,omitempty" json:"desc,omitempty"`
 	Title     string        `bson:"title" json:"title"`
 	ViewType  string        `bson:"view_type" json:"view_type"`
-	User      DBRef         `bson:"user" json:"user"`
 	Followers []DBRef       `bson:"followers" json:"followers,omitempty"`
 	Favorites []DBRef       `bson:"favoriters" json:"favoriters,omitempty"`
 	Location  gj.Feature    `bson:"location" json:"location"`
@@ -108,6 +107,7 @@ type Collection struct {
 	ID        bson.ObjectId `bson:"_id" json:"-"`
 	ShortCode string        `bson:"shortcode" json:"shortcode"`
 	Images    []DBRef       `bson:"images" json:"images,omitempty"`
+	Curator   DBRef         `bson:"curator" json:"curator"`
 	Users     []DBRef       `bson:"users" json:"users"`
 	Desc      string        `bson:"desc,omitempty" json:"desc,omitempty"`
 	Title     string        `bson:"title" json:"title"`

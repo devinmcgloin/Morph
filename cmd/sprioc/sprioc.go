@@ -30,7 +30,7 @@ func init() {
 func main() {
 
 	router := mux.NewRouter()
-	api := router.PathPrefix("/api/v0").Subrouter()
+	api := router.PathPrefix("/v0").Subrouter()
 	port := os.Getenv("PORT")
 
 	log.Printf("Serving at http://localhost:%s", port)

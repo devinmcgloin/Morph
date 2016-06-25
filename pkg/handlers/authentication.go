@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/sprioc/sprioc-core/pkg/api/auth"
+	"github.com/sprioc/sprioc-core/pkg/authentication"
 )
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) Response {
@@ -20,7 +20,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) Response {
 
 	log.Println(creds)
 
-	valid, user, err := auth.ValidateCredentialsByUserName(creds.Username, creds.Password)
+	valid, user, err := authentication.ValidateCredentialsByUserName(creds.Username, creds.Password)
 	if err != nil {
 		return Resp("Invalid Credentials", http.StatusUnauthorized)
 	}

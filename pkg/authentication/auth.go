@@ -1,4 +1,4 @@
-package auth
+package authentication
 
 import (
 	"crypto/rand"
@@ -17,10 +17,10 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	jwtreq "github.com/dgrijalva/jwt-go/request"
-	"github.com/sprioc/sprioc-core/pkg/api/store"
 	"github.com/sprioc/sprioc-core/pkg/env"
 	"github.com/sprioc/sprioc-core/pkg/generator"
 	"github.com/sprioc/sprioc-core/pkg/model"
+	"github.com/sprioc/sprioc-core/pkg/store"
 )
 
 var mongo = store.ConnectStore()

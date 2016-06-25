@@ -7,7 +7,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/gorilla/mux"
-	"github.com/sprioc/sprioc-core/pkg/api/auth"
+	"github.com/sprioc/sprioc-core/pkg/authentication"
 	"github.com/sprioc/sprioc-core/pkg/model"
 )
 
@@ -31,7 +31,7 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) Response {
 		return Resp("Username or Email already exist", http.StatusConflict)
 	}
 
-	password, salt, err := auth.GetSaltPass(newUser.Password)
+	password, salt, err := authentication.GetSaltPass(newUser.Password)
 	if err != nil {
 		return Resp("Error adding user", http.StatusConflict)
 	}
