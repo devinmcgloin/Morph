@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/devinmcgloin/sprioc/pkg/handlers"
 	"github.com/gorilla/mux"
+	"github.com/sprioc/sprioc-core/pkg/handlers"
 )
 
 func registerImageRoutes(api *mux.Router) {

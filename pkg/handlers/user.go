@@ -6,9 +6,9 @@ import (
 
 	"gopkg.in/mgo.v2/bson"
 
-	"github.com/devinmcgloin/sprioc/pkg/api/auth"
-	"github.com/devinmcgloin/sprioc/pkg/model"
 	"github.com/gorilla/mux"
+	"github.com/sprioc/sprioc-core/pkg/api/auth"
+	"github.com/sprioc/sprioc-core/pkg/model"
 )
 
 type signUpFields struct {

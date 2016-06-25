@@ -7,9 +7,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/devinmcgloin/sprioc/pkg/api/metadata"
 	"github.com/rwcarlsen/goexif/exif"
 	"github.com/rwcarlsen/goexif/tiff"
+	"github.com/sprioc/sprioc-core/pkg/api/metadata"
 )
 
 func main() {

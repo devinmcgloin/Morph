@@ -1,6 +1,6 @@
 package store
 
-import "github.com/devinmcgloin/sprioc/pkg/generator"
+import "github.com/sprioc/sprioc-core/pkg/generator"
 
 func (ds *MgoStore) GetNewImageShortCode() string {
 	id := generator.RandString(12)

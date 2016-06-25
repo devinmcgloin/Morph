@@ -3,7 +3,7 @@ package store
 import (
 	"errors"
 
-	"github.com/devinmcgloin/sprioc/pkg/model"
+	"github.com/sprioc/sprioc-core/pkg/model"
 	"gopkg.in/mgo.v2/bson"
 )
 

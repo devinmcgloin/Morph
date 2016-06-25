@@ -4,8 +4,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/devinmcgloin/sprioc/pkg/generator"
 	"github.com/garyburd/redigo/redis"
+	"github.com/sprioc/sprioc-core/pkg/generator"
 	"gopkg.in/mgo.v2/bson"
 )
 

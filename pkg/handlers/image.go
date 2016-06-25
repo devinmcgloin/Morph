@@ -11,13 +11,13 @@ import (
 
 	"gopkg.in/mgo.v2/bson"
 
-	"github.com/devinmcgloin/sprioc/pkg/api/contentStorage"
-	"github.com/devinmcgloin/sprioc/pkg/api/metadata"
+	"github.com/sprioc/sprioc-core/pkg/api/contentStorage"
+	"github.com/sprioc/sprioc-core/pkg/api/metadata"
 
-	"github.com/devinmcgloin/sprioc/pkg/model"
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/schema"
+	"github.com/sprioc/sprioc-core/pkg/model"
 )
 
 var decoder = schema.NewDecoder()

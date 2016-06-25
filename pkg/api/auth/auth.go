@@ -15,12 +15,12 @@ import (
 
 	"encoding/pem"
 
-	"github.com/devinmcgloin/sprioc/pkg/api/store"
-	"github.com/devinmcgloin/sprioc/pkg/env"
-	"github.com/devinmcgloin/sprioc/pkg/generator"
-	"github.com/devinmcgloin/sprioc/pkg/model"
 	"github.com/dgrijalva/jwt-go"
 	jwtreq "github.com/dgrijalva/jwt-go/request"
+	"github.com/sprioc/sprioc-core/pkg/api/store"
+	"github.com/sprioc/sprioc-core/pkg/env"
+	"github.com/sprioc/sprioc-core/pkg/generator"
+	"github.com/sprioc/sprioc-core/pkg/model"
 )
 
 var mongo = store.ConnectStore()

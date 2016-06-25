@@ -10,8 +10,8 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 
-	"github.com/devinmcgloin/sprioc/pkg/api/auth"
-	h "github.com/devinmcgloin/sprioc/pkg/handlers"
+	"github.com/sprioc/sprioc-core/pkg/api/auth"
+	h "github.com/sprioc/sprioc-core/pkg/handlers"
 )
 
 func init() {

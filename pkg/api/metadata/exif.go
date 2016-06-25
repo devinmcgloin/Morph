@@ -6,9 +6,9 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/devinmcgloin/sprioc/pkg/model"
 	gj "github.com/kpawlik/geojson"
 	"github.com/rwcarlsen/goexif/exif"
+	"github.com/sprioc/sprioc-core/pkg/model"
 )
 
 func GetExif(image io.Reader) (*exif.Exif, error) {

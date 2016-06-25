@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"github.com/devinmcgloin/sprioc/pkg/api/store"
-	"github.com/devinmcgloin/sprioc/pkg/env"
-	"github.com/devinmcgloin/sprioc/pkg/model"
+	"github.com/sprioc/sprioc-core/pkg/api/store"
+	"github.com/sprioc/sprioc-core/pkg/env"
+	"github.com/sprioc/sprioc-core/pkg/model"
 )
 
 var dbname = env.Getenv("MONGODB_NAME", "morph")

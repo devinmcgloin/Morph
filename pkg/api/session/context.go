@@ -3,8 +3,8 @@ package session
 import (
 	"net/http"
 
-	"github.com/devinmcgloin/sprioc/pkg/model"
 	"github.com/gorilla/context"
+	"github.com/sprioc/sprioc-core/pkg/model"
 )
 
 func GetUser(r *http.Request) (model.DBRef, bool) {

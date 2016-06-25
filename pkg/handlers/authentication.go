@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/devinmcgloin/sprioc/pkg/api/auth"
+	"github.com/sprioc/sprioc-core/pkg/api/auth"
 )
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) Response {

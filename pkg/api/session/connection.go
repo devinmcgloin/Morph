@@ -3,8 +3,8 @@ package session
 import (
 	"time"
 
-	"github.com/devinmcgloin/sprioc/pkg/env"
 	"github.com/garyburd/redigo/redis"
+	"github.com/sprioc/sprioc-core/pkg/env"
 )
 
 var redisURL = env.Getenv("REDIS_URL", "redis://localhost:6379")
