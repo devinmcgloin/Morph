@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"net"
 	"net/http"
 	"os"
 
@@ -9,8 +10,8 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 
-	"github.com/devinmcgloin/sprioc/src/api/auth"
-	"github.com/devinmcgloin/sprioc/src/spriocError"
+	"github.com/devinmcgloin/sprioc/pkg/api/auth"
+	h "github.com/devinmcgloin/sprioc/pkg/handlers"
 )
 
 func init() {
@@ -51,17 +52,16 @@ func main() {
 	log.Fatal(http.ListenAndServe(":"+port, handlers.LoggingHandler(os.Stdout, handlers.CompressHandler(router))))
 }
 
-func NotImplemented(w http.ResponseWriter, r *http.Request) error {
+func NotImplemented(w http.ResponseWriter, r *http.Request) h.Response {
 	log.Printf("Not implemented called from %s", r.URL)
-	http.Error(w, "Not Implemented", 509)
-	return nil
+	return h.Response{Code: http.StatusNotImplemented}
 }
 
 func serveHTML(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "./assets/index.html")
 }
 
-func secureWrappedMiddle(f func(http.ResponseWriter, *http.Request) error) func(http.ResponseWriter, *http.Request) {
+func secure(f func(http.ResponseWriter, *http.Request) h.Response) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		user, err := auth.CheckUser(r)
@@ -72,34 +72,34 @@ func secureWrappedMiddle(f func(http.ResponseWriter, *http.Request) error) func(
 
 		context.Set(r, "auth", user)
 
-		err = f(w, r)
-		if err != nil {
-			custErr := err.(spriocError.SpriocError)
-			if custErr.Code != 0 {
-				http.Error(w, custErr.Error(), custErr.Code)
-				log.Printf("error handling %q: %v", r.RequestURI, err)
-				return
-			}
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			log.Printf("unknown error handling %q: %v", r.RequestURI, err)
-			return
+		w.Header().Set("Content-Type", "application/json")
+
+		resp := f(w, r)
+		w.WriteHeader(resp.Code)
+		if len(resp.Data) != 0 {
+			w.Write(resp.Data)
+		} else {
+			w.Write(resp.Format())
 		}
 	}
 }
 
-func unsecureWrappedMiddle(f func(http.ResponseWriter, *http.Request) error) func(http.ResponseWriter, *http.Request) {
+func unsecure(f func(http.ResponseWriter, *http.Request) h.Response) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		err := f(w, r)
-		if err != nil {
-			custErr := err.(spriocError.SpriocError)
-			if custErr.Code != 0 {
-				http.Error(w, custErr.Error(), custErr.Code)
-				log.Printf("error handling %q: %v", r.RequestURI, err)
-				return
-			}
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			log.Printf("unknown error handling %q: %v", r.RequestURI, err)
-			return
+
+		ip, port, err := net.SplitHostPort(r.RemoteAddr)
+		log.Println(ip, port, err)
+
+		w.Header().Set("Content-Type", "application/json")
+
+		resp := f(w, r)
+		w.WriteHeader(resp.Code)
+		if len(resp.Data) != 0 {
+			log.Println("Writing data")
+			n, err := w.Write(resp.Data)
+			log.Println(n, err)
+		} else {
+			w.Write(resp.Format())
 		}
 	}
 }
