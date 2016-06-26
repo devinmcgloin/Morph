@@ -2,7 +2,6 @@ package store
 
 import (
 	"errors"
-	"log"
 
 	"github.com/sprioc/sprioc-core/pkg/model"
 	"gopkg.in/mgo.v2/bson"
@@ -55,22 +54,4 @@ func UnFavoriteUser(ds *MgoStore, actor model.DBRef, recipient model.DBRef) erro
 
 func UnFollowUser(ds *MgoStore, actor model.DBRef, recipient model.DBRef) error {
 	return link(ds, actor, recipient, "follow", false)
-}
-
-func GetByUserName(ds *MgoStore, username string) (model.User, error) {
-	session := ds.getSession()
-	defer session.Close()
-
-	var document model.User
-
-	c := session.DB(dbname).C("users")
-
-	err := c.Find(bson.M{"shortcode": username}).One(&document)
-	if err != nil {
-		log.Println(err)
-		return model.User{}, errors.New("Not Found")
-	}
-
-	return document, nil
-
 }

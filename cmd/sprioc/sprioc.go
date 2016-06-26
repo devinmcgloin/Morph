@@ -87,17 +87,15 @@ func secure(f func(http.ResponseWriter, *http.Request) h.Response) func(http.Res
 func unsecure(f func(http.ResponseWriter, *http.Request) h.Response) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		ip, port, err := net.SplitHostPort(r.RemoteAddr)
-		log.Println(ip, port, err)
+		ip, port, _ := net.SplitHostPort(r.RemoteAddr)
+		log.Println(ip, port)
 
 		w.Header().Set("Content-Type", "application/json")
 
 		resp := f(w, r)
 		w.WriteHeader(resp.Code)
 		if len(resp.Data) != 0 {
-			log.Println("Writing data")
-			n, err := w.Write(resp.Data)
-			log.Println(n, err)
+			w.Write(resp.Data)
 		} else {
 			w.Write(resp.Format())
 		}

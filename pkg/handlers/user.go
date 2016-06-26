@@ -10,7 +10,6 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/sprioc/sprioc-core/pkg/authentication"
-	"github.com/sprioc/sprioc-core/pkg/authorization"
 	"github.com/sprioc/sprioc-core/pkg/contentStorage"
 	"github.com/sprioc/sprioc-core/pkg/model"
 	"github.com/sprioc/sprioc-core/pkg/store"
@@ -22,7 +21,7 @@ type signUpFields struct {
 	Email    string `json:"email"`
 }
 
-func Signup(w http.ResponseWriter, r *http.Request) Response {
+func CreateUser(w http.ResponseWriter, r *http.Request) Response {
 	decoder := json.NewDecoder(r.Body)
 
 	newUser := signUpFields{}
@@ -100,7 +99,7 @@ func formatAvatarSources(shortcode string) model.ImgSource {
 func GetUser(w http.ResponseWriter, r *http.Request) Response {
 	UID := mux.Vars(r)["username"]
 
-	user, err := store.GetByUserName(mongo, UID)
+	user, err := store.GetUser(mongo, GetUserRef(UID))
 	if err != nil {
 		return Resp("Not Found", http.StatusNotFound)
 	}
@@ -114,70 +113,27 @@ func GetUser(w http.ResponseWriter, r *http.Request) Response {
 }
 
 func DeleteUser(w http.ResponseWriter, r *http.Request) Response {
-	user, userRef, err := getUser(r)
-	if err != nil {
-		return err.(Response)
-	}
-
-	loggedUser, _, err := getLoggedInUser(r)
-	if err != nil {
-		return err.(Response)
-	}
-
-	_, err = authorization.Authorized(loggedUser, user)
-	if err != nil {
-		return Resp(err.Error(), http.StatusUnauthorized)
-	}
-
-	err = store.DeleteUser(mongo, userRef)
-	if err != nil {
-		return Resp("Internal Server Error", http.StatusInternalServerError)
-	}
-	return Response{Code: http.StatusAccepted}
+	return executeCommand(w, r, getUserInterface, store.DeleteUser)
 }
 
 func FavoriteUser(w http.ResponseWriter, r *http.Request) Response {
-	user, userRef, err := getUser(r)
-	if err != nil {
-		return err.(Response)
-	}
-
-	loggedInUser, loggedInRef, err := getLoggedInUser(r)
-	if err != nil {
-		return err.(Response)
-	}
-
-	_, err = authorization.Authorized(loggedInUser, user)
-	if err != nil {
-		return Resp(err.Error(), http.StatusUnauthorized)
-	}
-
-	err = store.FavoriteImage(mongo, loggedInRef, userRef)
-	if err != nil {
-		return Resp("Internal Server Error", http.StatusInternalServerError)
-	}
-	return Response{Code: http.StatusAccepted}
+	return executeBiDirectCommand(w, r, getUserInterface, store.FavoriteUser)
 }
 
 func FollowUser(w http.ResponseWriter, r *http.Request) Response {
-	user, userRef, err := getUser(r)
-	if err != nil {
-		return err.(Response)
-	}
+	return executeBiDirectCommand(w, r, getUserInterface, store.FollowUser)
+}
 
-	loggedInUser, loggedInRef, err := getLoggedInUser(r)
-	if err != nil {
-		return err.(Response)
-	}
+func UnFavoriteUser(w http.ResponseWriter, r *http.Request) Response {
+	return executeBiDirectCommand(w, r, getUserInterface, store.UnFavoriteUser)
+}
 
-	_, err = authorization.Authorized(loggedInUser, user)
-	if err != nil {
-		return Resp(err.Error(), http.StatusUnauthorized)
-	}
+func UnFollowUser(w http.ResponseWriter, r *http.Request) Response {
+	return executeBiDirectCommand(w, r, getUserInterface, store.UnFollowUser)
+}
 
-	err = store.FollowUser(mongo, loggedInRef, userRef)
-	if err != nil {
-		return Resp("Internal Server Error", http.StatusInternalServerError)
-	}
-	return Response{Code: http.StatusAccepted}
+func ModifyUser(w http.ResponseWriter, r *http.Request) Response {
+	username := mux.Vars(r)["username"]
+	ref := GetUserRef(username)
+	return executeCheckedModification(r, ref)
 }

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 
@@ -83,7 +84,7 @@ func executeUncheckedModification(r *http.Request, changes bson.M, ref model.DBR
 	return Response{Code: 200}
 }
 
-func getImage(r *http.Request) (model.Image, model.DBRef, error) {
+func getImageInterface(r *http.Request) (interface{}, model.DBRef, error) {
 	id := mux.Vars(r)["IID"]
 
 	ref := GetImageRef(id)
@@ -93,6 +94,15 @@ func getImage(r *http.Request) (model.Image, model.DBRef, error) {
 		return model.Image{}, model.DBRef{}, Resp("Image not found", http.StatusNotFound)
 	}
 	return img, ref, nil
+}
+
+func getImage(r *http.Request) (model.Image, model.DBRef, error) {
+	doc, docRef, err := getImageInterface(r)
+	convertDoc, ok := doc.(model.Image)
+	if ok {
+		return convertDoc, docRef, err
+	}
+	return model.Image{}, model.DBRef{}, errors.New("Unable to convert image")
 }
 
 func getLoggedInUser(r *http.Request) (model.User, model.DBRef, error) {
@@ -106,7 +116,7 @@ func getLoggedInUser(r *http.Request) (model.User, model.DBRef, error) {
 	return user, GetUserRef(user.ShortCode), nil
 }
 
-func getUser(r *http.Request) (model.User, model.DBRef, error) {
+func getUserInterface(r *http.Request) (interface{}, model.DBRef, error) {
 	id := mux.Vars(r)["username"]
 
 	ref := GetUserRef(id)
@@ -118,7 +128,16 @@ func getUser(r *http.Request) (model.User, model.DBRef, error) {
 	return usr, ref, nil
 }
 
-func getAlbum(r *http.Request) (model.Album, model.DBRef, error) {
+func getUser(r *http.Request) (model.User, model.DBRef, error) {
+	doc, docRef, err := getUserInterface(r)
+	convertDoc, ok := doc.(model.User)
+	if ok {
+		return convertDoc, docRef, err
+	}
+	return model.User{}, model.DBRef{}, errors.New("Unable to convert user")
+}
+
+func getAlbumInterface(r *http.Request) (interface{}, model.DBRef, error) {
 	id := mux.Vars(r)["AID"]
 
 	ref := GetAlbumRef(id)
@@ -130,7 +149,16 @@ func getAlbum(r *http.Request) (model.Album, model.DBRef, error) {
 	return alb, ref, nil
 }
 
-func getCollection(r *http.Request) (model.Collection, model.DBRef, error) {
+func getAlbum(r *http.Request) (model.Album, model.DBRef, error) {
+	doc, docRef, err := getAlbumInterface(r)
+	convertDoc, ok := doc.(model.Album)
+	if ok {
+		return convertDoc, docRef, err
+	}
+	return model.Album{}, model.DBRef{}, errors.New("Unable to convert album")
+}
+
+func getCollectionInterface(r *http.Request) (interface{}, model.DBRef, error) {
 	id := mux.Vars(r)["CID"]
 
 	ref := GetAlbumRef(id)
@@ -142,9 +170,66 @@ func getCollection(r *http.Request) (model.Collection, model.DBRef, error) {
 	return col, ref, nil
 }
 
-// func executeCommand(w http.ResponseWriter, r *http.Request,
-// 	userGetter func(r *http.Request) (model.Collection, model.DBRef, error),
-// 	targetGetter func(r *http.Request) (model.Collection, model.DBRef, error),
-// 	operation func(ds *MgoStore)(ref model.DBRef)error){
-//
-// }
+func getCollection(r *http.Request) (model.Collection, model.DBRef, error) {
+	doc, docRef, err := getCollectionInterface(r)
+	convertDoc, ok := doc.(model.Collection)
+	if ok {
+		return convertDoc, docRef, err
+	}
+	return model.Collection{}, model.DBRef{}, errors.New("Unable to convert collection")
+}
+
+type getter func(r *http.Request) (interface{}, model.DBRef, error)
+type opt func(ds *store.MgoStore, ref model.DBRef) error
+type biDirectOpt func(ds *store.MgoStore, actor model.DBRef, subject model.DBRef) error
+
+func executeCommand(w http.ResponseWriter, r *http.Request,
+	targetGetter getter,
+	operation opt) Response {
+
+	target, targetRef, err := targetGetter(r)
+	if err != nil {
+		return err.(Response)
+	}
+
+	user, _, err := getLoggedInUser(r)
+	if err != nil {
+		return err.(Response)
+	}
+
+	_, err = authorization.Authorized(user, target)
+	if err != nil {
+		return Resp(err.Error(), http.StatusUnauthorized)
+	}
+
+	err = operation(mongo, targetRef)
+	if err != nil {
+		return Resp("Internal Server Error", http.StatusInternalServerError)
+	}
+	return Response{Code: http.StatusAccepted}
+}
+
+func executeBiDirectCommand(w http.ResponseWriter, r *http.Request, targetGetter getter,
+	operation biDirectOpt) Response {
+
+	target, targetRef, err := targetGetter(r)
+	if err != nil {
+		return err.(Response)
+	}
+
+	user, userRef, err := getLoggedInUser(r)
+	if err != nil {
+		return err.(Response)
+	}
+
+	_, err = authorization.Authorized(user, target)
+	if err != nil {
+		return Resp(err.Error(), http.StatusUnauthorized)
+	}
+
+	err = operation(mongo, userRef, targetRef)
+	if err != nil {
+		return Resp("Internal Server Error", http.StatusInternalServerError)
+	}
+	return Response{Code: http.StatusAccepted}
+}

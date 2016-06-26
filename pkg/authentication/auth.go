@@ -48,7 +48,7 @@ func init() {
 }
 
 func ValidateCredentialsByUserName(username string, password string) (bool, model.User, error) {
-	user, err := store.GetByUserName(mongo, username)
+	user, err := store.GetUser(mongo, model.DBRef{Database: dbase, Collection: "users", Shortcode: username})
 	if err != nil {
 		return false, model.User{}, errors.New("Invalid Credentials")
 	}
@@ -94,12 +94,9 @@ func CheckUser(r *http.Request) (model.User, error) {
 		return model.User{}, errors.New("Bearer Header not present")
 	}
 
-	token := strings.Split(tokenStrings, " ")
-	if len(tokenStrings) < 2 {
-		return model.User{}, errors.New("Check to make sure your header follows 'Bearer <token>'")
-	}
+	token := strings.Replace(tokenStrings, "Bearer ", "", 1)
 
-	userRef, err := VerifyJWT(token[1])
+	userRef, err := VerifyJWT(token)
 	if err != nil {
 		return model.User{}, err
 	}

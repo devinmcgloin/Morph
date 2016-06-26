@@ -64,7 +64,7 @@ func VerifyChanges(user model.User, target interface{}, changes bson.M, internal
 func Authorized(user model.User, target interface{}) (int, error) {
 	switch t := target.(type) {
 	case model.Image:
-		if strings.Compare(user.ShortCode, target.(model.Image).User.Shortcode) != 0 {
+		if strings.Compare(user.ShortCode, target.(model.Image).User.Shortcode) == 0 {
 			return images, nil
 		}
 		break

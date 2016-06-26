@@ -38,45 +38,45 @@ func registerUserRoutes(api *mux.Router) {
 	get.HandleFunc("/{username}/location", unsecure(NotImplemented))
 
 	post := api.Methods("POST").Subrouter()
-	post.HandleFunc("/users", unsecure(handlers.Signup))
+	post.HandleFunc("/users", unsecure(handlers.CreateUser))
 
 	put := usr.Methods("PUT").Subrouter()
-	put.HandleFunc("/{username}/avatar", secure(NotImplemented))
-	put.HandleFunc("/{username}/favorite", secure(NotImplemented))
-	put.HandleFunc("/{username}/follow", secure(NotImplemented))
+	put.HandleFunc("/{username}/avatar", secure(handlers.AvatarUpload))
+	put.HandleFunc("/{username}/favorite", secure(handlers.FavoriteUser))
+	put.HandleFunc("/{username}/follow", secure(handlers.FollowUser))
 
 	del := usr.Methods("DELETE").Subrouter()
-	del.HandleFunc("/{username}", secure(NotImplemented))
-	del.HandleFunc("/{username}/favorite", secure(NotImplemented))
-	del.HandleFunc("/{username}/follow", secure(NotImplemented))
+	del.HandleFunc("/{username}", secure(handlers.DeleteUser))
+	del.HandleFunc("/{username}/favorite", secure(handlers.UnFavoriteUser))
+	del.HandleFunc("/{username}/follow", secure(handlers.UnFollowUser))
 
 	patch := usr.Methods("PATCH").Subrouter()
-	patch.HandleFunc("/{username}", secure(NotImplemented))
+	patch.HandleFunc("/{username}", secure(handlers.ModifyUser))
 }
 
 func registerCollectionRoutes(api *mux.Router) {
 	col := api.PathPrefix("/collections").Subrouter()
 
 	get := col.Methods("GET").Subrouter()
-	get.HandleFunc("/{CID}", unsecure(NotImplemented))
+	get.HandleFunc("/{CID}", unsecure(handlers.GetCollection))
 	get.HandleFunc("/{CID}/users", unsecure(NotImplemented))
 	get.HandleFunc("/{CID}/images", unsecure(NotImplemented))
 
 	post := api.Methods("POST").Subrouter()
-	post.HandleFunc("/collections", secure(NotImplemented))
+	post.HandleFunc("/collections", secure(handlers.CreateCollection))
 
 	put := col.Methods("PUT").Subrouter()
-	put.HandleFunc("/{CID}/images", secure(NotImplemented))
+	put.HandleFunc("/{CID}/images", secure(handlers.AddImageToCollection))
 	put.HandleFunc("/{CID}/users", secure(NotImplemented))
-	put.HandleFunc("/{CID}/favorite", secure(NotImplemented))
-	put.HandleFunc("/{CID}/follow", secure(NotImplemented))
+	put.HandleFunc("/{CID}/favorite", secure(handlers.FavoriteCollection))
+	put.HandleFunc("/{CID}/follow", secure(handlers.FollowCollection))
 
 	del := col.Methods("DELETE").Subrouter()
-	del.HandleFunc("/{CID}", secure(NotImplemented))
-	del.HandleFunc("/{CID}/images/{IID}", secure(NotImplemented))
+	del.HandleFunc("/{CID}", secure(handlers.DeleteCollection))
+	del.HandleFunc("/{CID}/images/{IID}", secure(handlers.DeleteImageFromCollection))
 	del.HandleFunc("/{CID}/users/{username}", secure(NotImplemented))
-	del.HandleFunc("/{CID}/favorite", secure(NotImplemented))
-	del.HandleFunc("/{CID}/follow", secure(NotImplemented))
+	del.HandleFunc("/{CID}/favorite", secure(handlers.UnFavoriteCollection))
+	del.HandleFunc("/{CID}/follow", secure(handlers.UnFollowCollection))
 
 	patch := col.Methods("PATCH").Subrouter()
 	patch.HandleFunc("/{CID}", secure(NotImplemented))
@@ -86,22 +86,22 @@ func registerAlbumRoutes(api *mux.Router) {
 	alb := api.PathPrefix("/albums").Subrouter()
 
 	get := alb.Methods("GET").Subrouter()
-	get.HandleFunc("/{AID}", unsecure(NotImplemented))
+	get.HandleFunc("/{AID}", unsecure(handlers.GetAlbum))
 	get.HandleFunc("/{AID}/images", unsecure(NotImplemented))
 
 	post := api.Methods("POST").Subrouter()
 	post.HandleFunc("/albums", secure(NotImplemented))
 
 	put := alb.Methods("PUT").Subrouter()
-	put.HandleFunc("/{AID}/images", secure(NotImplemented))
-	put.HandleFunc("/{AID}/favorite", secure(NotImplemented))
-	put.HandleFunc("/{AID}/follow", secure(NotImplemented))
+	put.HandleFunc("/{AID}/images", secure(handlers.AddImageToAlbum))
+	put.HandleFunc("/{AID}/favorite", secure(handlers.FavoriteAlbum))
+	put.HandleFunc("/{AID}/follow", secure(handlers.FollowAlbum))
 
 	del := alb.Methods("DELETE").Subrouter()
-	del.HandleFunc("/{AID}", secure(NotImplemented))
-	del.HandleFunc("/{AID}/images/{IID}", secure(NotImplemented))
-	del.HandleFunc("/{AID}/favorite", secure(NotImplemented))
-	del.HandleFunc("/{AID}/follow", secure(NotImplemented))
+	del.HandleFunc("/{AID}", secure(handlers.DeleteAlbum))
+	del.HandleFunc("/{AID}/images/{IID}", secure(handlers.DeleteImageFromAlbum))
+	del.HandleFunc("/{AID}/favorite", secure(handlers.UnFavoriteAlbum))
+	del.HandleFunc("/{AID}/follow", secure(handlers.UnFollowAlbum))
 
 	patch := alb.Methods("PATCH").Subrouter()
 	patch.HandleFunc("/{AID}", secure(NotImplemented))

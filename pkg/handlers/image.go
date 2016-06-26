@@ -13,7 +13,6 @@ import (
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/schema"
-	"github.com/sprioc/sprioc-core/pkg/authorization"
 	"github.com/sprioc/sprioc-core/pkg/contentStorage"
 	"github.com/sprioc/sprioc-core/pkg/metadata"
 	"github.com/sprioc/sprioc-core/pkg/model"
@@ -106,119 +105,24 @@ func formatImageSources(shortcode string) model.ImgSource {
 }
 
 func FeatureImage(w http.ResponseWriter, r *http.Request) Response {
-	img, imgRef, err := getImage(r)
-	if err != nil {
-		return err.(Response)
-	}
-
-	user, _, err := getLoggedInUser(r)
-	if err != nil {
-		return err.(Response)
-	}
-
-	_, err = authorization.Authorized(user, img)
-	if err != nil {
-		return Resp(err.Error(), http.StatusUnauthorized)
-	}
-
-	err = store.FeatureImage(mongo, imgRef)
-	if err != nil {
-		return Resp("Internal Server Error", http.StatusInternalServerError)
-	}
-	return Response{Code: http.StatusAccepted}
-
+	return executeCommand(w, r, getImageInterface, store.FeatureImage)
 }
 
 func FavoriteImage(w http.ResponseWriter, r *http.Request) Response {
-	img, imgRef, err := getImage(r)
-	if err != nil {
-		return err.(Response)
-	}
-
-	user, userRef, err := getLoggedInUser(r)
-	if err != nil {
-		return err.(Response)
-	}
-
-	_, err = authorization.Authorized(user, img)
-	if err != nil {
-		return Resp(err.Error(), http.StatusUnauthorized)
-	}
-
-	err = store.FavoriteImage(mongo, userRef, imgRef)
-	if err != nil {
-		return Resp("Internal Server Error", http.StatusInternalServerError)
-	}
-	return Response{Code: http.StatusAccepted}
+	return executeBiDirectCommand(w, r, getImageInterface, store.FavoriteImage)
 }
 
 func DeleteImage(w http.ResponseWriter, r *http.Request) Response {
-	img, imgRef, err := getImage(r)
-	if err != nil {
-		return err.(Response)
-	}
-
-	user, _, err := getLoggedInUser(r)
-	if err != nil {
-		return err.(Response)
-	}
-
-	_, err = authorization.Authorized(user, img)
-	if err != nil {
-		return Resp(err.Error(), http.StatusUnauthorized)
-	}
-
-	err = store.DeleteImage(mongo, imgRef)
-	if err != nil {
-		return Resp("Internal Server Error", http.StatusInternalServerError)
-	}
-	return Response{Code: http.StatusAccepted}
+	return executeCommand(w, r, getImageInterface, store.DeleteImage)
 }
 
 func UnFeatureImage(w http.ResponseWriter, r *http.Request) Response {
-	img, imgRef, err := getImage(r)
-	if err != nil {
-		return err.(Response)
-	}
-
-	user, _, err := getLoggedInUser(r)
-	if err != nil {
-		return err.(Response)
-	}
-
-	_, err = authorization.Authorized(user, img)
-	if err != nil {
-		return Resp(err.Error(), http.StatusUnauthorized)
-	}
-
-	err = store.UnFeatureImage(mongo, imgRef)
-	if err != nil {
-		return Resp("Internal Server Error", http.StatusInternalServerError)
-	}
-	return Response{Code: http.StatusAccepted}
+	return executeCommand(w, r, getImageInterface, store.UnFeatureImage)
 }
 
 func UnFavoriteImage(w http.ResponseWriter, r *http.Request) Response {
-	img, imgRef, err := getImage(r)
-	if err != nil {
-		return err.(Response)
-	}
+	return executeBiDirectCommand(w, r, getImageInterface, store.UnFavoriteImage)
 
-	user, userRef, err := getLoggedInUser(r)
-	if err != nil {
-		return err.(Response)
-	}
-
-	_, err = authorization.Authorized(user, img)
-	if err != nil {
-		return Resp(err.Error(), http.StatusUnauthorized)
-	}
-
-	err = store.UnFavoriteImage(mongo, userRef, imgRef)
-	if err != nil {
-		return Resp("Internal Server Error", http.StatusInternalServerError)
-	}
-	return Response{Code: http.StatusAccepted}
 }
 
 func ModifyImage(w http.ResponseWriter, r *http.Request) Response {

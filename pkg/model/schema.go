@@ -7,6 +7,11 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// TODO it would be good to have both public and private collections / images.
+
+// TODO need to define external representations of these types and functions
+// that map from internal to external.
+
 // Image contains all the proper information for rendering a single photo
 type Image struct {
 	ID        bson.ObjectId `bson:"_id" json:"_id"`
@@ -25,7 +30,7 @@ type Image struct {
 
 	Sources ImgSource `bson:"sources" json:"sources"`
 
-	Featured  bool    `bson:"featured,omitempty" json:"featured,omitempty"`
+	Featured  bool    `bson:"featured" json:"featured"`
 	Downloads int     `bson:"downloads"`
 	Favorites []DBRef `bson:"favoriters"`
 }
@@ -48,13 +53,12 @@ type ImageMetaData struct {
 }
 
 // ImgSource includes the information about the image itself.
-// Size indicates how large the image is.
 type ImgSource struct {
-	Thumb  string
-	Small  string
-	Medium string
-	Large  string
-	Raw    string
+	Thumb  string `bson:"thumb" json:"thumb"`
+	Small  string `bson:"small" json:"small"`
+	Medium string `bson:"medium" json:"medium"`
+	Large  string `bson:"large" json:"large"`
+	Raw    string `bson:"raw" json:"raw"`
 }
 
 type User struct {
