@@ -9,7 +9,7 @@ import (
 
 	"github.com/rwcarlsen/goexif/exif"
 	"github.com/rwcarlsen/goexif/tiff"
-	"github.com/sprioc/sprioc-core/pkg/api/metadata"
+	"github.com/sprioc/sprioc-core/pkg/metadata"
 )
 
 func main() {

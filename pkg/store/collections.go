@@ -7,7 +7,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-func (ds *MgoStore) GetCollection(colRef model.DBRef) (model.Collection, error) {
+func GetCollection(ds *MgoStore, colRef model.DBRef) (model.Collection, error) {
 	session := ds.getSession()
 	defer session.Close()
 
@@ -23,48 +23,48 @@ func (ds *MgoStore) GetCollection(colRef model.DBRef) (model.Collection, error) 
 	return document, nil
 }
 
-func (ds *MgoStore) CreateCollection(Collection model.DBRef) error {
+func CreateCollection(ds *MgoStore, Collection model.DBRef) error {
 	return create(ds, "collections", Collection)
 }
 
-func (ds *MgoStore) DeleteCollection(ID model.DBRef) error {
+func DeleteCollection(ds *MgoStore, ID model.DBRef) error {
 	return delete(ds, ID)
 }
 
-func (ds *MgoStore) ModifyCollection(ID model.DBRef, diff bson.M) error {
+func ModifyCollection(ds *MgoStore, ID model.DBRef, diff bson.M) error {
 	return modify(ds, ID, diff)
 }
 
-func (ds *MgoStore) AddUserToCollection(ID model.DBRef, ImageID model.DBRef) error {
+func AddUserToCollection(ds *MgoStore, ID model.DBRef, ImageID model.DBRef) error {
 	return modifyRef(ds, ID, ImageID, true)
 }
 
-func (ds *MgoStore) AddImageToCollection(ID model.DBRef, ImageID model.DBRef) error {
+func AddImageToCollection(ds *MgoStore, ID model.DBRef, ImageID model.DBRef) error {
 	return modifyRef(ds, ID, ImageID, true)
 }
 
-func (ds *MgoStore) DeleteImageFromCollection(ID model.DBRef, ImageID model.DBRef) error {
+func DeleteImageFromCollection(ds *MgoStore, ID model.DBRef, ImageID model.DBRef) error {
 	return modifyRef(ds, ID, ImageID, false)
 }
 
-func (ds *MgoStore) DeleteUserFromCollection(ID model.DBRef, ImageID model.DBRef) error {
+func DeleteUserFromCollection(ds *MgoStore, ID model.DBRef, ImageID model.DBRef) error {
 	return modifyRef(ds, ID, ImageID, false)
 }
 
-func (ds *MgoStore) FavoriteCollection(actor model.DBRef, recipient model.DBRef) error {
+func FavoriteCollection(ds *MgoStore, actor model.DBRef, recipient model.DBRef) error {
 	return link(ds, actor, recipient, "favorite", true)
 }
 
-func (ds *MgoStore) FollowCollection(actor model.DBRef, recipient model.DBRef) error {
+func FollowCollection(ds *MgoStore, actor model.DBRef, recipient model.DBRef) error {
 	return link(ds, actor, recipient, "follow", true)
 
 }
 
-func (ds *MgoStore) UnFavoriteCollection(actor model.DBRef, recipient model.DBRef) error {
+func UnFavoriteCollection(ds *MgoStore, actor model.DBRef, recipient model.DBRef) error {
 	return link(ds, actor, recipient, "favorite", false)
 
 }
 
-func (ds *MgoStore) UnFollowCollection(actor model.DBRef, recipient model.DBRef) error {
+func UnFollowCollection(ds *MgoStore, actor model.DBRef, recipient model.DBRef) error {
 	return link(ds, actor, recipient, "follow", false)
 }

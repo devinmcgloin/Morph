@@ -7,7 +7,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-func (ds *MgoStore) GetAlbum(albRef model.DBRef) (model.Album, error) {
+func GetAlbum(ds *MgoStore, albRef model.DBRef) (model.Album, error) {
 	session := ds.getSession()
 	defer session.Close()
 
@@ -23,38 +23,38 @@ func (ds *MgoStore) GetAlbum(albRef model.DBRef) (model.Album, error) {
 	return document, nil
 }
 
-func (ds *MgoStore) CreateAlbum(Album model.DBRef) error {
+func CreateAlbum(ds *MgoStore, Album model.DBRef) error {
 	return create(ds, "Albums", Album)
 }
 
-func (ds *MgoStore) DeleteAlbum(ID model.DBRef) error {
+func DeleteAlbum(ds *MgoStore, ID model.DBRef) error {
 	return delete(ds, ID)
 }
 
-func (ds *MgoStore) ModifyAlbum(ID model.DBRef, diff bson.M) error {
+func ModifyAlbum(ds *MgoStore, ID model.DBRef, diff bson.M) error {
 	return modify(ds, ID, diff)
 }
 
-func (ds *MgoStore) AddImageToAlbum(ID model.DBRef, ImageID model.DBRef) error {
+func AddImageToAlbum(ds *MgoStore, ID model.DBRef, ImageID model.DBRef) error {
 	return modifyRef(ds, ID, ImageID, true)
 }
 
-func (ds *MgoStore) DeleteImageFromAlbum(ID model.DBRef, ImageID model.DBRef) error {
+func DeleteImageFromAlbum(ds *MgoStore, ID model.DBRef, ImageID model.DBRef) error {
 	return modifyRef(ds, ID, ImageID, false)
 }
 
-func (ds *MgoStore) FavoriteAlbum(actor model.DBRef, recipient model.DBRef) error {
+func FavoriteAlbum(ds *MgoStore, actor model.DBRef, recipient model.DBRef) error {
 	return link(ds, actor, recipient, "favorite", true)
 }
 
-func (ds *MgoStore) FollowAlbum(actor model.DBRef, recipient model.DBRef) error {
+func FollowAlbum(ds *MgoStore, actor model.DBRef, recipient model.DBRef) error {
 	return link(ds, actor, recipient, "follow", true)
 }
 
-func (ds *MgoStore) UnFavoriteAlbum(actor model.DBRef, recipient model.DBRef) error {
+func UnFavoriteAlbum(ds *MgoStore, actor model.DBRef, recipient model.DBRef) error {
 	return link(ds, actor, recipient, "favorite", false)
 }
 
-func (ds *MgoStore) UnFollowAlbum(actor model.DBRef, recipient model.DBRef) error {
+func UnFollowAlbum(ds *MgoStore, actor model.DBRef, recipient model.DBRef) error {
 	return link(ds, actor, recipient, "follow", false)
 }

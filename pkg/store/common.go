@@ -134,3 +134,11 @@ func in(contentType string, opts []string) bool {
 	}
 	return false
 }
+
+func GetRef(ds *MgoStore, ref model.DBRef) (interface{}, error) {
+	return get(ds, ref)
+}
+
+func Modify(ds *MgoStore, ref model.DBRef, changes bson.M) error {
+	return modify(ds, ref, changes)
+}

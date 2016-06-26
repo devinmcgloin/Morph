@@ -25,7 +25,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) Response {
 		return Resp("Invalid Credentials", http.StatusUnauthorized)
 	}
 	if valid {
-		token, err := auth.CreateJWT(user)
+		token, err := authentication.CreateJWT(user)
 		if err != nil {
 			log.Println(err)
 			return Resp("Invalid Credentials", http.StatusUnauthorized)

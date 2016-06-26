@@ -2,13 +2,18 @@ package handlers
 
 import (
 	"encoding/json"
+	"io/ioutil"
+	"log"
 	"net/http"
 
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/gorilla/mux"
 	"github.com/sprioc/sprioc-core/pkg/authentication"
+	"github.com/sprioc/sprioc-core/pkg/authorization"
+	"github.com/sprioc/sprioc-core/pkg/contentStorage"
 	"github.com/sprioc/sprioc-core/pkg/model"
+	"github.com/sprioc/sprioc-core/pkg/store"
 )
 
 type signUpFields struct {
@@ -17,7 +22,7 @@ type signUpFields struct {
 	Email    string `json:"email"`
 }
 
-func SignupHandler(w http.ResponseWriter, r *http.Request) Response {
+func Signup(w http.ResponseWriter, r *http.Request) Response {
 	decoder := json.NewDecoder(r.Body)
 
 	newUser := signUpFields{}
@@ -44,7 +49,7 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) Response {
 		ShortCode: newUser.Username,
 	}
 
-	err = mongo.CreateUser(usr)
+	err = store.CreateUser(mongo, usr)
 	if err != nil {
 		return Resp("Error adding user", http.StatusConflict)
 	}
@@ -52,8 +57,32 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) Response {
 	return Response{Code: http.StatusAccepted}
 }
 
-func AvatarUploadHander(w http.ResponseWriter, r *http.Request) Response {
-	return Resp("Not Implemented", http.StatusNotImplemented)
+func AvatarUpload(w http.ResponseWriter, r *http.Request) Response {
+	user, userRef, err := getLoggedInUser(r)
+	if err != nil {
+		return err.(Response)
+	}
+
+	file, err := ioutil.ReadAll(r.Body)
+	n := len(file)
+
+	if n == 0 {
+		return Resp("Cannot upload file with 0 bytes.", http.StatusBadRequest)
+	}
+
+	err = contentStorage.ProccessImage(file, n, user.ShortCode, "avatar")
+	if err != nil {
+		log.Println(err)
+		return Resp(err.Error(), http.StatusBadRequest)
+	}
+
+	sources := formatAvatarSources(user.ShortCode)
+
+	err = store.ModifyAvatar(mongo, userRef, sources)
+	if err != nil {
+		return Resp("Unable to add image", http.StatusInternalServerError)
+	}
+	return Response{Code: http.StatusAccepted}
 }
 
 func formatAvatarSources(shortcode string) model.ImgSource {
@@ -68,17 +97,13 @@ func formatAvatarSources(shortcode string) model.ImgSource {
 	}
 }
 
-func GetUserHandler(w http.ResponseWriter, r *http.Request) Response {
-	username := mux.Vars(r)["username"]
+func GetUser(w http.ResponseWriter, r *http.Request) Response {
+	UID := mux.Vars(r)["username"]
 
-	user, err := mongo.GetByUserName(username)
+	user, err := store.GetByUserName(mongo, UID)
 	if err != nil {
 		return Resp("Not Found", http.StatusNotFound)
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Cache-Control", "no-cache")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	dat, err := json.Marshal(user)
 	if err != nil {
@@ -86,4 +111,73 @@ func GetUserHandler(w http.ResponseWriter, r *http.Request) Response {
 	}
 
 	return Response{Code: http.StatusOK, Data: dat}
+}
+
+func DeleteUser(w http.ResponseWriter, r *http.Request) Response {
+	user, userRef, err := getUser(r)
+	if err != nil {
+		return err.(Response)
+	}
+
+	loggedUser, _, err := getLoggedInUser(r)
+	if err != nil {
+		return err.(Response)
+	}
+
+	_, err = authorization.Authorized(loggedUser, user)
+	if err != nil {
+		return Resp(err.Error(), http.StatusUnauthorized)
+	}
+
+	err = store.DeleteUser(mongo, userRef)
+	if err != nil {
+		return Resp("Internal Server Error", http.StatusInternalServerError)
+	}
+	return Response{Code: http.StatusAccepted}
+}
+
+func FavoriteUser(w http.ResponseWriter, r *http.Request) Response {
+	user, userRef, err := getUser(r)
+	if err != nil {
+		return err.(Response)
+	}
+
+	loggedInUser, loggedInRef, err := getLoggedInUser(r)
+	if err != nil {
+		return err.(Response)
+	}
+
+	_, err = authorization.Authorized(loggedInUser, user)
+	if err != nil {
+		return Resp(err.Error(), http.StatusUnauthorized)
+	}
+
+	err = store.FavoriteImage(mongo, loggedInRef, userRef)
+	if err != nil {
+		return Resp("Internal Server Error", http.StatusInternalServerError)
+	}
+	return Response{Code: http.StatusAccepted}
+}
+
+func FollowUser(w http.ResponseWriter, r *http.Request) Response {
+	user, userRef, err := getUser(r)
+	if err != nil {
+		return err.(Response)
+	}
+
+	loggedInUser, loggedInRef, err := getLoggedInUser(r)
+	if err != nil {
+		return err.(Response)
+	}
+
+	_, err = authorization.Authorized(loggedInUser, user)
+	if err != nil {
+		return Resp(err.Error(), http.StatusUnauthorized)
+	}
+
+	err = store.FollowUser(mongo, loggedInRef, userRef)
+	if err != nil {
+		return Resp("Internal Server Error", http.StatusInternalServerError)
+	}
+	return Response{Code: http.StatusAccepted}
 }

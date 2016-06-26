@@ -21,7 +21,7 @@ type MgoStore struct {
 	session *mgo.Session
 }
 
-func ConnectStore() MgoStore {
+func ConnectStore() *MgoStore {
 	session, err := mgo.Dial(dbURI)
 	if err != nil {
 		log.Fatal(err)
@@ -32,7 +32,7 @@ func ConnectStore() MgoStore {
 		log.Fatal(err)
 	}
 
-	return MgoStore{session}
+	return &MgoStore{session}
 }
 
 func (ds *MgoStore) getSession() *mgo.Session {

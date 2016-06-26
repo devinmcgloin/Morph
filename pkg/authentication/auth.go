@@ -48,7 +48,7 @@ func init() {
 }
 
 func ValidateCredentialsByUserName(username string, password string) (bool, model.User, error) {
-	user, err := mongo.GetByUserName(username)
+	user, err := store.GetByUserName(mongo, username)
 	if err != nil {
 		return false, model.User{}, errors.New("Invalid Credentials")
 	}
@@ -105,7 +105,7 @@ func CheckUser(r *http.Request) (model.User, error) {
 	}
 	log.Println(userRef)
 
-	user, err := mongo.GetUser(userRef)
+	user, err := store.GetUser(mongo, userRef)
 	if err != nil {
 		return model.User{}, err
 	}

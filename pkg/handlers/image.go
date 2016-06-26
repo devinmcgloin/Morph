@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strings"
 	"time"
 
 	"gopkg.in/mgo.v2/bson"
@@ -14,25 +13,21 @@ import (
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/schema"
+	"github.com/sprioc/sprioc-core/pkg/authorization"
 	"github.com/sprioc/sprioc-core/pkg/contentStorage"
 	"github.com/sprioc/sprioc-core/pkg/metadata"
 	"github.com/sprioc/sprioc-core/pkg/model"
+	"github.com/sprioc/sprioc-core/pkg/store"
 )
 
 var decoder = schema.NewDecoder()
 
 func GetImage(w http.ResponseWriter, r *http.Request) Response {
 
-	id := mux.Vars(r)["ID"]
-
-	img, err := mongo.GetImage(GetImageRef(id))
+	img, _, err := getImage(r)
 	if err != nil {
-		return Resp("Unable to get image", http.StatusNotFound)
+		return Resp("Image does not exist", http.StatusNotFound)
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Cache-Control", "no-cache")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	dat, err := json.Marshal(img)
 	if err != nil {
@@ -49,7 +44,7 @@ func UploadImage(w http.ResponseWriter, r *http.Request) Response {
 	if ok {
 		user = val.(model.User)
 	} else {
-		return Resp("Unauthorized Request", http.StatusUnauthorized)
+		return Resp("Unauthorized Request, must be logged in to upload a new image.", http.StatusUnauthorized)
 	}
 
 	img := model.Image{
@@ -83,12 +78,12 @@ func UploadImage(w http.ResponseWriter, r *http.Request) Response {
 
 	img.Sources = formatImageSources(img.ShortCode)
 
-	err = mongo.CreateImage(img)
+	err = store.CreateImage(mongo, img)
 	if err != nil {
 		return Resp("Error while adding image to DB", 500)
 	}
 
-	err = mongo.ModifyUser(GetUserRef(user.ShortCode),
+	err = store.ModifyUser(mongo, GetUserRef(user.ShortCode),
 		bson.M{"$push": bson.M{"images": GetImageRef(img.ShortCode)}})
 	if err != nil {
 		log.Println(err)
@@ -110,81 +105,124 @@ func formatImageSources(shortcode string) model.ImgSource {
 	}
 }
 
-func FeatureHandler(w http.ResponseWriter, r *http.Request) Response {
-
-}
-
-func FavoriteHandler(w http.ResponseWriter, r *http.Request) Response {
-
-}
-
-func DeleteImage(w http.ResponseWriter, r *http.Request) Response {
-	id := mux.Vars(r)["ID"]
-	img, err := mongo.GetImage(GetImageRef(id))
+func FeatureImage(w http.ResponseWriter, r *http.Request) Response {
+	img, imgRef, err := getImage(r)
 	if err != nil {
-		return Resp("Unable to get image", http.StatusNotFound)
+		return err.(Response)
 	}
 
-	var user model.User
-	val, ok := context.GetOk(r, "auth")
-	if ok {
-		user = val.(model.User)
-	} else {
-		return Resp("Unauthorized Request", http.StatusUnauthorized)
+	user, _, err := getLoggedInUser(r)
+	if err != nil {
+		return err.(Response)
 	}
 
-	if strings.Compare(user.ShortCode, img.User.Shortcode) != 0 {
-		return Resp("Unauthorized Request", http.StatusUnauthorized)
+	_, err = authorization.Authorized(user, img)
+	if err != nil {
+		return Resp(err.Error(), http.StatusUnauthorized)
 	}
 
-	err = mongo.DeleteImage(GetImageRef(id))
+	err = store.FeatureImage(mongo, imgRef)
+	if err != nil {
+		return Resp("Internal Server Error", http.StatusInternalServerError)
+	}
+	return Response{Code: http.StatusAccepted}
+
+}
+
+func FavoriteImage(w http.ResponseWriter, r *http.Request) Response {
+	img, imgRef, err := getImage(r)
+	if err != nil {
+		return err.(Response)
+	}
+
+	user, userRef, err := getLoggedInUser(r)
+	if err != nil {
+		return err.(Response)
+	}
+
+	_, err = authorization.Authorized(user, img)
+	if err != nil {
+		return Resp(err.Error(), http.StatusUnauthorized)
+	}
+
+	err = store.FavoriteImage(mongo, userRef, imgRef)
 	if err != nil {
 		return Resp("Internal Server Error", http.StatusInternalServerError)
 	}
 	return Response{Code: http.StatusAccepted}
 }
 
-func UnFeatureHandler(w http.ResponseWriter, r *http.Request) Response {
+func DeleteImage(w http.ResponseWriter, r *http.Request) Response {
+	img, imgRef, err := getImage(r)
+	if err != nil {
+		return err.(Response)
+	}
 
+	user, _, err := getLoggedInUser(r)
+	if err != nil {
+		return err.(Response)
+	}
+
+	_, err = authorization.Authorized(user, img)
+	if err != nil {
+		return Resp(err.Error(), http.StatusUnauthorized)
+	}
+
+	err = store.DeleteImage(mongo, imgRef)
+	if err != nil {
+		return Resp("Internal Server Error", http.StatusInternalServerError)
+	}
+	return Response{Code: http.StatusAccepted}
 }
 
-func UnFavoriteHandler(w http.ResponseWriter, r *http.Request) Response {
+func UnFeatureImage(w http.ResponseWriter, r *http.Request) Response {
+	img, imgRef, err := getImage(r)
+	if err != nil {
+		return err.(Response)
+	}
 
+	user, _, err := getLoggedInUser(r)
+	if err != nil {
+		return err.(Response)
+	}
+
+	_, err = authorization.Authorized(user, img)
+	if err != nil {
+		return Resp(err.Error(), http.StatusUnauthorized)
+	}
+
+	err = store.UnFeatureImage(mongo, imgRef)
+	if err != nil {
+		return Resp("Internal Server Error", http.StatusInternalServerError)
+	}
+	return Response{Code: http.StatusAccepted}
 }
 
-func ChangeHandler(w http.ResponseWriter, r *http.Request) Response {
-	id := mux.Vars(r)["ID"]
-	img, err := mongo.GetImage(GetImageRef(id))
+func UnFavoriteImage(w http.ResponseWriter, r *http.Request) Response {
+	img, imgRef, err := getImage(r)
 	if err != nil {
-		return Resp("Unable to get image", http.StatusNotFound)
+		return err.(Response)
 	}
 
-	var user model.User
-	val, ok := context.GetOk(r, "auth")
-	if ok {
-		user = val.(model.User)
-	} else {
-		return Resp("Unauthorized Request", http.StatusUnauthorized)
-	}
-
-	if strings.Compare(user.ShortCode, img.User.Shortcode) != 0 {
-		return Resp("Unauthorized Request", http.StatusUnauthorized)
-	}
-
-	var m bson.M
-
-	err = json.NewDecoder(r.Body).Decode(&m)
+	user, userRef, err := getLoggedInUser(r)
 	if err != nil {
-		log.Println(err)
-		return Resp("Malformed Request", http.StatusBadRequest)
+		return err.(Response)
 	}
 
-	log.Println(m)
-
-	err = mongo.ModifyImage(GetImageRef(id), m)
+	_, err = authorization.Authorized(user, img)
 	if err != nil {
-		return Resp(err.Error(), http.StatusBadRequest)
+		return Resp(err.Error(), http.StatusUnauthorized)
 	}
 
-	return Response{Code: 200}
+	err = store.UnFavoriteImage(mongo, userRef, imgRef)
+	if err != nil {
+		return Resp("Internal Server Error", http.StatusInternalServerError)
+	}
+	return Response{Code: http.StatusAccepted}
+}
+
+func ModifyImage(w http.ResponseWriter, r *http.Request) Response {
+	IID := mux.Vars(r)["IID"]
+	ref := GetImageRef(IID)
+	return executeCheckedModification(r, ref)
 }

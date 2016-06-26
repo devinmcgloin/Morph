@@ -8,7 +8,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-func (ds *MgoStore) GetUser(userRef model.DBRef) (model.User, error) {
+func GetUser(ds *MgoStore, userRef model.DBRef) (model.User, error) {
 	session := ds.getSession()
 	defer session.Close()
 
@@ -24,40 +24,40 @@ func (ds *MgoStore) GetUser(userRef model.DBRef) (model.User, error) {
 	return document, nil
 }
 
-func (ds *MgoStore) CreateUser(user model.User) error {
+func CreateUser(ds *MgoStore, user model.User) error {
 	return create(ds, "users", user)
 }
 
-func (ds *MgoStore) DeleteUser(userRef model.DBRef) error {
+func DeleteUser(ds *MgoStore, userRef model.DBRef) error {
 	return delete(ds, userRef)
 }
 
-func (ds *MgoStore) ModifyUser(userRef model.DBRef, diff bson.M) error {
+func ModifyUser(ds *MgoStore, userRef model.DBRef, diff bson.M) error {
 	return modify(ds, userRef, diff)
 }
 
-func (ds *MgoStore) ModifyAvatar(userRef model.DBRef, urls model.ImgSource) error {
-	return modify(ds, userRef, bson.M{"$set": bson.M{"avatar_url": urls}})
+func ModifyAvatar(ds *MgoStore, userRef model.DBRef, avatar model.ImgSource) error {
+	return modify(ds, userRef, bson.M{"$set": bson.M{"avatar_url": avatar}})
 }
 
-func (ds *MgoStore) FavoriteUser(actor model.DBRef, recipient model.DBRef) error {
+func FavoriteUser(ds *MgoStore, actor model.DBRef, recipient model.DBRef) error {
 	return link(ds, actor, recipient, "favorite", true)
 }
 
-func (ds *MgoStore) FollowUser(actor model.DBRef, recipient model.DBRef) error {
+func FollowUser(ds *MgoStore, actor model.DBRef, recipient model.DBRef) error {
 	return link(ds, actor, recipient, "follow", true)
 
 }
 
-func (ds *MgoStore) UnFavoriteUser(actor model.DBRef, recipient model.DBRef) error {
+func UnFavoriteUser(ds *MgoStore, actor model.DBRef, recipient model.DBRef) error {
 	return link(ds, actor, recipient, "favorite", false)
 }
 
-func (ds *MgoStore) UnFollowUser(actor model.DBRef, recipient model.DBRef) error {
+func UnFollowUser(ds *MgoStore, actor model.DBRef, recipient model.DBRef) error {
 	return link(ds, actor, recipient, "follow", false)
 }
 
-func (ds *MgoStore) GetByUserName(username string) (model.User, error) {
+func GetByUserName(ds *MgoStore, username string) (model.User, error) {
 	session := ds.getSession()
 	defer session.Close()
 

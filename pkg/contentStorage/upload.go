@@ -11,9 +11,9 @@ import (
 
 var mediaTypeOptions = []string{"image/jp2", "image/jpeg", "image/png", "image/tiff", "image/bmp"}
 
-// ImageProcessor manages uploading the original file to aws.
+// ProccessImage manages uploading the original file to aws.
 // TODO: In the future it should also spin off worker threads to
-// handle compression, and rendering other sizes for the image.
+// do machine tagging and verification.
 func ProccessImage(infile []byte, size int, shortcode string, kind string) error {
 
 	var err error

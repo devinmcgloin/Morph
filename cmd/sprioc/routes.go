@@ -9,36 +9,36 @@ func registerImageRoutes(api *mux.Router) {
 	img := api.PathPrefix("/images").Subrouter()
 
 	get := img.Methods("GET").Subrouter()
-	get.HandleFunc("/{ID}", unsecure(handlers.GetImage))
-	get.HandleFunc("/{ID}/user", unsecure(NotImplemented))
-	get.HandleFunc("/{ID}/collections", unsecure(NotImplemented))
-	get.HandleFunc("/{ID}/album", unsecure(NotImplemented))
+	get.HandleFunc("/{IID}", unsecure(handlers.GetImage))
+	get.HandleFunc("/{IID}/user", unsecure(NotImplemented))
+	get.HandleFunc("/{IID}/collections", unsecure(NotImplemented))
+	get.HandleFunc("/{IID}/album", unsecure(NotImplemented))
 
 	post := api.Methods("POST").Subrouter()
 	post.HandleFunc("/images", secure(handlers.UploadImage))
 
 	put := img.Methods("PUT").Subrouter()
-	put.HandleFunc("/{ID}/featured", secure(handlers.FeatureHandler))
-	put.HandleFunc("/{ID}/favorite", secure(handlers.FavoriteHandler))
+	put.HandleFunc("/{IID}/featured", secure(handlers.FeatureImage))
+	put.HandleFunc("/{IID}/favorite", secure(handlers.FavoriteImage))
 
 	del := img.Methods("DELETE").Subrouter()
-	del.HandleFunc("/{ID}", secure(handlers.DeleteImage))
-	del.HandleFunc("/{ID}/featured", secure(handlers.UnFeatureHandler))
-	del.HandleFunc("/{ID}/favorite", secure(handlers.UnFavoriteHandler))
+	del.HandleFunc("/{IID}", secure(handlers.DeleteImage))
+	del.HandleFunc("/{IID}/featured", secure(handlers.UnFeatureImage))
+	del.HandleFunc("/{IID}/favorite", secure(handlers.UnFavoriteImage))
 
 	patch := img.Methods("PATCH").Subrouter()
-	patch.HandleFunc("/{ID}", secure(handlers.ChangeHandler))
+	patch.HandleFunc("/{IID}", secure(handlers.ModifyImage))
 }
 
 func registerUserRoutes(api *mux.Router) {
 	usr := api.PathPrefix("/users").Subrouter()
 
 	get := usr.Methods("GET").Subrouter()
-	get.HandleFunc("/{username}", unsecure(handlers.GetUserHandler))
+	get.HandleFunc("/{username}", unsecure(handlers.GetUser))
 	get.HandleFunc("/{username}/location", unsecure(NotImplemented))
 
 	post := api.Methods("POST").Subrouter()
-	post.HandleFunc("/users", unsecure(handlers.SignupHandler))
+	post.HandleFunc("/users", unsecure(handlers.Signup))
 
 	put := usr.Methods("PUT").Subrouter()
 	put.HandleFunc("/{username}/avatar", secure(NotImplemented))

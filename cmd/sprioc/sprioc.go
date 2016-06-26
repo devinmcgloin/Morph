@@ -10,7 +10,7 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 
-	"github.com/sprioc/sprioc-core/pkg/api/auth"
+	"github.com/sprioc/sprioc-core/pkg/authentication"
 	h "github.com/sprioc/sprioc-core/pkg/handlers"
 )
 
@@ -54,7 +54,7 @@ func main() {
 
 func NotImplemented(w http.ResponseWriter, r *http.Request) h.Response {
 	log.Printf("Not implemented called from %s", r.URL)
-	return h.Response{Code: http.StatusNotImplemented}
+	return h.Response{Code: http.StatusNotImplemented, Message: "This endpoint is not implemented. It'll be here soon!"}
 }
 
 func serveHTML(w http.ResponseWriter, r *http.Request) {
@@ -64,7 +64,7 @@ func serveHTML(w http.ResponseWriter, r *http.Request) {
 func secure(f func(http.ResponseWriter, *http.Request) h.Response) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		user, err := auth.CheckUser(r)
+		user, err := authentication.CheckUser(r)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return

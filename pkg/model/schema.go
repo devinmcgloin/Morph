@@ -60,6 +60,7 @@ type ImgSource struct {
 type User struct {
 	ID         bson.ObjectId `bson:"_id" json:"-"`
 	ShortCode  string        `bson:"shortcode" json:"shortcode"`
+	Admin      bool          `bson:"admin" json:"admin"`
 	Images     []DBRef       `bson:"images" json:"images,omitempty"`
 	Followes   []DBRef       `bson:"followes" json:"followes,omitempty"`
 	Favorites  []DBRef       `bson:"favorites" json:"favorites,omitempty"`
