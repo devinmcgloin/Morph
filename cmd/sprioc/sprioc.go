@@ -1,10 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gorilla/context"
 	"github.com/gorilla/handlers"
@@ -44,10 +46,7 @@ func main() {
 	registerLuckyRoutes(api)
 	registerAuthRoutes(router)
 
-	router.HandleFunc("/", serveHTML)
-
-	// ASSETS
-	router.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets/"))))
+	router.HandleFunc("/", status)
 
 	log.Fatal(http.ListenAndServe(":"+port, handlers.LoggingHandler(os.Stdout, handlers.CompressHandler(router))))
 }
@@ -100,4 +99,16 @@ func unsecure(f func(http.ResponseWriter, *http.Request) h.Response) func(http.R
 			w.Write(resp.Format())
 		}
 	}
+}
+
+func status(w http.ResponseWriter, r *http.Request) {
+	m := map[string]string{}
+	m["status"] = "good"
+	m["time"] = time.Now().Format(time.RFC1123)
+	m["version"] = "v0"
+	json, err := json.Marshal(m)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+	w.Write(json)
 }
