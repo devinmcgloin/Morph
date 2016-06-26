@@ -14,12 +14,6 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-//TODO need to split this into two difference handlers. One for internal use,
-//and the other for external.
-
-// TODO need to re eval the special functions in store for specific use cases.
-// Not going to be used if things are routed through modifications.
-
 // executeCheckedModification is for use on external api endpoints as it parses
 // changes from the request body and checks that the changes are authorized.
 func executeCheckedModification(r *http.Request, ref model.DBRef) Response {

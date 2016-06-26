@@ -14,7 +14,7 @@ import (
 
 // Image contains all the proper information for rendering a single photo
 type Image struct {
-	ID        bson.ObjectId `bson:"_id" json:"_id"`
+	ID        bson.ObjectId `bson:"_id" json:"-"`
 	ShortCode string        `bson:"shortcode" json:"shortcode"`
 
 	MetaData    ImageMetaData `bson:"metadata"`

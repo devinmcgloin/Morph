@@ -31,7 +31,7 @@ func init() {
 
 func main() {
 
-	router := mux.NewRouter()
+	router := mux.NewRouter().Host("api.sprioc.xyz").Subrouter()
 	api := router.PathPrefix("/v0").Subrouter()
 	port := os.Getenv("PORT")
 
@@ -63,6 +63,7 @@ func serveHTML(w http.ResponseWriter, r *http.Request) {
 func secure(f func(http.ResponseWriter, *http.Request) h.Response) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
+		// TODO this should be formatted in json
 		user, err := authentication.CheckUser(r)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnauthorized)

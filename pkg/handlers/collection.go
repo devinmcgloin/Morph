@@ -41,7 +41,6 @@ func AddImageToCollection(w http.ResponseWriter, r *http.Request) Response {
 
 func AddUserToCollection(w http.ResponseWriter, r *http.Request) Response {
 	return Response{Code: http.StatusNotImplemented}
-
 }
 
 func FavoriteCollection(w http.ResponseWriter, r *http.Request) Response {

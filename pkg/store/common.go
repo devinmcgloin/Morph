@@ -11,6 +11,11 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// TODO need to check if modification already exists and that types are correct.
+// Bools should be bools. Only need to worry about multiple requests when
+// working with lists.
+
+// TODO should say something if the operation does not do anything.
 func get(ds *MgoStore, ID model.DBRef) (interface{}, error) {
 	session := ds.getSession()
 	defer session.Close()

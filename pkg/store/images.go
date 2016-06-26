@@ -8,8 +8,6 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-// TODO perhaps it would be good to do validation here.
-
 func GetImage(ds *MgoStore, imgRef model.DBRef) (model.Image, error) {
 	session := ds.getSession()
 	defer session.Close()

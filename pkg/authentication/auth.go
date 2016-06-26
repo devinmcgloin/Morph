@@ -1,19 +1,15 @@
 package authentication
 
 import (
-	"crypto/rand"
-	"crypto/rsa"
 	"crypto/sha1"
-	"crypto/x509"
 	"encoding/hex"
 	"errors"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
-
-	"encoding/pem"
 
 	"github.com/dgrijalva/jwt-go"
 	jwtreq "github.com/dgrijalva/jwt-go/request"
@@ -23,29 +19,14 @@ import (
 	"github.com/sprioc/sprioc-core/pkg/store"
 )
 
+/// TODO need to think about JWT refresh
 var mongo = store.ConnectStore()
 
-var privKey *rsa.PrivateKey
-var pubKey *rsa.PublicKey
+var hmacSecret = []byte(os.Getenv("HMAC_SECRET"))
 var dbase = env.Getenv("MONGODB_NAME", "morph")
 
 var sessionLifetime = time.Minute * 10
 var refreshAt = time.Minute * 1
-
-func init() {
-	var err error
-
-	privKey, err = rsa.GenerateKey(rand.Reader, 2048)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	err = privKey.Validate()
-	if err != nil {
-		fmt.Println("Validation failed.", err)
-	}
-	pubKey = &privKey.PublicKey
-}
 
 func ValidateCredentialsByUserName(username string, password string) (bool, model.User, error) {
 	user, err := store.GetUser(mongo, model.DBRef{Database: dbase, Collection: "users", Shortcode: username})
@@ -119,8 +100,8 @@ func CreateJWT(u model.User) (string, error) {
 		Subject:   u.ShortCode,
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
-	ss, err := token.SignedString(privKey)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	ss, err := token.SignedString(hmacSecret)
 	if err != nil {
 		log.Println(err)
 		return "", err
@@ -131,11 +112,16 @@ func CreateJWT(u model.User) (string, error) {
 
 func VerifyJWT(tokenString string) (model.DBRef, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
-		return pubKey, nil
+		return hmacSecret, nil
 	})
+
+	if err != nil {
+		log.Println(err)
+		return model.DBRef{}, errors.New("Token is Malformed")
+	}
 
 	if token.Valid {
 		claims, ok := token.Claims.(jwt.MapClaims)
@@ -154,20 +140,4 @@ func VerifyJWT(tokenString string) (model.DBRef, error) {
 	}
 
 	return model.DBRef{}, errors.New("Token is Invalid")
-}
-
-func GetPublicKey() []byte {
-
-	pub, err := x509.MarshalPKIXPublicKey(pubKey)
-	if err != nil {
-		fmt.Println("Failed to get der format for PublicKey.", err)
-		return []byte{}
-	}
-
-	pubBLK := pem.Block{
-		Type:    "PUBLIC KEY",
-		Headers: nil,
-		Bytes:   pub,
-	}
-	return pem.EncodeToMemory(&pubBLK)
 }

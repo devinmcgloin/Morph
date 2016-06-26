@@ -9,7 +9,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-var validOps = []string{"$inc", "$set", "$unset", "$push", "$pull"}
+var validOps = []string{"$set", "$unset"}
 
 const (
 	invalid = iota - 1

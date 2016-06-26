@@ -5,11 +5,14 @@ import (
 	"github.com/sprioc/sprioc-core/pkg/handlers"
 )
 
+// TODO lock these routes down to alphabetical only with regex.
+// TODO add names to linked routes.
+
 func registerImageRoutes(api *mux.Router) {
 	img := api.PathPrefix("/images").Subrouter()
 
 	get := img.Methods("GET").Subrouter()
-	get.HandleFunc("/{IID}", unsecure(handlers.GetImage))
+	get.HandleFunc("/{IID}", unsecure(handlers.GetImage)).Name("image")
 	get.HandleFunc("/{IID}/user", unsecure(NotImplemented))
 	get.HandleFunc("/{IID}/collections", unsecure(NotImplemented))
 	get.HandleFunc("/{IID}/album", unsecure(NotImplemented))

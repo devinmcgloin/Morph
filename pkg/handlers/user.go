@@ -1,5 +1,7 @@
 package handlers
 
+// TODO need to trim and verify usernames, passwords and emails.
+
 import (
 	"encoding/json"
 	"io/ioutil"

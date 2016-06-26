@@ -41,8 +41,6 @@ func GetMetadata(file io.Reader) (model.ImageMetaData, error) {
 		metaData.CaptureTime = tmp
 	}
 
-	// TODO need to consider other represenations
-
 	//	Classic stats
 	ExposureTime, err := x.Get(exif.ExposureTime)
 	if err == nil {
