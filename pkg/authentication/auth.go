@@ -120,7 +120,7 @@ func VerifyJWT(tokenString string) (model.DBRef, error) {
 
 	if err != nil {
 		log.Println(err)
-		return model.DBRef{}, errors.New("Token is Malformed")
+		return model.DBRef{}, err
 	}
 
 	if token.Valid {
@@ -140,4 +140,10 @@ func VerifyJWT(tokenString string) (model.DBRef, error) {
 	}
 
 	return model.DBRef{}, errors.New("Token is Invalid")
+}
+
+// RefreshToken updates a token with a new expiration time. After 3 days it expires.
+// TODO need to implement refreshtoken
+func RefreshToken(tokenString string) string {
+	return ""
 }

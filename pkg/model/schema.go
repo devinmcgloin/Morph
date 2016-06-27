@@ -17,28 +17,32 @@ type Image struct {
 	ID        bson.ObjectId `bson:"_id" json:"-"`
 	ShortCode string        `bson:"shortcode" json:"shortcode"`
 
-	MetaData    ImageMetaData `bson:"metadata"`
+	MetaData    ImageMetaData `bson:"metadata" json:"metadata"`
 	Tags        []string      `bson:"tags,omitempty" json:"tags,omitempty"`
 	MachineTags []string      `bson:"machine_tags,omitempty" json:"machine_tags,omitempty"`
 	PublishTime time.Time     `bson:"publish_time" json:"publish_time"`
 
-	User DBRef `bson:"user" json:"user"`
-
-	AlbumID      DBRef   `bson:"album_id,omitempty" json:"album_id,omitempty"`
-	EventID      []DBRef `bson:"event_id,omitempty" json:"event_id,omitempty"`
-	CollectionID []DBRef `bson:"collection_id,omitempty" json:"collection_id,omitempty"`
+	Owner       DBRef `bson:"owner" json:"-"`
+	OwnerExtern User  `bson:"-" json:"owner"`
 
 	Sources ImgSource `bson:"sources" json:"sources"`
 
-	Featured  bool    `bson:"featured" json:"featured"`
-	Downloads int     `bson:"downloads"`
-	Favorites []DBRef `bson:"favoriters"`
+	Featured  bool `bson:"featured" json:"featured"`
+	Downloads int  `bson:"downloads" json:"downloads"`
+	Favorites int  `bson:"favorites" json:"favorites"`
+	Hidden    bool `bson:"hidden" json:"hidden"`
 }
 
 type ImageMetaData struct {
-	Aperture        Ratio      `bson:"aperture,omitempty" json:"aperture,omitempty"`
-	ExposureTime    Ratio      `bson:"exposure_time,omitempty" json:"exposure_time,omitempty"`
-	FocalLength     Ratio      `bson:"focal_length,omitempty" json:"focal_length,omitempty"`
+	Aperture       Ratio  `bson:"aperture,omitempty" json:"-"`
+	ApertureExtern string `bson:"-" json:"aperture,omitempty"`
+
+	ExposureTime       Ratio  `bson:"exposure_time,omitempty" json:"-"`
+	ExposureTimeExtern string `bson:"-" json:"exposure_time,omitempty"`
+
+	FocalLength       Ratio  `bson:"focal_length,omitempty" json:"-"`
+	FocalLengthExtern string `bson:"-" json:"focal_length,omitempty"`
+
 	ISO             int        `bson:"iso,omitempty" json:"iso,omitempty"`
 	Orientation     string     `bson:"orientation,omitempty" json:"orientation,omitempty"`
 	Make            string     `bson:"make,omitempty" json:"make,omitempty"`
@@ -62,22 +66,27 @@ type ImgSource struct {
 }
 
 type User struct {
-	ID         bson.ObjectId `bson:"_id" json:"-"`
-	ShortCode  string        `bson:"shortcode" json:"shortcode"`
-	Admin      bool          `bson:"admin" json:"admin"`
-	Images     []DBRef       `bson:"images" json:"images,omitempty"`
-	Followes   []DBRef       `bson:"followes" json:"followes,omitempty"`
-	Favorites  []DBRef       `bson:"favorites" json:"favorites,omitempty"`
-	Email      string        `bson:"email" json:"email"`
-	Pass       string        `bson:"password" json:"-"`
-	Salt       string        `bson:"salt" json:"-"`
-	Name       string        `bson:"name" json:"name,omitempty"`
-	Bio        string        `bson:"bio,omitempty" json:"bio,omitempty"`
-	URL        string        `bson:"url" json:"url,omitempty"`
-	Location   gj.Feature    `bson:"loc" json:"loc,omitempty"`
-	AvatarURL  ImgSource     `bson:"avatar_url" json:"avatar_url"`
-	Followers  []DBRef       `bson:"followers" json:"followers,omitempty"`
-	Favoriters []DBRef       `bson:"favoriters" json:"favoriters,omitempty"`
+	ID        bson.ObjectId `bson:"_id" json:"-"`
+	ShortCode string        `bson:"shortcode" json:"shortcode"`
+	Admin     bool          `bson:"admin" json:"admin"`
+
+	Images     []DBRef  `bson:"images" json:"-"`
+	ImageLinks []string `bson:"-" json:"image_links,omitempty"`
+
+	Followes    []DBRef  `bson:"followes" json:"-"`
+	FollowLinks []string `bson:"-" json:"follow_links,omitempty"`
+
+	Favorites     []DBRef  `bson:"favorites" json:"-"`
+	FavoriteLinks []string `bson:"-" json:"favorite_links,omitempty"`
+
+	Email     string     `bson:"email" json:"email"`
+	Pass      string     `bson:"password" json:"-"`
+	Salt      string     `bson:"salt" json:"-"`
+	Name      string     `bson:"name" json:"name,omitempty"`
+	Bio       string     `bson:"bio,omitempty" json:"bio,omitempty"`
+	URL       string     `bson:"url" json:"url,omitempty"`
+	Location  gj.Feature `bson:"loc" json:"loc,omitempty"`
+	AvatarURL ImgSource  `bson:"avatar_url" json:"avatar_url"`
 }
 
 // Albums need to support custom ordering, have to intgrate this on a per image
@@ -89,9 +98,7 @@ type Album struct {
 	Desc      string        `bson:"desc,omitempty" json:"desc,omitempty"`
 	Title     string        `bson:"title" json:"title"`
 	ViewType  string        `bson:"view_type" json:"view_type"`
-	User      DBRef         `bson:"user" json:"user"`
-	Followers []DBRef       `bson:"followers" json:"followers,omitempty"`
-	Favorites []DBRef       `bson:"favoriters" json:"favoriters,omitempty"`
+	Owner     DBRef         `bson:"owner" json:"owner"`
 }
 
 type Event struct {
@@ -101,28 +108,29 @@ type Event struct {
 	Desc      string        `bson:"desc,omitempty" json:"desc,omitempty"`
 	Title     string        `bson:"title" json:"title"`
 	ViewType  string        `bson:"view_type" json:"view_type"`
-	Followers []DBRef       `bson:"followers" json:"followers,omitempty"`
-	Favorites []DBRef       `bson:"favoriters" json:"favoriters,omitempty"`
 	Location  gj.Feature    `bson:"location" json:"location"`
 	TimeStart time.Time     `bson:"time_start" json:"time_start"`
 	TimeEnd   time.Time     `bson:"time_end" json:"time_end"`
 }
 
 type Collection struct {
-	ID        bson.ObjectId `bson:"_id" json:"-"`
-	ShortCode string        `bson:"shortcode" json:"shortcode"`
-	Images    []DBRef       `bson:"images" json:"images,omitempty"`
-	Curator   DBRef         `bson:"curator" json:"curator"`
-	Users     []DBRef       `bson:"users" json:"users"`
-	Desc      string        `bson:"desc,omitempty" json:"desc,omitempty"`
-	Title     string        `bson:"title" json:"title"`
-	ViewType  string        `bson:"view_type" json:"view_type"`
-	Followers []DBRef       `bson:"followers" json:"followers,omitempty"`
-	Favorites []DBRef       `bson:"favoriters" json:"favoriters,omitempty"`
+	ID          bson.ObjectId `bson:"_id" json:"-"`
+	ShortCode   string        `bson:"shortcode" json:"shortcode"`
+	Images      []DBRef       `bson:"images" json:"images,omitempty"`
+	Owner       DBRef         `bson:"owner" json:"owner"`
+	Contributor []DBRef       `bson:"contributor" json:"contributor"`
+	Desc        string        `bson:"desc,omitempty" json:"desc,omitempty"`
+	Title       string        `bson:"title" json:"title"`
+	ViewType    string        `bson:"view_type" json:"view_type"`
+	Location    gj.Feature    `bson:"location" json:"location"`
 }
 
 type DBRef struct {
 	Collection string `bson:"collection" json:"collection"`
 	Shortcode  string `bson:"shortcode" json:"shortcode"`
 	Database   string `bson:"db,omitempty" json:"-"`
+}
+
+func (ref DBRef) String() string {
+	return getURL(ref)
 }

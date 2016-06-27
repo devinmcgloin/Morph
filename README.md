@@ -33,10 +33,6 @@ the owner field by default. This means if you ask for a collection, you'll get
 links to the images in the collection, and information about the curator, and of
 course the default information about the collection.
 
-NOTE: You can get the collections and album two different ways. One if you hold
-a reference to an image that belongs to an album or collection and the second if
-you have direct references to those items themselves.
-
 Patch requests have the following format:
 ```json
 {

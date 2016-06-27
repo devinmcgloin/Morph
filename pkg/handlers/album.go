@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"gopkg.in/mgo.v2/bson"
@@ -13,17 +12,12 @@ import (
 func GetAlbum(w http.ResponseWriter, r *http.Request) Response {
 	CID := mux.Vars(r)["CID"]
 
-	user, err := store.GetAlbum(mongo, GetAlbumRef(CID))
+	album, err := store.GetAlbum(mongo, GetAlbumRef(CID))
 	if err != nil {
 		return Resp("Not Found", http.StatusNotFound)
 	}
 
-	dat, err := json.Marshal(user)
-	if err != nil {
-		return Resp("Unable to write JSON", http.StatusInternalServerError)
-	}
-
-	return Response{Code: http.StatusOK, Data: dat}
+	return Response{Code: http.StatusOK, Data: album}
 }
 
 func CreateAlbum(w http.ResponseWriter, r *http.Request) Response {

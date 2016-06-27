@@ -48,6 +48,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) Response {
 		Pass:      password,
 		Salt:      salt,
 		ShortCode: newUser.Username,
+		AvatarURL: formatAvatarSources("default"),
 	}
 
 	err = store.CreateUser(mongo, usr)
@@ -106,12 +107,9 @@ func GetUser(w http.ResponseWriter, r *http.Request) Response {
 		return Resp("Not Found", http.StatusNotFound)
 	}
 
-	dat, err := json.Marshal(user)
-	if err != nil {
-		return Resp("Unable to write JSON", http.StatusInternalServerError)
-	}
+	user.FillExternal()
 
-	return Response{Code: http.StatusOK, Data: dat}
+	return Response{Code: http.StatusOK, Data: user}
 }
 
 func DeleteUser(w http.ResponseWriter, r *http.Request) Response {

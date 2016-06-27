@@ -3,16 +3,13 @@ package main
 import (
 	"encoding/json"
 	"log"
-	"net"
 	"net/http"
 	"os"
 	"time"
 
-	"github.com/gorilla/context"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 
-	"github.com/sprioc/sprioc-core/pkg/authentication"
 	h "github.com/sprioc/sprioc-core/pkg/handlers"
 )
 
@@ -44,9 +41,10 @@ func main() {
 	registerAlbumRoutes(api)
 	registerSearchRoutes(api)
 	registerLuckyRoutes(api)
-	registerAuthRoutes(router)
+	registerAuthRoutes(api)
 
 	router.HandleFunc("/", status)
+	router.NotFoundHandler = http.HandlerFunc(notFound)
 
 	log.Fatal(http.ListenAndServe(":"+port, handlers.LoggingHandler(os.Stdout, handlers.CompressHandler(router))))
 }
@@ -56,56 +54,20 @@ func NotImplemented(w http.ResponseWriter, r *http.Request) h.Response {
 	return h.Response{Code: http.StatusNotImplemented, Message: "This endpoint is not implemented. It'll be here soon!"}
 }
 
-func serveHTML(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "./assets/index.html")
-}
-
-func secure(f func(http.ResponseWriter, *http.Request) h.Response) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-
-		// TODO this should be formatted in json
-		user, err := authentication.CheckUser(r)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusUnauthorized)
-			return
-		}
-
-		context.Set(r, "auth", user)
-
-		w.Header().Set("Content-Type", "application/json")
-
-		resp := f(w, r)
-		w.WriteHeader(resp.Code)
-		if len(resp.Data) != 0 {
-			w.Write(resp.Data)
-		} else {
-			w.Write(resp.Format())
-		}
-	}
-}
-
-func unsecure(f func(http.ResponseWriter, *http.Request) h.Response) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-
-		ip, port, _ := net.SplitHostPort(r.RemoteAddr)
-		log.Println(ip, port)
-
-		w.Header().Set("Content-Type", "application/json")
-
-		resp := f(w, r)
-		w.WriteHeader(resp.Code)
-		if len(resp.Data) != 0 {
-			w.Write(resp.Data)
-		} else {
-			w.Write(resp.Format())
-		}
-	}
+func notFound(w http.ResponseWriter, r *http.Request) {
+	var response = make(map[string]interface{})
+	response["message"] = "Not Found"
+	response["code"] = 404
+	response["documentation_url"] = "http://github.com/sprioc/sprioc-core"
+	bytes, _ := json.MarshalIndent(response, "", "    ")
+	w.Write(bytes)
+	return
 }
 
 func status(w http.ResponseWriter, r *http.Request) {
 	m := map[string]string{}
 	m["status"] = "good"
-	m["time"] = time.Now().Format(time.RFC1123)
+	m["time"] = time.Now().Format(time.RFC3339)
 	m["version"] = "v0"
 	json, err := json.Marshal(m)
 	if err != nil {

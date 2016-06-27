@@ -1,4 +1,4 @@
-package handlers
+package middleware
 
 // Decoding takes request input bodies and translates them into the proper
 // internal representation.

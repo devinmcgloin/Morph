@@ -5,10 +5,11 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/fatih/structs"
 	"github.com/sprioc/sprioc-core/pkg/authentication"
 )
 
-func LoginHandler(w http.ResponseWriter, r *http.Request) Response {
+func GetToken(w http.ResponseWriter, r *http.Request) Response {
 	decoder := json.NewDecoder(r.Body)
 
 	creds := Credentials{}
@@ -30,7 +31,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) Response {
 			log.Println(err)
 			return Resp("Invalid Credentials", http.StatusUnauthorized)
 		}
-		return Response{Code: 201, Data: getJSON(map[string]string{"token": token})}
+		return Response{Code: 201, Data: structs.Map(tok{Token: token})}
 	}
 
 	return Resp("Invalid Credentials", http.StatusUnauthorized)
@@ -39,4 +40,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) Response {
 type Credentials struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+}
+
+type tok struct {
+	Token string `json:"token"`
 }

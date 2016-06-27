@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"bytes"
-	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -19,6 +18,9 @@ import (
 	"github.com/sprioc/sprioc-core/pkg/store"
 )
 
+//TODO need to make sure relational fields are updated, and that no dangling
+//pointers exist.
+
 var decoder = schema.NewDecoder()
 
 func GetImage(w http.ResponseWriter, r *http.Request) Response {
@@ -28,12 +30,14 @@ func GetImage(w http.ResponseWriter, r *http.Request) Response {
 		return Resp("Image does not exist", http.StatusNotFound)
 	}
 
-	dat, err := json.Marshal(img)
+	owner, err := store.GetUser(mongo, img.Owner)
 	if err != nil {
-		return Resp("Unable to write JSON", 523)
+		return Resp("Image does not exist", http.StatusNotFound)
 	}
 
-	return Response{Code: http.StatusOK, Data: dat}
+	img.FillExternal(owner)
+
+	return Response{Code: http.StatusOK, Data: img}
 }
 
 func UploadImage(w http.ResponseWriter, r *http.Request) Response {
@@ -49,7 +53,7 @@ func UploadImage(w http.ResponseWriter, r *http.Request) Response {
 	img := model.Image{
 		ID:          bson.NewObjectId(),
 		ShortCode:   mongo.GetNewImageShortCode(),
-		User:        GetUserRef(user.ShortCode),
+		Owner:       GetUserRef(user.ShortCode),
 		PublishTime: time.Now(),
 	}
 

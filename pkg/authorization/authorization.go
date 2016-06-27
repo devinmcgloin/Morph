@@ -64,7 +64,7 @@ func VerifyChanges(user model.User, target interface{}, changes bson.M, internal
 func Authorized(user model.User, target interface{}) (int, error) {
 	switch t := target.(type) {
 	case model.Image:
-		if strings.Compare(user.ShortCode, target.(model.Image).User.Shortcode) == 0 {
+		if strings.Compare(user.ShortCode, target.(model.Image).Owner.Shortcode) == 0 {
 			return images, nil
 		}
 		break
@@ -74,12 +74,12 @@ func Authorized(user model.User, target interface{}) (int, error) {
 		}
 		break
 	case model.Collection:
-		if strings.Compare(user.ShortCode, target.(model.Collection).Curator.Shortcode) == 0 {
+		if strings.Compare(user.ShortCode, target.(model.Collection).Owner.Shortcode) == 0 {
 			return collections, nil
 		}
 		break
 	case model.Album:
-		if strings.Compare(user.ShortCode, target.(model.Album).User.Shortcode) == 0 {
+		if strings.Compare(user.ShortCode, target.(model.Album).Owner.Shortcode) == 0 {
 			return albums, nil
 		}
 		break

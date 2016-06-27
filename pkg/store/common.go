@@ -77,7 +77,7 @@ func link(ds *MgoStore, actor model.DBRef, recipient model.DBRef, relation strin
 
 	var op string
 	if link {
-		op = "$push"
+		op = "$addToSet"
 	} else {
 		op = "$pull"
 	}
@@ -98,7 +98,7 @@ func link(ds *MgoStore, actor model.DBRef, recipient model.DBRef, relation strin
 func modifyRef(ds *MgoStore, storeID model.DBRef, RefID model.DBRef, add bool) error {
 	var op string
 	if add {
-		op = "$push"
+		op = "$addToSet"
 	} else {
 		op = "$pull"
 	}

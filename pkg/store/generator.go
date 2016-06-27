@@ -36,7 +36,7 @@ func (ds *MgoStore) GetNewCollectionShortCode() string {
 
 func (ds *MgoStore) GetNewUserShortCode() string {
 	id := generator.RandString(12)
-	if ds.ExistsCollectionID(id) {
+	if ds.ExistsUserID(id) {
 		id = generator.RandString(12)
 	}
 	return id

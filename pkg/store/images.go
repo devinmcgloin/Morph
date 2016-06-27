@@ -31,6 +31,8 @@ func CreateImage(ds *MgoStore, image model.Image) error {
 }
 
 func DeleteImage(ds *MgoStore, ID model.DBRef) error {
+	// TODO this needs to delete the image from the user profile as well.
+	// QA the rest of these methods as well.
 	return delete(ds, ID)
 }
 
