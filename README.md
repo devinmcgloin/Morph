@@ -90,20 +90,6 @@ DBRef bodies have the following format:
 |        | /v0/collections/:CID/follow          |                           |         |
 | PATCH  | /v0/collections/:CID                 |                           |         |
 
-### Albums
-| Method | Endpoint                      | Body                      | Returns |
-|:-------|:------------------------------|:--------------------------|:--------|
-| GET    | /v0/albums/:AID               |                           |         |
-| POST   | /v0/albums                    |                           |         |
-| PUT    | /v0/albums/:AID/images        | array of image shortcodes |         |
-|        | /v0/collections/:AID/favorite |                           |         |
-|        | /v0/collections/:AID/follow   |                           |         |
-| DELETE | /v0/albums                    |                           |         |
-|        | /v0/albums/:AID/images/:IID   | array of image shortcodes |         |
-|        | /v0/collections/:AID/favorite |                           |         |
-|        | /v0/collections/:AID/follow   |                           |         |
-| PATCH  | /v0/albums/:AID               |                           |         |
-
 
 ## Queries
 

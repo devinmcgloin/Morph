@@ -2,7 +2,7 @@ package model
 
 import "fmt"
 
-var baseurl = "http://localhost:8080"
+var baseurl = "http://localhost:8080/v0"
 
 func (img *Image) FillExternal(user User) {
 	user.FillExternal()
@@ -10,12 +10,11 @@ func (img *Image) FillExternal(user User) {
 	img.MetaData.ApertureExtern = img.MetaData.Aperture.Rep
 	img.MetaData.FocalLengthExtern = img.MetaData.FocalLength.Rep
 	img.MetaData.ExposureTimeExtern = img.MetaData.ExposureTime.Rep
-
 }
 
 func getURL(ref DBRef) string {
 	if ref.Collection != "" && ref.Shortcode != "" {
-		return fmt.Sprintf("%s/v0/%s/%s", baseurl, ref.Collection, ref.Shortcode)
+		return fmt.Sprintf("%s/%s/%s", baseurl, ref.Collection, ref.Shortcode)
 	}
 	return ""
 }

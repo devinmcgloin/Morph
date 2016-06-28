@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"bytes"
 	"encoding/json"
 	"log"
 	"net"
@@ -28,7 +29,7 @@ func Secure(f func(http.ResponseWriter, *http.Request) handlers.Response) func(h
 		resp := f(w, r)
 		w.WriteHeader(resp.Code)
 
-		dat, _ := json.MarshalIndent(resp.Data, "", "    ")
+		dat, _ := JSONMarshal(resp.Data, true)
 		if resp.Data != nil {
 			w.Write(dat) // TODO this writes null if the resp.Data is null.
 		} else if resp.Message != "" {
@@ -50,11 +51,22 @@ func Unsecure(f func(http.ResponseWriter, *http.Request) handlers.Response) func
 
 		log.Printf("%+v", resp)
 
-		dat, _ := json.MarshalIndent(resp.Data, "", "    ")
+		dat, _ := JSONMarshal(resp.Data, true)
 		if resp.Data != nil {
 			w.Write(dat) // TODO this writes null if the resp.Data is null.
 		} else if resp.Message != "" {
 			w.Write(resp.Format())
 		}
 	}
+}
+
+func JSONMarshal(v interface{}, unescape bool) ([]byte, error) {
+	b, err := json.MarshalIndent(v, "", "    ")
+
+	if unescape {
+		b = bytes.Replace(b, []byte("\\u003c"), []byte("<"), -1)
+		b = bytes.Replace(b, []byte("\\u003e"), []byte(">"), -1)
+		b = bytes.Replace(b, []byte("\\u0026"), []byte("&"), -1)
+	}
+	return b, err
 }

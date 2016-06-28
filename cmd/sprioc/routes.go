@@ -86,31 +86,6 @@ func registerCollectionRoutes(api *mux.Router) {
 	patch.HandleFunc("/{CID}", middleware.Secure(NotImplemented))
 }
 
-func registerAlbumRoutes(api *mux.Router) {
-	alb := api.PathPrefix("/albums").Subrouter()
-
-	get := alb.Methods("GET").Subrouter()
-	get.HandleFunc("/{AID}", middleware.Unsecure(handlers.GetAlbum))
-	get.HandleFunc("/{AID}/images", middleware.Unsecure(NotImplemented))
-
-	post := api.Methods("POST").Subrouter()
-	post.HandleFunc("/albums", middleware.Secure(NotImplemented))
-
-	put := alb.Methods("PUT").Subrouter()
-	put.HandleFunc("/{AID}/images", middleware.Secure(handlers.AddImageToAlbum))
-	put.HandleFunc("/{AID}/favorite", middleware.Secure(handlers.FavoriteAlbum))
-	put.HandleFunc("/{AID}/follow", middleware.Secure(handlers.FollowAlbum))
-
-	del := alb.Methods("DELETE").Subrouter()
-	del.HandleFunc("/{AID}", middleware.Secure(handlers.DeleteAlbum))
-	del.HandleFunc("/{AID}/images/{IID}", middleware.Secure(handlers.DeleteImageFromAlbum))
-	del.HandleFunc("/{AID}/favorite", middleware.Secure(handlers.UnFavoriteAlbum))
-	del.HandleFunc("/{AID}/follow", middleware.Secure(handlers.UnFollowAlbum))
-
-	patch := alb.Methods("PATCH").Subrouter()
-	patch.HandleFunc("/{AID}", middleware.Secure(NotImplemented))
-}
-
 func registerSearchRoutes(api *mux.Router) {
 	get := api.Methods("GET").Subrouter()
 

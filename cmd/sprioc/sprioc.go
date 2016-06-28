@@ -38,7 +38,6 @@ func main() {
 	registerImageRoutes(api)
 	registerUserRoutes(api)
 	registerCollectionRoutes(api)
-	registerAlbumRoutes(api)
 	registerSearchRoutes(api)
 	registerLuckyRoutes(api)
 	registerAuthRoutes(api)

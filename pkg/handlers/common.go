@@ -131,27 +131,6 @@ func getUser(r *http.Request) (model.User, model.DBRef, error) {
 	return model.User{}, model.DBRef{}, errors.New("Unable to convert user")
 }
 
-func getAlbumInterface(r *http.Request) (interface{}, model.DBRef, error) {
-	id := mux.Vars(r)["AID"]
-
-	ref := GetAlbumRef(id)
-
-	alb, err := store.GetAlbum(mongo, ref)
-	if err != nil {
-		return model.Album{}, model.DBRef{}, Resp("Album not found", http.StatusNotFound)
-	}
-	return alb, ref, nil
-}
-
-func getAlbum(r *http.Request) (model.Album, model.DBRef, error) {
-	doc, docRef, err := getAlbumInterface(r)
-	convertDoc, ok := doc.(model.Album)
-	if ok {
-		return convertDoc, docRef, err
-	}
-	return model.Album{}, model.DBRef{}, errors.New("Unable to convert album")
-}
-
 func getCollectionInterface(r *http.Request) (interface{}, model.DBRef, error) {
 	id := mux.Vars(r)["CID"]
 

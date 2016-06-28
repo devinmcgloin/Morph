@@ -33,6 +33,10 @@ func CreateUser(w http.ResponseWriter, r *http.Request) Response {
 		return Resp("Bad Request", http.StatusBadRequest)
 	}
 
+	if newUser.Email == "" || newUser.Username == "" {
+		return Resp("Bad Request", http.StatusBadRequest)
+
+	}
 	if mongo.ExistsUserName(newUser.Username) || mongo.ExistsEmail(newUser.Email) {
 		return Resp("Username or Email already exist", http.StatusConflict)
 	}
@@ -113,27 +117,25 @@ func GetUser(w http.ResponseWriter, r *http.Request) Response {
 }
 
 func DeleteUser(w http.ResponseWriter, r *http.Request) Response {
-	return executeCommand(w, r, getUserInterface, store.DeleteUser)
+	return Response{Code: http.StatusNotImplemented, Message: "This should be implemented soon!"}
 }
 
 func FavoriteUser(w http.ResponseWriter, r *http.Request) Response {
-	return executeBiDirectCommand(w, r, getUserInterface, store.FavoriteUser)
+	return Response{Code: http.StatusNotImplemented, Message: "This should be implemented soon!"}
 }
 
 func FollowUser(w http.ResponseWriter, r *http.Request) Response {
-	return executeBiDirectCommand(w, r, getUserInterface, store.FollowUser)
+	return Response{Code: http.StatusNotImplemented, Message: "This should be implemented soon!"}
 }
 
 func UnFavoriteUser(w http.ResponseWriter, r *http.Request) Response {
-	return executeBiDirectCommand(w, r, getUserInterface, store.UnFavoriteUser)
+	return Response{Code: http.StatusNotImplemented, Message: "This should be implemented soon!"}
 }
 
 func UnFollowUser(w http.ResponseWriter, r *http.Request) Response {
-	return executeBiDirectCommand(w, r, getUserInterface, store.UnFollowUser)
+	return Response{Code: http.StatusNotImplemented, Message: "This should be implemented soon!"}
 }
 
 func ModifyUser(w http.ResponseWriter, r *http.Request) Response {
-	username := mux.Vars(r)["username"]
-	ref := GetUserRef(username)
-	return executeCheckedModification(r, ref)
+	return Response{Code: http.StatusNotImplemented, Message: "This should be implemented soon!"}
 }

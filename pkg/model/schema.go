@@ -3,8 +3,9 @@ package model
 import (
 	"time"
 
-	gj "github.com/kpawlik/geojson"
 	"gopkg.in/mgo.v2/bson"
+
+	gj "github.com/kpawlik/geojson"
 )
 
 // TODO it would be good to have both public and private collections / images.
@@ -24,6 +25,12 @@ type Image struct {
 
 	Owner       DBRef `bson:"owner" json:"-"`
 	OwnerExtern User  `bson:"-" json:"owner"`
+
+	Collections     []DBRef  `bson:"collections" json:"-"`
+	CollectionLinks []string `bson:"-" json:"collection_links,omitempty"`
+
+	FavoritedBy      []DBRef  `bson:"favorited_by" json:"-"`
+	FavoritedByLinks []string `bson:"-" json:"favorited_by_links,omitempty"`
 
 	Sources ImgSource `bson:"sources" json:"sources"`
 
@@ -73,11 +80,20 @@ type User struct {
 	Images     []DBRef  `bson:"images" json:"-"`
 	ImageLinks []string `bson:"-" json:"image_links,omitempty"`
 
+	Collections     []DBRef  `bson:"collections" json:"-"`
+	CollectionLinks []string `bson:"-" json:"collection_links,omitempty"`
+
 	Followes    []DBRef  `bson:"followes" json:"-"`
 	FollowLinks []string `bson:"-" json:"follow_links,omitempty"`
 
 	Favorites     []DBRef  `bson:"favorites" json:"-"`
 	FavoriteLinks []string `bson:"-" json:"favorite_links,omitempty"`
+
+	FollowedBy      []DBRef  `bson:"followed_by" json:"-"`
+	FollowedByLinks []string `bson:"-" json:"followed_by_links,omitempty"`
+
+	FavoritedBy      []DBRef  `bson:"favorited_by" json:"-"`
+	FavoritedByLinks []string `bson:"-" json:"favorited_by_links,omitempty"`
 
 	Email     string     `bson:"email" json:"email"`
 	Pass      string     `bson:"password" json:"-"`
@@ -89,40 +105,23 @@ type User struct {
 	AvatarURL ImgSource  `bson:"avatar_url" json:"avatar_url"`
 }
 
-// Albums need to support custom ordering, have to intgrate this on a per image
-// level, or create sperate field for index.
-type Album struct {
-	ID        bson.ObjectId `bson:"_id" json:"-"`
-	ShortCode string        `bson:"shortcode" json:"shortcode"`
-	Images    []DBRef       `bson:"images" json:"images,omitempty"`
-	Desc      string        `bson:"desc,omitempty" json:"desc,omitempty"`
-	Title     string        `bson:"title" json:"title"`
-	ViewType  string        `bson:"view_type" json:"view_type"`
-	Owner     DBRef         `bson:"owner" json:"owner"`
-}
-
-type Event struct {
-	ID        bson.ObjectId `bson:"_id" json:"-"`
-	ShortCode string        `bson:"shortcode" json:"shortcode"`
-	Images    []DBRef       `bson:"images" json:"images,omitempty"`
-	Desc      string        `bson:"desc,omitempty" json:"desc,omitempty"`
-	Title     string        `bson:"title" json:"title"`
-	ViewType  string        `bson:"view_type" json:"view_type"`
-	Location  gj.Feature    `bson:"location" json:"location"`
-	TimeStart time.Time     `bson:"time_start" json:"time_start"`
-	TimeEnd   time.Time     `bson:"time_end" json:"time_end"`
-}
-
 type Collection struct {
 	ID          bson.ObjectId `bson:"_id" json:"-"`
 	ShortCode   string        `bson:"shortcode" json:"shortcode"`
 	Images      []DBRef       `bson:"images" json:"images,omitempty"`
 	Owner       DBRef         `bson:"owner" json:"owner"`
 	Contributor []DBRef       `bson:"contributor" json:"contributor"`
-	Desc        string        `bson:"desc,omitempty" json:"desc,omitempty"`
-	Title       string        `bson:"title" json:"title"`
-	ViewType    string        `bson:"view_type" json:"view_type"`
-	Location    gj.Feature    `bson:"location" json:"location"`
+
+	FollowedBy      []DBRef  `bson:"followed_by" json:"-"`
+	FollowedByLinks []string `bson:"-" json:"followed_by_links,omitempty"`
+
+	FavoritedBy      []DBRef  `bson:"favorited_by" json:"-"`
+	FavoritedByLinks []string `bson:"-" json:"favorited_by_links,omitempty"`
+
+	Desc     string     `bson:"desc,omitempty" json:"desc,omitempty"`
+	Title    string     `bson:"title" json:"title"`
+	ViewType string     `bson:"view_type" json:"view_type"`
+	Location gj.Feature `bson:"location" json:"location"`
 }
 
 type DBRef struct {

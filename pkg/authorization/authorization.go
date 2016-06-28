@@ -78,13 +78,6 @@ func Authorized(user model.User, target interface{}) (int, error) {
 			return collections, nil
 		}
 		break
-	case model.Album:
-		if strings.Compare(user.ShortCode, target.(model.Album).Owner.Shortcode) == 0 {
-			return albums, nil
-		}
-		break
-	case model.Event:
-		return events, fmt.Errorf("User has invalid credentials")
 	default:
 		return invalid, fmt.Errorf("Invalid target type %s", t)
 	}

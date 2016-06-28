@@ -10,7 +10,6 @@ import (
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/gorilla/context"
-	"github.com/gorilla/mux"
 	"github.com/gorilla/schema"
 	"github.com/sprioc/sprioc-core/pkg/contentStorage"
 	"github.com/sprioc/sprioc-core/pkg/metadata"
@@ -80,6 +79,7 @@ func UploadImage(w http.ResponseWriter, r *http.Request) Response {
 	img.MetaData = meta
 
 	img.Sources = formatImageSources(img.ShortCode)
+	log.Println(img.Sources)
 
 	err = store.CreateImage(mongo, img)
 	if err != nil {
@@ -93,7 +93,7 @@ func UploadImage(w http.ResponseWriter, r *http.Request) Response {
 		return Resp("Error while adding image to DB", 500)
 	}
 
-	return Response{Code: http.StatusOK}
+	return Response{Code: http.StatusAccepted, Data: map[string]string{"shortcode": img.ShortCode}}
 }
 
 func formatImageSources(shortcode string) model.ImgSource {
@@ -109,28 +109,25 @@ func formatImageSources(shortcode string) model.ImgSource {
 }
 
 func FeatureImage(w http.ResponseWriter, r *http.Request) Response {
-	return executeCommand(w, r, getImageInterface, store.FeatureImage)
+	return Response{Code: http.StatusNotImplemented, Message: "This should be implemented soon!"}
 }
 
 func FavoriteImage(w http.ResponseWriter, r *http.Request) Response {
-	return executeBiDirectCommand(w, r, getImageInterface, store.FavoriteImage)
+	return Response{Code: http.StatusNotImplemented, Message: "This should be implemented soon!"}
 }
 
 func DeleteImage(w http.ResponseWriter, r *http.Request) Response {
-	return executeCommand(w, r, getImageInterface, store.DeleteImage)
+	return Response{Code: http.StatusNotImplemented, Message: "This should be implemented soon!"}
 }
 
 func UnFeatureImage(w http.ResponseWriter, r *http.Request) Response {
-	return executeCommand(w, r, getImageInterface, store.UnFeatureImage)
+	return Response{Code: http.StatusNotImplemented, Message: "This should be implemented soon!"}
 }
 
 func UnFavoriteImage(w http.ResponseWriter, r *http.Request) Response {
-	return executeBiDirectCommand(w, r, getImageInterface, store.UnFavoriteImage)
-
+	return Response{Code: http.StatusNotImplemented, Message: "This should be implemented soon!"}
 }
 
 func ModifyImage(w http.ResponseWriter, r *http.Request) Response {
-	IID := mux.Vars(r)["IID"]
-	ref := GetImageRef(IID)
-	return executeCheckedModification(r, ref)
+	return Response{Code: http.StatusNotImplemented, Message: "This should be implemented soon!"}
 }
