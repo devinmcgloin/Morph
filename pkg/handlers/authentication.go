@@ -6,35 +6,34 @@ import (
 	"net/http"
 
 	"github.com/fatih/structs"
-	"github.com/sprioc/sprioc-core/pkg/authentication"
+	"github.com/sprioc/sprioc-core/pkg/core"
+	"github.com/sprioc/sprioc-core/pkg/rsp"
 )
 
-func GetToken(w http.ResponseWriter, r *http.Request) Response {
+func GetToken(w http.ResponseWriter, r *http.Request) rsp.Response {
 	decoder := json.NewDecoder(r.Body)
 
 	creds := Credentials{}
 
 	err := decoder.Decode(&creds)
 	if err != nil {
-		return Resp("Bad Request", http.StatusBadRequest)
+		return rsp.Response{Message: "Bad Request", Code: http.StatusBadRequest}
 	}
 
-	log.Println(creds)
-
-	valid, user, err := authentication.ValidateCredentialsByUserName(creds.Username, creds.Password)
+	valid, user, err := core.ValidateCredentialsByUserName(creds.Username, creds.Password)
 	if err != nil {
-		return Resp("Invalid Credentials", http.StatusUnauthorized)
+		return rsp.Response{Message: "Invalid Credentials", Code: http.StatusUnauthorized}
 	}
 	if valid {
-		token, err := authentication.CreateJWT(user)
+		token, err := core.CreateJWT(user)
 		if err != nil {
 			log.Println(err)
-			return Resp("Invalid Credentials", http.StatusUnauthorized)
+			return rsp.Response{Message: "Invalid Credentials", Code: http.StatusUnauthorized}
 		}
-		return Response{Code: 201, Data: structs.Map(tok{Token: token})}
+		return rsp.Response{Code: 201, Data: structs.Map(tok{Token: token})}
 	}
 
-	return Resp("Invalid Credentials", http.StatusUnauthorized)
+	return rsp.Response{Message: "Invalid Credentials", Code: http.StatusUnauthorized}
 }
 
 type Credentials struct {

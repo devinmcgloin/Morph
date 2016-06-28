@@ -8,15 +8,15 @@ import (
 	"net/http"
 
 	"github.com/gorilla/context"
-	"github.com/sprioc/sprioc-core/pkg/authentication"
-	"github.com/sprioc/sprioc-core/pkg/handlers"
+	"github.com/sprioc/sprioc-core/pkg/core"
+	"github.com/sprioc/sprioc-core/pkg/rsp"
 )
 
-func Secure(f func(http.ResponseWriter, *http.Request) handlers.Response) func(http.ResponseWriter, *http.Request) {
+func Secure(f func(http.ResponseWriter, *http.Request) rsp.Response) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		// TODO this should be formatted in json
-		user, err := authentication.CheckUser(r)
+		user, err := core.CheckUser(r)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
@@ -38,7 +38,7 @@ func Secure(f func(http.ResponseWriter, *http.Request) handlers.Response) func(h
 	}
 }
 
-func Unsecure(f func(http.ResponseWriter, *http.Request) handlers.Response) func(http.ResponseWriter, *http.Request) {
+func Unsecure(f func(http.ResponseWriter, *http.Request) rsp.Response) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		ip, port, _ := net.SplitHostPort(r.RemoteAddr)

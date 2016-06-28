@@ -50,16 +50,14 @@ DBRef bodies have the following format:
 
 
 ### Images
-| Method | Endpoint                | Body           | Returns                                                            |
-|:-------|:------------------------|:---------------|:-------------------------------------------------------------------|
-| GET    | /v0/images/:ID          |                | Image view that contains a filled out user field.                  |
-| POST   | /v0/images              | raw image data | create a new image with the authenticated user                     |
-| PUT    | /v0/images/:ID/featured |                | feature this image, only works if the request maker owns the image |
-|        | /v0/images/:ID/favorite |                | favorite the image                                                 |
-| DELETE | /v0/images/:ID          |                | delete the image, only works if the request maker owns the image   |
-|        | /v0/images/:ID/featured |                | un-feature the image.                                              |
-|        | /v0/images/:ID/favorite |                | unfavorite the image                                               |
-| PATCH  | /v0/images/:ID          |                | make changes to the image (See notes on patch requests)            |
+| Method | Endpoint                | Body           | Returns                                                          |
+|:-------|:------------------------|:---------------|:-----------------------------------------------------------------|
+| GET    | /v0/images/:ID          |                | Image view that contains a filled out user field.                |
+| POST   | /v0/images              | raw image data | create a new image with the authenticated user                   |
+| PUT    | /v0/images/:ID/favorite |                | favorite the image                                               |
+| DELETE | /v0/images/:ID          |                | delete the image, only works if the request maker owns the image |
+|        | /v0/images/:ID/favorite |                | unfavorite the image                                             |
+| PATCH  | /v0/images/:ID          |                | make changes to the image (See notes on patch requests)          |
 
 ### Users
 | Method | Endpoint                      | Body           | Returns                                                    |
@@ -75,20 +73,18 @@ DBRef bodies have the following format:
 | PATCH  | /v0/users/:username           |                | make changes to the user (See notes on patch requests)     |
 
 ### Collections
-| Method | Endpoint                             | Body                      | Returns |
-|:-------|:-------------------------------------|:--------------------------|:--------|
-| GET    | /v0/collections/:CID                 |                           |         |
-| POST   | /v0/collections                      |                           |         |
-| PUT    | /v0/collections/:CID/images          | array of image shortcodes |         |
-|        | /v0/collections/:CID/users           | array of users shortcodes |         |
-|        | /v0/collections/:CID/favorite        |                           |         |
-|        | /v0/collections/:CID/follow          |                           |         |
-| DELETE | /v0/collections                      |                           |         |
-|        | /v0/collections/:CID/images/:IID     | array of image shortcodes |         |
-|        | /v0/collections/:CID/users/:username | array of users shortcodes |         |
-|        | /v0/collections/:CID/favorite        |                           |         |
-|        | /v0/collections/:CID/follow          |                           |         |
-| PATCH  | /v0/collections/:CID                 |                           |         |
+| Method | Endpoint                      | Body                      | Returns |
+|:-------|:------------------------------|:--------------------------|:--------|
+| GET    | /v0/collections/:CID          |                           |         |
+| POST   | /v0/collections               |                           |         |
+|        | /v0/collections/:CID/images   | array of image shortcodes |         |
+| PUT    | /v0/collections/:CID/favorite |                           |         |
+|        | /v0/collections/:CID/follow   |                           |         |
+| DELETE | /v0/collections               |                           |         |
+|        | /v0/collections/:CID/images   | array of image shortcodes |         |
+|        | /v0/collections/:CID/favorite |                           |         |
+|        | /v0/collections/:CID/follow   |                           |         |
+| PATCH  | /v0/collections/:CID          |                           |         |
 
 
 ## Queries

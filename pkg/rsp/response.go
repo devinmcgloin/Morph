@@ -1,4 +1,4 @@
-package handlers
+package rsp
 
 import (
 	"encoding/json"
@@ -9,10 +9,6 @@ type Response struct {
 	Message string      `json:"message"`
 	Code    int         `json:"code"`
 	Data    interface{} `json:"-"`
-}
-
-func Resp(message string, code int) Response {
-	return Response{Message: message, Code: code}
 }
 
 func (response Response) Error() string {

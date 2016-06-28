@@ -1,4 +1,4 @@
-package authorization
+package core
 
 import (
 	"errors"

@@ -1,4 +1,4 @@
-package handlers
+package refs
 
 import (
 	"github.com/sprioc/sprioc-core/pkg/env"

@@ -2,41 +2,41 @@ package store
 
 import "github.com/sprioc/sprioc-core/pkg/generator"
 
-func (ds *MgoStore) GetNewImageShortCode() string {
+func GetNewImageShortCode() string {
 	id := generator.RandString(12)
-	if ds.ExistsImageID(id) {
+	if ExistsImageID(id) {
 		id = generator.RandString(12)
 	}
 	return id
 }
 
-func (ds *MgoStore) GetNewAlbumShortCode() string {
+func GetNewAlbumShortCode() string {
 	id := generator.RandString(12)
-	if ds.ExistsAlbumID(id) {
+	if ExistsAlbumID(id) {
 		id = generator.RandString(12)
 	}
 	return id
 }
 
-func (ds *MgoStore) GetNewEventShortCode() string {
+func GetNewEventShortCode() string {
 	id := generator.RandString(12)
-	if ds.ExistsEventID(id) {
+	if ExistsEventID(id) {
 		id = generator.RandString(12)
 	}
 	return id
 }
 
-func (ds *MgoStore) GetNewCollectionShortCode() string {
+func GetNewCollectionShortCode() string {
 	id := generator.RandString(12)
-	if ds.ExistsCollectionID(id) {
+	if ExistsCollectionID(id) {
 		id = generator.RandString(12)
 	}
 	return id
 }
 
-func (ds *MgoStore) GetNewUserShortCode() string {
+func GetNewUserShortCode() string {
 	id := generator.RandString(12)
-	if ds.ExistsUserID(id) {
+	if ExistsUserID(id) {
 		id = generator.RandString(12)
 	}
 	return id

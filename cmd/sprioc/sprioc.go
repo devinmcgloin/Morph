@@ -10,7 +10,7 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 
-	h "github.com/sprioc/sprioc-core/pkg/handlers"
+	"github.com/sprioc/sprioc-core/pkg/rsp"
 )
 
 func init() {
@@ -48,9 +48,9 @@ func main() {
 	log.Fatal(http.ListenAndServe(":"+port, handlers.LoggingHandler(os.Stdout, handlers.CompressHandler(router))))
 }
 
-func NotImplemented(w http.ResponseWriter, r *http.Request) h.Response {
+func NotImplemented(w http.ResponseWriter, r *http.Request) rsp.Response {
 	log.Printf("Not implemented called from %s", r.URL)
-	return h.Response{Code: http.StatusNotImplemented, Message: "This endpoint is not implemented. It'll be here soon!"}
+	return rsp.Response{Code: http.StatusNotImplemented, Message: "This endpoint is not implemented. It'll be here soon!"}
 }
 
 func notFound(w http.ResponseWriter, r *http.Request) {

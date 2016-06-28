@@ -1,4 +1,4 @@
-package authentication
+package core
 
 import (
 	"crypto/sha1"
@@ -16,11 +16,9 @@ import (
 	"github.com/sprioc/sprioc-core/pkg/env"
 	"github.com/sprioc/sprioc-core/pkg/generator"
 	"github.com/sprioc/sprioc-core/pkg/model"
-	"github.com/sprioc/sprioc-core/pkg/store"
 )
 
 /// TODO need to think about JWT refresh
-var mongo = store.ConnectStore()
 
 var hmacSecret = []byte(os.Getenv("HMAC_SECRET"))
 var dbase = env.Getenv("MONGODB_NAME", "morph")
@@ -29,7 +27,7 @@ var sessionLifetime = time.Minute * 10
 var refreshAt = time.Minute * 1
 
 func ValidateCredentialsByUserName(username string, password string) (bool, model.User, error) {
-	user, err := store.GetUser(mongo, model.DBRef{Database: dbase, Collection: "users", Shortcode: username})
+	user, err := GetUser(model.DBRef{Database: dbase, Collection: "users", Shortcode: username})
 	if err != nil {
 		return false, model.User{}, errors.New("Invalid Credentials")
 	}
@@ -83,7 +81,7 @@ func CheckUser(r *http.Request) (model.User, error) {
 	}
 	log.Println(userRef)
 
-	user, err := store.GetUser(mongo, userRef)
+	user, err := GetUser(userRef)
 	if err != nil {
 		return model.User{}, err
 	}
