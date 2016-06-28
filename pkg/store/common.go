@@ -1,28 +1,12 @@
 package store
 
 import (
-	"errors"
 	"log"
-	"strings"
 
 	"github.com/sprioc/sprioc-core/pkg/model"
 
 	"gopkg.in/mgo.v2/bson"
 )
-
-func init() {
-	relationTerms = make(map[string]string)
-	relationTerms["follow_forward"] = "followes"
-	relationTerms["follow_backward"] = "followed_by"
-
-	relationTerms["favorite_forward"] = "favorites"
-	relationTerms["favorite_backward"] = "favorited_by"
-
-	relationTerms["collection_forward"] = "images"
-	relationTerms["collection_backward"] = "collections"
-}
-
-var relationTerms map[string]string
 
 var mongo = ConnectStore()
 
@@ -87,21 +71,4 @@ func Modify(ID model.DBRef, changes bson.M) error {
 		return err
 	}
 	return nil
-}
-
-func Link(actor model.DBRef, recipient model.DBRef, relation string) error {
-	return errors.New("Not Implemented")
-}
-
-func Unlink(actor model.DBRef, recipient model.DBRef, relation string) error {
-	return errors.New("Not Implemented")
-}
-
-func in(contentType string, opts []string) bool {
-	for _, opt := range opts {
-		if strings.Compare(contentType, opt) == 0 {
-			return true
-		}
-	}
-	return false
 }
