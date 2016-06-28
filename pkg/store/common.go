@@ -32,20 +32,19 @@ var mongo = ConnectStore()
 
 // TODO should say something if the operation does not do anything.
 
-func Get(ID model.DBRef) (interface{}, error) {
+func Get(ID model.DBRef, container interface{}) error {
 	session := mongo.getSession()
 	defer session.Close()
 
-	var document interface{}
-
 	c := session.DB(ID.Database).C(ID.Collection)
 
-	err := c.Find(bson.M{"shortcode": ID.Shortcode}).One(&document)
+	err := c.Find(bson.M{"shortcode": ID.Shortcode}).One(container)
 	if err != nil {
-		return nil, errors.New("Not found")
+		log.Println(err)
+		return err
 	}
 
-	return document, nil
+	return nil
 }
 
 func Create(collection string, document interface{}) error {
@@ -57,7 +56,7 @@ func Create(collection string, document interface{}) error {
 	err := c.Insert(document)
 	if err != nil {
 		log.Println(err)
-		return errors.New("Unable to add document to DB")
+		return err
 	}
 	return nil
 }
@@ -68,7 +67,12 @@ func Delete(ID model.DBRef) error {
 
 	c := session.DB(dbname).C(ID.Collection)
 
-	return c.Remove(bson.M{"shortcode": ID.Shortcode})
+	err := c.Remove(bson.M{"shortcode": ID.Shortcode})
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
 }
 
 func Modify(ID model.DBRef, changes bson.M) error {
@@ -77,7 +81,12 @@ func Modify(ID model.DBRef, changes bson.M) error {
 
 	c := session.DB(dbname).C(ID.Collection)
 
-	return c.Update(bson.M{"shortcode": ID.Shortcode}, changes)
+	err := c.Update(bson.M{"shortcode": ID.Shortcode}, changes)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
 }
 
 func Link(actor model.DBRef, recipient model.DBRef, relation string) error {

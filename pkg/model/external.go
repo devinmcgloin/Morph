@@ -10,6 +10,9 @@ func (img *Image) FillExternal(user User) {
 	img.MetaData.ApertureExtern = img.MetaData.Aperture.Rep
 	img.MetaData.FocalLengthExtern = img.MetaData.FocalLength.Rep
 	img.MetaData.ExposureTimeExtern = img.MetaData.ExposureTime.Rep
+
+	img.FavoritedByLinks = getURLs(img.FavoritedBy)
+	img.CollectionLinks = getURLs(img.Collections)
 }
 
 func getURL(ref DBRef) string {
@@ -21,8 +24,14 @@ func getURL(ref DBRef) string {
 
 func (usr *User) FillExternal() {
 	usr.ImageLinks = getURLs(usr.Images)
+
 	usr.FollowLinks = getURLs(usr.Followes)
+	usr.FollowedByLinks = getURLs(usr.FollowedBy)
+
 	usr.FavoriteLinks = getURLs(usr.Favorites)
+	usr.FavoritedByLinks = getURLs(usr.FavoritedBy)
+
+	usr.CollectionLinks = getURLs(usr.Collections)
 }
 
 func getURLs(refs []DBRef) []string {

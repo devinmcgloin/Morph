@@ -3,17 +3,52 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/gorilla/mux"
+	"github.com/sprioc/sprioc-core/pkg/core"
+	"github.com/sprioc/sprioc-core/pkg/refs"
 	"github.com/sprioc/sprioc-core/pkg/rsp"
 )
 
 func GetCollection(w http.ResponseWriter, r *http.Request) rsp.Response {
-	return rsp.Response{Code: http.StatusNotImplemented, Message: "This should be implemented soon!"}
+	id := mux.Vars(r)["CID"]
+
+	ref := refs.GetCollectionRef(id)
+
+	col, resp := core.GetCollection(ref)
+	if !resp.Ok() {
+		return resp
+	}
+	return rsp.Response{Code: http.StatusOK, Data: col}
 }
 
 func GetUser(w http.ResponseWriter, r *http.Request) rsp.Response {
-	return rsp.Response{Code: http.StatusNotImplemented, Message: "This should be implemented soon!"}
+	id := mux.Vars(r)["username"]
+
+	ref := refs.GetUserRef(id)
+
+	user, resp := core.GetUser(ref)
+	if !resp.Ok() {
+		return resp
+	}
+	user.FillExternal()
+	return rsp.Response{Code: http.StatusOK, Data: user}
 }
 
 func GetImage(w http.ResponseWriter, r *http.Request) rsp.Response {
-	return rsp.Response{Code: http.StatusNotImplemented, Message: "This should be implemented soon!"}
+	id := mux.Vars(r)["IID"]
+
+	ref := refs.GetImageRef(id)
+
+	col, resp := core.GetImage(ref)
+	if !resp.Ok() {
+		return resp
+	}
+
+	user, resp := core.GetUser(col.Owner)
+	if !resp.Ok() {
+		return resp
+	}
+
+	col.FillExternal(user)
+	return rsp.Response{Code: http.StatusOK, Data: col}
 }

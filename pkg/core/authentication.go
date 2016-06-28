@@ -21,14 +21,14 @@ import (
 /// TODO need to think about JWT refresh
 
 var hmacSecret = []byte(os.Getenv("HMAC_SECRET"))
-var dbase = env.Getenv("MONGODB_NAME", "morph")
+var dbase = env.Getenv("MONGODB_NAME", "sprioc")
 
 var sessionLifetime = time.Minute * 10
 var refreshAt = time.Minute * 1
 
 func ValidateCredentialsByUserName(username string, password string) (bool, model.User, error) {
-	user, err := GetUser(model.DBRef{Database: dbase, Collection: "users", Shortcode: username})
-	if err != nil {
+	user, resp := GetUser(model.DBRef{Database: dbase, Collection: "users", Shortcode: username})
+	if !resp.Ok() {
 		return false, model.User{}, errors.New("Invalid Credentials")
 	}
 	return validUser(user, password)
@@ -92,10 +92,10 @@ func CheckUser(r *http.Request) (model.User, error) {
 func CreateJWT(u model.User) (string, error) {
 
 	claims := &jwt.StandardClaims{
-		IssuedAt:  time.Now().Unix(),
-		ExpiresAt: time.Now().Add(time.Minute * 10).Unix(),
-		Issuer:    "sprioc-core",
-		Subject:   u.ShortCode,
+		//IssuedAt:  time.Now().Unix(),
+		//ExpiresAt: time.Now().Add(time.Minute * 10).Unix(),
+		Issuer:  "sprioc-core",
+		Subject: u.ShortCode,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

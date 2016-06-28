@@ -32,7 +32,7 @@ type Image struct {
 	FavoritedBy      []DBRef  `bson:"favorited_by" json:"-"`
 	FavoritedByLinks []string `bson:"-" json:"favorited_by_links,omitempty"`
 
-	Sources ImgSource `bson:"sources" json:"sources"`
+	Sources ImgSource `bson:"sources_link" json:"source_link"`
 
 	Featured  bool `bson:"featured" json:"featured"`
 	Downloads int  `bson:"downloads" json:"downloads"`
@@ -100,9 +100,9 @@ type User struct {
 	Salt      string     `bson:"salt" json:"-"`
 	Name      string     `bson:"name" json:"name,omitempty"`
 	Bio       string     `bson:"bio,omitempty" json:"bio,omitempty"`
-	URL       string     `bson:"url" json:"url,omitempty"`
+	URL       string     `bson:"personal_site_link" json:"personal_site_link,omitempty"`
 	Location  gj.Feature `bson:"loc" json:"loc,omitempty"`
-	AvatarURL ImgSource  `bson:"avatar_url" json:"avatar_url"`
+	AvatarURL ImgSource  `bson:"avatar_link" json:"avatar_link"`
 }
 
 type Collection struct {

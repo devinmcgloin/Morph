@@ -44,30 +44,29 @@ func UploadImage(user model.User, file []byte) rsp.Response {
 
 	meta, err := metadata.GetMetadata(buf)
 	if err != nil {
-		return rsp.Response{Message: "Error while reading image metadata", Code: 500}
+		return rsp.Response{Message: "Error while reading image metadata", Code: http.StatusBadRequest}
 	}
 
 	img.MetaData = meta
 
-	img.Sources = formatSources(img.ShortCode)
+	img.Sources = formatSources(img.ShortCode, "content")
 	log.Println(img.Sources)
 
-	err = CreateImage(img)
+	err = store.Create("images", img)
 	if err != nil {
-		return rsp.Response{Message: "Error while adding image to DB", Code: 500}
+		return rsp.Response{Message: "Error while adding image to DB", Code: http.StatusInternalServerError}
 	}
 
-	err = Modify(refs.GetUserRef(user.ShortCode),
+	resp := Modify(refs.GetUserRef(user.ShortCode),
 		bson.M{"$push": bson.M{"images": refs.GetImageRef(img.ShortCode)}})
-	if err != nil {
-		log.Println(err)
-		return rsp.Response{Message: "Error while adding image to DB", Code: 500}
+	if !resp.Ok() {
+		return rsp.Response{Message: "Error while adding image to DB", Code: http.StatusInternalServerError}
 	}
 
 	return rsp.Response{Code: http.StatusAccepted, Data: map[string]string{"shortcode": img.ShortCode}}
 }
 
-func AvatarUpload(user model.User, file []byte) rsp.Response {
+func UploadAvatar(user model.User, file []byte) rsp.Response {
 	n := len(file)
 
 	if n == 0 {
@@ -80,7 +79,7 @@ func AvatarUpload(user model.User, file []byte) rsp.Response {
 		return rsp.Response{Message: err.Error(), Code: http.StatusBadRequest}
 	}
 
-	sources := formatSources(user.ShortCode)
+	sources := formatSources(user.ShortCode, "avatars")
 
 	err = setAvatar(refs.GetUserRef(user.ShortCode), sources)
 	if err != nil {
@@ -89,8 +88,8 @@ func AvatarUpload(user model.User, file []byte) rsp.Response {
 	return rsp.Response{Code: http.StatusAccepted}
 }
 
-func formatSources(shortcode string) model.ImgSource {
-	const prefix = "https://images.sprioc.xyz/avatars/"
+func formatSources(shortcode, location string) model.ImgSource {
+	var prefix = "https://images.sprioc.xyz/" + location + "/"
 	var resourceBaseURL = prefix + shortcode
 	return model.ImgSource{
 		Raw:    resourceBaseURL,

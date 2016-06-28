@@ -10,10 +10,6 @@ import (
 	"github.com/sprioc/sprioc-core/pkg/store"
 )
 
-func CreateImage(img model.Image) rsp.Response {
-	return rsp.Response{Code: http.StatusNotImplemented}
-}
-
 func CreateUser(userData map[string]string) rsp.Response {
 	var username, email, password string
 	var ok bool
@@ -30,7 +26,7 @@ func CreateUser(userData map[string]string) rsp.Response {
 		return rsp.Response{Message: "Bad Request", Code: http.StatusBadRequest}
 	}
 
-	if store.ExistsUserName(username) || store.ExistsEmail(email) {
+	if store.ExistsUserID(username) || store.ExistsEmail(email) {
 		return rsp.Response{Message: "Username or Email already exist", Code: http.StatusConflict}
 	}
 
@@ -45,7 +41,7 @@ func CreateUser(userData map[string]string) rsp.Response {
 		Pass:      securePassword,
 		Salt:      salt,
 		ShortCode: username,
-		AvatarURL: formatSources("default"),
+		AvatarURL: formatSources("default", "avatars"),
 	}
 
 	err = store.Create("users", usr)
@@ -54,4 +50,8 @@ func CreateUser(userData map[string]string) rsp.Response {
 	}
 
 	return rsp.Response{Code: http.StatusAccepted}
+}
+
+func CreateCollection(colData map[string]string) rsp.Response {
+	return rsp.Response{Code: http.StatusNotImplemented}
 }

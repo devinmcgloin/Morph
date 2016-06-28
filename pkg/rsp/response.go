@@ -28,3 +28,10 @@ func (response Response) Format() []byte {
 	}
 	return byteResp
 }
+
+func (response Response) Ok() bool {
+	if response.Code < 300 && response.Code >= 200 {
+		return true
+	}
+	return false
+}

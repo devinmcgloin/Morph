@@ -1,64 +1,62 @@
 package core
 
 import (
-	"errors"
+	"net/http"
 	"strings"
 
 	"github.com/sprioc/sprioc-core/pkg/model"
+	"github.com/sprioc/sprioc-core/pkg/rsp"
 	"github.com/sprioc/sprioc-core/pkg/store"
 )
 
-func GetUser(ref model.DBRef) (model.User, error) {
+func GetUser(ref model.DBRef) (model.User, rsp.Response) {
 
 	if strings.Compare(ref.Collection, "users") != 0 {
-		return model.User{}, errors.New("Ref is of the wrong collection type")
+		return model.User{}, rsp.Response{Message: "Ref is of the wrong collection type",
+			Code: http.StatusNotFound}
 	}
 
-	doc, err := store.Get(ref)
+	var user = model.User{}
+
+	err := store.Get(ref, &user)
 	if err != nil {
-		return model.User{}, errors.New("User not found")
+		return model.User{}, rsp.Response{Message: "User not found",
+			Code: http.StatusNotFound}
 	}
 
-	user, ok := doc.(model.User)
-	if !ok {
-		return model.User{}, errors.New("Unable to cast document to user")
-	}
-
-	return user, nil
+	return user, rsp.Response{Code: http.StatusOK}
 }
 
-func GetImage(ref model.DBRef) (model.Image, error) {
-	if strings.Compare(ref.Collection, "users") != 0 {
-		return model.Image{}, errors.New("Ref is of the wrong collection type")
+func GetImage(ref model.DBRef) (model.Image, rsp.Response) {
+	if strings.Compare(ref.Collection, "images") != 0 {
+		return model.Image{}, rsp.Response{Message: "Ref is of the wrong collection type",
+			Code: http.StatusNotFound}
 	}
 
-	doc, err := store.Get(ref)
+	var image model.Image
+
+	err := store.Get(ref, &image)
 	if err != nil {
-		return model.Image{}, errors.New("User not found")
+		return model.Image{}, rsp.Response{Message: "Image not found",
+			Code: http.StatusNotFound}
 	}
 
-	user, ok := doc.(model.Image)
-	if !ok {
-		return model.Image{}, errors.New("Unable to cast document to user")
-	}
-
-	return user, nil
+	return image, rsp.Response{Code: http.StatusOK}
 }
 
-func GetCollection(ref model.DBRef) (model.Collection, error) {
+func GetCollection(ref model.DBRef) (model.Collection, rsp.Response) {
 	if strings.Compare(ref.Collection, "collections") != 0 {
-		return model.Collection{}, errors.New("Ref is of the wrong collection type")
+		return model.Collection{}, rsp.Response{Message: "Ref is of the wrong collection type",
+			Code: http.StatusNotFound}
 	}
 
-	doc, err := store.Get(ref)
+	var col model.Collection
+
+	err := store.Get(ref, &col)
 	if err != nil {
-		return model.Collection{}, errors.New("User not found")
+		return model.Collection{}, rsp.Response{Message: "Collection not found",
+			Code: http.StatusNotFound}
 	}
 
-	user, ok := doc.(model.Collection)
-	if !ok {
-		return model.Collection{}, errors.New("Unable to cast document to user")
-	}
-
-	return user, nil
+	return col, rsp.Response{Code: http.StatusOK}
 }

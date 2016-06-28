@@ -6,7 +6,7 @@ import (
 	"github.com/sprioc/sprioc-core/pkg/store"
 )
 
-var dbname = env.Getenv("MONGODB_NAME", "morph")
+var dbname = env.Getenv("MONGODB_NAME", "sprioc")
 var mongo = store.ConnectStore()
 
 func GetImageRef(shortcode string) model.DBRef {

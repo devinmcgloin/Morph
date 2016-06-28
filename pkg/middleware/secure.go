@@ -14,17 +14,18 @@ import (
 
 func Secure(f func(http.ResponseWriter, *http.Request) rsp.Response) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
 
 		// TODO this should be formatted in json
 		user, err := core.CheckUser(r)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusUnauthorized)
+			resp := rsp.Response{Code: http.StatusUnauthorized, Message: err.Error()}
+			w.WriteHeader(resp.Code)
+			w.Write(resp.Format())
 			return
 		}
 
 		context.Set(r, "auth", user)
-
-		w.Header().Set("Content-Type", "application/json")
 
 		resp := f(w, r)
 		w.WriteHeader(resp.Code)

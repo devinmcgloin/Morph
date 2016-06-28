@@ -8,22 +8,6 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-func ExistsUserName(userName string) bool {
-	session := mongo.session.Copy()
-	defer session.Close()
-
-	c := session.DB(dbname).C("users")
-	n, err := c.Find(bson.M{"username": userName}).Count()
-	if err != nil {
-		log.Println(err)
-		return false
-	}
-	if n > 0 {
-		return true
-	}
-	return false
-}
-
 func ExistsEmail(email string) bool {
 	session := mongo.session.Copy()
 	defer session.Close()

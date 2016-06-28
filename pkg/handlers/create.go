@@ -9,11 +9,16 @@ import (
 )
 
 func CreateCollection(w http.ResponseWriter, r *http.Request) rsp.Response {
-	return rsp.Response{Code: http.StatusNotImplemented, Message: "This should be implemented soon!"}
-}
+	decoder := json.NewDecoder(r.Body)
 
-func CreateImage(w http.ResponseWriter, r *http.Request) rsp.Response {
-	return rsp.Response{Code: http.StatusNotImplemented, Message: "This should be implemented soon!"}
+	var newCollection map[string]string
+
+	err := decoder.Decode(&newCollection)
+	if err != nil {
+		return rsp.Response{Message: "Bad Request", Code: http.StatusBadRequest}
+	}
+
+	return core.CreateUser(newCollection)
 }
 
 // TODO need to send more of this functionality to core
