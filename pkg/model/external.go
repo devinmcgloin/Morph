@@ -35,9 +35,9 @@ func (usr *User) FillExternal() {
 }
 
 func getURLs(refs []DBRef) []string {
-	var arr []string
-	for _, ref := range refs {
-		arr = append(arr, getURL(ref))
+	var arr = make([]string, len(refs))
+	for i, ref := range refs {
+		arr[i] = getURL(ref)
 	}
 	return arr
 }

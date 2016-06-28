@@ -15,23 +15,23 @@ func CreateUser(userData map[string]string) rsp.Response {
 	var ok bool
 
 	if username, ok = userData["username"]; !ok {
-		return rsp.Response{Message: "Bad Request", Code: http.StatusBadRequest}
+		return rsp.Response{Message: "Username not present", Code: http.StatusBadRequest}
 	}
 
 	if email, ok = userData["email"]; !ok {
-		return rsp.Response{Message: "Bad Request", Code: http.StatusBadRequest}
+		return rsp.Response{Message: "Email not present", Code: http.StatusBadRequest}
 	}
 
 	if password, ok = userData["password"]; !ok {
-		return rsp.Response{Message: "Bad Request", Code: http.StatusBadRequest}
+		return rsp.Response{Message: "Password not present", Code: http.StatusBadRequest}
 	}
 
 	if store.ExistsUserID(username) || store.ExistsEmail(email) {
 		return rsp.Response{Message: "Username or Email already exist", Code: http.StatusConflict}
 	}
 
-	securePassword, salt, err := GetSaltPass(password)
-	if err != nil {
+	securePassword, salt, resp := GetSaltPass(password)
+	if !resp.Ok() {
 		return rsp.Response{Message: "Error adding user", Code: http.StatusConflict}
 	}
 
@@ -44,7 +44,7 @@ func CreateUser(userData map[string]string) rsp.Response {
 		AvatarURL: formatSources("default", "avatars"),
 	}
 
-	err = store.Create("users", usr)
+	err := store.Create("users", usr)
 	if err != nil {
 		return rsp.Response{Message: "Error adding user", Code: http.StatusConflict}
 	}

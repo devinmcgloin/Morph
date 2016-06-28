@@ -3,7 +3,6 @@ package core
 import (
 	"crypto/sha1"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -16,6 +15,7 @@ import (
 	"github.com/sprioc/sprioc-core/pkg/env"
 	"github.com/sprioc/sprioc-core/pkg/generator"
 	"github.com/sprioc/sprioc-core/pkg/model"
+	"github.com/sprioc/sprioc-core/pkg/rsp"
 )
 
 /// TODO need to think about JWT refresh
@@ -26,15 +26,15 @@ var dbase = env.Getenv("MONGODB_NAME", "sprioc")
 var sessionLifetime = time.Minute * 10
 var refreshAt = time.Minute * 1
 
-func ValidateCredentialsByUserName(username string, password string) (bool, model.User, error) {
+func ValidateCredentialsByUserName(username string, password string) (bool, model.User, rsp.Response) {
 	user, resp := GetUser(model.DBRef{Database: dbase, Collection: "users", Shortcode: username})
 	if !resp.Ok() {
-		return false, model.User{}, errors.New("Invalid Credentials")
+		return false, model.User{}, rsp.Response{Message: "Invalid Credentials"}
 	}
 	return validUser(user, password)
 }
 
-func validUser(user model.User, password string) (bool, model.User, error) {
+func validUser(user model.User, password string) (bool, model.User, rsp.Response) {
 	salt := user.Salt
 	hasher := sha1.New()
 
@@ -45,15 +45,15 @@ func validUser(user model.User, password string) (bool, model.User, error) {
 	shaString := hex.EncodeToString(sha)
 
 	if strings.Compare(user.Pass, shaString) == 0 {
-		return true, user, nil
+		return true, user, rsp.Response{Code: http.StatusContinue}
 	}
-	return false, model.User{}, errors.New("Invalid Credentials")
+	return false, model.User{}, rsp.Response{Message: "Invalid Credentials"}
 }
 
-func GetSaltPass(password string) (string, string, error) {
+func GetSaltPass(password string) (string, string, rsp.Response) {
 	salt, err := generator.GenerateSecureString(64)
 	if err != nil {
-		return "", "", errors.New("Unable to create user")
+		return "", "", rsp.Response{Message: "Unable to create user", Code: http.StatusInternalServerError}
 	}
 	hasher := sha1.New()
 
@@ -62,34 +62,34 @@ func GetSaltPass(password string) (string, string, error) {
 	sha := hasher.Sum(passwordSalt)
 
 	saltedPass := hex.EncodeToString(sha)
-	return saltedPass, salt, nil
+	return saltedPass, salt, rsp.Response{Code: http.StatusContinue}
 }
 
-func CheckUser(r *http.Request) (model.User, error) {
+func CheckUser(r *http.Request) (model.User, rsp.Response) {
 	tokenStrings, err := jwtreq.HeaderExtractor{"Authorization"}.
 		ExtractToken(r)
 
 	if err != nil {
-		return model.User{}, errors.New("Bearer Header not present")
+		return model.User{}, rsp.Response{Message: "Bearer Header not present"}
 	}
 
 	token := strings.Replace(tokenStrings, "Bearer ", "", 1)
 
-	userRef, err := VerifyJWT(token)
-	if err != nil {
-		return model.User{}, err
-	}
-	log.Println(userRef)
-
-	user, err := GetUser(userRef)
-	if err != nil {
-		return model.User{}, err
+	userRef, resp := VerifyJWT(token)
+	if !resp.Ok() {
+		log.Println("CheckUser")
+		return model.User{}, resp
 	}
 
-	return user, nil
+	user, resp := GetUser(userRef)
+	if !resp.Ok() {
+		return model.User{}, resp
+	}
+
+	return user, rsp.Response{Code: http.StatusOK}
 }
 
-func CreateJWT(u model.User) (string, error) {
+func CreateJWT(u model.User) (string, rsp.Response) {
 
 	claims := &jwt.StandardClaims{
 		//IssuedAt:  time.Now().Unix(),
@@ -102,13 +102,13 @@ func CreateJWT(u model.User) (string, error) {
 	ss, err := token.SignedString(hmacSecret)
 	if err != nil {
 		log.Println(err)
-		return "", err
+		return "", rsp.Response{Code: http.StatusInternalServerError, Message: "Unable to create token."}
 	}
 
-	return ss, nil
+	return ss, rsp.Response{Code: http.StatusOK}
 }
 
-func VerifyJWT(tokenString string) (model.DBRef, error) {
+func VerifyJWT(tokenString string) (model.DBRef, rsp.Response) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
@@ -118,26 +118,27 @@ func VerifyJWT(tokenString string) (model.DBRef, error) {
 
 	if err != nil {
 		log.Println(err)
-		return model.DBRef{}, err
+		return model.DBRef{}, rsp.Response{Message: err.Error(), Code: http.StatusBadRequest}
 	}
 
 	if token.Valid {
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if token.Valid && ok {
 			id := claims["sub"].(string)
-			return model.DBRef{Database: dbase, Collection: "users", Shortcode: id}, nil
+			return model.DBRef{Database: dbase, Collection: "users", Shortcode: id},
+				rsp.Response{Code: http.StatusOK}
 		}
 	} else if err, ok := err.(*jwt.ValidationError); ok {
 		if err.Errors&jwt.ValidationErrorMalformed != 0 {
 			// Token is malformed
-			return model.DBRef{}, errors.New("Token is Malformed")
+			return model.DBRef{}, rsp.Response{Message: "Token is Malformed", Code: http.StatusBadRequest}
 		} else if err.Errors&(jwt.ValidationErrorExpired|jwt.ValidationErrorNotValidYet) != 0 {
 			// Token is either expired or not active yet
-			return model.DBRef{}, errors.New("Token is inactive")
+			return model.DBRef{}, rsp.Response{Message: "Token is inactive", Code: http.StatusBadRequest}
 		}
 	}
 
-	return model.DBRef{}, errors.New("Token is Invalid")
+	return model.DBRef{}, rsp.Response{Message: "Token is invalid", Code: http.StatusBadRequest}
 }
 
 // RefreshToken updates a token with a new expiration time. After 3 days it expires.

@@ -16,10 +16,8 @@ func Secure(f func(http.ResponseWriter, *http.Request) rsp.Response) func(http.R
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 
-		// TODO this should be formatted in json
-		user, err := core.CheckUser(r)
-		if err != nil {
-			resp := rsp.Response{Code: http.StatusUnauthorized, Message: err.Error()}
+		user, resp := core.CheckUser(r)
+		if !resp.Ok() {
 			w.WriteHeader(resp.Code)
 			w.Write(resp.Format())
 			return
@@ -27,7 +25,7 @@ func Secure(f func(http.ResponseWriter, *http.Request) rsp.Response) func(http.R
 
 		context.Set(r, "auth", user)
 
-		resp := f(w, r)
+		resp = f(w, r)
 		w.WriteHeader(resp.Code)
 
 		dat, _ := JSONMarshal(resp.Data, true)

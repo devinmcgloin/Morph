@@ -50,7 +50,6 @@ func UploadImage(user model.User, file []byte) rsp.Response {
 	img.MetaData = meta
 
 	img.Sources = formatSources(img.ShortCode, "content")
-	log.Println(img.Sources)
 
 	err = store.Create("images", img)
 	if err != nil {

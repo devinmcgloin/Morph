@@ -25,10 +25,10 @@ func GetToken(w http.ResponseWriter, r *http.Request) rsp.Response {
 		return rsp.Response{Message: "Invalid Credentials", Code: http.StatusUnauthorized}
 	}
 	if valid {
-		token, err := core.CreateJWT(user)
-		if err != nil {
-			log.Println(err)
-			return rsp.Response{Message: "Invalid Credentials", Code: http.StatusUnauthorized}
+		token, resp := core.CreateJWT(user)
+		if !resp.Ok() {
+			log.Println(resp)
+			return resp
 		}
 		return rsp.Response{Code: 201, Data: structs.Map(tok{Token: token})}
 	}

@@ -19,48 +19,47 @@ type Image struct {
 	ShortCode string        `bson:"shortcode" json:"shortcode"`
 
 	MetaData    ImageMetaData `bson:"metadata" json:"metadata"`
-	Tags        []string      `bson:"tags,omitempty" json:"tags,omitempty"`
-	MachineTags []string      `bson:"machine_tags,omitempty" json:"machine_tags,omitempty"`
+	Tags        []string      `bson:"tags" json:"tags"`
+	MachineTags []string      `bson:"machine_tags" json:"machine_tags"`
 	PublishTime time.Time     `bson:"publish_time" json:"publish_time"`
 
 	Owner       DBRef `bson:"owner" json:"-"`
 	OwnerExtern User  `bson:"-" json:"owner"`
 
 	Collections     []DBRef  `bson:"collections" json:"-"`
-	CollectionLinks []string `bson:"-" json:"collection_links,omitempty"`
+	CollectionLinks []string `bson:"-" json:"collection_links"`
 
 	FavoritedBy      []DBRef  `bson:"favorited_by" json:"-"`
-	FavoritedByLinks []string `bson:"-" json:"favorited_by_links,omitempty"`
+	FavoritedByLinks []string `bson:"-" json:"favorited_by_links"`
 
 	Sources ImgSource `bson:"sources_link" json:"source_link"`
 
 	Featured  bool `bson:"featured" json:"featured"`
 	Downloads int  `bson:"downloads" json:"downloads"`
-	Favorites int  `bson:"favorites" json:"favorites"`
 	Hidden    bool `bson:"hidden" json:"hidden"`
 }
 
 type ImageMetaData struct {
-	Aperture       Ratio  `bson:"aperture,omitempty" json:"-"`
-	ApertureExtern string `bson:"-" json:"aperture,omitempty"`
+	Aperture       Ratio  `bson:"aperture" json:"-"`
+	ApertureExtern string `bson:"-" json:"aperture"`
 
-	ExposureTime       Ratio  `bson:"exposure_time,omitempty" json:"-"`
-	ExposureTimeExtern string `bson:"-" json:"exposure_time,omitempty"`
+	ExposureTime       Ratio  `bson:"exposure_time" json:"-"`
+	ExposureTimeExtern string `bson:"-" json:"exposure_time"`
 
-	FocalLength       Ratio  `bson:"focal_length,omitempty" json:"-"`
-	FocalLengthExtern string `bson:"-" json:"focal_length,omitempty"`
+	FocalLength       Ratio  `bson:"focal_length" json:"-"`
+	FocalLengthExtern string `bson:"-" json:"focal_length"`
 
-	ISO             int        `bson:"iso,omitempty" json:"iso,omitempty"`
-	Orientation     string     `bson:"orientation,omitempty" json:"orientation,omitempty"`
-	Make            string     `bson:"make,omitempty" json:"make,omitempty"`
-	Model           string     `bson:"model,omitempty" json:"model,omitempty"`
-	LensMake        string     `bson:"lens_make,omitempty" json:"lens_make,omitempty"`
-	LensModel       string     `bson:"lens_model,omitempty" json:"lens_model,omitempty"`
-	PixelXDimension int64      `bson:"pixel_xd,omitempty" json:"pixel_xd,omitempty"`
-	PixelYDimension int64      `bson:"pixel_yd,omitempty" json:"pixel_yd,omitempty"`
+	ISO             int        `bson:"iso" json:"iso"`
+	Orientation     string     `bson:"orientation" json:"orientation"`
+	Make            string     `bson:"make" json:"make"`
+	Model           string     `bson:"model" json:"model"`
+	LensMake        string     `bson:"lens_make" json:"lens_make"`
+	LensModel       string     `bson:"lens_model" json:"lens_model"`
+	PixelXDimension int64      `bson:"pixel_xd" json:"pixel_xd"`
+	PixelYDimension int64      `bson:"pixel_yd" json:"pixel_yd"`
 	CaptureTime     time.Time  `bson:"capture_time" json:"capture_time"`
-	ImgDirection    float64    `bson:"direction,omitempty" json:"direction,omitempty"`
-	Location        gj.Feature `bson:"location,omitempty" json:"location,omitempty"`
+	ImgDirection    float64    `bson:"direction" json:"direction"`
+	Location        gj.Feature `bson:"location" json:"location"`
 }
 
 // ImgSource includes the information about the image itself.
@@ -78,46 +77,46 @@ type User struct {
 	Admin     bool          `bson:"admin" json:"admin"`
 
 	Images     []DBRef  `bson:"images" json:"-"`
-	ImageLinks []string `bson:"-" json:"image_links,omitempty"`
+	ImageLinks []string `bson:"-" json:"image_links"`
 
 	Collections     []DBRef  `bson:"collections" json:"-"`
-	CollectionLinks []string `bson:"-" json:"collection_links,omitempty"`
+	CollectionLinks []string `bson:"-" json:"collection_links"`
 
 	Followes    []DBRef  `bson:"followes" json:"-"`
-	FollowLinks []string `bson:"-" json:"follow_links,omitempty"`
+	FollowLinks []string `bson:"-" json:"follow_links"`
 
 	Favorites     []DBRef  `bson:"favorites" json:"-"`
-	FavoriteLinks []string `bson:"-" json:"favorite_links,omitempty"`
+	FavoriteLinks []string `bson:"-" json:"favorite_links"`
 
 	FollowedBy      []DBRef  `bson:"followed_by" json:"-"`
-	FollowedByLinks []string `bson:"-" json:"followed_by_links,omitempty"`
+	FollowedByLinks []string `bson:"-" json:"followed_by_links"`
 
 	FavoritedBy      []DBRef  `bson:"favorited_by" json:"-"`
-	FavoritedByLinks []string `bson:"-" json:"favorited_by_links,omitempty"`
+	FavoritedByLinks []string `bson:"-" json:"favorited_by_links"`
 
 	Email     string     `bson:"email" json:"email"`
 	Pass      string     `bson:"password" json:"-"`
 	Salt      string     `bson:"salt" json:"-"`
-	Name      string     `bson:"name" json:"name,omitempty"`
-	Bio       string     `bson:"bio,omitempty" json:"bio,omitempty"`
-	URL       string     `bson:"personal_site_link" json:"personal_site_link,omitempty"`
-	Location  gj.Feature `bson:"loc" json:"loc,omitempty"`
+	Name      string     `bson:"name" json:"name"`
+	Bio       string     `bson:"bio" json:"bio"`
+	URL       string     `bson:"personal_site_link" json:"personal_site_link"`
+	Location  gj.Feature `bson:"loc" json:"loc"`
 	AvatarURL ImgSource  `bson:"avatar_link" json:"avatar_link"`
 }
 
 type Collection struct {
 	ID        bson.ObjectId `bson:"_id" json:"-"`
 	ShortCode string        `bson:"shortcode" json:"shortcode"`
-	Images    []DBRef       `bson:"images" json:"images,omitempty"`
+	Images    []DBRef       `bson:"images" json:"images"`
 	Owner     DBRef         `bson:"owner" json:"owner"`
 
 	FollowedBy      []DBRef  `bson:"followed_by" json:"-"`
-	FollowedByLinks []string `bson:"-" json:"followed_by_links,omitempty"`
+	FollowedByLinks []string `bson:"-" json:"followed_by_links"`
 
 	FavoritedBy      []DBRef  `bson:"favorited_by" json:"-"`
-	FavoritedByLinks []string `bson:"-" json:"favorited_by_links,omitempty"`
+	FavoritedByLinks []string `bson:"-" json:"favorited_by_links"`
 
-	Desc     string     `bson:"desc,omitempty" json:"desc,omitempty"`
+	Desc     string     `bson:"desc" json:"desc"`
 	Title    string     `bson:"title" json:"title"`
 	ViewType string     `bson:"view_type" json:"view_type"`
 	Location gj.Feature `bson:"location" json:"location"`
@@ -126,7 +125,7 @@ type Collection struct {
 type DBRef struct {
 	Collection string `bson:"collection" json:"collection"`
 	Shortcode  string `bson:"shortcode" json:"shortcode"`
-	Database   string `bson:"db,omitempty" json:"-"`
+	Database   string `bson:"db" json:"-"`
 }
 
 func (ref DBRef) String() string {
