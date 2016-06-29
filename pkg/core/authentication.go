@@ -45,9 +45,9 @@ func validUser(user model.User, password string) (bool, model.User, rsp.Response
 	shaString := hex.EncodeToString(sha)
 
 	if strings.Compare(user.Pass, shaString) == 0 {
-		return true, user, rsp.Response{Code: http.StatusContinue}
+		return true, user, rsp.Response{Code: http.StatusOK}
 	}
-	return false, model.User{}, rsp.Response{Message: "Invalid Credentials"}
+	return false, model.User{}, rsp.Response{Message: "Invalid Credentials", Code: http.StatusUnauthorized}
 }
 
 func GetSaltPass(password string) (string, string, rsp.Response) {
@@ -62,7 +62,7 @@ func GetSaltPass(password string) (string, string, rsp.Response) {
 	sha := hasher.Sum(passwordSalt)
 
 	saltedPass := hex.EncodeToString(sha)
-	return saltedPass, salt, rsp.Response{Code: http.StatusContinue}
+	return saltedPass, salt, rsp.Response{Code: http.StatusOK}
 }
 
 func CheckUser(r *http.Request) (model.User, rsp.Response) {
@@ -70,7 +70,7 @@ func CheckUser(r *http.Request) (model.User, rsp.Response) {
 		ExtractToken(r)
 
 	if err != nil {
-		return model.User{}, rsp.Response{Message: "Bearer Header not present"}
+		return model.User{}, rsp.Response{Message: "Bearer Header not present", Code: http.StatusUnauthorized}
 	}
 
 	token := strings.Replace(tokenStrings, "Bearer ", "", 1)

@@ -30,7 +30,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) rsp.Response {
 	if !resp.Ok() {
 		return resp
 	}
-	user.FillExternal()
+	refs.FillExternalUser(&user)
 	return rsp.Response{Code: http.StatusOK, Data: user}
 }
 
@@ -39,16 +39,16 @@ func GetImage(w http.ResponseWriter, r *http.Request) rsp.Response {
 
 	ref := refs.GetImageRef(id)
 
-	col, resp := core.GetImage(ref)
+	img, resp := core.GetImage(ref)
 	if !resp.Ok() {
 		return resp
 	}
 
-	user, resp := core.GetUser(col.Owner)
+	user, resp := core.GetUser(img.Owner)
 	if !resp.Ok() {
 		return resp
 	}
 
-	col.FillExternal(user)
-	return rsp.Response{Code: http.StatusOK, Data: col}
+	refs.FillExternalImage(&img, user)
+	return rsp.Response{Code: http.StatusOK, Data: img}
 }

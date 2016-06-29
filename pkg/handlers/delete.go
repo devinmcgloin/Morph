@@ -39,7 +39,7 @@ func DeleteCollection(w http.ResponseWriter, r *http.Request) rsp.Response {
 
 	id := mux.Vars(r)["CID"]
 
-	ref := refs.GetImageRef(id)
+	ref := refs.GetCollectionRef(id)
 
 	return core.DeleteCollection(user, ref)
 }
@@ -55,7 +55,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) rsp.Response {
 
 	id := mux.Vars(r)["username"]
 
-	ref := refs.GetImageRef(id)
+	ref := refs.GetUserRef(id)
 
 	return core.DeleteUser(user, ref)
 }

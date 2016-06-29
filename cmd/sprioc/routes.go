@@ -13,7 +13,7 @@ func registerImageRoutes(api *mux.Router) {
 	img := api.PathPrefix("/images").Subrouter()
 
 	get := img.Methods("GET").Subrouter()
-	get.HandleFunc("/{IID}", middleware.Unsecure(handlers.GetImage)).Name("image")
+	get.HandleFunc("/{IID}", middleware.Unsecure(handlers.GetImage))
 	get.HandleFunc("/{IID}/user", middleware.Unsecure(NotImplemented))
 	get.HandleFunc("/{IID}/collections", middleware.Unsecure(NotImplemented))
 	get.HandleFunc("/{IID}/album", middleware.Unsecure(NotImplemented))

@@ -127,7 +127,3 @@ type DBRef struct {
 	Shortcode  string `bson:"shortcode" json:"shortcode"`
 	Database   string `bson:"db" json:"-"`
 }
-
-func (ref DBRef) String() string {
-	return getURL(ref)
-}

@@ -28,10 +28,10 @@ A simple photography site written in Go.
 
 ## CRUD
 
-Default behavior for the standard getters GET /v0/collections/:ID is to include
-the owner field by default. This means if you ask for a collection, you'll get
-links to the images in the collection, and information about the curator, and of
-course the default information about the collection.
+Default behavior for the standard getters `GET /v0/collections/:ID` is to
+include the owner field by default. This means if you ask for a collection,
+you'll get links to the images in the collection, and information about the
+curator, and of course the default information about the collection.
 
 Patch requests have the following format:
 ```json
@@ -39,12 +39,14 @@ Patch requests have the following format:
     "$set": { "metadata.make": "Olympus", "featured": false },
 }
 ```
-Currently valid commands are `$set` and `$unset`. I don't plan on adding any others.
+
+Currently valid commands are `$set` and `$unset`. I don't plan on adding any
+others.
 
 DBRef bodies have the following format:
 ```json
 {
-  "images": [ "nKMSewUkOXBY", "lPtjPPUFVVUR" ]
+  "images": [ "https://api.sprioc.xyz/v0/images/nKMSewUkOXBY", "https://api.sprioc.xyz/v0/images/lPtjPPUFVVUR" ]
 }
 ```
 

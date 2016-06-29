@@ -18,6 +18,7 @@ func Secure(f func(http.ResponseWriter, *http.Request) rsp.Response) func(http.R
 
 		user, resp := core.CheckUser(r)
 		if !resp.Ok() {
+			log.Println(resp)
 			w.WriteHeader(resp.Code)
 			w.Write(resp.Format())
 			return
@@ -26,9 +27,14 @@ func Secure(f func(http.ResponseWriter, *http.Request) rsp.Response) func(http.R
 		context.Set(r, "auth", user)
 
 		resp = f(w, r)
+
 		w.WriteHeader(resp.Code)
 
-		dat, _ := JSONMarshal(resp.Data, true)
+		dat, err := JSONMarshal(resp.Data, true)
+		if err != nil {
+			log.Println(err)
+		}
+
 		if resp.Data != nil {
 			w.Write(dat) // TODO this writes null if the resp.Data is null.
 		} else if resp.Message != "" {
