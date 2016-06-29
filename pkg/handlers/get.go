@@ -18,6 +18,14 @@ func GetCollection(w http.ResponseWriter, r *http.Request) rsp.Response {
 	if !resp.Ok() {
 		return resp
 	}
+
+	user, resp := core.GetUser(col.Owner)
+	if !resp.Ok() {
+		return resp
+	}
+
+	refs.FillExternalCollection(&col, user)
+
 	return rsp.Response{Code: http.StatusOK, Data: col}
 }
 

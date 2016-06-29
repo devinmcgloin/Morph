@@ -14,9 +14,6 @@ func registerImageRoutes(api *mux.Router) {
 
 	get := img.Methods("GET").Subrouter()
 	get.HandleFunc("/{IID}", middleware.Unsecure(handlers.GetImage))
-	get.HandleFunc("/{IID}/user", middleware.Unsecure(NotImplemented))
-	get.HandleFunc("/{IID}/collections", middleware.Unsecure(NotImplemented))
-	get.HandleFunc("/{IID}/album", middleware.Unsecure(NotImplemented))
 
 	post := api.Methods("POST").Subrouter()
 	post.HandleFunc("/images", middleware.Secure(handlers.UploadImage))
@@ -39,7 +36,6 @@ func registerUserRoutes(api *mux.Router) {
 
 	get := usr.Methods("GET").Subrouter()
 	get.HandleFunc("/{username}", middleware.Unsecure(handlers.GetUser))
-	get.HandleFunc("/{username}/location", middleware.Unsecure(NotImplemented))
 
 	post := api.Methods("POST").Subrouter()
 	post.HandleFunc("/users", middleware.Unsecure(handlers.CreateUser))
@@ -63,27 +59,23 @@ func registerCollectionRoutes(api *mux.Router) {
 
 	get := col.Methods("GET").Subrouter()
 	get.HandleFunc("/{CID}", middleware.Unsecure(handlers.GetCollection))
-	get.HandleFunc("/{CID}/users", middleware.Unsecure(NotImplemented))
-	get.HandleFunc("/{CID}/images", middleware.Unsecure(NotImplemented))
 
 	post := api.Methods("POST").Subrouter()
 	post.HandleFunc("/collections", middleware.Secure(handlers.CreateCollection))
 
 	put := col.Methods("PUT").Subrouter()
 	put.HandleFunc("/{CID}/images", middleware.Secure(handlers.AddImageToCollection))
-	put.HandleFunc("/{CID}/users", middleware.Secure(NotImplemented))
 	put.HandleFunc("/{CID}/favorite", middleware.Secure(handlers.FavoriteCollection))
 	put.HandleFunc("/{CID}/follow", middleware.Secure(handlers.FollowCollection))
 
 	del := col.Methods("DELETE").Subrouter()
 	del.HandleFunc("/{CID}", middleware.Secure(handlers.DeleteCollection))
 	del.HandleFunc("/{CID}/images/{IID}", middleware.Secure(handlers.DeleteImageFromCollection))
-	del.HandleFunc("/{CID}/users/{username}", middleware.Secure(NotImplemented))
 	del.HandleFunc("/{CID}/favorite", middleware.Secure(handlers.UnFavoriteCollection))
 	del.HandleFunc("/{CID}/follow", middleware.Secure(handlers.UnFollowCollection))
 
 	patch := col.Methods("PATCH").Subrouter()
-	patch.HandleFunc("/{CID}", middleware.Secure(NotImplemented))
+	patch.HandleFunc("/{CID}", middleware.Secure(handlers.ModifyCollection))
 }
 
 func registerSearchRoutes(api *mux.Router) {

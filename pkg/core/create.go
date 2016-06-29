@@ -10,6 +10,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/sprioc/sprioc-core/pkg/model"
+	"github.com/sprioc/sprioc-core/pkg/refs"
 	"github.com/sprioc/sprioc-core/pkg/rsp"
 	"github.com/sprioc/sprioc-core/pkg/store"
 )
@@ -77,11 +78,50 @@ func CreateUser(userData map[string]string) rsp.Response {
 		return rsp.Response{Message: "Error adding user", Code: http.StatusConflict}
 	}
 
-	return rsp.Response{Code: http.StatusAccepted}
+	var response = make(map[string]string)
+	response["link"] = refs.GetURL(refs.GetUserRef(username))
+
+	return rsp.Response{Code: http.StatusAccepted, Data: response}
 }
 
-func CreateCollection(colData map[string]string) rsp.Response {
-	return rsp.Response{Code: http.StatusNotImplemented}
+func CreateCollection(requestuser model.User, colData map[string]string) rsp.Response {
+	var title, desc string
+	var ok bool
+
+	if title, ok = colData["title"]; !ok {
+		return rsp.Response{Message: "Title not present", Code: http.StatusBadRequest}
+	}
+
+	if desc, ok = colData["desc"]; !ok {
+		desc = ""
+	}
+
+	userRef := refs.GetUserRef(requestuser.ShortCode)
+	colRef := refs.GetCollectionRef(store.GetNewCollectionShortCode())
+
+	col := model.Collection{
+		ID:        bson.NewObjectId(),
+		Title:     title,
+		Desc:      desc,
+		Owner:     refs.GetUserRef(requestuser.ShortCode),
+		ShortCode: colRef.Shortcode,
+	}
+
+	err := store.Create("collections", col)
+	if err != nil {
+		return rsp.Response{Code: http.StatusInternalServerError}
+	}
+
+	resp := Modify(userRef,
+		bson.M{"$addToSet": bson.M{"collections": colRef}})
+	if !resp.Ok() {
+		return rsp.Response{Code: http.StatusInternalServerError}
+	}
+
+	var response = make(map[string]string)
+	response["link"] = refs.GetURL(colRef)
+
+	return rsp.Response{Code: http.StatusAccepted, Data: response}
 }
 
 func validPassword(password string) bool {

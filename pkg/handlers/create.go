@@ -4,11 +4,22 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/gorilla/context"
 	"github.com/sprioc/sprioc-core/pkg/core"
+	"github.com/sprioc/sprioc-core/pkg/model"
 	"github.com/sprioc/sprioc-core/pkg/rsp"
 )
 
 func CreateCollection(w http.ResponseWriter, r *http.Request) rsp.Response {
+
+	var user model.User
+	val, ok := context.GetOk(r, "auth")
+	if !ok {
+		return rsp.Response{Code: http.StatusUnauthorized, Message: "Must be logged in to create a collection"}
+	}
+
+	user = val.(model.User)
+
 	decoder := json.NewDecoder(r.Body)
 
 	var newCollection map[string]string
@@ -18,7 +29,7 @@ func CreateCollection(w http.ResponseWriter, r *http.Request) rsp.Response {
 		return rsp.Response{Message: "Bad Request", Code: http.StatusBadRequest}
 	}
 
-	return core.CreateUser(newCollection)
+	return core.CreateCollection(user, newCollection)
 }
 
 // TODO need to send more of this functionality to core

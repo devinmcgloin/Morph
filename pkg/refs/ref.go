@@ -2,6 +2,7 @@ package refs
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/sprioc/sprioc-core/pkg/env"
@@ -9,7 +10,7 @@ import (
 )
 
 var dbname = env.Getenv("MONGODB_NAME", "sprioc")
-var baseurl = "http://localhost:8080/v0"
+var baseurl = "http://localhost:8080/v0/"
 
 func GetImageRef(shortcode string) model.DBRef {
 	return model.DBRef{Database: dbname, Collection: "images", Shortcode: shortcode}
@@ -26,7 +27,7 @@ func GetUserRef(shortcode string) model.DBRef {
 
 func GetURL(ref model.DBRef) string {
 	if ref.Collection != "" && ref.Shortcode != "" {
-		return fmt.Sprintf("%s/%s/%s", baseurl, ref.Collection, ref.Shortcode)
+		return fmt.Sprintf("%s%s/%s", baseurl, ref.Collection, ref.Shortcode)
 	}
 	return ""
 }
@@ -41,6 +42,7 @@ func GetURLs(refs []model.DBRef) []string {
 
 func GetRef(url string) model.DBRef {
 	parts := strings.Split(strings.Replace(url, baseurl, "", 1), "/")
+	log.Println(parts, len(parts))
 	return model.DBRef{Database: dbname, Collection: parts[0], Shortcode: parts[1]}
 }
 
@@ -73,4 +75,12 @@ func FillExternalUser(usr *model.User) {
 	usr.FavoritedByLinks = GetURLs(usr.FavoritedBy)
 
 	usr.CollectionLinks = GetURLs(usr.Collections)
+}
+
+func FillExternalCollection(col *model.Collection, user model.User) {
+	FillExternalUser(&user)
+
+	col.ImageLinks = GetURLs(col.Images)
+	col.FavoritedByLinks = GetURLs(col.FavoritedBy)
+	col.FollowedByLinks = GetURLs(col.FollowedBy)
 }

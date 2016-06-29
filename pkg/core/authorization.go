@@ -1,11 +1,12 @@
 package core
 
 import (
-	"errors"
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/sprioc/sprioc-core/pkg/model"
+	"github.com/sprioc/sprioc-core/pkg/rsp"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -22,73 +23,67 @@ const (
 
 // VerifyChanges checks operations, permissions and targets to see if an
 // operation is valid. Should not be used for internal modifications.
-func VerifyChanges(user model.User, target interface{}, changes bson.M, internal bool) error {
+func VerifyChanges(user model.User, target model.DBRef, changes bson.M) rsp.Response {
 	// admins may need to edit other desc or posts
 	if user.Admin {
-		return nil
+		return rsp.Response{Code: http.StatusOK}
 	}
 
 	var targetType int
 
-	targetType, hasAuth := Authorized(user, target)
-	if hasAuth != nil {
-		return hasAuth
-	}
-
-	// If we reach this point it means the user has authorization to change the
-	// document, as its an internal modification we can bypass verifying the changes
-	if internal {
-		return nil
+	targetType, resp := Authorized(user, target)
+	if !resp.Ok() {
+		return resp
 	}
 
 	for key, val := range changes {
 		if !in(key, validOps) {
-			return fmt.Errorf("Invalid Operation: %s", key)
+			return rsp.Response{Message: fmt.Sprintf("Invalid Operation: %s", key), Code: http.StatusBadRequest}
 		}
 
 		m, ok := val.(map[string]interface{})
 		if !ok {
-			return errors.New("Invalid changefile")
+			return rsp.Response{Message: "Invalid changefile", Code: http.StatusBadRequest}
 		}
 
 		for tar := range m {
 			if !validTarget(targetType, tar) {
-				return fmt.Errorf("Invalid Target: %s", key)
+				return rsp.Response{Message: fmt.Sprintf("Invalid Target: %s", tar), Code: http.StatusBadRequest}
 			}
 		}
 	}
-	return nil
+	return rsp.Response{Code: http.StatusOK}
 }
 
 // Authorized checks only if the account can modify the given target.
-func Authorized(user model.User, target interface{}) (int, error) {
-	switch t := target.(type) {
-	case model.Image:
-		if strings.Compare(user.ShortCode, target.(model.Image).Owner.Shortcode) == 0 {
-			return images, nil
+func Authorized(user model.User, target model.DBRef) (int, rsp.Response) {
+	switch {
+	case target.Collection == "images":
+		if inRef(target, user.Images) {
+			return images, rsp.Response{Code: http.StatusOK}
 		}
 		break
-	case model.User:
-		if strings.Compare(user.ShortCode, target.(model.User).ShortCode) == 0 {
-			return users, nil
+	case target.Collection == "users":
+		if target.Shortcode == user.ShortCode {
+			return users, rsp.Response{Code: http.StatusOK}
 		}
 		break
-	case model.Collection:
-		if strings.Compare(user.ShortCode, target.(model.Collection).Owner.Shortcode) == 0 {
-			return collections, nil
+	case target.Collection == "collections":
+		if inRef(target, user.Collections) {
+			return collections, rsp.Response{Code: http.StatusOK}
 		}
 		break
 	default:
-		return invalid, fmt.Errorf("Invalid target type %s", t)
+		return invalid, rsp.Response{Message: fmt.Sprintf("Invalid target type %s", target), Code: http.StatusBadRequest}
 	}
-	return invalid, fmt.Errorf("User has invalid credentials")
+	return invalid, rsp.Response{Message: fmt.Sprintf("User has invalid credentials"), Code: http.StatusUnauthorized}
 }
 
 func validTarget(kind int, target string) bool {
 	imgTarget := []string{"tags", "featured", "metadata.aperature",
 		"metadata.exposure_time", "metadata.focal_length", "metadata.iso",
 		"metadata.make", "metadata.model", "metadata.lens_make", "metadata.lens_model"}
-	userTarget := []string{"email", "name", "bio", "url"}
+	userTarget := []string{"name", "bio", "personal_site_link"}
 	albEvntColTarget := []string{"desc", "title", "view_type"}
 
 	switch kind {

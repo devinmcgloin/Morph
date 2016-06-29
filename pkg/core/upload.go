@@ -55,14 +55,14 @@ func UploadImage(user model.User, file []byte) rsp.Response {
 	if err != nil {
 		return rsp.Response{Message: "Error while adding image to DB", Code: http.StatusInternalServerError}
 	}
-
+	imgRef := refs.GetImageRef(img.ShortCode)
 	resp := Modify(refs.GetUserRef(user.ShortCode),
-		bson.M{"$push": bson.M{"images": refs.GetImageRef(img.ShortCode)}})
+		bson.M{"$push": bson.M{"images": imgRef}})
 	if !resp.Ok() {
 		return rsp.Response{Message: "Error while adding image to DB", Code: http.StatusInternalServerError}
 	}
 
-	return rsp.Response{Code: http.StatusAccepted, Data: map[string]string{"shortcode": img.ShortCode}}
+	return rsp.Response{Code: http.StatusAccepted, Data: map[string]string{"link": refs.GetURL(imgRef)}}
 }
 
 func UploadAvatar(user model.User, file []byte) rsp.Response {

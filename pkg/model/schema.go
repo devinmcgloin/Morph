@@ -107,8 +107,11 @@ type User struct {
 type Collection struct {
 	ID        bson.ObjectId `bson:"_id" json:"-"`
 	ShortCode string        `bson:"shortcode" json:"shortcode"`
-	Images    []DBRef       `bson:"images" json:"images"`
-	Owner     DBRef         `bson:"owner" json:"owner"`
+
+	Images     []DBRef  `bson:"images" json:"-"`
+	ImageLinks []string `bson:"-" json:"image_links"`
+
+	Owner DBRef `bson:"owner" json:"owner"`
 
 	FollowedBy      []DBRef  `bson:"followed_by" json:"-"`
 	FollowedByLinks []string `bson:"-" json:"followed_by_links"`
