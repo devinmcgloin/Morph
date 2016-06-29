@@ -17,6 +17,7 @@ func Modify(ref model.DBRef, changes bson.M) rsp.Response {
 	return rsp.Response{Code: http.StatusAccepted}
 }
 
+// TODO would really like to lock this down more and do more content validation.
 func ModifySecure(user model.User, target model.DBRef, changes bson.M) rsp.Response {
 
 	resp := VerifyChanges(user, target, changes)
