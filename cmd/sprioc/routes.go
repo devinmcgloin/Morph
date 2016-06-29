@@ -3,118 +3,89 @@ package main
 import (
 	"github.com/gorilla/mux"
 	"github.com/sprioc/sprioc-core/pkg/handlers"
+	"github.com/sprioc/sprioc-core/pkg/middleware"
 )
+
+// TODO lock these routes down to alphabetical only with regex.
+// TODO add names to linked routes.
 
 func registerImageRoutes(api *mux.Router) {
 	img := api.PathPrefix("/images").Subrouter()
 
 	get := img.Methods("GET").Subrouter()
-	get.HandleFunc("/{IID}", unsecure(handlers.GetImage))
-	get.HandleFunc("/{IID}/user", unsecure(NotImplemented))
-	get.HandleFunc("/{IID}/collections", unsecure(NotImplemented))
-	get.HandleFunc("/{IID}/album", unsecure(NotImplemented))
+	get.HandleFunc("/{IID}", middleware.Unsecure(handlers.GetImage))
 
 	post := api.Methods("POST").Subrouter()
-	post.HandleFunc("/images", secure(handlers.UploadImage))
+	post.HandleFunc("/images", middleware.Secure(handlers.UploadImage))
 
 	put := img.Methods("PUT").Subrouter()
-	put.HandleFunc("/{IID}/featured", secure(handlers.FeatureImage))
-	put.HandleFunc("/{IID}/favorite", secure(handlers.FavoriteImage))
+	put.HandleFunc("/{IID}/featured", middleware.Secure(handlers.FeatureImage))
+	put.HandleFunc("/{IID}/favorite", middleware.Secure(handlers.FavoriteImage))
 
 	del := img.Methods("DELETE").Subrouter()
-	del.HandleFunc("/{IID}", secure(handlers.DeleteImage))
-	del.HandleFunc("/{IID}/featured", secure(handlers.UnFeatureImage))
-	del.HandleFunc("/{IID}/favorite", secure(handlers.UnFavoriteImage))
+	del.HandleFunc("/{IID}", middleware.Secure(handlers.DeleteImage))
+	del.HandleFunc("/{IID}/featured", middleware.Secure(handlers.UnFeatureImage))
+	del.HandleFunc("/{IID}/favorite", middleware.Secure(handlers.UnFavoriteImage))
 
 	patch := img.Methods("PATCH").Subrouter()
-	patch.HandleFunc("/{IID}", secure(handlers.ModifyImage))
+	patch.HandleFunc("/{IID}", middleware.Secure(handlers.ModifyImage))
 }
 
 func registerUserRoutes(api *mux.Router) {
 	usr := api.PathPrefix("/users").Subrouter()
 
 	get := usr.Methods("GET").Subrouter()
-	get.HandleFunc("/{username}", unsecure(handlers.GetUser))
-	get.HandleFunc("/{username}/location", unsecure(NotImplemented))
+	get.HandleFunc("/{username}", middleware.Unsecure(handlers.GetUser))
 
 	post := api.Methods("POST").Subrouter()
-	post.HandleFunc("/users", unsecure(handlers.CreateUser))
+	post.HandleFunc("/users", middleware.Unsecure(handlers.CreateUser))
 
 	put := usr.Methods("PUT").Subrouter()
-	put.HandleFunc("/{username}/avatar", secure(handlers.AvatarUpload))
-	put.HandleFunc("/{username}/favorite", secure(handlers.FavoriteUser))
-	put.HandleFunc("/{username}/follow", secure(handlers.FollowUser))
+	put.HandleFunc("/{username}/avatar", middleware.Secure(handlers.UploadAvatar))
+	put.HandleFunc("/{username}/favorite", middleware.Secure(handlers.FavoriteUser))
+	put.HandleFunc("/{username}/follow", middleware.Secure(handlers.FollowUser))
 
 	del := usr.Methods("DELETE").Subrouter()
-	del.HandleFunc("/{username}", secure(handlers.DeleteUser))
-	del.HandleFunc("/{username}/favorite", secure(handlers.UnFavoriteUser))
-	del.HandleFunc("/{username}/follow", secure(handlers.UnFollowUser))
+	del.HandleFunc("/{username}", middleware.Secure(handlers.DeleteUser))
+	del.HandleFunc("/{username}/favorite", middleware.Secure(handlers.UnFavoriteUser))
+	del.HandleFunc("/{username}/follow", middleware.Secure(handlers.UnFollowUser))
 
 	patch := usr.Methods("PATCH").Subrouter()
-	patch.HandleFunc("/{username}", secure(handlers.ModifyUser))
+	patch.HandleFunc("/{username}", middleware.Secure(handlers.ModifyUser))
 }
 
 func registerCollectionRoutes(api *mux.Router) {
 	col := api.PathPrefix("/collections").Subrouter()
 
 	get := col.Methods("GET").Subrouter()
-	get.HandleFunc("/{CID}", unsecure(handlers.GetCollection))
-	get.HandleFunc("/{CID}/users", unsecure(NotImplemented))
-	get.HandleFunc("/{CID}/images", unsecure(NotImplemented))
+	get.HandleFunc("/{CID}", middleware.Unsecure(handlers.GetCollection))
 
 	post := api.Methods("POST").Subrouter()
-	post.HandleFunc("/collections", secure(handlers.CreateCollection))
+	post.HandleFunc("/collections", middleware.Secure(handlers.CreateCollection))
 
 	put := col.Methods("PUT").Subrouter()
-	put.HandleFunc("/{CID}/images", secure(handlers.AddImageToCollection))
-	put.HandleFunc("/{CID}/users", secure(NotImplemented))
-	put.HandleFunc("/{CID}/favorite", secure(handlers.FavoriteCollection))
-	put.HandleFunc("/{CID}/follow", secure(handlers.FollowCollection))
+	put.HandleFunc("/{CID}/images", middleware.Secure(handlers.AddImageToCollection))
+	put.HandleFunc("/{CID}/favorite", middleware.Secure(handlers.FavoriteCollection))
+	put.HandleFunc("/{CID}/follow", middleware.Secure(handlers.FollowCollection))
 
 	del := col.Methods("DELETE").Subrouter()
-	del.HandleFunc("/{CID}", secure(handlers.DeleteCollection))
-	del.HandleFunc("/{CID}/images/{IID}", secure(handlers.DeleteImageFromCollection))
-	del.HandleFunc("/{CID}/users/{username}", secure(NotImplemented))
-	del.HandleFunc("/{CID}/favorite", secure(handlers.UnFavoriteCollection))
-	del.HandleFunc("/{CID}/follow", secure(handlers.UnFollowCollection))
+	del.HandleFunc("/{CID}", middleware.Secure(handlers.DeleteCollection))
+	del.HandleFunc("/{CID}/images/{IID}", middleware.Secure(handlers.DeleteImageFromCollection))
+	del.HandleFunc("/{CID}/favorite", middleware.Secure(handlers.UnFavoriteCollection))
+	del.HandleFunc("/{CID}/follow", middleware.Secure(handlers.UnFollowCollection))
 
 	patch := col.Methods("PATCH").Subrouter()
-	patch.HandleFunc("/{CID}", secure(NotImplemented))
-}
-
-func registerAlbumRoutes(api *mux.Router) {
-	alb := api.PathPrefix("/albums").Subrouter()
-
-	get := alb.Methods("GET").Subrouter()
-	get.HandleFunc("/{AID}", unsecure(handlers.GetAlbum))
-	get.HandleFunc("/{AID}/images", unsecure(NotImplemented))
-
-	post := api.Methods("POST").Subrouter()
-	post.HandleFunc("/albums", secure(NotImplemented))
-
-	put := alb.Methods("PUT").Subrouter()
-	put.HandleFunc("/{AID}/images", secure(handlers.AddImageToAlbum))
-	put.HandleFunc("/{AID}/favorite", secure(handlers.FavoriteAlbum))
-	put.HandleFunc("/{AID}/follow", secure(handlers.FollowAlbum))
-
-	del := alb.Methods("DELETE").Subrouter()
-	del.HandleFunc("/{AID}", secure(handlers.DeleteAlbum))
-	del.HandleFunc("/{AID}/images/{IID}", secure(handlers.DeleteImageFromAlbum))
-	del.HandleFunc("/{AID}/favorite", secure(handlers.UnFavoriteAlbum))
-	del.HandleFunc("/{AID}/follow", secure(handlers.UnFollowAlbum))
-
-	patch := alb.Methods("PATCH").Subrouter()
-	patch.HandleFunc("/{AID}", secure(NotImplemented))
+	patch.HandleFunc("/{CID}", middleware.Secure(handlers.ModifyCollection))
 }
 
 func registerSearchRoutes(api *mux.Router) {
 	get := api.Methods("GET").Subrouter()
 
-	get.HandleFunc("/images", unsecure(NotImplemented))
-	get.HandleFunc("/uers", unsecure(NotImplemented))
-	get.HandleFunc("/collections", unsecure(NotImplemented))
-	get.HandleFunc("/albums", unsecure(NotImplemented))
-	get.HandleFunc("/search", unsecure(NotImplemented))
+	get.HandleFunc("/images", middleware.Unsecure(NotImplemented))
+	get.HandleFunc("/uers", middleware.Unsecure(NotImplemented))
+	get.HandleFunc("/collections", middleware.Unsecure(NotImplemented))
+	get.HandleFunc("/albums", middleware.Unsecure(NotImplemented))
+	get.HandleFunc("/search", middleware.Unsecure(NotImplemented))
 
 }
 
@@ -124,9 +95,9 @@ func registerLuckyRoutes(api *mux.Router) {
 
 }
 
-func registerAuthRoutes(router *mux.Router) {
-	get := router.Methods("POST").Subrouter()
+func registerAuthRoutes(api *mux.Router) {
+	post := api.Methods("POST").Subrouter()
 
-	get.HandleFunc("/login", unsecure(handlers.LoginHandler))
+	post.HandleFunc("/get_token", middleware.Unsecure(handlers.GetToken))
 
 }

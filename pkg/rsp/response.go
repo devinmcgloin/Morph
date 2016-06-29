@@ -1,4 +1,4 @@
-package handlers
+package rsp
 
 import (
 	"encoding/json"
@@ -6,13 +6,9 @@ import (
 )
 
 type Response struct {
-	Message string `json:"message"`
-	Code    int    `json:"code"`
-	Data    []byte `json:"-"`
-}
-
-func Resp(message string, code int) Response {
-	return Response{Message: message, Code: code}
+	Message string      `json:"message"`
+	Code    int         `json:"code"`
+	Data    interface{} `json:"-"`
 }
 
 func (response Response) Error() string {
@@ -31,4 +27,11 @@ func (response Response) Format() []byte {
 		return []byte{}
 	}
 	return byteResp
+}
+
+func (response Response) Ok() bool {
+	if response.Code < 300 && response.Code >= 200 {
+		return true
+	}
+	return false
 }
