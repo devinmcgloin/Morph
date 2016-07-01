@@ -43,8 +43,8 @@ func SetLocation(point gj.Point) {
 			Lng: float64(point.Coordinates[0]),
 		},
 		LocationType: []maps.GeocodeAccuracy{maps.GeocodeAccuracyApproximate, maps.GeocodeAccuracyGeometricCenter},
-		ResultType: []string{"route", "political", "neighborhood", "point_of_interest",
-			"airport", "natural_feature"},
+		ResultType: []string{"point_of_interest", "airport", "natural_feature", "route",
+			"neighborhood", "political"},
 	}
 	result, err := mapsClient.Geocode(context.Background(), r)
 	if err != nil {

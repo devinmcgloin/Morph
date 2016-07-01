@@ -31,6 +31,21 @@ func Get(ID model.DBRef, container interface{}) error {
 	return nil
 }
 
+func GetAll(collection string, filter bson.M, dest interface{}) error {
+	session := mongo.getSession()
+	defer session.Close()
+
+	c := session.DB(dbname).C(collection)
+
+	err := c.Find(filter).All(dest)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
+}
+
 func Create(collection string, document interface{}) error {
 	session := mongo.getSession()
 	defer session.Close()

@@ -60,3 +60,49 @@ func GetImage(w http.ResponseWriter, r *http.Request) rsp.Response {
 	refs.FillExternalImage(&img, user)
 	return rsp.Response{Code: http.StatusOK, Data: img}
 }
+
+func GetUserImages(w http.ResponseWriter, r *http.Request) rsp.Response {
+	id := mux.Vars(r)["username"]
+
+	ref := refs.GetUserRef(id)
+
+	images, resp := core.GetUserImages(ref)
+	if !resp.Ok() {
+		return resp
+	}
+
+	user, resp := core.GetUser(ref)
+	if !resp.Ok() {
+		return resp
+	}
+
+	for _, img := range images {
+		refs.FillExternalImage(img, user)
+	}
+
+	return rsp.Response{Code: http.StatusOK, Data: images}
+}
+
+func GetCollectionImages(w http.ResponseWriter, r *http.Request) rsp.Response {
+
+	id := mux.Vars(r)["CID"]
+
+	ref := refs.GetCollectionRef(id)
+
+	images, resp := core.GetCollectionImages(ref)
+	if !resp.Ok() {
+		return resp
+	}
+
+	user, resp := core.GetUser(images[0].Owner)
+	if !resp.Ok() {
+		return resp
+	}
+
+	for _, img := range images {
+		refs.FillExternalImage(img, user)
+	}
+
+	return rsp.Response{Code: http.StatusOK, Data: images}
+
+}

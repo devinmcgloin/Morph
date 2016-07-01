@@ -18,11 +18,13 @@ func registerImageRoutes(api *mux.Router) {
 	post.HandleFunc("/images", middleware.Secure(handlers.UploadImage))
 
 	put := img.Methods("PUT").Subrouter()
+	put.HandleFunc("/{IID}/tags", middleware.Secure(NotImplemented))
 	put.HandleFunc("/{IID}/featured", middleware.Secure(handlers.FeatureImage))
 	put.HandleFunc("/{IID}/favorite", middleware.Secure(handlers.FavoriteImage))
 
 	del := img.Methods("DELETE").Subrouter()
 	del.HandleFunc("/{IID}", middleware.Secure(handlers.DeleteImage))
+	del.HandleFunc("/{IID}/tags", middleware.Secure(NotImplemented))
 	del.HandleFunc("/{IID}/featured", middleware.Secure(handlers.UnFeatureImage))
 	del.HandleFunc("/{IID}/favorite", middleware.Secure(handlers.UnFavoriteImage))
 
@@ -35,6 +37,7 @@ func registerUserRoutes(api *mux.Router) {
 
 	get := usr.Methods("GET").Subrouter()
 	get.HandleFunc("/{username}", middleware.Unsecure(handlers.GetUser))
+	get.HandleFunc("/{username}/images", middleware.Unsecure(handlers.GetUserImages))
 
 	post := api.Methods("POST").Subrouter()
 	post.HandleFunc("/users", middleware.Unsecure(handlers.CreateUser))
@@ -58,6 +61,7 @@ func registerCollectionRoutes(api *mux.Router) {
 
 	get := col.Methods("GET").Subrouter()
 	get.HandleFunc("/{CID}", middleware.Unsecure(handlers.GetCollection))
+	get.HandleFunc("/{CID}/images", middleware.Unsecure(handlers.GetCollectionImages))
 
 	post := api.Methods("POST").Subrouter()
 	post.HandleFunc("/collections", middleware.Secure(handlers.CreateCollection))
@@ -79,10 +83,6 @@ func registerCollectionRoutes(api *mux.Router) {
 
 func registerSearchRoutes(api *mux.Router) {
 	get := api.Methods("GET").Subrouter()
-
-	get.HandleFunc("/images", middleware.Unsecure(NotImplemented))
-	get.HandleFunc("/users", middleware.Unsecure(NotImplemented))
-	get.HandleFunc("/collections", middleware.Unsecure(NotImplemented))
 
 	get.HandleFunc("/stream", middleware.Unsecure(NotImplemented))
 	get.HandleFunc("/search", middleware.Unsecure(NotImplemented))

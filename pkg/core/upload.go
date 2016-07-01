@@ -79,6 +79,7 @@ func UploadAvatar(user model.User, file []byte) rsp.Response {
 		return rsp.Response{Message: "Cannot upload file with 0 bytes.", Code: http.StatusBadRequest}
 	}
 
+	// REVIEW check that you can overwrite on aws
 	err := contentStorage.ProccessImage(file, n, user.ShortCode, "avatar")
 	if err != nil {
 		log.Println(err)
@@ -106,6 +107,7 @@ func formatSources(shortcode, location string) model.ImgSource {
 	}
 }
 
+// TODO Implement avatar upload
 func setAvatar(user model.DBRef, source model.ImgSource) error {
 	return errors.New("NOT IMPLEMENTED")
 }

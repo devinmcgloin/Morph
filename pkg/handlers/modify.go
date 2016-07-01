@@ -157,5 +157,64 @@ func DeleteImageFromCollection(w http.ResponseWriter, r *http.Request) rsp.Respo
 		return rsp.Response{Message: "Bad Request", Code: http.StatusBadRequest}
 	}
 
-	return core.DeleteImageToCollection(user, ref, additions)
+	return core.DeleteImageFromCollection(user, ref, additions)
+}
+
+func AddTagsToImage(w http.ResponseWriter, r *http.Request) rsp.Response {
+	var user model.User
+	val, ok := context.GetOk(r, "auth")
+	if !ok {
+		return rsp.Response{Code: http.StatusUnauthorized, Message: "Must be logged in to add a tag to a image"}
+	}
+
+	user = val.(model.User)
+
+	id := mux.Vars(r)["CID"]
+
+	ref := refs.GetImageRef(id)
+
+	decoder := json.NewDecoder(r.Body)
+	var additions map[string][]string
+
+	err := decoder.Decode(&additions)
+	if err != nil {
+		return rsp.Response{Message: "Bad Request", Code: http.StatusBadRequest}
+	}
+
+	resp := core.AddTagsToImage(user, ref, additions)
+	if !resp.Ok() {
+		return resp
+	}
+
+	return rsp.Response{Code: http.StatusAccepted}
+}
+
+func RemoveTagsFromImage(w http.ResponseWriter, r *http.Request) rsp.Response {
+	var user model.User
+	val, ok := context.GetOk(r, "auth")
+	if !ok {
+		return rsp.Response{Code: http.StatusUnauthorized, Message: "Must be logged in to remove a tag from a image"}
+	}
+
+	user = val.(model.User)
+
+	id := mux.Vars(r)["CID"]
+
+	ref := refs.GetImageRef(id)
+
+	decoder := json.NewDecoder(r.Body)
+	var additions map[string][]string
+
+	err := decoder.Decode(&additions)
+	if err != nil {
+		return rsp.Response{Message: "Bad Request", Code: http.StatusBadRequest}
+	}
+
+	resp := core.RemoveTagsFromImage(user, ref, additions)
+	if !resp.Ok() {
+		return resp
+	}
+
+	return rsp.Response{Code: http.StatusAccepted}
+
 }
