@@ -17,6 +17,14 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+var clarifaijobs chan string
+
+func init() {
+	clarifaijobs = make(chan string)
+	metadata.SetupClarifai(clarifaijobs)
+	metadata.Start()
+}
+
 // TODO NEED TO ABSTRACT THIS FURTHER
 
 func UploadImage(user model.User, file []byte) rsp.Response {
@@ -42,12 +50,7 @@ func UploadImage(user model.User, file []byte) rsp.Response {
 
 	buf := bytes.NewBuffer(file)
 
-	meta, err := metadata.GetMetadata(buf)
-	if err != nil {
-		return rsp.Response{Message: "Error while reading image metadata", Code: http.StatusBadRequest}
-	}
-
-	img.MetaData = meta
+	metadata.GetMetadata(buf, &img)
 
 	img.Sources = formatSources(img.ShortCode, "content")
 
@@ -55,12 +58,16 @@ func UploadImage(user model.User, file []byte) rsp.Response {
 	if err != nil {
 		return rsp.Response{Message: "Error while adding image to DB", Code: http.StatusInternalServerError}
 	}
+
 	imgRef := refs.GetImageRef(img.ShortCode)
 	resp := Modify(refs.GetUserRef(user.ShortCode),
 		bson.M{"$push": bson.M{"images": imgRef}})
 	if !resp.Ok() {
 		return rsp.Response{Message: "Error while adding image to DB", Code: http.StatusInternalServerError}
 	}
+
+	go metadata.SetLocation(img.MetaData.Location)
+	go func() { clarifaijobs <- img.ShortCode }()
 
 	return rsp.Response{Code: http.StatusAccepted, Data: map[string]string{"link": refs.GetURL(imgRef)}}
 }

@@ -3,8 +3,6 @@ package store
 import (
 	"log"
 
-	"github.com/sprioc/sprioc-core/pkg/model"
-
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -25,30 +23,30 @@ func ExistsEmail(email string) bool {
 }
 
 func ExistsAlbumID(id string) bool {
-	return exists(model.DBRef{Database: dbname, Collection: "albums"}, bson.M{"shortcode": id})
+	return Exists("albums", bson.M{"shortcode": id})
 }
 
 func ExistsImageID(id string) bool {
-	return exists(model.DBRef{Database: dbname, Collection: "images"}, bson.M{"shortcode": id})
+	return Exists("images", bson.M{"shortcode": id})
 }
 
 func ExistsUserID(id string) bool {
-	return exists(model.DBRef{Database: dbname, Collection: "users"}, bson.M{"shortcode": id})
+	return Exists("users", bson.M{"shortcode": id})
 }
 
 func ExistsEventID(id string) bool {
-	return exists(model.DBRef{Database: dbname, Collection: "events"}, bson.M{"shortcode": id})
+	return Exists("events", bson.M{"shortcode": id})
 }
 
 func ExistsCollectionID(id string) bool {
-	return exists(model.DBRef{Database: dbname, Collection: "collections"}, bson.M{"shortcode": id})
+	return Exists("collections", bson.M{"shortcode": id})
 }
 
-func exists(ref model.DBRef, query bson.M) bool {
+func Exists(collection string, query bson.M) bool {
 	session := mongo.session.Copy()
 	defer session.Close()
 
-	c := session.DB(ref.Database).C(ref.Collection)
+	c := session.DB(dbname).C(collection)
 	n, err := c.Find(query).Count()
 	if err != nil {
 		log.Println(err)

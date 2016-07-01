@@ -18,8 +18,6 @@ import (
 	"github.com/sprioc/sprioc-core/pkg/rsp"
 )
 
-/// TODO need to think about JWT refresh
-
 var hmacSecret = []byte(os.Getenv("HMAC_SECRET"))
 var dbase = env.Getenv("MONGODB_NAME", "sprioc")
 

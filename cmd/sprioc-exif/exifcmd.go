@@ -33,6 +33,11 @@ func main() {
 	for _, stat := range w.tags {
 		fmt.Printf("%-30s = %2d = %s\n", stat.name, stat.t, stat.content)
 	}
+
+	lat, lon, err := meta.LatLong()
+	if err == nil {
+		fmt.Printf("lat=%f, long=%f", lat, lon)
+	}
 }
 
 type detailedWalker struct {

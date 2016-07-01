@@ -12,8 +12,6 @@ import (
 var mediaTypeOptions = []string{"image/jp2", "image/jpeg", "image/png", "image/tiff", "image/bmp"}
 
 // ProccessImage manages uploading the original file to aws.
-// TODO: In the future it should also spin off worker threads to
-// do machine tagging and verification.
 func ProccessImage(infile []byte, size int, shortcode string, kind string) error {
 
 	var err error

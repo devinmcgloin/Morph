@@ -3,15 +3,14 @@ package model
 import (
 	"time"
 
+	"googlemaps.github.io/maps"
+
 	"gopkg.in/mgo.v2/bson"
 
-	gj "github.com/kpawlik/geojson"
+	gj "github.com/sprioc/geojson"
 )
 
 // TODO it would be good to have both public and private collections / images.
-
-// TODO need to define external representations of these types and functions
-// that map from internal to external.
 
 // Image contains all the proper information for rendering a single photo
 type Image struct {
@@ -49,17 +48,17 @@ type ImageMetaData struct {
 	FocalLength       Ratio  `bson:"focal_length" json:"-"`
 	FocalLengthExtern string `bson:"-" json:"focal_length"`
 
-	ISO             int        `bson:"iso" json:"iso"`
-	Orientation     string     `bson:"orientation" json:"orientation"`
-	Make            string     `bson:"make" json:"make"`
-	Model           string     `bson:"model" json:"model"`
-	LensMake        string     `bson:"lens_make" json:"lens_make"`
-	LensModel       string     `bson:"lens_model" json:"lens_model"`
-	PixelXDimension int64      `bson:"pixel_xd" json:"pixel_xd"`
-	PixelYDimension int64      `bson:"pixel_yd" json:"pixel_yd"`
-	CaptureTime     time.Time  `bson:"capture_time" json:"capture_time"`
-	ImgDirection    float64    `bson:"direction" json:"direction"`
-	Location        gj.Feature `bson:"location" json:"location"`
+	ISO             int       `bson:"iso" json:"iso"`
+	Orientation     string    `bson:"orientation" json:"orientation"`
+	Make            string    `bson:"make" json:"make"`
+	Model           string    `bson:"model" json:"model"`
+	LensMake        string    `bson:"lens_make" json:"lens_make"`
+	LensModel       string    `bson:"lens_model" json:"lens_model"`
+	PixelXDimension int64     `bson:"pixel_xd" json:"pixel_xd"`
+	PixelYDimension int64     `bson:"pixel_yd" json:"pixel_yd"`
+	CaptureTime     time.Time `bson:"capture_time" json:"capture_time"`
+	ImgDirection    float64   `bson:"direction" json:"direction"`
+	Location        gj.Point  `bson:"location" json:"location"`
 }
 
 // ImgSource includes the information about the image itself.
@@ -129,4 +128,9 @@ type DBRef struct {
 	Collection string `bson:"collection" json:"collection"`
 	Shortcode  string `bson:"shortcode" json:"shortcode"`
 	Database   string `bson:"db" json:"-"`
+}
+
+type Location struct {
+	GoogleLoc maps.GeocodingResult `bson:"google_geo"`
+	Bounds    gj.Polygon           `bson:"bounds"`
 }

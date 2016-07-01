@@ -6,8 +6,8 @@ import (
 	"log"
 	"strconv"
 
-	gj "github.com/kpawlik/geojson"
 	"github.com/rwcarlsen/goexif/exif"
+	gj "github.com/sprioc/geojson"
 	"github.com/sprioc/sprioc-core/pkg/model"
 )
 
@@ -20,20 +20,19 @@ func GetExif(image io.Reader) (*exif.Exif, error) {
 	return exifDat, nil
 }
 
-func GetMetadata(file io.Reader) (model.ImageMetaData, error) {
+func GetMetadata(file io.Reader, image *model.Image) {
 	x, err := GetExif(file)
 	if err != nil {
-		return model.ImageMetaData{}, nil
+		return
 	}
 
 	metaData := model.ImageMetaData{}
 
-	// TODO: Could add altitude data here.
 	lat, lon, err := x.LatLong()
 	if err == nil {
 		point := gj.NewPoint(gj.Coordinate{gj.CoordType(lon), gj.CoordType(lat)})
 		point.Type = "Point"
-		metaData.Location = *gj.NewFeature(point, nil, nil)
+		metaData.Location = *point
 	}
 
 	tmp, err := x.DateTime()
@@ -128,5 +127,7 @@ func GetMetadata(file io.Reader) (model.ImageMetaData, error) {
 		}
 	}
 
-	return metaData, nil
+	log.Println(metaData.Location)
+
+	image.MetaData = metaData
 }

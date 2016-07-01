@@ -32,7 +32,6 @@ func CreateCollection(w http.ResponseWriter, r *http.Request) rsp.Response {
 	return core.CreateCollection(user, newCollection)
 }
 
-// TODO need to send more of this functionality to core
 func CreateUser(w http.ResponseWriter, r *http.Request) rsp.Response {
 	decoder := json.NewDecoder(r.Body)
 

@@ -54,8 +54,6 @@ func Unsecure(f func(http.ResponseWriter, *http.Request) rsp.Response) func(http
 		resp := f(w, r)
 		w.WriteHeader(resp.Code)
 
-		log.Printf("%+v", resp)
-
 		dat, _ := JSONMarshal(resp.Data, true)
 		if resp.Data != nil {
 			w.Write(dat) // TODO this writes null if the resp.Data is null.

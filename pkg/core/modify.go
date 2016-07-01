@@ -18,6 +18,7 @@ func Modify(ref model.DBRef, changes bson.M) rsp.Response {
 }
 
 // TODO would really like to lock this down more and do more content validation.
+
 func ModifySecure(user model.User, target model.DBRef, changes bson.M) rsp.Response {
 
 	resp := VerifyChanges(user, target, changes)
@@ -27,7 +28,7 @@ func ModifySecure(user model.User, target model.DBRef, changes bson.M) rsp.Respo
 
 	err := store.Modify(target, changes)
 	if err != nil {
-		return rsp.Response{Message: err.Error(), Code: http.StatusBadRequest}
+		return rsp.Response{Message: err.Error(), Code: http.StatusInternalServerError}
 	}
 
 	return rsp.Response{Code: 200}

@@ -7,7 +7,6 @@ import (
 )
 
 // TODO lock these routes down to alphabetical only with regex.
-// TODO add names to linked routes.
 
 func registerImageRoutes(api *mux.Router) {
 	img := api.PathPrefix("/images").Subrouter()
@@ -82,9 +81,10 @@ func registerSearchRoutes(api *mux.Router) {
 	get := api.Methods("GET").Subrouter()
 
 	get.HandleFunc("/images", middleware.Unsecure(NotImplemented))
-	get.HandleFunc("/uers", middleware.Unsecure(NotImplemented))
+	get.HandleFunc("/users", middleware.Unsecure(NotImplemented))
 	get.HandleFunc("/collections", middleware.Unsecure(NotImplemented))
-	get.HandleFunc("/albums", middleware.Unsecure(NotImplemented))
+
+	get.HandleFunc("/stream", middleware.Unsecure(NotImplemented))
 	get.HandleFunc("/search", middleware.Unsecure(NotImplemented))
 
 }

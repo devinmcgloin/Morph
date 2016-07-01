@@ -10,7 +10,7 @@ import (
 )
 
 var dbname = env.Getenv("MONGODB_NAME", "sprioc")
-var baseurl = "https://api.sprioc.xyz/v0/"
+var baseurl = "http://api.sprioc.xyz/v0/"
 
 func GetImageRef(shortcode string) model.DBRef {
 	return model.DBRef{Database: dbname, Collection: "images", Shortcode: shortcode}
