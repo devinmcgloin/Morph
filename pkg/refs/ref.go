@@ -80,6 +80,7 @@ func FillExternalUser(usr *model.User) {
 func FillExternalCollection(col *model.Collection, user model.User) {
 	FillExternalUser(&user)
 
+	col.OwnerExtern = user
 	col.ImageLinks = GetURLs(col.Images)
 	col.FavoritedByLinks = GetURLs(col.FavoritedBy)
 	col.FollowedByLinks = GetURLs(col.FollowedBy)

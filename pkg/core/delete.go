@@ -70,7 +70,7 @@ func DeleteCollection(requestFrom model.User, collectionRef model.DBRef) rsp.Res
 	}
 
 	for _, usr := range collection.FollowedBy {
-		UnFavorite(usr, collectionRef)
+		UnFollow(usr, collectionRef)
 	}
 
 	for _, img := range collection.Images {

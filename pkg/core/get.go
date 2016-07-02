@@ -1,6 +1,7 @@
 package core
 
 import (
+	"log"
 	"net/http"
 	"strings"
 
@@ -70,6 +71,8 @@ func GetCollectionImages(ref model.DBRef) ([]*model.Image, rsp.Response) {
 	}
 
 	var images []*model.Image
+
+	log.Println(ref)
 
 	err := store.GetAll("images", bson.M{"collections": ref}, &images)
 	if err != nil {

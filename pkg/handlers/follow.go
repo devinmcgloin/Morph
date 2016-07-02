@@ -38,9 +38,9 @@ func FollowCollection(w http.ResponseWriter, r *http.Request) rsp.Response {
 	user = val.(model.User)
 	userRef := refs.GetUserRef(user.ShortCode)
 
-	id := mux.Vars(r)["IID"]
+	id := mux.Vars(r)["CID"]
 
-	ref := refs.GetImageRef(id)
+	ref := refs.GetCollectionRef(id)
 
 	return core.Follow(userRef, ref)
 }

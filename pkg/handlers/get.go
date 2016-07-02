@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -23,6 +24,7 @@ func GetCollection(w http.ResponseWriter, r *http.Request) rsp.Response {
 	if !resp.Ok() {
 		return resp
 	}
+	log.Printf("%+v", col)
 
 	refs.FillExternalCollection(&col, user)
 
@@ -92,6 +94,12 @@ func GetCollectionImages(w http.ResponseWriter, r *http.Request) rsp.Response {
 	images, resp := core.GetCollectionImages(ref)
 	if !resp.Ok() {
 		return resp
+	}
+
+	log.Printf("%+v", images)
+
+	if len(images) < 1 {
+		return rsp.Response{Code: http.StatusOK, Data: images}
 	}
 
 	user, resp := core.GetUser(images[0].Owner)

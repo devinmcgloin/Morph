@@ -110,7 +110,8 @@ type Collection struct {
 	Images     []DBRef  `bson:"images" json:"-"`
 	ImageLinks []string `bson:"-" json:"image_links"`
 
-	Owner DBRef `bson:"owner" json:"owner"`
+	Owner       DBRef `bson:"owner" json:"-"`
+	OwnerExtern User  `bson:"-" json:"owner"`
 
 	FollowedBy      []DBRef  `bson:"followed_by" json:"-"`
 	FollowedByLinks []string `bson:"-" json:"followed_by_links"`

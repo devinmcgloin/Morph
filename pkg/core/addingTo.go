@@ -11,6 +11,7 @@ import (
 	"github.com/sprioc/sprioc-core/pkg/store"
 )
 
+// TODO images needs to have access to the collection.
 func AddImageToCollection(requestFrom model.User, col model.DBRef, additions map[string][]string) rsp.Response {
 	if col.Collection != "collections" {
 		return rsp.Response{Message: "Invalid reference", Code: http.StatusBadRequest}
@@ -32,9 +33,16 @@ func AddImageToCollection(requestFrom model.User, col model.DBRef, additions map
 	}
 
 	refs := refs.GetRefs(links)
-	err := store.Modify(col, bson.M{"$addToSet": bson.M{"images": refs}})
+	err := store.Modify(col, bson.M{"$addToSet": bson.M{"images": bson.M{"$each": refs}}})
 	if err != nil {
 		return rsp.Response{Code: http.StatusInternalServerError}
+	}
+
+	for _, ref := range refs {
+		err := store.Modify(ref, bson.M{"$addToSet": bson.M{"collections": ref}})
+		if err != nil {
+			return rsp.Response{Code: http.StatusInternalServerError}
+		}
 	}
 
 	return rsp.Response{Code: http.StatusAccepted}
@@ -61,10 +69,16 @@ func DeleteImageFromCollection(requestFrom model.User, col model.DBRef, deletion
 	}
 
 	refs := refs.GetRefs(links)
-	err := store.Modify(col, bson.M{"$pull": bson.M{"images": refs}})
+	err := store.Modify(col, bson.M{"$pull": bson.M{"images": bson.M{"$each": refs}}})
 	if err != nil {
 		return rsp.Response{Code: http.StatusInternalServerError}
+	}
 
+	for _, ref := range refs {
+		err := store.Modify(ref, bson.M{"$pull": bson.M{"collections": ref}})
+		if err != nil {
+			return rsp.Response{Code: http.StatusInternalServerError}
+		}
 	}
 
 	return rsp.Response{Code: http.StatusAccepted}
@@ -90,7 +104,7 @@ func AddTagsToImage(requestFrom model.User, ref model.DBRef, additions map[strin
 		return rsp.Response{Code: http.StatusNotFound}
 	}
 
-	err := store.Modify(ref, bson.M{"$addToSet": bson.M{"tags": tags}})
+	err := store.Modify(ref, bson.M{"$addToSet": bson.M{"tags": bson.M{"$each": tags}}})
 	if err != nil {
 		return rsp.Response{Code: http.StatusInternalServerError}
 	}
@@ -118,7 +132,7 @@ func RemoveTagsFromImage(requestFrom model.User, ref model.DBRef, deletions map[
 		return rsp.Response{Code: http.StatusNotFound}
 	}
 
-	err := store.Modify(ref, bson.M{"$pull": bson.M{"tags": tags}})
+	err := store.Modify(ref, bson.M{"$pull": bson.M{"tags": bson.M{"$each": tags}}})
 	if err != nil {
 		return rsp.Response{Code: http.StatusInternalServerError}
 	}

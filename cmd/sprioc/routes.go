@@ -73,7 +73,7 @@ func registerCollectionRoutes(api *mux.Router) {
 
 	del := col.Methods("DELETE").Subrouter()
 	del.HandleFunc("/{CID}", middleware.Secure(handlers.DeleteCollection))
-	del.HandleFunc("/{CID}/images/{IID}", middleware.Secure(handlers.DeleteImageFromCollection))
+	del.HandleFunc("/{CID}/images", middleware.Secure(handlers.DeleteImageFromCollection))
 	del.HandleFunc("/{CID}/favorite", middleware.Secure(handlers.UnFavoriteCollection))
 	del.HandleFunc("/{CID}/follow", middleware.Secure(handlers.UnFollowCollection))
 
@@ -84,7 +84,7 @@ func registerCollectionRoutes(api *mux.Router) {
 func registerSearchRoutes(api *mux.Router) {
 	get := api.Methods("GET").Subrouter()
 
-	get.HandleFunc("/stream", middleware.Unsecure(NotImplemented))
+	get.HandleFunc("/stream", middleware.Secure(handlers.GetStream))
 	get.HandleFunc("/search", middleware.Unsecure(NotImplemented))
 
 }

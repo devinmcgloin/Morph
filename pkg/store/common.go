@@ -82,7 +82,7 @@ func Modify(ID model.DBRef, changes bson.M) error {
 
 	err := c.Update(bson.M{"shortcode": ID.Shortcode}, changes)
 	if err != nil {
-		log.Println(err)
+		log.Println(err, ID, changes)
 		return err
 	}
 	return nil

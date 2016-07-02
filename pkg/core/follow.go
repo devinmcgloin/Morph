@@ -12,6 +12,10 @@ import (
 
 func Follow(user model.DBRef, target model.DBRef) rsp.Response {
 
+	if user.Shortcode == "" || target.Shortcode == "" {
+		return rsp.Response{Code: http.StatusBadRequest, Message: "Shortcodes must not be empty"}
+	}
+
 	if user.Collection != "users" {
 		return rsp.Response{Message: "Only users can unfollow things.", Code: http.StatusBadRequest}
 	}
