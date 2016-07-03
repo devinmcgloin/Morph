@@ -127,6 +127,10 @@
 			"Rev": "f0777076321ab64f6efc15a82d9d23b98539b943"
 		},
 		{
+			"ImportPath": "github.com/fatih/structs",
+			"Rev": "bfcf7eedca5eca84631f95fe4b46d968e0a03500"
+		},
+		{
 			"ImportPath": "github.com/garyburd/redigo/internal",
 			"Comment": "v1.0.0-1-gb8dc900",
 			"Rev": "b8dc90050f24c1a73a52f107f3f575be67b21b7c"
@@ -219,7 +223,20 @@
 			"Rev": "709fab3d192d7c62f86043caff1e7e3fb0f42bd8"
 		},
 		{
+			"ImportPath": "github.com/sprioc/clarifai-go",
+			"Comment": "v1.2.0-2-gaff322d",
+			"Rev": "aff322d5ddc1720bdc18b1e3189a7911294e24c5"
+		},
+		{
+			"ImportPath": "github.com/sprioc/geojson",
+			"Rev": "748fac79e3b76d72c81b101dd7ecb051e5482882"
+		},
+		{
 			"ImportPath": "golang.org/x/net/context",
+			"Rev": "c4c3ea71919de159c9e246d7be66deb7f0a39a58"
+		},
+		{
+			"ImportPath": "golang.org/x/net/context/ctxhttp",
 			"Rev": "c4c3ea71919de159c9e246d7be66deb7f0a39a58"
 		},
 		{
@@ -229,6 +246,14 @@
 		{
 			"ImportPath": "golang.org/x/oauth2/internal",
 			"Rev": "71d9edd725fe4ce4c692fcb20765be558df45ad3"
+		},
+		{
+			"ImportPath": "googlemaps.github.io/maps",
+			"Rev": "3ea5feb3a3848bae291910e27464a6bd6587241b"
+		},
+		{
+			"ImportPath": "googlemaps.github.io/maps/internal",
+			"Rev": "3ea5feb3a3848bae291910e27464a6bd6587241b"
 		},
 		{
 			"ImportPath": "gopkg.in/mgo.v2",

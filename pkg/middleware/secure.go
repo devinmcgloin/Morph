@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"log"
-	"net"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/context"
 	"github.com/sprioc/sprioc-core/pkg/core"
@@ -25,6 +25,8 @@ func Secure(f func(http.ResponseWriter, *http.Request) rsp.Response) func(http.R
 		}
 
 		context.Set(r, "auth", user)
+
+		setIP(r)
 
 		resp = f(w, r)
 
@@ -46,10 +48,9 @@ func Secure(f func(http.ResponseWriter, *http.Request) rsp.Response) func(http.R
 func Unsecure(f func(http.ResponseWriter, *http.Request) rsp.Response) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		ip, port, _ := net.SplitHostPort(r.RemoteAddr)
-		log.Println(ip, port)
-
 		w.Header().Set("Content-Type", "application/json")
+
+		setIP(r)
 
 		resp := f(w, r)
 		w.WriteHeader(resp.Code)
@@ -72,4 +73,18 @@ func JSONMarshal(v interface{}, unescape bool) ([]byte, error) {
 		b = bytes.Replace(b, []byte("\\u0026"), []byte("&"), -1)
 	}
 	return b, err
+}
+
+func setIP(r *http.Request) {
+	ips, ok := r.Header["x-forwarded-for"]
+	if !ok {
+		log.Println(ips, ok)
+	}
+
+	log.Println(strings.Join(ips, "///"))
+
+	trueIP := ips[len(ips)]
+
+	context.Set(r, "ip", trueIP)
+
 }
