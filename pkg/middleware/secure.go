@@ -76,6 +76,8 @@ func JSONMarshal(v interface{}, unescape bool) ([]byte, error) {
 }
 
 func setIP(r *http.Request) {
+	log.Println(r.RemoteAddr)
+
 	ips, ok := r.Header["X-Forwarded-For"]
 	if !ok {
 		log.Println(ips, ok)
@@ -87,5 +89,4 @@ func setIP(r *http.Request) {
 	trueIP := ips[len(ips)-1]
 
 	context.Set(r, "ip", trueIP)
-
 }

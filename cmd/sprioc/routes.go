@@ -1,6 +1,8 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/gorilla/mux"
 	"github.com/sprioc/sprioc-core/pkg/handlers"
 	"github.com/sprioc/sprioc-core/pkg/middleware"
@@ -100,4 +102,19 @@ func registerAuthRoutes(api *mux.Router) {
 
 	post.HandleFunc("/get_token", middleware.Unsecure(handlers.GetToken))
 
+}
+
+func registerFrontendRoutes(baseRouter *mux.Router) {
+	get := baseRouter.Methods("GET").Subrouter()
+
+	get.PathPrefix("/public").Handler(http.StripPrefix("/public/", http.FileServer(http.Dir("public/"))))
+
+	get.HandleFunc("/", handlers.LoadFrontend)
+
+	get.HandleFunc("/images/{IID}", handlers.LoadFrontend)
+	get.HandleFunc("/users/{username}", handlers.LoadFrontend)
+	get.HandleFunc("/collections/{CID}", handlers.LoadFrontend)
+
+	get.HandleFunc("/stream", handlers.LoadFrontend)
+	get.HandleFunc("/search", handlers.LoadFrontend)
 }

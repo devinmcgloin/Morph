@@ -72,12 +72,14 @@ func GetCollectionImages(ref model.DBRef) ([]*model.Image, rsp.Response) {
 
 	var images []*model.Image
 
-	log.Println(ref)
+	log.Printf("%+v", bson.M{"collections": ref})
 
 	err := store.GetAll("images", bson.M{"collections": ref}, &images)
 	if err != nil {
 		return []*model.Image{}, rsp.Response{Code: http.StatusInternalServerError}
 	}
+
+	log.Println(images)
 	return images, rsp.Response{Code: http.StatusOK}
 }
 
@@ -88,6 +90,8 @@ func GetUserImages(ref model.DBRef) ([]*model.Image, rsp.Response) {
 	}
 
 	var images []*model.Image
+
+	log.Printf("%+v", bson.M{"owner": ref})
 
 	err := store.GetAll("images", bson.M{"owner": ref}, &images)
 	if err != nil {

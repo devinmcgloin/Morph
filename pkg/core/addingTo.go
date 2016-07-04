@@ -39,7 +39,7 @@ func AddImageToCollection(requestFrom model.User, col model.DBRef, additions map
 	}
 
 	for _, ref := range refs {
-		err := store.Modify(ref, bson.M{"$addToSet": bson.M{"collections": ref}})
+		err := store.Modify(ref, bson.M{"$addToSet": bson.M{"collections": col}})
 		if err != nil {
 			return rsp.Response{Code: http.StatusInternalServerError}
 		}
@@ -75,7 +75,7 @@ func DeleteImageFromCollection(requestFrom model.User, col model.DBRef, deletion
 	}
 
 	for _, ref := range refs {
-		err := store.Modify(ref, bson.M{"$pull": bson.M{"collections": ref}})
+		err := store.Modify(ref, bson.M{"$pull": bson.M{"collections": col}})
 		if err != nil {
 			return rsp.Response{Code: http.StatusInternalServerError}
 		}

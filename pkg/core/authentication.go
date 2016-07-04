@@ -27,7 +27,7 @@ var refreshAt = time.Minute * 1
 func ValidateCredentialsByUserName(username string, password string) (bool, model.User, rsp.Response) {
 	user, resp := GetUser(model.DBRef{Database: dbase, Collection: "users", Shortcode: username})
 	if !resp.Ok() {
-		return false, model.User{}, rsp.Response{Message: "Invalid Credentials"}
+		return false, model.User{}, rsp.Response{Message: "Invalid Credentials."}
 	}
 	return validUser(user, password)
 }

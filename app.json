@@ -9,6 +9,6 @@
   ],
   "image": "heroku/go:1.6",
   "mount_dir": "src/github.com/sprioc/sprioc-core",
-  "website": "http://api.sprioc.xyz",
+  "website": "http://sprioc.xyz",
   "repository": "http://github.com/sprioc/sprioc-core"
 }

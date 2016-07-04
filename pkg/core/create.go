@@ -47,10 +47,15 @@ func CreateUser(userData map[string]string) rsp.Response {
 	if password, ok = userData["password"]; !ok {
 		return rsp.Response{Message: "Password not present", Code: http.StatusBadRequest}
 	}
+	log.Println(password)
+	password = strings.TrimSpace(password)
+
+	log.Println(validPassword(password), validPassPhrase(password))
 
 	if !(validPassword(password) || validPassPhrase(password)) {
 		return rsp.Response{Message: "Invalid password", Code: http.StatusBadRequest}
 	}
+	log.Println(password)
 
 	if store.ExistsUserID(username) || store.ExistsEmail(email) {
 		return rsp.Response{Message: "Username or Email already exist", Code: http.StatusConflict}
@@ -129,7 +134,6 @@ func validPassword(password string) bool {
 	var hasLower bool
 	var hasSpecial bool
 	var hasNumber bool
-	letters := 0
 
 	for _, c := range password {
 		switch {
@@ -137,16 +141,17 @@ func validPassword(password string) bool {
 			hasNumber = true
 		case unicode.IsUpper(c):
 			hasUpper = true
+		case unicode.IsLower(c):
+			hasLower = true
 		case unicode.IsPunct(c) || unicode.IsSymbol(c):
 			hasSpecial = true
-		case unicode.IsLetter(c) || c == ' ':
-			letters++
 		default:
 			return false
 		}
 	}
 
-	return hasLower && hasUpper && hasNumber && hasSpecial && letters > 8
+	log.Println(hasLower, hasUpper, hasNumber, hasSpecial, len(password))
+	return hasLower && hasUpper && hasNumber && hasSpecial && len(password) > 8
 }
 
 func validPassPhrase(passphrase string) bool {
