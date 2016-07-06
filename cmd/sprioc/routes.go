@@ -14,6 +14,7 @@ func registerImageRoutes(api *mux.Router) {
 	img := api.PathPrefix("/images").Subrouter()
 
 	get := img.Methods("GET").Subrouter()
+	get.HandleFunc("/featured", middleware.Unsecure(handlers.GetFeaturedImages))
 	get.HandleFunc("/{IID}", middleware.Unsecure(handlers.GetImage))
 
 	post := api.Methods("POST").Subrouter()
@@ -107,14 +108,15 @@ func registerAuthRoutes(api *mux.Router) {
 func registerFrontendRoutes(baseRouter *mux.Router) {
 	get := baseRouter.Methods("GET").Subrouter()
 
-	get.PathPrefix("/public").Handler(http.StripPrefix("/public/", http.FileServer(http.Dir("public/"))))
+	get.PathPrefix("/assets").Handler(http.StripPrefix("/assets/", http.FileServer(http.Dir("assets/"))))
+	get.PathPrefix("/dist").Handler(http.StripPrefix("/dist/", http.FileServer(http.Dir("dist/"))))
 
-	get.HandleFunc("/", handlers.LoadFrontend)
+	get.HandleFunc("/", handlers.LoadHTMLIndex)
 
-	get.HandleFunc("/images/{IID}", handlers.LoadFrontend)
-	get.HandleFunc("/users/{username}", handlers.LoadFrontend)
-	get.HandleFunc("/collections/{CID}", handlers.LoadFrontend)
+	get.HandleFunc("/images/{IID}", handlers.LoadHTMLIndex)
+	get.HandleFunc("/users/{username}", handlers.LoadHTMLIndex)
+	get.HandleFunc("/collections/{CID}", handlers.LoadHTMLIndex)
 
-	get.HandleFunc("/stream", handlers.LoadFrontend)
-	get.HandleFunc("/search", handlers.LoadFrontend)
+	get.HandleFunc("/stream", handlers.LoadHTMLIndex)
+	get.HandleFunc("/search", handlers.LoadHTMLIndex)
 }

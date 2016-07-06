@@ -96,21 +96,36 @@ func GetCollectionImages(w http.ResponseWriter, r *http.Request) rsp.Response {
 		return resp
 	}
 
-	log.Printf("%+v", images)
-
 	if len(images) < 1 {
 		return rsp.Response{Code: http.StatusOK, Data: images}
 	}
 
-	user, resp := core.GetUser(images[0].Owner)
-	if !resp.Ok() {
-		return resp
-	}
-
 	for _, img := range images {
+		user, resp := core.GetUser(img.Owner)
+		if !resp.Ok() {
+			return resp
+		}
 		refs.FillExternalImage(img, user)
 	}
 
 	return rsp.Response{Code: http.StatusOK, Data: images}
 
+}
+
+func GetFeaturedImages(w http.ResponseWriter, r *http.Request) rsp.Response {
+	log.Println("GET FEATURED")
+	images, resp := core.GetFeaturedImages()
+	if !resp.Ok() {
+		return resp
+	}
+
+	for _, img := range images {
+		user, resp := core.GetUser(img.Owner)
+		if !resp.Ok() {
+			return resp
+		}
+		refs.FillExternalImage(img, user)
+	}
+
+	return rsp.Response{Code: http.StatusOK, Data: images}
 }

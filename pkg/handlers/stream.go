@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/context"
 	"github.com/sprioc/sprioc-core/pkg/core"
 	"github.com/sprioc/sprioc-core/pkg/model"
+	"github.com/sprioc/sprioc-core/pkg/refs"
 	"github.com/sprioc/sprioc-core/pkg/rsp"
 )
 
@@ -23,6 +24,12 @@ func GetStream(w http.ResponseWriter, r *http.Request) rsp.Response {
 		return resp
 	}
 
-	return rsp.Response{Code: http.StatusOK, Data: stream}
+	for _, img := range stream {
+		user, resp := core.GetUser(img.Owner)
+		if resp.Ok() {
+			refs.FillExternalImage(img, user)
+		}
+	}
 
+	return rsp.Response{Code: http.StatusOK, Data: stream}
 }

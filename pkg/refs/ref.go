@@ -10,7 +10,7 @@ import (
 )
 
 var dbname = env.Getenv("MONGODB_NAME", "sprioc")
-var baseurl = "http://localhost:8080/v0/"
+var baseurl = "http://localhost:8080/api/v0/"
 
 func GetImageRef(shortcode string) model.DBRef {
 	return model.DBRef{Database: dbname, Collection: "images", Shortcode: shortcode}
@@ -41,6 +41,7 @@ func GetURLs(refs []model.DBRef) []string {
 }
 
 func GetRef(url string) model.DBRef {
+
 	parts := strings.Split(strings.Replace(url, baseurl, "", 1), "/")
 	log.Println(parts, len(parts))
 	return model.DBRef{Database: dbname, Collection: parts[0], Shortcode: parts[1]}

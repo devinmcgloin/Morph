@@ -24,7 +24,7 @@ func Get(ID model.DBRef, container interface{}) error {
 
 	err := c.Find(bson.M{"shortcode": ID.Shortcode}).One(container)
 	if err != nil {
-		log.Println(err)
+		log.Println(ID, err)
 		return err
 	}
 

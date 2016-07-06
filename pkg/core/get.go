@@ -79,7 +79,6 @@ func GetCollectionImages(ref model.DBRef) ([]*model.Image, rsp.Response) {
 		return []*model.Image{}, rsp.Response{Code: http.StatusInternalServerError}
 	}
 
-	log.Println(images)
 	return images, rsp.Response{Code: http.StatusOK}
 }
 
@@ -97,5 +96,17 @@ func GetUserImages(ref model.DBRef) ([]*model.Image, rsp.Response) {
 	if err != nil {
 		return []*model.Image{}, rsp.Response{Code: http.StatusInternalServerError}
 	}
+	return images, rsp.Response{Code: http.StatusOK}
+}
+
+func GetFeaturedImages() ([]*model.Image, rsp.Response) {
+	var images []*model.Image
+
+	err := store.GetAll("images", bson.M{"featured": true}, &images)
+	if err != nil {
+		return []*model.Image{}, rsp.Response{Code: http.StatusInternalServerError}
+	}
+
+	log.Println(images)
 	return images, rsp.Response{Code: http.StatusOK}
 }
