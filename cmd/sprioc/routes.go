@@ -108,7 +108,6 @@ func registerAuthRoutes(api *mux.Router) {
 func registerFrontendRoutes(baseRouter *mux.Router) {
 	get := baseRouter.Methods("GET").Subrouter()
 
-	get.PathPrefix("/assets").Handler(http.StripPrefix("/assets/", http.FileServer(http.Dir("assets/"))))
 	get.PathPrefix("/dist").Handler(http.StripPrefix("/dist/", http.FileServer(http.Dir("dist/"))))
 
 	get.HandleFunc("/", handlers.LoadHTMLIndex)

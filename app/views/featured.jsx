@@ -15,4 +15,4 @@ class FeaturedImages extends React.Component {
   }
 }
 
-export {FeaturedImages}
+export { FeaturedImages }

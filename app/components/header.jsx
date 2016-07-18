@@ -6,7 +6,9 @@ export class Header extends React.Component{
   render() {
     return (
       <div className="container">
-        <h1 className="sprioc">Sprioc</h1>
+        <h1 className="sprioc">
+          <a href="/">Sprioc</a>
+        </h1>
         <div className="nav">
         </div>
       </div>
