@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/gorilla/context"
 	"github.com/sprioc/sprioc-core/pkg/core"
@@ -76,7 +75,6 @@ func JSONMarshal(v interface{}, unescape bool) ([]byte, error) {
 }
 
 func setIP(r *http.Request) {
-	log.Println(r.RemoteAddr)
 
 	ips, ok := r.Header["X-Forwarded-For"]
 	if !ok {
@@ -84,9 +82,9 @@ func setIP(r *http.Request) {
 		return
 	}
 
-	log.Println(strings.Join(ips, ", "))
-
 	trueIP := ips[len(ips)-1]
+
+	log.Println(trueIP)
 
 	context.Set(r, "ip", trueIP)
 }

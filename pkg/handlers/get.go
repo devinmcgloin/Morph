@@ -113,7 +113,6 @@ func GetCollectionImages(w http.ResponseWriter, r *http.Request) rsp.Response {
 }
 
 func GetFeaturedImages(w http.ResponseWriter, r *http.Request) rsp.Response {
-	log.Println("GET FEATURED")
 	images, resp := core.GetFeaturedImages()
 	if !resp.Ok() {
 		return resp

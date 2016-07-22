@@ -107,6 +107,5 @@ func GetFeaturedImages() ([]*model.Image, rsp.Response) {
 		return []*model.Image{}, rsp.Response{Code: http.StatusInternalServerError}
 	}
 
-	log.Println(images)
 	return images, rsp.Response{Code: http.StatusOK}
 }

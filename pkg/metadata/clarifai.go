@@ -23,7 +23,7 @@ func init() {
 	}
 
 	info, err := clarifaiClient.Info()
-	if err == nil {
+	if err != nil {
 		log.Println(info)
 	}
 }

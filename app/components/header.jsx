@@ -10,6 +10,7 @@ export class Header extends React.Component{
           <a href="/">Sprioc</a>
         </h1>
         <div className="nav">
+          <a href="/">Sprioc</a>
         </div>
       </div>
     )

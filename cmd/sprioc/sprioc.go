@@ -21,7 +21,6 @@ func init() {
 
 	flag := log.LstdFlags | log.Lmicroseconds | log.Lshortfile
 	log.SetFlags(flag)
-
 }
 
 func main() {
@@ -45,6 +44,7 @@ func main() {
 	log.Fatal(http.ListenAndServe(":"+port, handlers.LoggingHandler(os.Stdout, handlers.CompressHandler(router))))
 }
 
+// NotImplemented returns the standard response for endpoints that have not been implemented
 func NotImplemented(w http.ResponseWriter, r *http.Request) rsp.Response {
 	log.Printf("Not implemented called from %s", r.URL)
 	return rsp.Response{Code: http.StatusNotImplemented, Message: "This endpoint is not implemented. It'll be here soon!"}
