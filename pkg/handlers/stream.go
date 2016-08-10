@@ -25,10 +25,7 @@ func GetStream(w http.ResponseWriter, r *http.Request) rsp.Response {
 	}
 
 	for _, img := range stream {
-		user, resp := core.GetUser(img.Owner)
-		if resp.Ok() {
-			refs.FillExternalImage(img, user)
-		}
+		refs.FillExternalImage(img)
 	}
 
 	return rsp.Response{Code: http.StatusOK, Data: stream}

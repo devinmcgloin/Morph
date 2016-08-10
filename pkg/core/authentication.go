@@ -1,7 +1,7 @@
 package core
 
 import (
-	"crypto/sha1"
+	"crypto/sha512"
 	"encoding/hex"
 	"fmt"
 	"log"
@@ -34,7 +34,7 @@ func ValidateCredentialsByUserName(username string, password string) (bool, mode
 
 func validUser(user model.User, password string) (bool, model.User, rsp.Response) {
 	salt := user.Salt
-	hasher := sha1.New()
+	hasher := sha512.New()
 
 	passwordSalt := append([]byte(password), []byte(salt)...)
 
@@ -53,7 +53,7 @@ func GetSaltPass(password string) (string, string, rsp.Response) {
 	if err != nil {
 		return "", "", rsp.Response{Message: "Unable to create user", Code: http.StatusInternalServerError}
 	}
-	hasher := sha1.New()
+	hasher := sha512.New()
 
 	passwordSalt := append([]byte(password), []byte(salt)...)
 

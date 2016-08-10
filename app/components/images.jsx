@@ -7,7 +7,8 @@ export class Image extends React.Component{
     return (
       <div className="image">
         <h2 className="image-src">
-          <img src={this.props.url} />
+          <img src={this.props.source_link.medium} />
+          <p> {this.props.author}</p>
         </h2>
       </div>
     );

@@ -46,7 +46,7 @@ func GetMetadata(file io.Reader, image *model.Image) {
 		num, den, err := ExposureTime.Rat2(0)
 
 		if err == nil {
-			metaData.ExposureTime = model.NewRatio(num, den, strconv.FormatInt(num, 10)+"/"+strconv.FormatInt(den, 10))
+			metaData.ExposureTime = model.Ratio{Num: num, Den: den, Rep: strconv.FormatInt(num, 10) + "/" + strconv.FormatInt(den, 10)}
 		} else {
 			log.Println(err)
 		}
@@ -56,7 +56,7 @@ func GetMetadata(file io.Reader, image *model.Image) {
 	if err == nil {
 		num, den, err := Aperture.Rat2(0)
 		if err == nil {
-			metaData.Aperture = model.NewRatio(num, den, strconv.FormatInt(num/den, 10))
+			metaData.Aperture = model.Ratio{Num: num, Den: den, Rep: strconv.FormatInt(num/den, 10)}
 		}
 	}
 
@@ -64,7 +64,7 @@ func GetMetadata(file io.Reader, image *model.Image) {
 	if err == nil {
 		num, den, err := FocalLength.Rat2(0)
 		if err == nil {
-			metaData.FocalLength = model.NewRatio(num, den, strconv.FormatInt(num/den, 10))
+			metaData.FocalLength = model.Ratio{Num: num, Den: den, Rep: strconv.FormatInt(num/den, 10)}
 		}
 	}
 

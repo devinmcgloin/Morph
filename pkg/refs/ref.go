@@ -55,9 +55,8 @@ func GetRefs(urls []string) []model.DBRef {
 	return arr
 }
 
-func FillExternalImage(img *model.Image, user model.User) {
-	FillExternalUser(&user)
-	img.OwnerExtern = user
+func FillExternalImage(img *model.Image) {
+	img.OwnerLink = GetURL(img.Owner)
 	img.MetaData.ApertureExtern = img.MetaData.Aperture.Rep
 	img.MetaData.FocalLengthExtern = img.MetaData.FocalLength.Rep
 	img.MetaData.ExposureTimeExtern = img.MetaData.ExposureTime.Rep

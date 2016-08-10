@@ -54,12 +54,7 @@ func GetImage(w http.ResponseWriter, r *http.Request) rsp.Response {
 		return resp
 	}
 
-	user, resp := core.GetUser(img.Owner)
-	if !resp.Ok() {
-		return resp
-	}
-
-	refs.FillExternalImage(&img, user)
+	refs.FillExternalImage(&img)
 	return rsp.Response{Code: http.StatusOK, Data: img}
 }
 
@@ -73,13 +68,8 @@ func GetUserImages(w http.ResponseWriter, r *http.Request) rsp.Response {
 		return resp
 	}
 
-	user, resp := core.GetUser(ref)
-	if !resp.Ok() {
-		return resp
-	}
-
 	for _, img := range images {
-		refs.FillExternalImage(img, user)
+		refs.FillExternalImage(img)
 	}
 
 	return rsp.Response{Code: http.StatusOK, Data: images}
@@ -101,11 +91,7 @@ func GetCollectionImages(w http.ResponseWriter, r *http.Request) rsp.Response {
 	}
 
 	for _, img := range images {
-		user, resp := core.GetUser(img.Owner)
-		if !resp.Ok() {
-			return resp
-		}
-		refs.FillExternalImage(img, user)
+		refs.FillExternalImage(img)
 	}
 
 	return rsp.Response{Code: http.StatusOK, Data: images}
@@ -119,11 +105,7 @@ func GetFeaturedImages(w http.ResponseWriter, r *http.Request) rsp.Response {
 	}
 
 	for _, img := range images {
-		user, resp := core.GetUser(img.Owner)
-		if !resp.Ok() {
-			return resp
-		}
-		refs.FillExternalImage(img, user)
+		refs.FillExternalImage(img)
 	}
 
 	return rsp.Response{Code: http.StatusOK, Data: images}

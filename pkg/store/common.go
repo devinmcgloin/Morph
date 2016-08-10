@@ -3,6 +3,7 @@ package store
 import (
 	"log"
 
+	"github.com/sprioc/sprioc-core/pkg/filter"
 	"github.com/sprioc/sprioc-core/pkg/model"
 
 	"gopkg.in/mgo.v2/bson"
@@ -36,6 +37,21 @@ func GetAll(collection string, filter bson.M, dest interface{}) error {
 	defer session.Close()
 
 	c := session.DB(dbname).C(collection)
+
+	err := c.Find(filter).All(dest)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
+}
+
+func GetImages(filter filter.ImageFilter, dest interface{}) error {
+	session := mongo.getSession()
+	defer session.Close()
+
+	c := session.DB(dbname).C("images")
 
 	err := c.Find(filter).All(dest)
 	if err != nil {

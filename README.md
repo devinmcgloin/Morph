@@ -58,11 +58,11 @@ DBRef bodies have the following format:
 |        | /api/v0/users/me                  |                | full user view of the logged in user                   |
 | POST   | /api/v0/users                     |                | create new user                                        |
 | PUT    | /api/v0/users/:username/avatar    | raw image data | update avatar image                                    |
-|        | /api/v0/images/:username/favorite |                | favorite this user                                     |
-|        | /api/v0/images/:username/follow   |                | follow this user                                       |
+|        | /api/v0/users/:username/favorite |                | favorite this user                                     |
+|        | /api/v0/users/:username/follow   |                | follow this user                                       |
 | DELETE | /api/v0/users/:username           |                | Delete this user account                               |
-|        | /api/v0/images/:username/favorite |                | unfavorite this user                                   |
-|        | /api/v0/images/:username/follow   |                | unfollow this user                                     |
+|        | /api/v0/users/:username/favorite |                | unfavorite this user                                   |
+|        | /api/v0/users/:username/follow   |                | unfollow this user                                     |
 | PATCH  | /api/v0/users/:username           |                | make changes to the user (See notes on patch requests) |
 
 ### Collections

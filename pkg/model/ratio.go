@@ -11,8 +11,3 @@ type Ratio struct {
 func (r Ratio) Format() string {
 	return fmt.Sprintf("%d", (r.Num / r.Den))
 }
-
-// NewRatio is a shortcut to make ratio types
-func NewRatio(num, den int64, rep string) Ratio {
-	return Ratio{Num: num, Den: den, Rep: rep}
-}

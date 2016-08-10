@@ -19,8 +19,9 @@ No images that receive a 0% score should be included.
 Text search is essentially fuzzy search over the image tags, content and
 location description.
 
-## Image Profile Similarity
+## Collaborative Filtering
 
+Still evaluating possible solutions.
 
 ## Freshness
 

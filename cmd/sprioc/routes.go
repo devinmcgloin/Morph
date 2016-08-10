@@ -112,6 +112,14 @@ func registerFrontendRoutes(baseRouter *mux.Router) {
 
 	get.HandleFunc("/", handlers.LoadHTMLIndex)
 
+	get.HandleFunc("/upload", handlers.LoadHTMLIndex)
+	get.HandleFunc("/signin", handlers.LoadHTMLIndex)
+	get.HandleFunc("/signup", handlers.LoadHTMLIndex)
+
+	get.HandleFunc("/images", handlers.LoadHTMLIndex)
+	get.HandleFunc("/users", handlers.LoadHTMLIndex)
+	get.HandleFunc("/collections", handlers.LoadHTMLIndex)
+
 	get.HandleFunc("/images/{IID}", handlers.LoadHTMLIndex)
 	get.HandleFunc("/users/{username}", handlers.LoadHTMLIndex)
 	get.HandleFunc("/collections/{CID}", handlers.LoadHTMLIndex)

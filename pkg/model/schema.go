@@ -22,8 +22,8 @@ type Image struct {
 	MachineTags []string      `bson:"machine_tags" json:"machine_tags"`
 	PublishTime time.Time     `bson:"publish_time" json:"publish_time"`
 
-	Owner       DBRef `bson:"owner" json:"-"`
-	OwnerExtern User  `bson:"-" json:"owner"`
+	Owner     DBRef  `bson:"owner" json:"-"`
+	OwnerLink string `bson:"-" json:"owner"`
 
 	Collections     []DBRef  `bson:"collections" json:"-"`
 	CollectionLinks []string `bson:"-" json:"collection_links"`

@@ -5,13 +5,10 @@ import React from 'react';
 export class Header extends React.Component{
   render() {
     return (
-      <div className="container">
-        <h1 className="sprioc">
-          <a href="/">Sprioc</a>
+      <div className="container header">
+        <h1 className="u-pull-left">
+          Sprioc
         </h1>
-        <div className="nav">
-          <a href="/">Sprioc</a>
-        </div>
       </div>
     )
   }

@@ -70,7 +70,6 @@ tags
 
 # content for testing without internet access
 content
-env
 priv
 
 # Created by https://www.gitignore.io/api/node
