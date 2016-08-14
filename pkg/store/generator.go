@@ -1,6 +1,6 @@
 package store
 
-import "github.com/sprioc/sprioc-core/pkg/generator"
+import "github.com/sprioc/conductor/pkg/generator"
 
 func GetNewImageShortCode() string {
 	id := generator.RandString(12)

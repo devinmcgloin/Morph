@@ -3,8 +3,8 @@ package core
 import (
 	"net/http"
 
-	"github.com/sprioc/sprioc-core/pkg/model"
-	"github.com/sprioc/sprioc-core/pkg/rsp"
+	"github.com/sprioc/conductor/pkg/model"
+	"github.com/sprioc/conductor/pkg/rsp"
 )
 
 // GetStream finds the images that are recently posted in the collections and

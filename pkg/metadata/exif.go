@@ -7,8 +7,8 @@ import (
 	"strconv"
 
 	"github.com/rwcarlsen/goexif/exif"
+	"github.com/sprioc/conductor/pkg/model"
 	gj "github.com/sprioc/geojson"
-	"github.com/sprioc/sprioc-core/pkg/model"
 )
 
 func GetExif(image io.Reader) (*exif.Exif, error) {

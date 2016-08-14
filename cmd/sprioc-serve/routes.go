@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/sprioc/sprioc-core/pkg/handlers"
-	"github.com/sprioc/sprioc-core/pkg/middleware"
+	"github.com/sprioc/conductor/pkg/handlers"
+	"github.com/sprioc/conductor/pkg/middleware"
 )
 
 // TODO lock these routes down to alphabetical only with regex.

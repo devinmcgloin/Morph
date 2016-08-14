@@ -7,8 +7,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/context"
-	"github.com/sprioc/sprioc-core/pkg/core"
-	"github.com/sprioc/sprioc-core/pkg/rsp"
+	"github.com/sprioc/conductor/pkg/core"
+	"github.com/sprioc/conductor/pkg/rsp"
 )
 
 func Secure(f func(http.ResponseWriter, *http.Request) rsp.Response) func(http.ResponseWriter, *http.Request) {

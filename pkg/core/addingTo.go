@@ -5,10 +5,10 @@ import (
 
 	"gopkg.in/mgo.v2/bson"
 
-	"github.com/sprioc/sprioc-core/pkg/model"
-	"github.com/sprioc/sprioc-core/pkg/refs"
-	"github.com/sprioc/sprioc-core/pkg/rsp"
-	"github.com/sprioc/sprioc-core/pkg/store"
+	"github.com/sprioc/conductor/pkg/model"
+	"github.com/sprioc/conductor/pkg/refs"
+	"github.com/sprioc/conductor/pkg/rsp"
+	"github.com/sprioc/conductor/pkg/store"
 )
 
 // TODO images needs to have access to the collection.

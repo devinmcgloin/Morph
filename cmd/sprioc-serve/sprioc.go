@@ -8,7 +8,7 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 
-	"github.com/sprioc/sprioc-core/pkg/rsp"
+	"github.com/sprioc/conductor/pkg/rsp"
 )
 
 func init() {
@@ -19,15 +19,15 @@ func init() {
 		log.Fatal("Port must be set")
 	}
 
-	// flag := log.LstdFlags | log.Lmicroseconds | log.Lshortfile
-	// log.SetFlags(flag)
+	flag := log.LstdFlags | log.Lmicroseconds | log.Lshortfile
+	log.SetFlags(flag)
 
 }
 
 func main() {
 
 	router := mux.NewRouter()
-	api := router.PathPrefix("api/v0").Subrouter()
+	api := router.PathPrefix("/api/v0/").Subrouter()
 	port := os.Getenv("PORT")
 
 	log.Printf("Serving at http://localhost:%s", port)

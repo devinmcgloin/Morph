@@ -5,7 +5,7 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/sprioc/sprioc-core/pkg/env"
+	"github.com/sprioc/conductor/pkg/env"
 
 	"gopkg.in/mgo.v2"
 )

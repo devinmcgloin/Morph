@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sprioc/conductor/pkg/model"
 	gj "github.com/sprioc/geojson"
-	"github.com/sprioc/sprioc-core/pkg/model"
 )
 
 var ordOps = []string{"$eq", "$gt", "$gte", "$lt", "$lte", "$ne"}

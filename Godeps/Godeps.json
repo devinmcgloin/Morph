@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/sprioc/sprioc-core",
+	"ImportPath": "github.com/sprioc/conductor",
 	"GoVersion": "go1.6",
 	"GodepVersion": "v74",
 	"Packages": [

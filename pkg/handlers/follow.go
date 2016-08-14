@@ -5,10 +5,10 @@ import (
 
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
-	"github.com/sprioc/sprioc-core/pkg/core"
-	"github.com/sprioc/sprioc-core/pkg/model"
-	"github.com/sprioc/sprioc-core/pkg/refs"
-	"github.com/sprioc/sprioc-core/pkg/rsp"
+	"github.com/sprioc/conductor/pkg/core"
+	"github.com/sprioc/conductor/pkg/model"
+	"github.com/sprioc/conductor/pkg/refs"
+	"github.com/sprioc/conductor/pkg/rsp"
 )
 
 func UnFollowCollection(w http.ResponseWriter, r *http.Request) rsp.Response {

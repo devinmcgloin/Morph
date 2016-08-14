@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/sprioc/sprioc-core/pkg/core"
-	"github.com/sprioc/sprioc-core/pkg/rsp"
+	"github.com/sprioc/conductor/pkg/core"
+	"github.com/sprioc/conductor/pkg/rsp"
 )
 
 func GetToken(w http.ResponseWriter, r *http.Request) rsp.Response {

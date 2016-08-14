@@ -7,9 +7,9 @@ import (
 
 	"gopkg.in/mgo.v2/bson"
 
-	"github.com/sprioc/sprioc-core/pkg/model"
-	"github.com/sprioc/sprioc-core/pkg/rsp"
-	"github.com/sprioc/sprioc-core/pkg/store"
+	"github.com/sprioc/conductor/pkg/model"
+	"github.com/sprioc/conductor/pkg/rsp"
+	"github.com/sprioc/conductor/pkg/store"
 )
 
 func GetUser(ref model.DBRef) (model.User, rsp.Response) {

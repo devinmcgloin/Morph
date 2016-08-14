@@ -7,12 +7,12 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/sprioc/sprioc-core/pkg/contentStorage"
-	"github.com/sprioc/sprioc-core/pkg/metadata"
-	"github.com/sprioc/sprioc-core/pkg/model"
-	"github.com/sprioc/sprioc-core/pkg/refs"
-	"github.com/sprioc/sprioc-core/pkg/rsp"
-	"github.com/sprioc/sprioc-core/pkg/store"
+	"github.com/sprioc/conductor/pkg/contentStorage"
+	"github.com/sprioc/conductor/pkg/metadata"
+	"github.com/sprioc/conductor/pkg/model"
+	"github.com/sprioc/conductor/pkg/refs"
+	"github.com/sprioc/conductor/pkg/rsp"
+	"github.com/sprioc/conductor/pkg/store"
 
 	"gopkg.in/mgo.v2/bson"
 )

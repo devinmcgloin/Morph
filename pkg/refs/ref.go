@@ -5,8 +5,8 @@ import (
 	"log"
 	"strings"
 
-	"github.com/sprioc/sprioc-core/pkg/env"
-	"github.com/sprioc/sprioc-core/pkg/model"
+	"github.com/sprioc/conductor/pkg/env"
+	"github.com/sprioc/conductor/pkg/model"
 )
 
 var dbname = env.Getenv("MONGODB_NAME", "sprioc")

@@ -3,8 +3,8 @@ package store
 import (
 	"log"
 
-	"github.com/sprioc/sprioc-core/pkg/filter"
-	"github.com/sprioc/sprioc-core/pkg/model"
+	"github.com/sprioc/conductor/pkg/filter"
+	"github.com/sprioc/conductor/pkg/model"
 
 	"gopkg.in/mgo.v2/bson"
 )

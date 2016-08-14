@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/garyburd/redigo/redis"
-	"github.com/sprioc/sprioc-core/pkg/env"
+	"github.com/sprioc/conductor/pkg/env"
 )
 
 var redisURL = env.Getenv("REDIS_URL", "redis://localhost:6379")

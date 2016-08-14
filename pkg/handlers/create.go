@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	"github.com/gorilla/context"
-	"github.com/sprioc/sprioc-core/pkg/core"
-	"github.com/sprioc/sprioc-core/pkg/model"
-	"github.com/sprioc/sprioc-core/pkg/rsp"
+	"github.com/sprioc/conductor/pkg/core"
+	"github.com/sprioc/conductor/pkg/model"
+	"github.com/sprioc/conductor/pkg/rsp"
 )
 
 func CreateCollection(w http.ResponseWriter, r *http.Request) rsp.Response {

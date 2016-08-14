@@ -3,7 +3,7 @@ package recommender
 import (
 	"math"
 
-	"github.com/sprioc/sprioc-core/pkg/model"
+	"github.com/sprioc/conductor/pkg/model"
 )
 
 // isFavorited returns a 1 if the image is favorited and a 0 in all other cases.

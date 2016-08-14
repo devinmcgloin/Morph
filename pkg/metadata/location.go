@@ -6,9 +6,9 @@ import (
 
 	"gopkg.in/mgo.v2/bson"
 
+	"github.com/sprioc/conductor/pkg/model"
+	"github.com/sprioc/conductor/pkg/store"
 	gj "github.com/sprioc/geojson"
-	"github.com/sprioc/sprioc-core/pkg/model"
-	"github.com/sprioc/sprioc-core/pkg/store"
 
 	"golang.org/x/net/context"
 
