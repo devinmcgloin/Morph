@@ -27,7 +27,7 @@ func init() {
 func main() {
 
 	router := mux.NewRouter()
-	api := router.PathPrefix("/v0").Subrouter()
+	api := router.PathPrefix("api/v0").Subrouter()
 	port := os.Getenv("PORT")
 
 	log.Printf("Serving at http://localhost:%s", port)
@@ -39,6 +39,8 @@ func main() {
 	registerSearchRoutes(api)
 	registerLuckyRoutes(api)
 	registerAuthRoutes(api)
+
+	registerFrontendRoutes(router)
 
 	log.Fatal(http.ListenAndServe(":"+port, handlers.LoggingHandler(os.Stdout,
 		handlers.CompressHandler(router))))
