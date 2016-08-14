@@ -32,6 +32,8 @@ func GetCollection(w http.ResponseWriter, r *http.Request) rsp.Response {
 }
 
 func GetUser(w http.ResponseWriter, r *http.Request) rsp.Response {
+	log.Println("Getting users")
+
 	id := mux.Vars(r)["username"]
 
 	ref := refs.GetUserRef(id)
@@ -99,6 +101,7 @@ func GetCollectionImages(w http.ResponseWriter, r *http.Request) rsp.Response {
 }
 
 func GetFeaturedImages(w http.ResponseWriter, r *http.Request) rsp.Response {
+
 	images, resp := core.GetFeaturedImages()
 	if !resp.Ok() {
 		return resp

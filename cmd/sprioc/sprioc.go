@@ -19,14 +19,15 @@ func init() {
 		log.Fatal("Port must be set")
 	}
 
-	flag := log.LstdFlags | log.Lmicroseconds | log.Lshortfile
-	log.SetFlags(flag)
+	// flag := log.LstdFlags | log.Lmicroseconds | log.Lshortfile
+	// log.SetFlags(flag)
+
 }
 
 func main() {
 
 	router := mux.NewRouter()
-	api := router.PathPrefix("/api/v0").Subrouter()
+	api := router.PathPrefix("/v0").Subrouter()
 	port := os.Getenv("PORT")
 
 	log.Printf("Serving at http://localhost:%s", port)
@@ -39,9 +40,8 @@ func main() {
 	registerLuckyRoutes(api)
 	registerAuthRoutes(api)
 
-	registerFrontendRoutes(router)
-
-	log.Fatal(http.ListenAndServe(":"+port, handlers.LoggingHandler(os.Stdout, handlers.CompressHandler(router))))
+	log.Fatal(http.ListenAndServe(":"+port, handlers.LoggingHandler(os.Stdout,
+		handlers.CompressHandler(router))))
 }
 
 // NotImplemented returns the standard response for endpoints that have not been implemented

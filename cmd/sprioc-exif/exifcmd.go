@@ -21,6 +21,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	meta, err := metadata.GetExif(f)
 	if err != nil {
 		log.Fatal(err)
