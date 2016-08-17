@@ -49,7 +49,7 @@ func GetImage(ref model.DBRef) (model.Image, rsp.Response) {
 
 func GetCollection(ref model.DBRef) (model.Collection, rsp.Response) {
 	if strings.Compare(ref.Collection, "collections") != 0 {
-		return model.Collection{}, rsp.Response{Message: "Ref is of the wrong collection type",
+		return model.Collection{}, rsp.Response{Message: "Ref is of the wrong type",
 			Code: http.StatusBadRequest}
 	}
 
@@ -66,7 +66,7 @@ func GetCollection(ref model.DBRef) (model.Collection, rsp.Response) {
 
 func GetCollectionImages(ref model.DBRef) ([]*model.Image, rsp.Response) {
 	if strings.Compare(ref.Collection, "collections") != 0 {
-		return []*model.Image{}, rsp.Response{Message: "Ref is of the wrong collection type",
+		return []*model.Image{}, rsp.Response{Message: "Ref is of the wrong type",
 			Code: http.StatusBadRequest}
 	}
 
@@ -79,12 +79,17 @@ func GetCollectionImages(ref model.DBRef) ([]*model.Image, rsp.Response) {
 		return []*model.Image{}, rsp.Response{Code: http.StatusInternalServerError}
 	}
 
+	if len(images) == 0 {
+		return []*model.Image{}, rsp.Response{Code: http.StatusNotFound,
+			Message: "Collection does not exist or has not uploaded any images."}
+	}
+
 	return images, rsp.Response{Code: http.StatusOK}
 }
 
 func GetUserImages(ref model.DBRef) ([]*model.Image, rsp.Response) {
 	if strings.Compare(ref.Collection, "users") != 0 {
-		return []*model.Image{}, rsp.Response{Message: "Ref is of the wrong collection type",
+		return []*model.Image{}, rsp.Response{Message: "Ref is of the wrong type",
 			Code: http.StatusBadRequest}
 	}
 
@@ -96,6 +101,12 @@ func GetUserImages(ref model.DBRef) ([]*model.Image, rsp.Response) {
 	if err != nil {
 		return []*model.Image{}, rsp.Response{Code: http.StatusInternalServerError}
 	}
+
+	if len(images) == 0 {
+		return []*model.Image{}, rsp.Response{Code: http.StatusNotFound,
+			Message: "User does not exist or has not uploaded any images."}
+	}
+
 	return images, rsp.Response{Code: http.StatusOK}
 }
 
@@ -105,6 +116,11 @@ func GetFeaturedImages() ([]*model.Image, rsp.Response) {
 	err := store.GetAll("images", bson.M{"featured": true}, &images)
 	if err != nil {
 		return []*model.Image{}, rsp.Response{Code: http.StatusInternalServerError}
+	}
+
+	if len(images) == 0 {
+		return []*model.Image{}, rsp.Response{Code: http.StatusNoContent,
+			Message: "No featured images exist at this time."}
 	}
 
 	return images, rsp.Response{Code: http.StatusOK}

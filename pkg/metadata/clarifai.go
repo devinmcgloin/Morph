@@ -17,14 +17,9 @@ import (
 // TODO would like to check for NSFW
 func init() {
 	clarifaiClient = clarifai.NewClient(os.Getenv("CLARIFAI_ID"), os.Getenv("CLARIFAI_SECRET"))
-	_, err := clarifaiClient.Info()
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	info, err := clarifaiClient.Info()
 	if err != nil {
-		log.Println(info)
+		log.Fatal(err, info)
 	}
 }
 
@@ -32,6 +27,7 @@ var clarifaiClient *clarifai.Client
 var workChan chan string
 var quit chan bool
 var ticker *time.Ticker
+var urlTemplate = "http://images.sprioc.xyz/content/%s?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&w=1080&fit=max"
 
 func SetupClarifai(imageChan chan string) {
 	quit = make(chan bool)
@@ -60,7 +56,7 @@ func work() {
 				select {
 				case code := <-workChan:
 					dbRefs = append(dbRefs, refs.GetImageRef(code))
-					urls = append(urls, fmt.Sprintf("http://images.sprioc.xyz/content/%s?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&w=1080&fit=max", code))
+					urls = append(urls, fmt.Sprintf(urlTemplate, code))
 				default:
 					break
 				}

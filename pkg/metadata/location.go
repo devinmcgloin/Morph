@@ -33,6 +33,8 @@ func SetLocation(point gj.Point) {
 	} else if store.Exists("locations", bson.M{"bounds": bson.M{"$near": bson.M{"$geometry": point, "$maxDistance": 1000}}}) {
 		log.Println("Location already found")
 		return
+	} else if point.Coordinates[0] == 0 && point.Coordinates[1] == 0 {
+		return
 	}
 
 	log.Println("Finding new location")

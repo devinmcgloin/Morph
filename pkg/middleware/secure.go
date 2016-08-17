@@ -11,9 +11,12 @@ import (
 	"github.com/sprioc/conductor/pkg/rsp"
 )
 
+// TODO remove access crontrol for production
+
 func Secure(f func(http.ResponseWriter, *http.Request) rsp.Response) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8000")
 
 		user, resp := core.CheckUser(r)
 		if !resp.Ok() {
@@ -48,6 +51,7 @@ func Unsecure(f func(http.ResponseWriter, *http.Request) rsp.Response) func(http
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8000")
 
 		setIP(r)
 
@@ -78,7 +82,6 @@ func setIP(r *http.Request) {
 
 	ips, ok := r.Header["X-Forwarded-For"]
 	if !ok {
-		log.Println(ips, ok)
 		return
 	}
 
