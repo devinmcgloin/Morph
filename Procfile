@@ -1,1 +1,1 @@
-web: sprioc
+web: sprioc-serve
