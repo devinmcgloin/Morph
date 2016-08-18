@@ -21,7 +21,6 @@ func init() {
 
 	flag := log.LstdFlags | log.Lmicroseconds | log.Lshortfile
 	log.SetFlags(flag)
-
 }
 
 func main() {

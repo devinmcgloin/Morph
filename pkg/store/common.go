@@ -9,7 +9,12 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-var mongo = ConnectStore()
+func init() {
+	ValidateConnection()
+	mongo = ConnectStore()
+}
+
+var mongo *MgoStore
 
 // TODO need to check if modification already exists and that types are correct.
 // Bools should be bools. Only need to worry about multiple requests when

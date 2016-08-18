@@ -1,14 +1,29 @@
 package session
 
 import (
+	"log"
+	"os"
 	"time"
 
 	"github.com/garyburd/redigo/redis"
-	"github.com/sprioc/conductor/pkg/env"
 )
 
-var redisURL = env.Getenv("REDIS_URL", "redis://localhost:6379")
-var redisPass = env.Getenv("REDIS_PASS", "root")
+func init() {
+	redisURL = os.Getenv("REDIS_URL")
+	redisPass = os.Getenv("REDIS_PASS")
+
+	if redisURL == "" {
+		log.Fatal("REDIS_URL not set")
+	}
+
+	if redisPass == "" {
+		log.Fatal("REDIS_PASS not set")
+	}
+	newPool()
+}
+
+var redisURL string
+var redisPass string
 var pool *redis.Pool
 
 func newPool() {
@@ -31,8 +46,4 @@ func newPool() {
 			return err
 		},
 	}
-}
-
-func init() {
-	newPool()
 }

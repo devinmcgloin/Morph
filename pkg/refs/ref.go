@@ -3,14 +3,14 @@ package refs
 import (
 	"fmt"
 	"log"
+	"os"
 	"strings"
 
-	"github.com/sprioc/conductor/pkg/env"
 	"github.com/sprioc/conductor/pkg/model"
 )
 
-var dbname = env.Getenv("MONGODB_NAME", "sprioc")
-var baseurl = "http://localhost:8080/api/v0/"
+var dbname = os.Getenv("MONGODB_NAME")
+var baseurl = "http://localhost:8080/v0/"
 
 func GetImageRef(shortcode string) model.DBRef {
 	return model.DBRef{Database: dbname, Collection: "images", Shortcode: shortcode}

@@ -12,14 +12,13 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	jwtreq "github.com/dgrijalva/jwt-go/request"
-	"github.com/sprioc/conductor/pkg/env"
 	"github.com/sprioc/conductor/pkg/generator"
 	"github.com/sprioc/conductor/pkg/model"
 	"github.com/sprioc/conductor/pkg/rsp"
 )
 
 var hmacSecret = []byte(os.Getenv("HMAC_SECRET"))
-var dbase = env.Getenv("MONGODB_NAME", "sprioc")
+var dbase = os.Getenv("MONGODB_NAME")
 
 var sessionLifetime = time.Minute * 10
 var refreshAt = time.Minute * 1
