@@ -33,7 +33,7 @@ func ProccessImage(infile []byte, size int, shortcode string, kind string) error
 
 	path := strings.Join([]string{"/images", kind, shortcode}, "/")
 
-	err = UploadImageAWS(buf.Bytes(), int64(size), path, "sprioc", "us-east-1")
+	err = UploadImageAWS(buf.Bytes(), int64(size), path, "sprioc.content", "us-east-1")
 	if err != nil {
 		return errors.New("Error while uploading image")
 	}

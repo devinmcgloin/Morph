@@ -40,10 +40,11 @@ func Secure(f func(http.ResponseWriter, *http.Request) rsp.Response) func(http.R
 		}
 
 		if resp.Data != nil {
-			w.Write(dat) // TODO this writes null if the resp.Data is null.
+			w.Write(dat) // TODO this writes null if the resp.Data is nil.
 		} else if resp.Message != "" {
 			w.Write(resp.Format())
 		}
+
 	}
 }
 
@@ -64,6 +65,7 @@ func Unsecure(f func(http.ResponseWriter, *http.Request) rsp.Response) func(http
 		} else if resp.Message != "" {
 			w.Write(resp.Format())
 		}
+
 	}
 }
 
