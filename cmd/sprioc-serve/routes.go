@@ -86,7 +86,9 @@ func registerSearchRoutes(api *mux.Router) {
 	get := api.Methods("GET").Subrouter()
 
 	get.HandleFunc("/stream", middleware.Secure(handlers.GetStream))
-	get.HandleFunc("/search", middleware.Unsecure(NotImplemented))
+
+	post := api.Methods("POST").Subrouter()
+	post.HandleFunc("/search", middleware.Unsecure(handlers.Search))
 
 }
 

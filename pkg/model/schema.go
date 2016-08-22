@@ -7,6 +7,7 @@ import (
 
 	"gopkg.in/mgo.v2/bson"
 
+	"github.com/sprioc/clarifai-go"
 	gj "github.com/sprioc/geojson"
 )
 
@@ -17,10 +18,11 @@ type Image struct {
 	ID        bson.ObjectId `bson:"_id" json:"-"`
 	ShortCode string        `bson:"shortcode" json:"shortcode"`
 
-	MetaData    ImageMetaData `bson:"metadata" json:"metadata"`
-	Tags        []string      `bson:"tags" json:"tags"`
-	MachineTags []string      `bson:"machine_tags" json:"machine_tags"`
-	PublishTime time.Time     `bson:"publish_time" json:"publish_time"`
+	MetaData    ImageMetaData    `bson:"metadata" json:"metadata"`
+	Tags        []string         `bson:"tags" json:"tags"`
+	MachineTags []string         `bson:"machine_tags" json:"machine_tags"`
+	ColorTags   []clarifai.Color `bson:"color_tags" json:"color_tags"`
+	PublishTime time.Time        `bson:"publish_time" json:"publish_time"`
 
 	Owner     DBRef  `bson:"owner" json:"-"`
 	OwnerLink string `bson:"-" json:"owner"`
@@ -39,17 +41,11 @@ type Image struct {
 }
 
 type ImageMetaData struct {
-	Aperture       Ratio  `bson:"aperture" json:"-"`
-	ApertureExtern string `bson:"-" json:"aperture"`
+	Aperture     string `bson:"aperture" json:"aperture"`
+	ExposureTime string `bson:"exposure_time" json:"exposure_time"`
+	FocalLength  string `bson:"focal_length" json:"focal_length"`
+	ISO          int    `bson:"iso" json:"iso"`
 
-	ExposureTime       Ratio  `bson:"exposure_time" json:"-"`
-	ExposureTimeExtern string `bson:"-" json:"exposure_time"`
-
-	FocalLength       Ratio  `bson:"focal_length" json:"-"`
-	FocalLengthExtern string `bson:"-" json:"focal_length"`
-
-	ISO             int       `bson:"iso" json:"iso"`
-	Orientation     string    `bson:"orientation" json:"orientation"`
 	Make            string    `bson:"make" json:"make"`
 	Model           string    `bson:"model" json:"model"`
 	LensMake        string    `bson:"lens_make" json:"lens_make"`
@@ -99,7 +95,7 @@ type User struct {
 	Name      string     `bson:"name" json:"name"`
 	Bio       string     `bson:"bio" json:"bio"`
 	URL       string     `bson:"personal_site_link" json:"personal_site_link"`
-	Location  gj.Feature `bson:"loc" json:"loc"`
+	Location  gj.Feature `bson:"location" json:"location"`
 	AvatarURL ImgSource  `bson:"avatar_link" json:"avatar_link"`
 }
 

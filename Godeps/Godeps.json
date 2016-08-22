@@ -176,8 +176,8 @@
 		},
 		{
 			"ImportPath": "github.com/sprioc/clarifai-go",
-			"Comment": "v1.2.0-2-gaff322d",
-			"Rev": "aff322d5ddc1720bdc18b1e3189a7911294e24c5"
+			"Comment": "v1.2.0-4-g807f7f5",
+			"Rev": "807f7f5ddd61683bc9ce4d466f9c89c68f440202"
 		},
 		{
 			"ImportPath": "github.com/sprioc/geojson",
@@ -218,6 +218,16 @@
 			"ImportPath": "gopkg.in/mgo.v2/internal/scram",
 			"Comment": "r2016.02.04-3-g29cc868",
 			"Rev": "29cc868a5ca65f401ff318143f9408d02f4799cc"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/vendor/github.com/go-ini/ini",
+			"Comment": "v1.2.6-1-g4b15786",
+			"Rev": "4b1578637669ed2a10689caf88cae18dbef08edb"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/vendor/github.com/jmespath/go-jmespath",
+			"Comment": "v1.2.6-1-g4b15786",
+			"Rev": "4b1578637669ed2a10689caf88cae18dbef08edb"
 		}
 	]
 }

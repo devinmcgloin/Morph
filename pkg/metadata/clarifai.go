@@ -66,16 +66,27 @@ func work() {
 				continue
 			}
 
-			data, err := clarifaiClient.Tag(clarifai.TagRequest{URLs: urls})
+			tagData, err := clarifaiClient.Tag(clarifai.TagRequest{URLs: urls})
 			if err != nil {
 				log.Println(err)
 				return
 			}
 
-			var finalTags = filterTags(data.Results, .90)
+			colorData, err := clarifaiClient.Color(clarifai.ColorRequest{URLs: urls})
+			if err != nil {
+				log.Println(err)
+				return
+			}
+
+			var finalTags = filterTags(tagData.Results, .90)
 
 			for i := 0; i < len(urls); i++ {
 				err = store.Modify(dbRefs[i], bson.M{"$set": bson.M{"machine_tags": finalTags[i]}})
+				if err != nil {
+					log.Println(err)
+				}
+
+				err = store.Modify(dbRefs[i], bson.M{"$set": bson.M{"color_tags": colorData.Results[i].Colors}})
 				if err != nil {
 					log.Println(err)
 				}

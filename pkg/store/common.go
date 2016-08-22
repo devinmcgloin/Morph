@@ -3,8 +3,8 @@ package store
 import (
 	"log"
 
-	"github.com/sprioc/conductor/pkg/filter"
 	"github.com/sprioc/conductor/pkg/model"
+	"github.com/sprioc/conductor/pkg/qmgo"
 
 	"gopkg.in/mgo.v2/bson"
 )
@@ -52,7 +52,7 @@ func GetAll(collection string, filter bson.M, dest interface{}) error {
 	return nil
 }
 
-func GetImages(filter filter.ImageFilter, dest interface{}) error {
+func GetImages(filter qmgo.ImageSearch, dest interface{}) error {
 	session := mongo.getSession()
 	defer session.Close()
 
