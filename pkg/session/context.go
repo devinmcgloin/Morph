@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/context"
-	"github.com/sprioc/conductor/pkg/model"
+	"github.com/sprioc/composer/pkg/model"
 )
 
 func GetUser(r *http.Request) (model.DBRef, bool) {

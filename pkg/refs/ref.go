@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/sprioc/conductor/pkg/model"
+	"github.com/sprioc/composer/pkg/model"
 )
 
 func init() {

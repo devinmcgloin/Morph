@@ -7,8 +7,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/context"
-	"github.com/sprioc/conductor/pkg/core"
-	"github.com/sprioc/conductor/pkg/rsp"
+	"github.com/sprioc/composer/pkg/core"
+	"github.com/sprioc/composer/pkg/rsp"
 )
 
 // TODO remove access crontrol for production

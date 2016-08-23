@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/sprioc/conductor/pkg/model"
-	"github.com/sprioc/conductor/pkg/rsp"
+	"github.com/sprioc/composer/pkg/model"
+	"github.com/sprioc/composer/pkg/rsp"
 	"gopkg.in/mgo.v2/bson"
 )
 

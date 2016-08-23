@@ -12,9 +12,9 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	jwtreq "github.com/dgrijalva/jwt-go/request"
-	"github.com/sprioc/conductor/pkg/generator"
-	"github.com/sprioc/conductor/pkg/model"
-	"github.com/sprioc/conductor/pkg/rsp"
+	"github.com/sprioc/composer/pkg/generator"
+	"github.com/sprioc/composer/pkg/model"
+	"github.com/sprioc/composer/pkg/rsp"
 )
 
 var hmacSecret = []byte(os.Getenv("HMAC_SECRET"))
@@ -91,7 +91,7 @@ func CreateJWT(u model.User) (string, rsp.Response) {
 	claims := &jwt.StandardClaims{
 		//IssuedAt:  time.Now().Unix(),
 		//ExpiresAt: time.Now().Add(time.Minute * 10).Unix(),
-		Issuer:  "conductor",
+		Issuer:  "composer",
 		Subject: u.ShortCode,
 	}
 

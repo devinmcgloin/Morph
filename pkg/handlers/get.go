@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/sprioc/conductor/pkg/core"
-	"github.com/sprioc/conductor/pkg/refs"
-	"github.com/sprioc/conductor/pkg/rsp"
+	"github.com/sprioc/composer/pkg/core"
+	"github.com/sprioc/composer/pkg/refs"
+	"github.com/sprioc/composer/pkg/rsp"
 )
 
 func GetCollection(w http.ResponseWriter, r *http.Request) rsp.Response {

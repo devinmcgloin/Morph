@@ -3,10 +3,10 @@ package core
 import (
 	"net/http"
 
-	"github.com/sprioc/conductor/pkg/model"
-	"github.com/sprioc/conductor/pkg/qmgo"
-	"github.com/sprioc/conductor/pkg/rsp"
-	"github.com/sprioc/conductor/pkg/store"
+	"github.com/sprioc/composer/pkg/model"
+	"github.com/sprioc/composer/pkg/qmgo"
+	"github.com/sprioc/composer/pkg/rsp"
+	"github.com/sprioc/composer/pkg/store"
 )
 
 func Search(user model.User, query qmgo.ImageSearch) ([]*model.Image, rsp.Response) {

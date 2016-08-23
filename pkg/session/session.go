@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/garyburd/redigo/redis"
-	"github.com/sprioc/conductor/pkg/generator"
+	"github.com/sprioc/composer/pkg/generator"
 	"gopkg.in/mgo.v2/bson"
 )
 

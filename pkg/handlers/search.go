@@ -6,11 +6,11 @@ import (
 	"net/http"
 
 	"github.com/gorilla/context"
-	"github.com/sprioc/conductor/pkg/core"
-	"github.com/sprioc/conductor/pkg/model"
-	"github.com/sprioc/conductor/pkg/qmgo"
-	"github.com/sprioc/conductor/pkg/refs"
-	"github.com/sprioc/conductor/pkg/rsp"
+	"github.com/sprioc/composer/pkg/core"
+	"github.com/sprioc/composer/pkg/model"
+	"github.com/sprioc/composer/pkg/qmgo"
+	"github.com/sprioc/composer/pkg/refs"
+	"github.com/sprioc/composer/pkg/rsp"
 )
 
 func Search(w http.ResponseWriter, r *http.Request) rsp.Response {

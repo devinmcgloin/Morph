@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/gorilla/mux"
-	"github.com/sprioc/conductor/pkg/handlers"
-	"github.com/sprioc/conductor/pkg/middleware"
+	"github.com/sprioc/composer/pkg/handlers"
+	"github.com/sprioc/composer/pkg/middleware"
 )
 
 // TODO lock these routes down to alphabetical only with regex.

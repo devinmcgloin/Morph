@@ -3,8 +3,8 @@ package store
 import (
 	"log"
 
-	"github.com/sprioc/conductor/pkg/model"
-	"github.com/sprioc/conductor/pkg/qmgo"
+	"github.com/sprioc/composer/pkg/model"
+	"github.com/sprioc/composer/pkg/qmgo"
 
 	"gopkg.in/mgo.v2/bson"
 )

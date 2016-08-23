@@ -9,9 +9,9 @@ import (
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/sprioc/clarifai-go"
-	"github.com/sprioc/conductor/pkg/model"
-	"github.com/sprioc/conductor/pkg/refs"
-	"github.com/sprioc/conductor/pkg/store"
+	"github.com/sprioc/composer/pkg/model"
+	"github.com/sprioc/composer/pkg/refs"
+	"github.com/sprioc/composer/pkg/store"
 )
 
 // TODO would like to check for NSFW

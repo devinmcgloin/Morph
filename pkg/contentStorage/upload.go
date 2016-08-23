@@ -31,9 +31,9 @@ func ProccessImage(infile []byte, size int, shortcode string, kind string) error
 		return errors.New("Payload Too Large")
 	}
 
-	path := strings.Join([]string{"/images", kind, shortcode}, "/")
+	path := strings.Join([]string{kind, shortcode}, "/")
 
-	err = UploadImageAWS(buf.Bytes(), int64(size), path, "sprioc.content", "us-east-1")
+	err = UploadImageAWS(buf.Bytes(), int64(size), path, "images.sprioc.xyz", "us-east-1")
 	if err != nil {
 		return errors.New("Error while uploading image")
 	}

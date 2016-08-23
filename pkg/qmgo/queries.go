@@ -4,8 +4,8 @@ package qmgo
 import (
 	"time"
 
-	"github.com/sprioc/conductor/pkg/model"
-	"github.com/sprioc/conductor/pkg/refs"
+	"github.com/sprioc/composer/pkg/model"
+	"github.com/sprioc/composer/pkg/refs"
 	"github.com/sprioc/geojson"
 )
 

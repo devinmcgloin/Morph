@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/rwcarlsen/goexif/exif"
-	"github.com/sprioc/conductor/pkg/model"
+	"github.com/sprioc/composer/pkg/model"
 	gj "github.com/sprioc/geojson"
 )
 
