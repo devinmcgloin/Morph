@@ -52,13 +52,19 @@ func GetAll(collection string, filter bson.M, dest interface{}) error {
 	return nil
 }
 
-func GetImages(filter qmgo.ImageSearch, dest interface{}) error {
+func SearchImages(filter qmgo.ImageSearch, dest interface{}) error {
 	session := mongo.getSession()
 	defer session.Close()
 
 	c := session.DB(dbname).C("images")
 
-	err := c.Find(filter).All(dest)
+	var err error
+	if len(filter.Sort) == 0 {
+		err = c.Find(filter).All(dest)
+	} else {
+		err = c.Find(filter).Sort(filter.Sort...).All(dest)
+	}
+
 	if err != nil {
 		log.Println(err)
 		return err

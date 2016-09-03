@@ -20,24 +20,26 @@ func GetExif(image io.Reader) (*exif.Exif, error) {
 	return exifDat, nil
 }
 
-func GetMetadata(file io.Reader, image *model.Image) {
+func GetMetadata(file io.Reader) model.ImageMetaData {
 	x, err := GetExif(file)
 	if err != nil {
-		return
+		return model.ImageMetaData{}
 	}
 
 	metaData := model.ImageMetaData{}
 
 	lat, lon, err := x.LatLong()
-	if err == nil {
+	if err != nil {
+		metaData.Location = nil
+	} else {
 		point := gj.NewPoint(gj.Coordinate{gj.CoordType(lon), gj.CoordType(lat)})
 		point.Type = "Point"
-		metaData.Location = *point
+		metaData.Location = point
 	}
 
-	tmp, err := x.DateTime()
+	captureTime, err := x.DateTime()
 	if err == nil {
-		metaData.CaptureTime = tmp
+		metaData.CaptureTime = captureTime.Unix()
 	}
 
 	//	Classic stats
@@ -129,5 +131,5 @@ func GetMetadata(file io.Reader, image *model.Image) {
 
 	log.Println(metaData.Location)
 
-	image.MetaData = metaData
+	return metaData
 }

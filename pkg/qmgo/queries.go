@@ -19,7 +19,10 @@ type ImageSearch struct {
 		CaptureTime map[Ord]time.Time     `json:"capture_time" bson:"capture_time,omitempty"`
 		Location    map[Geo]geojson.Point `json:"location" bson:"location,omitempty"`
 	} `json:"metadata" bson:"metadata,omitempty"`
-	TextSearch string `json:"searchString" bson:"$text,omitempty"`
+	TextSearch struct {
+		Query string `json:"query" bson:"$search"`
+	} `json:"search" bson:"$text,omitempty"`
+	Sort []string `json:"sort" bson:"-"`
 }
 
 func (search *ImageSearch) Valid() bool {

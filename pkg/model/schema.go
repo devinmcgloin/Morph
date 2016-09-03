@@ -1,8 +1,6 @@
 package model
 
 import (
-	"time"
-
 	"googlemaps.github.io/maps"
 
 	"gopkg.in/mgo.v2/bson"
@@ -15,46 +13,29 @@ import (
 
 // Image contains all the proper information for rendering a single photo
 type Image struct {
-	ID        bson.ObjectId `bson:"_id" json:"-"`
-	ShortCode string        `bson:"shortcode" json:"shortcode"`
-
+	ID          bson.ObjectId    `bson:"_id" json:"-"`
 	MetaData    ImageMetaData    `bson:"metadata" json:"metadata"`
 	Tags        []string         `bson:"tags" json:"tags"`
 	MachineTags []string         `bson:"machine_tags" json:"machine_tags"`
 	ColorTags   []clarifai.Color `bson:"color_tags" json:"color_tags"`
-	PublishTime time.Time        `bson:"publish_time" json:"publish_time"`
-
-	Owner     DBRef  `bson:"owner" json:"-"`
-	OwnerLink string `bson:"-" json:"owner"`
-
-	Collections     []DBRef  `bson:"collections" json:"-"`
-	CollectionLinks []string `bson:"-" json:"collection_links"`
-
-	FavoritedBy      []DBRef  `bson:"favorited_by" json:"-"`
-	FavoritedByLinks []string `bson:"-" json:"favorited_by_links"`
-
-	Sources ImgSource `bson:"sources_link" json:"source_link"`
-
-	Featured  bool `bson:"featured" json:"featured"`
-	Downloads int  `bson:"downloads" json:"downloads"`
-	Hidden    bool `bson:"hidden" json:"hidden"`
+	PublishTime int64            `bson:"publish_time" json:"publish_time"`
+	Sources     ImgSource        `bson:"sources_link" json:"source_link"`
 }
 
 type ImageMetaData struct {
-	Aperture     string `bson:"aperture" json:"aperture"`
-	ExposureTime string `bson:"exposure_time" json:"exposure_time"`
-	FocalLength  string `bson:"focal_length" json:"focal_length"`
-	ISO          int    `bson:"iso" json:"iso"`
-
-	Make            string    `bson:"make" json:"make"`
-	Model           string    `bson:"model" json:"model"`
-	LensMake        string    `bson:"lens_make" json:"lens_make"`
-	LensModel       string    `bson:"lens_model" json:"lens_model"`
-	PixelXDimension int64     `bson:"pixel_xd" json:"pixel_xd"`
-	PixelYDimension int64     `bson:"pixel_yd" json:"pixel_yd"`
-	CaptureTime     time.Time `bson:"capture_time" json:"capture_time"`
-	ImgDirection    float64   `bson:"direction" json:"direction"`
-	Location        gj.Point  `bson:"location" json:"location"`
+	Aperture        string    `bson:"aperture" json:"aperture,omitempty"`
+	ExposureTime    string    `bson:"exposure_time" json:"exposure_time,omitempty"`
+	FocalLength     string    `bson:"focal_length" json:"focal_length,omitempty"`
+	ISO             int       `bson:"iso" json:"iso,omitempty"`
+	Make            string    `bson:"make" json:"make,omitempty"`
+	Model           string    `bson:"model" json:"model,omitempty"`
+	LensMake        string    `bson:"lens_make" json:"lens_make,omitempty"`
+	LensModel       string    `bson:"lens_model" json:"lens_model,omitempty"`
+	PixelXDimension int64     `bson:"pixel_xd" json:"pixel_xd,omitempty"`
+	PixelYDimension int64     `bson:"pixel_yd" json:"pixel_yd,omitempty"`
+	CaptureTime     int64     `bson:"capture_time" json:"capture_time,omitempty"`
+	ImgDirection    float64   `bson:"direction" json:"direction,omitempty"`
+	Location        *gj.Point `bson:"location" json:"location,omitempty"`
 }
 
 // ImgSource includes the information about the image itself.
@@ -68,63 +49,21 @@ type ImgSource struct {
 
 type User struct {
 	ID        bson.ObjectId `bson:"_id" json:"-"`
-	ShortCode string        `bson:"shortcode" json:"shortcode"`
-	Admin     bool          `bson:"admin" json:"admin"`
-
-	Images     []DBRef  `bson:"images" json:"-"`
-	ImageLinks []string `bson:"-" json:"image_links"`
-
-	Collections     []DBRef  `bson:"collections" json:"-"`
-	CollectionLinks []string `bson:"-" json:"collection_links"`
-
-	Followes    []DBRef  `bson:"followes" json:"-"`
-	FollowLinks []string `bson:"-" json:"follow_links"`
-
-	Favorites     []DBRef  `bson:"favorites" json:"-"`
-	FavoriteLinks []string `bson:"-" json:"favorite_links"`
-
-	FollowedBy      []DBRef  `bson:"followed_by" json:"-"`
-	FollowedByLinks []string `bson:"-" json:"followed_by_links"`
-
-	FavoritedBy      []DBRef  `bson:"favorited_by" json:"-"`
-	FavoritedByLinks []string `bson:"-" json:"favorited_by_links"`
-
-	Email     string     `bson:"email" json:"email"`
-	Pass      string     `bson:"password" json:"-"`
-	Salt      string     `bson:"salt" json:"-"`
-	Name      string     `bson:"name" json:"name"`
-	Bio       string     `bson:"bio" json:"bio"`
-	URL       string     `bson:"personal_site_link" json:"personal_site_link"`
-	Location  gj.Feature `bson:"location" json:"location"`
-	AvatarURL ImgSource  `bson:"avatar_link" json:"avatar_link"`
+	Email     string        `bson:"email" json:"email"`
+	Pass      string        `bson:"password" json:"-"`
+	Salt      string        `bson:"salt" json:"-"`
+	Name      string        `bson:"name" json:"name"`
+	Bio       string        `bson:"bio" json:"bio,omitempty"`
+	URL       string        `bson:"personal_site_link" json:"personal_site_link,omitempty"`
+	Location  *gj.Feature   `bson:"location" json:"location,omitempty"`
+	AvatarURL ImgSource     `bson:"avatar_link" json:"avatar_link"`
 }
 
 type Collection struct {
-	ID        bson.ObjectId `bson:"_id" json:"-"`
-	ShortCode string        `bson:"shortcode" json:"shortcode"`
-
-	Images     []DBRef  `bson:"images" json:"-"`
-	ImageLinks []string `bson:"-" json:"image_links"`
-
-	Owner       DBRef `bson:"owner" json:"-"`
-	OwnerExtern User  `bson:"-" json:"owner"`
-
-	FollowedBy      []DBRef  `bson:"followed_by" json:"-"`
-	FollowedByLinks []string `bson:"-" json:"followed_by_links"`
-
-	FavoritedBy      []DBRef  `bson:"favorited_by" json:"-"`
-	FavoritedByLinks []string `bson:"-" json:"favorited_by_links"`
-
-	Desc     string     `bson:"desc" json:"desc"`
-	Title    string     `bson:"title" json:"title"`
-	ViewType string     `bson:"view_type" json:"view_type"`
-	Location gj.Feature `bson:"location" json:"location"`
-}
-
-type DBRef struct {
-	Collection string `bson:"collection" json:"collection"`
-	Shortcode  string `bson:"shortcode" json:"shortcode"`
-	Database   string `bson:"db" json:"-"`
+	ID       bson.ObjectId `bson:"_id" json:"-"`
+	Desc     string        `bson:"desc" json:"desc,omitempty"`
+	Title    string        `bson:"title" json:"title,omitempty"`
+	Location *gj.Feature   `bson:"location" json:"location,omitempty"`
 }
 
 type Location struct {

@@ -6,14 +6,14 @@ import (
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/sprioc/composer/pkg/model"
+	"github.com/sprioc/composer/pkg/mongo"
+	"github.com/sprioc/composer/pkg/redis"
 	"github.com/sprioc/composer/pkg/refs"
 	"github.com/sprioc/composer/pkg/rsp"
-	"github.com/sprioc/composer/pkg/store"
 )
 
-// TODO images needs to have access to the collection.
-func AddImageToCollection(requestFrom model.User, col model.DBRef, additions map[string][]string) rsp.Response {
-	if col.Collection != "collections" {
+func AddImageToCollection(requestFrom model.Ref, col model.Ref, additions map[string][]string) rsp.Response {
+	if col.ItemType != model.Collections {
 		return rsp.Response{Message: "Invalid reference", Code: http.StatusBadRequest}
 	}
 
@@ -24,11 +24,11 @@ func AddImageToCollection(requestFrom model.User, col model.DBRef, additions map
 		return rsp.Response{Message: "Invalid body", Code: http.StatusBadRequest}
 	}
 
-	if !inRef(col, requestFrom.Collections) {
-		return rsp.Response{Message: "User cannot delete collection they do not own.", Code: http.StatusUnauthorized}
+	if redis.Permissions(requestFrom, redis.CanEdit) {
+		return rsp.Response{Message: "User cannot modify collection.", Code: http.StatusUnauthorized}
 	}
 
-	if !store.ExistsCollectionID(col.Shortcode) {
+	if !redis.Exists(col) {
 		return rsp.Response{Code: http.StatusNotFound}
 	}
 
@@ -48,7 +48,7 @@ func AddImageToCollection(requestFrom model.User, col model.DBRef, additions map
 	return rsp.Response{Code: http.StatusAccepted}
 }
 
-func DeleteImageFromCollection(requestFrom model.User, col model.DBRef, deletions map[string][]string) rsp.Response {
+func DeleteImageFromCollection(requestFrom model.Ref, col model.Ref, deletions map[string][]string) rsp.Response {
 	if col.Collection != "collections" {
 		return rsp.Response{Message: "Invalid reference", Code: http.StatusBadRequest}
 	}
@@ -84,7 +84,7 @@ func DeleteImageFromCollection(requestFrom model.User, col model.DBRef, deletion
 	return rsp.Response{Code: http.StatusAccepted}
 }
 
-func AddTagsToImage(requestFrom model.User, ref model.DBRef, additions map[string][]string) rsp.Response {
+func AddTagsToImage(requestFrom model.User, ref model.Ref, additions map[string][]string) rsp.Response {
 	if ref.Collection != "images" {
 		return rsp.Response{Message: "Invalid reference", Code: http.StatusBadRequest}
 	}
@@ -112,7 +112,7 @@ func AddTagsToImage(requestFrom model.User, ref model.DBRef, additions map[strin
 	return rsp.Response{Code: http.StatusAccepted}
 }
 
-func RemoveTagsFromImage(requestFrom model.User, ref model.DBRef, deletions map[string][]string) rsp.Response {
+func RemoveTagsFromImage(requestFrom model.User, ref model.Ref, deletions map[string][]string) rsp.Response {
 	if ref.Collection != "images" {
 		return rsp.Response{Message: "Invalid reference", Code: http.StatusBadRequest}
 	}

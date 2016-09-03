@@ -125,3 +125,14 @@ func GetFeaturedImages() ([]*model.Image, rsp.Response) {
 
 	return images, rsp.Response{Code: http.StatusOK}
 }
+
+func IncrementDownloads(ref model.DBRef) rsp.Response {
+	if ref.Collection != "images" {
+		return rsp.Response{Code: http.StatusBadRequest, Message: "Cannot download a non image object."}
+	}
+	err := store.Modify(ref, bson.M{"$inc": bson.M{"downloads": 1}})
+	if err != nil {
+		return rsp.Response{Code: http.StatusInternalServerError}
+	}
+	return rsp.Response{Code: http.StatusOK}
+}

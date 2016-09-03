@@ -16,7 +16,7 @@ func Search(user model.User, query qmgo.ImageSearch) ([]*model.Image, rsp.Respon
 
 	var images []*model.Image
 
-	err := store.GetImages(query, &images)
+	err := store.SearchImages(query, &images)
 	if err != nil {
 		return []*model.Image{}, rsp.Response{Code: http.StatusInternalServerError}
 	}

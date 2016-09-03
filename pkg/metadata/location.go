@@ -7,7 +7,6 @@ import (
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/sprioc/composer/pkg/model"
-	"github.com/sprioc/composer/pkg/store"
 	gj "github.com/sprioc/geojson"
 
 	"golang.org/x/net/context"
@@ -25,15 +24,15 @@ func init() {
 	}
 }
 
-func SetLocation(point gj.Point) {
+func SetLocation(point *gj.Point) {
 
-	if store.Exists("locations", bson.M{"bounds": bson.M{"$geoIntersects": bson.M{"$geometry": point}}}) {
+	if point == nil {
+		return
+	} else if mongo.Exists("locations", bson.M{"bounds": bson.M{"$geoIntersects": bson.M{"$geometry": point}}}) {
 		log.Println("Location already found")
 		return
-	} else if store.Exists("locations", bson.M{"bounds": bson.M{"$near": bson.M{"$geometry": point, "$maxDistance": 1000}}}) {
+	} else if mongo.Exists("locations", bson.M{"bounds": bson.M{"$near": bson.M{"$geometry": point, "$maxDistance": 1000}}}) {
 		log.Println("Location already found")
-		return
-	} else if point.Coordinates[0] == 0 && point.Coordinates[1] == 0 {
 		return
 	}
 
@@ -61,7 +60,7 @@ func SetLocation(point gj.Point) {
 		Bounds:    getBounds(bounds),
 	}
 
-	err = store.Create("locations", location)
+	err = mongo.Create("locations", location)
 	if err != nil {
 		log.Println(err)
 	}

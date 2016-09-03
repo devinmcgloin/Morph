@@ -10,8 +10,8 @@ import (
 
 	"github.com/sprioc/clarifai-go"
 	"github.com/sprioc/composer/pkg/model"
+	"github.com/sprioc/composer/pkg/mongo"
 	"github.com/sprioc/composer/pkg/refs"
-	"github.com/sprioc/composer/pkg/store"
 )
 
 // TODO would like to check for NSFW

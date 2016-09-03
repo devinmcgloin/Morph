@@ -50,7 +50,7 @@ func UploadImage(user model.User, file []byte) rsp.Response {
 
 	buf := bytes.NewBuffer(file)
 
-	metadata.GetMetadata(buf, &img)
+	img.MetaData = metadata.GetMetadata(buf)
 
 	img.Sources = formatSources(img.ShortCode, "content")
 
