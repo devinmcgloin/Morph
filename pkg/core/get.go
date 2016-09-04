@@ -1,27 +1,27 @@
 package core
 
 import (
-	"log"
 	"net/http"
-	"strings"
 
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/sprioc/composer/pkg/model"
+	"github.com/sprioc/composer/pkg/mongo"
+	"github.com/sprioc/composer/pkg/redis"
+	"github.com/sprioc/composer/pkg/refs"
 	"github.com/sprioc/composer/pkg/rsp"
-	"github.com/sprioc/composer/pkg/store"
 )
 
-func GetUser(ref model.DBRef) (model.User, rsp.Response) {
+func GetUser(ref model.Ref) (model.User, rsp.Response) {
 
-	if strings.Compare(ref.Collection, "users") != 0 {
+	if ref.Collection == model.Users {
 		return model.User{}, rsp.Response{Message: "Ref is of the wrong collection type",
 			Code: http.StatusBadRequest}
 	}
 
 	var user = model.User{}
 
-	err := store.Get(ref, &user)
+	err := mongo.Get(ref, &user)
 	if err != nil {
 		return model.User{}, rsp.Response{Message: "User not found",
 			Code: http.StatusNotFound}
@@ -30,32 +30,34 @@ func GetUser(ref model.DBRef) (model.User, rsp.Response) {
 	return user, rsp.Response{Code: http.StatusOK}
 }
 
-func GetImage(ref model.DBRef) (model.Image, rsp.Response) {
-	if strings.Compare(ref.Collection, "images") != 0 {
+func GetImage(ref model.Ref) (model.Image, rsp.Response) {
+	if ref.Collection != model.Images {
 		return model.Image{}, rsp.Response{Message: "Ref is of the wrong collection type",
 			Code: http.StatusBadRequest}
 	}
 
 	var image model.Image
 
-	err := store.Get(ref, &image)
+	err := mongo.Get(ref, &image)
 	if err != nil {
 		return model.Image{}, rsp.Response{Message: "Image not found",
 			Code: http.StatusNotFound}
 	}
 
+	SetRedisValues(&image)
+
 	return image, rsp.Response{Code: http.StatusOK}
 }
 
-func GetCollection(ref model.DBRef) (model.Collection, rsp.Response) {
-	if strings.Compare(ref.Collection, "collections") != 0 {
+func GetCollection(ref model.Ref) (model.Collection, rsp.Response) {
+	if ref.Collection != model.Collections {
 		return model.Collection{}, rsp.Response{Message: "Ref is of the wrong type",
 			Code: http.StatusBadRequest}
 	}
 
 	var col model.Collection
 
-	err := store.Get(ref, &col)
+	err := mongo.Get(ref, &col)
 	if err != nil {
 		return model.Collection{}, rsp.Response{Message: "Collection not found",
 			Code: http.StatusNotFound}
@@ -64,75 +66,107 @@ func GetCollection(ref model.DBRef) (model.Collection, rsp.Response) {
 	return col, rsp.Response{Code: http.StatusOK}
 }
 
-func GetCollectionImages(ref model.DBRef) ([]*model.Image, rsp.Response) {
-	if strings.Compare(ref.Collection, "collections") != 0 {
-		return []*model.Image{}, rsp.Response{Message: "Ref is of the wrong type",
+func GetCollectionImages(ref model.Ref) ([]model.Image, rsp.Response) {
+	if ref.Collection != model.Collections {
+		return []model.Image{}, rsp.Response{Message: "Ref is of the wrong type",
 			Code: http.StatusBadRequest}
 	}
 
-	var images []*model.Image
+	var images []model.Image
 
-	log.Printf("%+v", bson.M{"collections": ref})
-
-	err := store.GetAll("images", bson.M{"collections": ref}, &images)
+	err := mongo.GetAll("images", bson.M{"collections": ref}, &images)
 	if err != nil {
-		return []*model.Image{}, rsp.Response{Code: http.StatusInternalServerError}
+		return []model.Image{}, rsp.Response{Code: http.StatusInternalServerError}
 	}
 
 	if len(images) == 0 {
-		return []*model.Image{}, rsp.Response{Code: http.StatusNotFound,
+		return []model.Image{}, rsp.Response{Code: http.StatusNotFound,
 			Message: "Collection does not exist or has not uploaded any images."}
 	}
 
 	return images, rsp.Response{Code: http.StatusOK}
 }
 
-func GetUserImages(ref model.DBRef) ([]*model.Image, rsp.Response) {
-	if strings.Compare(ref.Collection, "users") != 0 {
-		return []*model.Image{}, rsp.Response{Message: "Ref is of the wrong type",
+func GetUserImages(ref model.Ref) ([]model.Image, rsp.Response) {
+	if ref.Collection != model.Users {
+		return []model.Image{}, rsp.Response{Message: "Ref is of the wrong type",
 			Code: http.StatusBadRequest}
 	}
 
-	var images []*model.Image
-
-	log.Printf("%+v", bson.M{"owner": ref})
-
-	err := store.GetAll("images", bson.M{"owner": ref}, &images)
+	imageRefs, err := redis.GetSortedSet(ref.GetRString(model.Images), 0, -1)
 	if err != nil {
-		return []*model.Image{}, rsp.Response{Code: http.StatusInternalServerError}
+		return []model.Image{}, rsp.Response{Code: http.StatusInternalServerError}
+	}
+	var images []model.Image
+	for _, ref := range imageRefs {
+		img, resp := GetImage(ref)
+		if !resp.Ok() {
+			return []model.Image{}, rsp.Response{Code: http.StatusInternalServerError}
+		}
+		images = append(images, img)
 	}
 
 	if len(images) == 0 {
-		return []*model.Image{}, rsp.Response{Code: http.StatusNotFound,
+		return []model.Image{}, rsp.Response{Code: http.StatusNotFound,
 			Message: "User does not exist or has not uploaded any images."}
 	}
 
 	return images, rsp.Response{Code: http.StatusOK}
 }
 
-func GetFeaturedImages() ([]*model.Image, rsp.Response) {
-	var images []*model.Image
+func GetFeaturedImages() ([]model.Image, rsp.Response) {
+	var images []model.Image
 
-	err := store.GetAll("images", bson.M{"featured": true}, &images)
+	err := mongo.GetAll("images", bson.M{"featured": true}, &images)
 	if err != nil {
-		return []*model.Image{}, rsp.Response{Code: http.StatusInternalServerError}
+		return []model.Image{}, rsp.Response{Code: http.StatusInternalServerError}
 	}
 
 	if len(images) == 0 {
-		return []*model.Image{}, rsp.Response{Code: http.StatusNoContent,
+		return []model.Image{}, rsp.Response{Code: http.StatusNoContent,
 			Message: "No featured images exist at this time."}
 	}
 
 	return images, rsp.Response{Code: http.StatusOK}
 }
 
-func IncrementDownloads(ref model.DBRef) rsp.Response {
-	if ref.Collection != "images" {
-		return rsp.Response{Code: http.StatusBadRequest, Message: "Cannot download a non image object."}
-	}
-	err := store.Modify(ref, bson.M{"$inc": bson.M{"downloads": 1}})
+func SetRedisValues(image *model.Image) error {
+	ref := model.Ref{Collection: model.Images, ShortCode: image.ShortCode}
+
+	downloads, err := redis.GetInt(ref.GetRString(model.Downloads))
 	if err != nil {
-		return rsp.Response{Code: http.StatusInternalServerError}
+		return err
 	}
-	return rsp.Response{Code: http.StatusOK}
+	image.Downloads = downloads
+
+	views, err := redis.GetInt(ref.GetRString(model.Views))
+	if err != nil {
+		return err
+	}
+	image.Views = views
+
+	purchases, err := redis.GetInt(ref.GetRString(model.Purchases))
+	if err != nil {
+		return err
+	}
+	image.Purchases = purchases
+
+	owner, err := redis.GetRef(ref.GetRString(model.Owner))
+	if err != nil {
+		return err
+	}
+	image.OwnerLink = refs.GetURL(owner)
+
+	favoritedBy, err := redis.GetSortedSet(ref.GetRString(model.FavoritedBy), 0, -1)
+	if err != nil {
+		return err
+	}
+	image.FavoritedByLinks = refs.GetURLs(favoritedBy)
+
+	collectionsIn, err := redis.GetSortedSet(ref.GetRString(model.CollectionsIn), 0, -1)
+	if err != nil {
+		return err
+	}
+	image.CollectionInLinks = refs.GetURLs(collectionsIn)
+	return nil
 }

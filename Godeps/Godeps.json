@@ -185,11 +185,31 @@
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",
-			"Rev": "4d38db76854b199960801a1734443fd02870d7e1"
+			"Rev": "1358eff22f0dd0c54fc521042cc607f6ff4b531a"
 		},
 		{
 			"ImportPath": "golang.org/x/net/context/ctxhttp",
-			"Rev": "4d38db76854b199960801a1734443fd02870d7e1"
+			"Rev": "1358eff22f0dd0c54fc521042cc607f6ff4b531a"
+		},
+		{
+			"ImportPath": "google.golang.org/api/gensupport",
+			"Rev": "66a8bc6d16488febe10aa767dce67cbf3e7dd21d"
+		},
+		{
+			"ImportPath": "google.golang.org/api/googleapi",
+			"Rev": "66a8bc6d16488febe10aa767dce67cbf3e7dd21d"
+		},
+		{
+			"ImportPath": "google.golang.org/api/googleapi/internal/uritemplates",
+			"Rev": "66a8bc6d16488febe10aa767dce67cbf3e7dd21d"
+		},
+		{
+			"ImportPath": "google.golang.org/api/googleapi/transport",
+			"Rev": "66a8bc6d16488febe10aa767dce67cbf3e7dd21d"
+		},
+		{
+			"ImportPath": "google.golang.org/api/vision/v1",
+			"Rev": "66a8bc6d16488febe10aa767dce67cbf3e7dd21d"
 		},
 		{
 			"ImportPath": "googlemaps.github.io/maps",
@@ -218,16 +238,6 @@
 			"ImportPath": "gopkg.in/mgo.v2/internal/scram",
 			"Comment": "r2016.02.04-3-g29cc868",
 			"Rev": "29cc868a5ca65f401ff318143f9408d02f4799cc"
-		},
-		{
-			"ImportPath": "github.com/aws/aws-sdk-go/vendor/github.com/go-ini/ini",
-			"Comment": "v1.2.6-1-g4b15786",
-			"Rev": "4b1578637669ed2a10689caf88cae18dbef08edb"
-		},
-		{
-			"ImportPath": "github.com/aws/aws-sdk-go/vendor/github.com/jmespath/go-jmespath",
-			"Comment": "v1.2.6-1-g4b15786",
-			"Rev": "4b1578637669ed2a10689caf88cae18dbef08edb"
 		}
 	]
 }

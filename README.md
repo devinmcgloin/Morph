@@ -30,7 +30,7 @@ Patch requests have the following format:
 Currently valid commands are `$set` and `$unset`. I don't plan on adding any
 others.
 
-DBRef bodies have the following format:
+Ref bodies have the following format:
 
 ```json
 {

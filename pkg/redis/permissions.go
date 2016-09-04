@@ -8,11 +8,11 @@ import (
 	"github.com/sprioc/composer/pkg/model"
 )
 
-func Permissions(item model.Ref, permission model.RString, userRef model.Ref) (bool, error) {
+func Permissions(userRef model.Ref, permission model.RString, item model.Ref) (bool, error) {
 	conn := pool.Get()
 	defer conn.Close()
 
-	isAdmin, err := IsAdmin(userShortCode)
+	isAdmin, err := IsAdmin(userRef)
 	if err != nil {
 		log.Println(err)
 		return false, err
@@ -56,7 +56,7 @@ func IsAdmin(ref model.Ref) (bool, error) {
 	conn := pool.Get()
 	defer conn.Close()
 
-	isAdmin, err := redis.Bool(conn.Do("GET", fmt.Sprintf("%s:%s", ref.GetTag(), model.Admin)))
+	isAdmin, err := redis.Bool(conn.Do("GET", ref.GetRString(model.Admin)))
 	if err != nil {
 		log.Println(err)
 		return false, err

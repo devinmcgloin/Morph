@@ -3,13 +3,14 @@ package redis
 import (
 	"fmt"
 	"log"
-	"strings"
+	"strconv"
 	"time"
 
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/garyburd/redigo/redis"
 	"github.com/sprioc/composer/pkg/model"
+	"github.com/sprioc/composer/pkg/refs"
 )
 
 func GetLogin(ref model.Ref) (map[string]string, error) {
@@ -51,11 +52,7 @@ func GetOwner(ref model.Ref) (model.Ref, error) {
 		log.Println(err)
 		return model.Ref{}, err
 	}
-	splitTag := strings.Split(userTag, ":")
-	return model.Ref{
-		ShortCode:  splitTag[1],
-		Collection: model.Users,
-	}, nil
+	return refs.GetRedisRef(userTag), nil
 }
 
 func SetViewType(ref model.Ref, viewType string) error {
@@ -74,7 +71,7 @@ func SetViewType(ref model.Ref, viewType string) error {
 	return nil
 }
 
-func AddImage(user, image model.Ref, objectId bson.ObjectId) error {
+func CreateImage(user, image model.Ref, objectID bson.ObjectId) error {
 	if user.Collection != model.Users {
 		return fmt.Errorf("Invalid user type, got %s expected user", user.Collection)
 	}
@@ -99,7 +96,21 @@ func AddImage(user, image model.Ref, objectId bson.ObjectId) error {
 		log.Println(err)
 		return err
 	}
-	if err := conn.Send("SET", image.GetTag(), objectId.Hex()); err != nil {
+	if err := conn.Send("SET", image.GetTag(), objectID.Hex()); err != nil {
+		log.Println(err)
+		return err
+	}
+	if err := conn.Send("SADD", image.GetRString(model.CanEdit), user.GetTag()); err != nil {
+		log.Println(err)
+		return err
+	}
+
+	if err := conn.Send("SADD", image.GetRString(model.CanView), user.GetTag()); err != nil {
+		log.Println(err)
+		return err
+	}
+
+	if err := conn.Send("SADD", image.GetRString(model.CanDelete), user.GetTag()); err != nil {
 		log.Println(err)
 		return err
 	}
@@ -111,7 +122,7 @@ func AddImage(user, image model.Ref, objectId bson.ObjectId) error {
 	return nil
 }
 
-func AddCollection(user, collection model.Ref, objectId bson.ObjectId) error {
+func CreateCollection(user, collection model.Ref, objectID bson.ObjectId) error {
 	if user.Collection != model.Users {
 		return fmt.Errorf("Invalid user type, got %s expected user", user.Collection)
 	}
@@ -124,7 +135,7 @@ func AddCollection(user, collection model.Ref, objectId bson.ObjectId) error {
 
 	timestamp := time.Now().Unix()
 
-	if err := c.Send("MULTI"); err != nil {
+	if err := conn.Send("MULTI"); err != nil {
 		log.Println(err)
 		return err
 	}
@@ -139,7 +150,65 @@ func AddCollection(user, collection model.Ref, objectId bson.ObjectId) error {
 		return err
 	}
 
-	if err := conn.Send("SET", collection.GetTag(), objectId.Hex()); err != nil {
+	if err := conn.Send("SET", collection.GetTag(), objectID.Hex()); err != nil {
+		log.Println(err)
+		return err
+	}
+
+	if err := conn.Send("SADD", collection.GetRString(model.CanEdit), user.GetTag()); err != nil {
+		log.Println(err)
+		return err
+	}
+
+	if err := conn.Send("SADD", collection.GetRString(model.CanView), user.GetTag()); err != nil {
+		log.Println(err)
+		return err
+	}
+
+	if err := conn.Send("SADD", collection.GetRString(model.CanDelete), user.GetTag()); err != nil {
+		log.Println(err)
+		return err
+	}
+	_, err := conn.Do("EXEC")
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+
+}
+
+func CreateUser(user model.Ref, objectID bson.ObjectId, email, password, salt string) error {
+	if user.Collection != model.Users {
+		return fmt.Errorf("Invalid user type, got %s expected user", user.Collection)
+	}
+
+	conn := pool.Get()
+	defer conn.Close()
+
+	timestamp := time.Now().Unix()
+
+	var m map[string]string
+	m["objectID"] = objectID.Hex()
+	m["email"] = email
+	m["password"] = password
+	m["salt"] = salt
+	m["created_at"] = strconv.FormatInt(timestamp, 10)
+	m["last_modified"] = strconv.FormatInt(timestamp, 10)
+
+	if err := conn.Send("MULTI"); err != nil {
+		log.Println(err)
+		return err
+	}
+
+	for key, val := range m {
+		if err := conn.Send("HMSET", user.GetTag(), key, val); err != nil {
+			log.Println(err)
+			return err
+		}
+	}
+
+	if err := conn.Send("SADD", "users:emails", email); err != nil {
 		log.Println(err)
 		return err
 	}

@@ -10,9 +10,10 @@ import (
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/sprioc/composer/pkg/model"
+	"github.com/sprioc/composer/pkg/mongo"
+	"github.com/sprioc/composer/pkg/redis"
 	"github.com/sprioc/composer/pkg/refs"
 	"github.com/sprioc/composer/pkg/rsp"
-	"github.com/sprioc/composer/pkg/store"
 )
 
 var validEmail = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
@@ -47,21 +48,32 @@ func CreateUser(userData map[string]string) rsp.Response {
 	if password, ok = userData["password"]; !ok {
 		return rsp.Response{Message: "Password not present", Code: http.StatusBadRequest}
 	}
-	log.Println(password)
-	password = strings.TrimSpace(password)
 
-	log.Println(validPassword(password), validPassPhrase(password))
+	password = strings.TrimSpace(password)
 
 	if !(validPassword(password) || validPassPhrase(password)) {
 		return rsp.Response{Message: "Invalid password", Code: http.StatusBadRequest}
 	}
-	log.Println(password)
 
-	if store.ExistsUserID(username) || store.ExistsEmail(email) {
-		return rsp.Response{Message: "Username or Email already exist", Code: http.StatusConflict}
+	userRef := model.Ref{Collection: model.Users, ShortCode: username}
+
+	exists, err := redis.Exists(userRef)
+	if err != nil {
+		return rsp.Response{Code: http.StatusInternalServerError}
+	}
+	if exists {
+		return rsp.Response{Message: "Username already exist", Code: http.StatusConflict}
 	}
 
-	securePassword, salt, resp := GetSaltPass(password)
+	exists, err = redis.ExistsEmail(email)
+	if err != nil {
+		return rsp.Response{Code: http.StatusInternalServerError}
+	}
+	if exists {
+		return rsp.Response{Message: "Email already exist", Code: http.StatusConflict}
+	}
+
+	securePassword, salt, resp := generateSaltPass(password)
 	if !resp.Ok() {
 		log.Println(resp)
 		return rsp.Response{Message: "Error adding user", Code: http.StatusConflict}
@@ -70,15 +82,15 @@ func CreateUser(userData map[string]string) rsp.Response {
 	usr := model.User{
 		ID:        bson.NewObjectId(),
 		Email:     email,
-		Pass:      securePassword,
-		Salt:      salt,
-		ShortCode: username,
 		AvatarURL: formatSources("default", "avatars"),
 	}
 
-	log.Printf("%+v", usr)
+	err = redis.CreateUser(userRef, usr.ID, email, securePassword, salt)
+	if err != nil {
+		return rsp.Response{Message: "Error adding user", Code: http.StatusInternalServerError}
+	}
 
-	err := store.Create("users", usr)
+	err = mongo.Create("users", usr)
 	if err != nil {
 		return rsp.Response{Message: "Error adding user", Code: http.StatusConflict}
 	}
@@ -89,7 +101,7 @@ func CreateUser(userData map[string]string) rsp.Response {
 	return rsp.Response{Code: http.StatusAccepted, Data: response}
 }
 
-func CreateCollection(requestuser model.User, colData map[string]string) rsp.Response {
+func CreateCollection(requestuser model.Ref, colData map[string]string) rsp.Response {
 	var title, desc string
 	var ok bool
 
@@ -101,25 +113,23 @@ func CreateCollection(requestuser model.User, colData map[string]string) rsp.Res
 		desc = ""
 	}
 
-	userRef := refs.GetUserRef(requestuser.ShortCode)
-	colRef := refs.GetCollectionRef(store.GetNewCollectionShortCode())
-
+	colRef, err := redis.GenerateShortCode(model.Collections)
+	if err != nil {
+		return rsp.Response{Code: http.StatusInternalServerError}
+	}
 	col := model.Collection{
-		ID:        bson.NewObjectId(),
-		Title:     title,
-		Desc:      desc,
-		Owner:     refs.GetUserRef(requestuser.ShortCode),
-		ShortCode: colRef.Shortcode,
+		ID:    bson.NewObjectId(),
+		Title: title,
+		Desc:  desc,
 	}
 
-	err := store.Create("collections", col)
+	err = redis.CreateCollection(requestuser, colRef, col.ID)
 	if err != nil {
 		return rsp.Response{Code: http.StatusInternalServerError}
 	}
 
-	resp := Modify(userRef,
-		bson.M{"$addToSet": bson.M{"collections": colRef}})
-	if !resp.Ok() {
+	err = mongo.Create("collections", col)
+	if err != nil {
 		return rsp.Response{Code: http.StatusInternalServerError}
 	}
 

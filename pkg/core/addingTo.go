@@ -12,8 +12,8 @@ import (
 	"github.com/sprioc/composer/pkg/rsp"
 )
 
-func AddImageToCollection(requestFrom model.Ref, col model.Ref, additions map[string][]string) rsp.Response {
-	if col.ItemType != model.Collections {
+func ModifyImagesInCollection(requestFrom model.Ref, col model.Ref, additions map[string][]string) rsp.Response {
+	if col.Collection != model.Collections {
 		return rsp.Response{Message: "Invalid reference", Code: http.StatusBadRequest}
 	}
 
@@ -24,22 +24,25 @@ func AddImageToCollection(requestFrom model.Ref, col model.Ref, additions map[st
 		return rsp.Response{Message: "Invalid body", Code: http.StatusBadRequest}
 	}
 
-	if redis.Permissions(requestFrom, redis.CanEdit) {
+	valid, err := redis.Permissions(requestFrom, model.CanEdit, col)
+	if err != nil {
+		return rsp.Response{Code: http.StatusInternalServerError}
+	}
+	if !valid {
 		return rsp.Response{Message: "User cannot modify collection.", Code: http.StatusUnauthorized}
 	}
 
-	if !redis.Exists(col) {
-		return rsp.Response{Code: http.StatusNotFound}
-	}
-
-	refs := refs.GetRefs(links)
-	err := store.Modify(col, bson.M{"$addToSet": bson.M{"images": bson.M{"$each": refs}}})
+	exists, err := redis.Exists(col)
 	if err != nil {
 		return rsp.Response{Code: http.StatusInternalServerError}
 	}
+	if !exists {
+		return rsp.Response{Message: "Collection does not exist.", Code: http.StatusNotFound}
+	}
 
+	refs := refs.GetRefs(links)
 	for _, ref := range refs {
-		err := store.Modify(ref, bson.M{"$addToSet": bson.M{"collections": col}})
+		err := redis.LinkItems(col, ref, redis.Collection, false)
 		if err != nil {
 			return rsp.Response{Code: http.StatusInternalServerError}
 		}
@@ -48,44 +51,8 @@ func AddImageToCollection(requestFrom model.Ref, col model.Ref, additions map[st
 	return rsp.Response{Code: http.StatusAccepted}
 }
 
-func DeleteImageFromCollection(requestFrom model.Ref, col model.Ref, deletions map[string][]string) rsp.Response {
-	if col.Collection != "collections" {
-		return rsp.Response{Message: "Invalid reference", Code: http.StatusBadRequest}
-	}
-
-	var links []string
-	var ok bool
-
-	if links, ok = deletions["images"]; !ok {
-		return rsp.Response{Message: "Invalid body", Code: http.StatusBadRequest}
-	}
-
-	if !inRef(col, requestFrom.Collections) {
-		return rsp.Response{Message: "User cannot delete collection they do not own.", Code: http.StatusUnauthorized}
-	}
-
-	if !store.ExistsCollectionID(col.Shortcode) {
-		return rsp.Response{Code: http.StatusNotFound}
-	}
-
-	refs := refs.GetRefs(links)
-	err := store.Modify(col, bson.M{"$pull": bson.M{"images": bson.M{"$each": refs}}})
-	if err != nil {
-		return rsp.Response{Code: http.StatusInternalServerError}
-	}
-
-	for _, ref := range refs {
-		err := store.Modify(ref, bson.M{"$pull": bson.M{"collections": col}})
-		if err != nil {
-			return rsp.Response{Code: http.StatusInternalServerError}
-		}
-	}
-
-	return rsp.Response{Code: http.StatusAccepted}
-}
-
-func AddTagsToImage(requestFrom model.User, ref model.Ref, additions map[string][]string) rsp.Response {
-	if ref.Collection != "images" {
+func AddTagsToImage(requestFrom model.Ref, imageRef model.Ref, additions map[string][]string) rsp.Response {
+	if imageRef.Collection != model.Images {
 		return rsp.Response{Message: "Invalid reference", Code: http.StatusBadRequest}
 	}
 
@@ -96,15 +63,23 @@ func AddTagsToImage(requestFrom model.User, ref model.Ref, additions map[string]
 		return rsp.Response{Message: "Invalid body", Code: http.StatusBadRequest}
 	}
 
-	if !inRef(ref, requestFrom.Images) {
-		return rsp.Response{Message: "User cannot delete image they do not own.", Code: http.StatusUnauthorized}
+	valid, err := redis.Permissions(requestFrom, model.CanEdit, imageRef)
+	if err != nil {
+		return rsp.Response{Code: http.StatusInternalServerError}
+	}
+	if !valid {
+		return rsp.Response{Message: "User cannot modify collection.", Code: http.StatusUnauthorized}
 	}
 
-	if !store.ExistsImageID(ref.Shortcode) {
-		return rsp.Response{Code: http.StatusNotFound}
+	exists, err := redis.Exists(imageRef)
+	if err != nil {
+		return rsp.Response{Code: http.StatusInternalServerError}
+	}
+	if !exists {
+		return rsp.Response{Message: "Image does not exist.", Code: http.StatusNotFound}
 	}
 
-	err := store.Modify(ref, bson.M{"$addToSet": bson.M{"tags": bson.M{"$each": tags}}})
+	err = mongo.Modify(imageRef, bson.M{"$addToSet": bson.M{"tags": bson.M{"$each": tags}}})
 	if err != nil {
 		return rsp.Response{Code: http.StatusInternalServerError}
 	}
@@ -112,8 +87,8 @@ func AddTagsToImage(requestFrom model.User, ref model.Ref, additions map[string]
 	return rsp.Response{Code: http.StatusAccepted}
 }
 
-func RemoveTagsFromImage(requestFrom model.User, ref model.Ref, deletions map[string][]string) rsp.Response {
-	if ref.Collection != "images" {
+func RemoveTagsFromImage(requestFrom model.Ref, imageRef model.Ref, deletions map[string][]string) rsp.Response {
+	if imageRef.Collection != model.Images {
 		return rsp.Response{Message: "Invalid reference", Code: http.StatusBadRequest}
 	}
 
@@ -124,15 +99,23 @@ func RemoveTagsFromImage(requestFrom model.User, ref model.Ref, deletions map[st
 		return rsp.Response{Message: "Invalid body", Code: http.StatusBadRequest}
 	}
 
-	if !inRef(ref, requestFrom.Images) {
-		return rsp.Response{Message: "User cannot delete image they do not own.", Code: http.StatusUnauthorized}
+	valid, err := redis.Permissions(requestFrom, model.CanEdit, imageRef)
+	if err != nil {
+		return rsp.Response{Code: http.StatusInternalServerError}
+	}
+	if !valid {
+		return rsp.Response{Message: "User cannot modify collection.", Code: http.StatusUnauthorized}
 	}
 
-	if !store.ExistsImageID(ref.Shortcode) {
-		return rsp.Response{Code: http.StatusNotFound}
+	exists, err := redis.Exists(imageRef)
+	if err != nil {
+		return rsp.Response{Code: http.StatusInternalServerError}
+	}
+	if !exists {
+		return rsp.Response{Message: "Image does not exist.", Code: http.StatusNotFound}
 	}
 
-	err := store.Modify(ref, bson.M{"$pull": bson.M{"tags": bson.M{"$each": tags}}})
+	err = mongo.Modify(imageRef, bson.M{"$pull": bson.M{"tags": bson.M{"$each": tags}}})
 	if err != nil {
 		return rsp.Response{Code: http.StatusInternalServerError}
 	}

@@ -26,18 +26,18 @@ func init() {
 func main() {
 
 	router := mux.NewRouter()
-	api := router.PathPrefix("/v0/").Subrouter()
+	// api := router.PathPrefix("/v0/").Subrouter()
 	port := os.Getenv("PORT")
 
 	log.Printf("Serving at http://localhost:%s", port)
 
 	//  ROUTES
-	registerImageRoutes(api)
-	registerUserRoutes(api)
-	registerCollectionRoutes(api)
-	registerSearchRoutes(api)
-	registerLuckyRoutes(api)
-	registerAuthRoutes(api)
+	// registerImageRoutes(api)
+	// registerUserRoutes(api)
+	// registerCollectionRoutes(api)
+	// registerSearchRoutes(api)
+	// registerLuckyRoutes(api)
+	// registerAuthRoutes(api)
 
 	log.Fatal(http.ListenAndServe(":"+port, handlers.LoggingHandler(os.Stdout,
 		handlers.CompressHandler(router))))

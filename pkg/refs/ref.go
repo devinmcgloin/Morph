@@ -20,19 +20,35 @@ func init() {
 var baseurl string
 
 func GetImageRef(shortcode string) model.Ref {
-	return model.Ref{Collection: model.Images, Shortcode: shortcode}
+	return model.Ref{Collection: model.Images, ShortCode: shortcode}
 }
 func GetCollectionRef(shortcode string) model.Ref {
-	return model.Ref{Collection: model.Collections, Shortcode: shortcode}
+	return model.Ref{Collection: model.Collections, ShortCode: shortcode}
 }
 
 func GetUserRef(shortcode string) model.Ref {
-	return model.Ref{Collection: model.Users, Shortcode: shortcode}
+	return model.Ref{Collection: model.Users, ShortCode: shortcode}
+}
+
+func GetRedisRef(redisString string) model.Ref {
+	splitTag := strings.Split(redisString, ":")
+	return model.Ref{
+		ShortCode:  splitTag[1],
+		Collection: model.RString(splitTag[0]),
+	}
+}
+
+func GetRedisRefs(redisStrings []string) []model.Ref {
+	var arr = make([]model.Ref, len(redisStrings))
+	for i, ref := range redisStrings {
+		arr[i] = GetRedisRef(ref)
+	}
+	return arr
 }
 
 func GetURL(ref model.Ref) string {
-	if ref.Collection != "" && ref.Shortcode != "" {
-		return fmt.Sprintf("%s%s/%s", baseurl, ref.Collection, ref.Shortcode)
+	if ref.Collection != "" && ref.ShortCode != "" {
+		return fmt.Sprintf("%s%s/%s", baseurl, ref.Collection, ref.ShortCode)
 	}
 	return ""
 }
@@ -51,7 +67,7 @@ func GetRef(url string) (model.Ref, error) {
 	}
 
 	parts := strings.Split(strings.Replace(url, baseurl, "", 1), "/")
-	return model.Ref{Collection: parts[0], Shortcode: parts[1]}, nil
+	return model.Ref{Collection: model.RString(parts[0]), ShortCode: parts[1]}, nil
 }
 
 func GetRefs(urls []string) []model.Ref {

@@ -49,7 +49,7 @@ func work() {
 		select {
 		case <-ticker.C:
 
-			var dbRefs []model.DBRef
+			var dbRefs []model.Ref
 			var urls []string
 
 			for i := 0; i < 45; i++ {
@@ -81,12 +81,12 @@ func work() {
 			var finalTags = filterTags(tagData.Results, .90)
 
 			for i := 0; i < len(urls); i++ {
-				err = store.Modify(dbRefs[i], bson.M{"$set": bson.M{"machine_tags": finalTags[i]}})
+				err = mongo.Modify(dbRefs[i], bson.M{"$set": bson.M{"machine_tags": finalTags[i]}})
 				if err != nil {
 					log.Println(err)
 				}
 
-				err = store.Modify(dbRefs[i], bson.M{"$set": bson.M{"color_tags": colorData.Results[i].Colors}})
+				err = mongo.Modify(dbRefs[i], bson.M{"$set": bson.M{"color_tags": colorData.Results[i].Colors}})
 				if err != nil {
 					log.Println(err)
 				}

@@ -5,7 +5,6 @@ import (
 
 	"gopkg.in/mgo.v2/bson"
 
-	"github.com/sprioc/clarifai-go"
 	gj "github.com/sprioc/geojson"
 )
 
@@ -13,13 +12,25 @@ import (
 
 // Image contains all the proper information for rendering a single photo
 type Image struct {
-	ID          bson.ObjectId    `bson:"_id" json:"-"`
-	MetaData    ImageMetaData    `bson:"metadata" json:"metadata"`
-	Tags        []string         `bson:"tags" json:"tags"`
-	MachineTags []string         `bson:"machine_tags" json:"machine_tags"`
-	ColorTags   []clarifai.Color `bson:"color_tags" json:"color_tags"`
-	PublishTime int64            `bson:"publish_time" json:"publish_time"`
-	Sources     ImgSource        `bson:"sources_link" json:"source_link"`
+	ID        bson.ObjectId `bson:"_id" json:"-"`
+	ShortCode string        `bson:"shortcode" json:"shortcode"`
+
+	MetaData    ImageMetaData `bson:"metadata" json:"metadata"`
+	Tags        []string      `bson:"tags" json:"tags"`
+	MachineTags []string      `bson:"machine_tags" json:"machine_tags"`
+	PublishTime int64         `bson:"publish_time" json:"publish_time"`
+	Sources     ImgSource     `bson:"sources_link" json:"source_link"`
+	Landmarks   []Landmark    `bson:"landmarks" json:"landmarks"`
+	Colors      []Color       `bson:"colors" json:"colors"`
+	Labels      []Label       `bson:"labels" json:"labels"`
+
+	OwnerLink         string   `bson:"-" json:"owner"`
+	CollectionInLinks []string `bson:"-" json:"collection_links"`
+	FavoritedByLinks  []string `bson:"-" json:"favorited_by_links"`
+	Featured          bool     `bson:"-" json:"featured"`
+	Downloads         int      `bson:"-" json:"downloads"`
+	Views             int      `bson:"-" json:"views"`
+	Purchases         int      `bson:"-" json:"purchases"`
 }
 
 type ImageMetaData struct {
@@ -49,9 +60,8 @@ type ImgSource struct {
 
 type User struct {
 	ID        bson.ObjectId `bson:"_id" json:"-"`
+	ShortCode string        `bson:"shortcode" json:"shortcode"`
 	Email     string        `bson:"email" json:"email"`
-	Pass      string        `bson:"password" json:"-"`
-	Salt      string        `bson:"salt" json:"-"`
 	Name      string        `bson:"name" json:"name"`
 	Bio       string        `bson:"bio" json:"bio,omitempty"`
 	URL       string        `bson:"personal_site_link" json:"personal_site_link,omitempty"`
@@ -60,13 +70,35 @@ type User struct {
 }
 
 type Collection struct {
-	ID       bson.ObjectId `bson:"_id" json:"-"`
-	Desc     string        `bson:"desc" json:"desc,omitempty"`
-	Title    string        `bson:"title" json:"title,omitempty"`
-	Location *gj.Feature   `bson:"location" json:"location,omitempty"`
+	ID        bson.ObjectId `bson:"_id" json:"-"`
+	ShortCode string        `bson:"shortcode" json:"shortcode"`
+	Desc      string        `bson:"desc" json:"desc,omitempty"`
+	Title     string        `bson:"title" json:"title,omitempty"`
+	Location  *gj.Feature   `bson:"location" json:"location,omitempty"`
 }
 
 type Location struct {
 	GoogleLoc maps.GeocodingResult `bson:"google_geo"`
 	Bounds    gj.Polygon           `bson:"bounds"`
+}
+
+type Landmark struct {
+	Description string
+	Location    gj.Point
+	Score       float64
+}
+
+type Color struct {
+	Color struct {
+		Red   int
+		Green int
+		Blue  int
+	}
+	PixelFraction float64
+	Score         float64
+}
+
+type Label struct {
+	Description string  `json:"description"`
+	Score       float64 `json:"score"`
 }
