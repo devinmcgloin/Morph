@@ -46,3 +46,16 @@ func (ref Ref) GetRString(t RString) string {
 func (ref Ref) GetRSet(t RString) string {
 	return fmt.Sprintf("%s:%s", ref.Collection, t)
 }
+
+func (ref Ref) Valid(typeOpts ...RString) bool {
+	if ref.ShortCode == "" {
+		return false
+	}
+
+	for _, t := range typeOpts {
+		if t == ref.Collection {
+			return true
+		}
+	}
+	return false
+}
