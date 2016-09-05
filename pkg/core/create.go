@@ -101,9 +101,9 @@ func CreateUser(userData map[string]string) rsp.Response {
 	return rsp.Response{Code: http.StatusAccepted, Data: response}
 }
 
-func CreateCollection(requestuser model.Ref, colData map[string]string) rsp.Response {
-	if requestuser.Collection != model.Users || requestuser.ShortCode == "" {
-		return rsp.Response{Code: http.StatusBadRequest, Message: "Invalid request user"}
+func CreateCollection(requestFrom model.Ref, colData map[string]string) rsp.Response {
+	if !requestFrom.Valid(model.Users) {
+		return rsp.Response{Message: "Invalid reference", Code: http.StatusBadRequest}
 	}
 	var title, desc string
 	var ok bool
@@ -126,7 +126,7 @@ func CreateCollection(requestuser model.Ref, colData map[string]string) rsp.Resp
 		Desc:  desc,
 	}
 
-	err = redis.CreateCollection(requestuser, colRef, col.ID)
+	err = redis.CreateCollection(requestFrom, colRef, col.ID)
 	if err != nil {
 		return rsp.Response{Code: http.StatusInternalServerError}
 	}

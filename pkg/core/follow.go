@@ -12,7 +12,7 @@ import (
 
 func Follow(user model.Ref, target model.Ref) rsp.Response {
 
-	if target.Valid(model.Collections, model.Images, model.Users) || user.Valid(model.Users) {
+	if !target.Valid(model.Collections, model.Images, model.Users) || !user.Valid(model.Users) {
 		return rsp.Response{Code: http.StatusBadRequest, Message: "Invalid References"}
 	}
 
@@ -30,7 +30,7 @@ func Follow(user model.Ref, target model.Ref) rsp.Response {
 
 func UnFollow(user model.Ref, target model.Ref) rsp.Response {
 
-	if target.Valid(model.Collections, model.Images, model.Users) || user.Valid(model.Users) {
+	if !target.Valid(model.Collections, model.Images, model.Users) || !user.Valid(model.Users) {
 		return rsp.Response{Code: http.StatusBadRequest, Message: "Invalid References"}
 	}
 

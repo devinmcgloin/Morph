@@ -12,7 +12,7 @@ import (
 
 func Favorite(user model.Ref, target model.Ref) rsp.Response {
 
-	if user.Valid(model.Users) {
+	if !user.Valid(model.Users) {
 		return rsp.Response{Message: "Only users can favorite things.", Code: http.StatusBadRequest}
 	}
 
@@ -31,7 +31,7 @@ func Favorite(user model.Ref, target model.Ref) rsp.Response {
 
 func UnFavorite(user model.Ref, target model.Ref) rsp.Response {
 
-	if user.Valid(model.Users) {
+	if !user.Valid(model.Users) {
 		return rsp.Response{Message: "Only users can favorite things.", Code: http.StatusBadRequest}
 	}
 

@@ -2,38 +2,26 @@ package core
 
 import (
 	"errors"
+	"log"
+	"net/http"
 
+	"github.com/sprioc/composer/pkg/contentStorage"
+	"github.com/sprioc/composer/pkg/metadata"
 	"github.com/sprioc/composer/pkg/model"
+	"github.com/sprioc/composer/pkg/refs"
+	"github.com/sprioc/composer/pkg/rsp"
 )
 
-//
-// import (
-// 	"bytes"
-// 	"errors"
-// 	"log"
-// 	"net/http"
-// 	"time"
-//
-// 	"github.com/sprioc/composer/pkg/contentStorage"
-// 	"github.com/sprioc/composer/pkg/metadata"
-// 	"github.com/sprioc/composer/pkg/model"
-// 	"github.com/sprioc/composer/pkg/refs"
-// 	"github.com/sprioc/composer/pkg/rsp"
-// 	"github.com/sprioc/composer/pkg/store"
-//
-// 	"gopkg.in/mgo.v2/bson"
-// )
-//
-// var clarifaijobs chan string
-//
-// func init() {
-// 	clarifaijobs = make(chan string)
-// 	metadata.SetupClarifai(clarifaijobs)
-// 	metadata.Start()
-// }
-//
-// // TODO NEED TO ABSTRACT THIS FURTHER
-//
+var clarifaijobs chan string
+
+func init() {
+	clarifaijobs = make(chan string)
+	metadata.SetupClarifai(clarifaijobs)
+	metadata.Start()
+}
+
+// TODO NEED TO ABSTRACT THIS FURTHER
+
 // func UploadImage(user model.User, file []byte) rsp.Response {
 //
 // 	img := model.Image{
@@ -78,30 +66,30 @@ import (
 //
 // 	return rsp.Response{Code: http.StatusAccepted, Data: map[string]string{"link": refs.GetURL(imgRef)}}
 // }
-//
-// func UploadAvatar(user model.User, file []byte) rsp.Response {
-// 	n := len(file)
-//
-// 	if n == 0 {
-// 		return rsp.Response{Message: "Cannot upload file with 0 bytes.", Code: http.StatusBadRequest}
-// 	}
-//
-// 	// REVIEW check that you can overwrite on aws
-// 	err := contentStorage.ProccessImage(file, n, user.ShortCode, "avatar")
-// 	if err != nil {
-// 		log.Println(err)
-// 		return rsp.Response{Message: err.Error(), Code: http.StatusBadRequest}
-// 	}
-//
-// 	sources := formatSources(user.ShortCode, "avatars")
-//
-// 	err = setAvatar(refs.GetUserRef(user.ShortCode), sources)
-// 	if err != nil {
-// 		return rsp.Response{Message: "Unable to add image", Code: http.StatusInternalServerError}
-// 	}
-// 	return rsp.Response{Code: http.StatusAccepted}
-// }
-//
+
+func UploadAvatar(user model.User, file []byte) rsp.Response {
+	n := len(file)
+
+	if n == 0 {
+		return rsp.Response{Message: "Cannot upload file with 0 bytes.", Code: http.StatusBadRequest}
+	}
+
+	// REVIEW check that you can overwrite on aws
+	err := contentStorage.ProccessImage(file, n, user.ShortCode, "avatar")
+	if err != nil {
+		log.Println(err)
+		return rsp.Response{Message: err.Error(), Code: http.StatusBadRequest}
+	}
+
+	sources := formatSources(user.ShortCode, "avatars")
+
+	err = setAvatar(refs.GetUserRef(user.ShortCode), sources)
+	if err != nil {
+		return rsp.Response{Message: "Unable to add image", Code: http.StatusInternalServerError}
+	}
+	return rsp.Response{Code: http.StatusAccepted}
+}
+
 func formatSources(shortcode, location string) model.ImgSource {
 	var prefix = "https://images.sprioc.xyz/" + location + "/"
 	var resourceBaseURL = prefix + shortcode

@@ -13,19 +13,14 @@ import (
 )
 
 func ModifyImagesInCollection(requestFrom model.Ref, col model.Ref, additions map[string][]string) rsp.Response {
-	if col.Valid(model.Collections) {
+	if !col.Valid(model.Collections) {
 		return rsp.Response{Message: "Invalid reference", Code: http.StatusBadRequest}
 	}
 
 	var addLinks []string
-	var remLinks []string
 	var ok bool
 
-	if addLinks, ok = additions["add"]; !ok {
-		return rsp.Response{Message: "Invalid body", Code: http.StatusBadRequest}
-	}
-
-	if remLinks, ok = additions["remove"]; !ok {
+	if addLinks, ok = additions["images"]; !ok {
 		return rsp.Response{Message: "Invalid body", Code: http.StatusBadRequest}
 	}
 
@@ -53,19 +48,11 @@ func ModifyImagesInCollection(requestFrom model.Ref, col model.Ref, additions ma
 		}
 	}
 
-	refs = refs.GetRefs(remLinks)
-	for _, ref := range refs {
-		err := redis.LinkItems(col, redis.Collection, ref, true)
-		if err != nil {
-			return rsp.Response{Code: http.StatusInternalServerError}
-		}
-	}
-
 	return rsp.Response{Code: http.StatusAccepted}
 }
 
 func AddTagsToImage(requestFrom model.Ref, imageRef model.Ref, additions map[string][]string) rsp.Response {
-	if imageRef.Collection != model.Images {
+	if !imageRef.Valid(model.Images) || !requestFrom.Valid(model.Users) {
 		return rsp.Response{Message: "Invalid reference", Code: http.StatusBadRequest}
 	}
 
@@ -101,7 +88,7 @@ func AddTagsToImage(requestFrom model.Ref, imageRef model.Ref, additions map[str
 }
 
 func RemoveTagsFromImage(requestFrom model.Ref, imageRef model.Ref, deletions map[string][]string) rsp.Response {
-	if imageRef.Collection != model.Images {
+	if !imageRef.Valid(model.Images) || !requestFrom.Valid(model.Users) {
 		return rsp.Response{Message: "Invalid reference", Code: http.StatusBadRequest}
 	}
 

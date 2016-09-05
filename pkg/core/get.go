@@ -27,6 +27,8 @@ func GetUser(ref model.Ref) (model.User, rsp.Response) {
 			Code: http.StatusNotFound}
 	}
 
+	setRedisUserValues(&user)
+
 	return user, rsp.Response{Code: http.StatusOK}
 }
 
@@ -44,7 +46,7 @@ func GetImage(ref model.Ref) (model.Image, rsp.Response) {
 			Code: http.StatusNotFound}
 	}
 
-	SetRedisImageValues(&image)
+	setRedisImageValues(&image)
 
 	return image, rsp.Response{Code: http.StatusOK}
 }
@@ -62,6 +64,8 @@ func GetCollection(ref model.Ref) (model.Collection, rsp.Response) {
 		return model.Collection{}, rsp.Response{Message: "Collection not found",
 			Code: http.StatusNotFound}
 	}
+
+	setRedisCollectionValues(&col)
 
 	return col, rsp.Response{Code: http.StatusOK}
 }
@@ -82,6 +86,10 @@ func GetCollectionImages(ref model.Ref) ([]model.Image, rsp.Response) {
 	if len(images) == 0 {
 		return []model.Image{}, rsp.Response{Code: http.StatusNotFound,
 			Message: "Collection does not exist or has not uploaded any images."}
+	}
+
+	for _, img := range images {
+		setRedisImageValues(&img)
 	}
 
 	return images, rsp.Response{Code: http.StatusOK}
@@ -111,6 +119,10 @@ func GetUserImages(ref model.Ref) ([]model.Image, rsp.Response) {
 			Message: "User does not exist or has not uploaded any images."}
 	}
 
+	for _, img := range images {
+		setRedisImageValues(&img)
+	}
+
 	return images, rsp.Response{Code: http.StatusOK}
 }
 
@@ -127,10 +139,14 @@ func GetFeaturedImages() ([]model.Image, rsp.Response) {
 			Message: "No featured images exist at this time."}
 	}
 
+	for _, img := range images {
+		setRedisImageValues(&img)
+	}
+
 	return images, rsp.Response{Code: http.StatusOK}
 }
 
-func SetRedisImageValues(image *model.Image) error {
+func setRedisImageValues(image *model.Image) error {
 	ref := model.Ref{Collection: model.Images, ShortCode: image.ShortCode}
 
 	request := make(map[string]redis.RedisType)
@@ -171,7 +187,7 @@ func SetRedisImageValues(image *model.Image) error {
 	return nil
 }
 
-func SetRedisCollectionValues(col *model.Collection) error {
+func setRedisCollectionValues(col *model.Collection) error {
 	ref := model.Ref{Collection: model.Collections, ShortCode: col.ShortCode}
 
 	request := make(map[string]redis.RedisType)
@@ -216,7 +232,7 @@ func SetRedisCollectionValues(col *model.Collection) error {
 	return nil
 }
 
-func SetRedisUserValues(user *model.User) error {
+func setRedisUserValues(user *model.User) error {
 	ref := model.Ref{Collection: model.Users, ShortCode: user.ShortCode}
 
 	request := make(map[string]redis.RedisType)
@@ -262,7 +278,7 @@ func SetRedisUserValues(user *model.User) error {
 	return nil
 }
 
-func SetPrivateRedisUserValues(user *model.User) error {
+func setPrivateRedisUserValues(user *model.User) error {
 	ref := model.Ref{Collection: model.Users, ShortCode: user.ShortCode}
 
 	request := make(map[string]redis.RedisType)
