@@ -56,7 +56,7 @@ func IsAdmin(ref model.Ref) (bool, error) {
 	conn := pool.Get()
 	defer conn.Close()
 
-	isAdmin, err := redis.Bool(conn.Do("GET", ref.GetRString(model.Admin)))
+	isAdmin, err := redis.Bool(conn.Do("SINMEMBER", ref.GetRSet(model.Admin), ref.GetTag()))
 	if err != nil {
 		log.Println(err)
 		return false, err

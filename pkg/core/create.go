@@ -102,6 +102,9 @@ func CreateUser(userData map[string]string) rsp.Response {
 }
 
 func CreateCollection(requestuser model.Ref, colData map[string]string) rsp.Response {
+	if requestuser.Collection != model.Users || requestuser.ShortCode == "" {
+		return rsp.Response{Code: http.StatusBadRequest, Message: "Invalid request user"}
+	}
 	var title, desc string
 	var ok bool
 

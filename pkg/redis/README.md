@@ -22,7 +22,6 @@
 | Key                            | Type      | Semantic Type                        |
 |:-------------------------------|:----------|:-------------------------------------|
 | users:{shortcode}              | HSET      | bson.ObjectId, Email, Password, Salt |
-| users:{shortcode}:admin        | bool      |                                      |
 | users:{shortcode}:views        | int       |                                      |
 | users:{shortcode}:images       | SortedSet |                                      |
 | users:{shortcode}:collections  | SortedSet |                                      |
@@ -34,6 +33,8 @@
 | users:{shortcode}:favorited    | SortedSet |                                      |
 | users:{shortcode}:favorited_by | SortedSet |                                      |
 | users:{shortcode}:stream       | SortedSet |                                      |
+| users:featured                 | SortedSet | users:{shortcode} => timestamp       |
+| users:admin                    | SortedSet | users:{shortcode} => timestamp       |
 
 ## Collections
 

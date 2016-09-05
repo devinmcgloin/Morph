@@ -66,6 +66,23 @@ type User struct {
 	URL       string        `bson:"personal_site_link" json:"personal_site_link,omitempty"`
 	Location  *gj.Feature   `bson:"location" json:"location,omitempty"`
 	AvatarURL ImgSource     `bson:"avatar_link" json:"avatar_link"`
+
+	ImageLinks      []string `bson:"-" json:"iamge_links"`
+	CollectionLinks []string `bson:"-" json:"collection_links"`
+
+	FollowedLinks  []string `bson:"-" json:"followed_links"`
+	FavoritedLinks []string `bson:"-" json:"favorited_links"`
+
+	Featured bool `bson:"-" json:"featured"`
+	Admin    bool `bson:"-" json:"admin"`
+	Views    int  `bson:"-" json:"views"`
+
+	// Personal Only filled out through /me endpoint
+	FavoritedByLinks []string `bson:"-" json:"favorited_by_links,omitempty"`
+	FollowedByLinks  []string `bson:"-" json:"followed_by_links,omitempty"`
+
+	SeenLinks []string `bson:"-" json:"seen_links,omitempty"`
+	Purchased []string `bson:"-" json:"purchased_links,omitempty"`
 }
 
 type Collection struct {
