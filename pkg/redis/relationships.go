@@ -16,7 +16,7 @@ const (
 	Collection
 )
 
-func LinkItems(ref, user model.Ref, relationship Relationship, unlink bool) error {
+func LinkItems(user model.Ref, relationship Relationship, ref model.Ref, unlink bool) error {
 	var forwards model.RString
 	var backwards model.RString
 	var method string
