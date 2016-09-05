@@ -11,6 +11,7 @@ const (
 
 	CollectionsIn RString = "collections_in"
 	Downloads     RString = "downloads"
+	Featured      RString = "featured"
 	Views         RString = "views"
 	Purchases     RString = "purchases"
 	Owner         RString = "owner"
@@ -39,4 +40,8 @@ func (ref Ref) GetTag() string {
 
 func (ref Ref) GetRString(t RString) string {
 	return fmt.Sprintf("%s:%s:%s", ref.Collection, ref.ShortCode, t)
+}
+
+func (ref Ref) GetRSet(t RString) string {
+	return fmt.Sprintf("%s:%s", ref.Collection, t)
 }

@@ -19,6 +19,7 @@ const (
 	RefSet
 	RefOrdSet
 	Ref
+	MemberSet
 )
 
 func GetItems(m map[string]RedisType) (map[string]interface{}, error) {
@@ -47,6 +48,8 @@ func GetItems(m map[string]RedisType) (map[string]interface{}, error) {
 			fallthrough
 		case RefOrdSet:
 			conn.Send("ZRANGE", key, 0, -1)
+		case MemberSet:
+			conn.Send("SINMEMBERS", key)
 		}
 	}
 
@@ -75,6 +78,8 @@ func GetItems(m map[string]RedisType) (map[string]interface{}, error) {
 				log.Println(err)
 				return make(map[string]interface{}), err
 			}
+		case MemberSet:
+			fallthrough
 		case Bool:
 			values[key], err = redis.Bool(value, nil)
 			if err != nil {
