@@ -177,6 +177,7 @@ func SetRedisCollectionValues(col *model.Collection) error {
 	request := make(map[string]redis.RedisType)
 
 	request[ref.GetRString(model.Views)] = redis.Int
+	request[ref.GetRString(model.ViewType)] = redis.String
 	request[ref.GetRString(model.Owner)] = redis.Ref
 	request[ref.GetRString(model.FavoritedBy)] = redis.RefOrdSet
 	request[ref.GetRString(model.FollowedBy)] = redis.RefOrdSet
@@ -190,6 +191,7 @@ func SetRedisCollectionValues(col *model.Collection) error {
 
 	col.Views, _ = values[ref.GetRString(model.Views)].(int)
 	col.Featured, _ = values[ref.GetRSet(model.Featured)].(bool)
+	col.ViewType, _ = values[ref.GetRString(model.ViewType)].(string)
 
 	str, ok := values[ref.GetRString(model.Owner)].(model.Ref)
 	if ok {
@@ -214,41 +216,41 @@ func SetRedisCollectionValues(col *model.Collection) error {
 	return nil
 }
 
-// func SetRedisImageValues(image *model.Image) error {
-// 	ref := model.Ref{Collection: model.Images, ShortCode: image.ShortCode}
-//
-// 	request := make(map[string]redis.RedisType)
-//
-// 	request[ref.GetRString(model.Downloads)] = redis.Int
-// 	request[ref.GetRString(model.Views)] = redis.Int
-// 	request[ref.GetRString(model.Purchases)] = redis.Int
-// 	request[ref.GetRString(model.Owner)] = redis.Ref
-// 	request[ref.GetRString(model.FavoritedBy)] = redis.RefOrdSet
-// 	request[ref.GetRString(model.CollectionsIn)] = redis.RefOrdSet
-//
-// 	values, err := redis.GetItems(request)
-// 	if err != nil {
-// 		return err
-// 	}
-//
-// 	image.Downloads, _ = values[ref.GetRString(model.Downloads)].(int)
-// 	image.Views, _ = values[ref.GetRString(model.Views)].(int)
-// 	image.Purchases, _ = values[ref.GetRString(model.Purchases)].(int)
-//
-// 	str, ok := values[ref.GetRString(model.Owner)].(model.Ref)
-// 	if ok {
-// 		image.OwnerLink = refs.GetURL(str)
-// 	}
-//
-// 	strs, ok := values[ref.GetRString(model.FavoritedBy)].([]model.Ref)
-// 	if ok {
-// 		image.FavoritedByLinks = refs.GetURLs(strs)
-// 	}
-//
-// 	strs, ok = values[ref.GetRString(model.CollectionsIn)].([]model.Ref)
-// 	if ok {
-// 		image.CollectionInLinks = refs.GetURLs(strs)
-// 	}
-//
-// 	return nil
-// }
+func SetRedisUserValues(image *model.Image) error {
+	ref := model.Ref{Collection: model.Images, ShortCode: image.ShortCode}
+
+	request := make(map[string]redis.RedisType)
+
+	request[ref.GetRString(model.Downloads)] = redis.Int
+	request[ref.GetRString(model.Views)] = redis.Int
+	request[ref.GetRString(model.Purchases)] = redis.Int
+	request[ref.GetRString(model.Owner)] = redis.Ref
+	request[ref.GetRString(model.FavoritedBy)] = redis.RefOrdSet
+	request[ref.GetRString(model.CollectionsIn)] = redis.RefOrdSet
+
+	values, err := redis.GetItems(request)
+	if err != nil {
+		return err
+	}
+
+	image.Downloads, _ = values[ref.GetRString(model.Downloads)].(int)
+	image.Views, _ = values[ref.GetRString(model.Views)].(int)
+	image.Purchases, _ = values[ref.GetRString(model.Purchases)].(int)
+
+	str, ok := values[ref.GetRString(model.Owner)].(model.Ref)
+	if ok {
+		image.OwnerLink = refs.GetURL(str)
+	}
+
+	strs, ok := values[ref.GetRString(model.FavoritedBy)].([]model.Ref)
+	if ok {
+		image.FavoritedByLinks = refs.GetURLs(strs)
+	}
+
+	strs, ok = values[ref.GetRString(model.CollectionsIn)].([]model.Ref)
+	if ok {
+		image.CollectionInLinks = refs.GetURLs(strs)
+	}
+
+	return nil
+}

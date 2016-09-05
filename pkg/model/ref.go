@@ -27,6 +27,7 @@ const (
 	Favorited     RString = "favorited"
 	FavoritedBy   RString = "favorited_by"
 	Stream        RString = "stream"
+	ViewType      RString = "view_type"
 )
 
 type Ref struct {

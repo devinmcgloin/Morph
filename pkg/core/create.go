@@ -160,7 +160,6 @@ func validPassword(password string) bool {
 		}
 	}
 
-	log.Println(hasLower, hasUpper, hasNumber, hasSpecial, len(password))
 	return hasLower && hasUpper && hasNumber && hasSpecial && len(password) > 8
 }
 
