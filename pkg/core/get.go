@@ -44,7 +44,7 @@ func GetImage(ref model.Ref) (model.Image, rsp.Response) {
 			Code: http.StatusNotFound}
 	}
 
-	SetRedisValues(&image)
+	SetRedisImageValues(&image)
 
 	return image, rsp.Response{Code: http.StatusOK}
 }
@@ -130,43 +130,125 @@ func GetFeaturedImages() ([]model.Image, rsp.Response) {
 	return images, rsp.Response{Code: http.StatusOK}
 }
 
-func SetRedisValues(image *model.Image) error {
+func SetRedisImageValues(image *model.Image) error {
 	ref := model.Ref{Collection: model.Images, ShortCode: image.ShortCode}
 
-	downloads, err := redis.GetInt(ref.GetRString(model.Downloads))
-	if err != nil {
-		return err
-	}
-	image.Downloads = downloads
+	request := make(map[string]redis.RedisType)
 
-	views, err := redis.GetInt(ref.GetRString(model.Views))
-	if err != nil {
-		return err
-	}
-	image.Views = views
+	request[ref.GetRString(model.Downloads)] = redis.Int
+	request[ref.GetRString(model.Views)] = redis.Int
+	request[ref.GetRString(model.Purchases)] = redis.Int
+	request[ref.GetRString(model.Owner)] = redis.Ref
+	request[ref.GetRString(model.FavoritedBy)] = redis.RefOrdSet
+	request[ref.GetRString(model.CollectionsIn)] = redis.RefOrdSet
 
-	purchases, err := redis.GetInt(ref.GetRString(model.Purchases))
+	values, err := redis.GetItems(request)
 	if err != nil {
 		return err
 	}
-	image.Purchases = purchases
 
-	owner, err := redis.GetRef(ref.GetRString(model.Owner))
-	if err != nil {
-		return err
-	}
-	image.OwnerLink = refs.GetURL(owner)
+	image.Downloads, _ = values[ref.GetRString(model.Downloads)].(int)
+	image.Views, _ = values[ref.GetRString(model.Views)].(int)
+	image.Purchases, _ = values[ref.GetRString(model.Purchases)].(int)
 
-	favoritedBy, err := redis.GetSortedSet(ref.GetRString(model.FavoritedBy), 0, -1)
-	if err != nil {
-		return err
+	str, ok := values[ref.GetRString(model.Owner)].(model.Ref)
+	if ok {
+		image.OwnerLink = refs.GetURL(str)
 	}
-	image.FavoritedByLinks = refs.GetURLs(favoritedBy)
 
-	collectionsIn, err := redis.GetSortedSet(ref.GetRString(model.CollectionsIn), 0, -1)
-	if err != nil {
-		return err
+	strs, ok := values[ref.GetRString(model.FavoritedBy)].([]model.Ref)
+	if ok {
+		image.FavoritedByLinks = refs.GetURLs(strs)
 	}
-	image.CollectionInLinks = refs.GetURLs(collectionsIn)
+
+	strs, ok = values[ref.GetRString(model.CollectionsIn)].([]model.Ref)
+	if ok {
+		image.CollectionInLinks = refs.GetURLs(strs)
+	}
+
 	return nil
 }
+
+func SetRedisCollectionValues(col *model.Collection) error {
+	ref := model.Ref{Collection: model.Collections, ShortCode: col.ShortCode}
+
+	request := make(map[string]redis.RedisType)
+
+	// request[ref.GetRString(model.ViewType)] = redis.Int
+	request[ref.GetRString(model.Views)] = redis.Int
+	// request[ref.GetRString(model.Purchases)] = redis.Int
+	request[ref.GetRString(model.Owner)] = redis.Ref
+	request[ref.GetRString(model.FavoritedBy)] = redis.RefOrdSet
+	request[ref.GetRString(model.FollowedBy)] = redis.RefOrdSet
+	request[ref.GetRString(model.Images)] = redis.RefOrdSet
+
+	values, err := redis.GetItems(request)
+	if err != nil {
+		return err
+	}
+
+	// col.ViewType, _ = values[ref.GetRString(model.Downloads)].(string)
+	col.Views, _ = values[ref.GetRString(model.Views)].(int)
+	// col.Purchases, _ = values[ref.GetRString(model.Purchases)].(int)
+
+	str, ok := values[ref.GetRString(model.Owner)].(model.Ref)
+	if ok {
+		col.OwnerLink = refs.GetURL(str)
+	}
+
+	strs, ok := values[ref.GetRString(model.FavoritedBy)].([]model.Ref)
+	if ok {
+		col.FavoritedByLinks = refs.GetURLs(strs)
+	}
+
+	strs, ok = values[ref.GetRString(model.FollowedBy)].([]model.Ref)
+	if ok {
+		col.FollowedByLinks = refs.GetURLs(strs)
+	}
+
+	strs, ok = values[ref.GetRString(model.Images)].([]model.Ref)
+	if ok {
+		col.ImageLinks = refs.GetURLs(strs)
+	}
+
+	return nil
+}
+
+// func SetRedisImageValues(image *model.Image) error {
+// 	ref := model.Ref{Collection: model.Images, ShortCode: image.ShortCode}
+//
+// 	request := make(map[string]redis.RedisType)
+//
+// 	request[ref.GetRString(model.Downloads)] = redis.Int
+// 	request[ref.GetRString(model.Views)] = redis.Int
+// 	request[ref.GetRString(model.Purchases)] = redis.Int
+// 	request[ref.GetRString(model.Owner)] = redis.Ref
+// 	request[ref.GetRString(model.FavoritedBy)] = redis.RefOrdSet
+// 	request[ref.GetRString(model.CollectionsIn)] = redis.RefOrdSet
+//
+// 	values, err := redis.GetItems(request)
+// 	if err != nil {
+// 		return err
+// 	}
+//
+// 	image.Downloads, _ = values[ref.GetRString(model.Downloads)].(int)
+// 	image.Views, _ = values[ref.GetRString(model.Views)].(int)
+// 	image.Purchases, _ = values[ref.GetRString(model.Purchases)].(int)
+//
+// 	str, ok := values[ref.GetRString(model.Owner)].(model.Ref)
+// 	if ok {
+// 		image.OwnerLink = refs.GetURL(str)
+// 	}
+//
+// 	strs, ok := values[ref.GetRString(model.FavoritedBy)].([]model.Ref)
+// 	if ok {
+// 		image.FavoritedByLinks = refs.GetURLs(strs)
+// 	}
+//
+// 	strs, ok = values[ref.GetRString(model.CollectionsIn)].([]model.Ref)
+// 	if ok {
+// 		image.CollectionInLinks = refs.GetURLs(strs)
+// 	}
+//
+// 	return nil
+// }

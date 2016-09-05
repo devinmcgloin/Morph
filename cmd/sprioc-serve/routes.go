@@ -1,37 +1,38 @@
 package main
 
-// import (
-// 	"github.com/gorilla/mux"
-// 	"github.com/sprioc/composer/pkg/handlers"
-// 	"github.com/sprioc/composer/pkg/middleware"
-// )
-//
-// // TODO lock these routes down to alphabetical only with regex.
-//
-// func registerImageRoutes(api *mux.Router) {
-// 	img := api.PathPrefix("/images").Subrouter()
-//
-// 	get := img.Methods("GET").Subrouter()
-// 	get.HandleFunc("/featured", middleware.Unsecure(handlers.GetFeaturedImages))
-// 	get.HandleFunc("/{IID:[a-zA-Z]{12}}", middleware.Unsecure(handlers.GetImage))
-//
-// 	post := api.Methods("POST").Subrouter()
-// 	post.HandleFunc("/images", middleware.Secure(handlers.UploadImage))
-//
-// 	put := img.Methods("PUT").Subrouter()
-// 	put.HandleFunc("/{IID:[a-zA-Z]{12}}/tags", middleware.Secure(NotImplemented))
-// 	put.HandleFunc("/{IID:[a-zA-Z]{12}}/featured", middleware.Secure(handlers.FeatureImage))
-// 	put.HandleFunc("/{IID:[a-zA-Z]{12}}/favorite", middleware.Secure(handlers.FavoriteImage))
-//
-// 	del := img.Methods("DELETE").Subrouter()
-// 	del.HandleFunc("/{IID:[a-zA-Z]{12}}", middleware.Secure(handlers.DeleteImage))
-// 	del.HandleFunc("/{IID:[a-zA-Z]{12}}/tags", middleware.Secure(NotImplemented))
-// 	del.HandleFunc("/{IID:[a-zA-Z]{12}}/featured", middleware.Secure(handlers.UnFeatureImage))
-// 	del.HandleFunc("/{IID:[a-zA-Z]{12}}/favorite", middleware.Secure(handlers.UnFavoriteImage))
-//
-// 	patch := img.Methods("PATCH").Subrouter()
-// 	patch.HandleFunc("/{IID:[a-zA-Z]{12}}", middleware.Secure(handlers.ModifyImage))
-// }
+import (
+	"github.com/gorilla/mux"
+	"github.com/sprioc/composer/pkg/handlers"
+	"github.com/sprioc/composer/pkg/middleware"
+)
+
+// TODO lock these routes down to alphabetical only with regex.
+
+func registerImageRoutes(api *mux.Router) {
+	img := api.PathPrefix("/images").Subrouter()
+
+	get := img.Methods("GET").Subrouter()
+	// 	get.HandleFunc("/featured", middleware.Unsecure(handlers.GetFeaturedImages))
+	get.HandleFunc("/{IID:[a-zA-Z]{12}}", middleware.Unsecure(handlers.GetImage))
+	//
+	// 	post := api.Methods("POST").Subrouter()
+	// 	post.HandleFunc("/images", middleware.Secure(handlers.UploadImage))
+	//
+	// 	put := img.Methods("PUT").Subrouter()
+	// 	put.HandleFunc("/{IID:[a-zA-Z]{12}}/tags", middleware.Secure(NotImplemented))
+	// 	put.HandleFunc("/{IID:[a-zA-Z]{12}}/featured", middleware.Secure(handlers.FeatureImage))
+	// 	put.HandleFunc("/{IID:[a-zA-Z]{12}}/favorite", middleware.Secure(handlers.FavoriteImage))
+	//
+	// 	del := img.Methods("DELETE").Subrouter()
+	// 	del.HandleFunc("/{IID:[a-zA-Z]{12}}", middleware.Secure(handlers.DeleteImage))
+	// 	del.HandleFunc("/{IID:[a-zA-Z]{12}}/tags", middleware.Secure(NotImplemented))
+	// 	del.HandleFunc("/{IID:[a-zA-Z]{12}}/featured", middleware.Secure(handlers.UnFeatureImage))
+	// 	del.HandleFunc("/{IID:[a-zA-Z]{12}}/favorite", middleware.Secure(handlers.UnFavoriteImage))
+	//
+	// 	patch := img.Methods("PATCH").Subrouter()
+	// 	patch.HandleFunc("/{IID:[a-zA-Z]{12}}", middleware.Secure(handlers.ModifyImage))
+}
+
 //
 // func registerUserRoutes(api *mux.Router) {
 // 	usr := api.PathPrefix("/users").Subrouter()

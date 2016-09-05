@@ -2,6 +2,7 @@ package metadata
 
 import (
 	"encoding/base64"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -14,10 +15,12 @@ import (
 var visionService *vision.Service
 
 func init() {
+	var err error
+
 	client := &http.Client{
 		Transport: &transport.APIKey{Key: os.Getenv("GOOGLE_API_KEY")},
 	}
-	visionService, err := vision.New(client)
+	visionService, err = vision.New(client)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -51,6 +54,7 @@ func GetResponse(file io.Reader) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println(res)
 	return nil
 
 }

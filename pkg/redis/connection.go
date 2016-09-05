@@ -19,29 +19,34 @@ func init() {
 	if redisPass == "" {
 		log.Fatal("REDIS_PASS not set")
 	}
-	newPool()
+	pool = newPool(redisURL, redisPass)
 }
 
 var redisURL string
 var redisPass string
 var pool *redis.Pool
 
-func newPool() {
-	pool = &redis.Pool{
+func newPool(server, password string) *redis.Pool {
+	return &redis.Pool{
+		MaxActive:   15,
+		Wait:        true,
 		MaxIdle:     3,
 		IdleTimeout: 240 * time.Second,
 		Dial: func() (redis.Conn, error) {
-			c, err := redis.DialURL(redisURL)
+			c, err := redis.Dial("tcp", server)
 			if err != nil {
 				return nil, err
 			}
-			if _, err = c.Do("AUTH", redisPass); err != nil {
+			if _, err := c.Do("PING"); err != nil {
 				c.Close()
 				return nil, err
 			}
-			return c, err
+			return c, nil
 		},
 		TestOnBorrow: func(c redis.Conn, t time.Time) error {
+			if time.Since(t) < time.Minute {
+				return nil
+			}
 			_, err := c.Do("PING")
 			return err
 		},

@@ -3,14 +3,15 @@ package mongo
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/sprioc/composer/pkg/model"
 
 	"gopkg.in/mgo.v2/bson"
 )
 
-const (
-	database string = "sprioc"
+var (
+	database string = os.Getenv("MONGODB_NAME")
 )
 
 func init() {
@@ -34,7 +35,7 @@ func Get(ID model.Ref, container interface{}) error {
 
 	err := c.Find(bson.M{"shortcode": ID.ShortCode}).One(container)
 	if err != nil {
-		log.Println(ID, err)
+		log.Printf("%+v, %v", ID, err)
 		return err
 	}
 

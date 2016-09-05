@@ -17,7 +17,6 @@ type Image struct {
 
 	MetaData    ImageMetaData `bson:"metadata" json:"metadata"`
 	Tags        []string      `bson:"tags" json:"tags"`
-	MachineTags []string      `bson:"machine_tags" json:"machine_tags"`
 	PublishTime int64         `bson:"publish_time" json:"publish_time"`
 	Sources     ImgSource     `bson:"sources_link" json:"source_link"`
 	Landmarks   []Landmark    `bson:"landmarks" json:"landmarks"`
@@ -75,6 +74,14 @@ type Collection struct {
 	Desc      string        `bson:"desc" json:"desc,omitempty"`
 	Title     string        `bson:"title" json:"title,omitempty"`
 	Location  *gj.Feature   `bson:"location" json:"location,omitempty"`
+
+	OwnerLink        string   `bson:"-" json:"owner"`
+	ImageLinks       []string `bson:"-" json:"iamge_links"`
+	FavoritedByLinks []string `bson:"-" json:"favorited_by_links"`
+	FollowedByLinks  []string `bson:"-" json:"followed_by_links"`
+	Featured         bool     `bson:"-" json:"featured"`
+	Views            int      `bson:"-" json:"views"`
+	ViewType         string   `bson:"-" json:"view_type"`
 }
 
 type Location struct {

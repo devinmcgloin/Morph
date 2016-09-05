@@ -1,17 +1,15 @@
 package handlers
 
 //
-// import (
-// 	"log"
-// 	"net/http"
-//
-// 	"github.com/gorilla/context"
-// 	"github.com/gorilla/mux"
-// 	"github.com/sprioc/composer/pkg/core"
-// 	"github.com/sprioc/composer/pkg/model"
-// 	"github.com/sprioc/composer/pkg/refs"
-// 	"github.com/sprioc/composer/pkg/rsp"
-// )
+import (
+	"net/http"
+
+	"github.com/gorilla/mux"
+	"github.com/sprioc/composer/pkg/core"
+	"github.com/sprioc/composer/pkg/refs"
+	"github.com/sprioc/composer/pkg/rsp"
+)
+
 //
 // func GetCollection(w http.ResponseWriter, r *http.Request) rsp.Response {
 // 	id := mux.Vars(r)["CID"]
@@ -61,19 +59,19 @@ package handlers
 // 	return rsp.Response{Code: http.StatusOK, Data: user}
 // }
 //
-// func GetImage(w http.ResponseWriter, r *http.Request) rsp.Response {
-// 	id := mux.Vars(r)["IID"]
-//
-// 	ref := refs.GetImageRef(id)
-//
-// 	img, resp := core.GetImage(ref)
-// 	if !resp.Ok() {
-// 		return resp
-// 	}
-//
-// 	refs.FillExternalImage(&img)
-// 	return rsp.Response{Code: http.StatusOK, Data: img}
-// }
+func GetImage(w http.ResponseWriter, r *http.Request) rsp.Response {
+	id := mux.Vars(r)["IID"]
+
+	ref := refs.GetImageRef(id)
+
+	img, resp := core.GetImage(ref)
+	if !resp.Ok() {
+		return resp
+	}
+
+	return rsp.Response{Code: http.StatusOK, Data: img}
+}
+
 //
 // func IncrementDownloadCounter(w http.ResponseWriter, r *http.Request) rsp.Response {
 // 	id := mux.Vars(r)["IID"]

@@ -26,13 +26,13 @@ func init() {
 func main() {
 
 	router := mux.NewRouter()
-	// api := router.PathPrefix("/v0/").Subrouter()
+	api := router.PathPrefix("/v0/").Subrouter()
 	port := os.Getenv("PORT")
 
 	log.Printf("Serving at http://localhost:%s", port)
 
 	//  ROUTES
-	// registerImageRoutes(api)
+	registerImageRoutes(api)
 	// registerUserRoutes(api)
 	// registerCollectionRoutes(api)
 	// registerSearchRoutes(api)
