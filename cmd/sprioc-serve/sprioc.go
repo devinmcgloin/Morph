@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gorilla/context"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 
@@ -39,8 +40,8 @@ func main() {
 	registerLuckyRoutes(api)
 	registerAuthRoutes(api)
 
-	log.Fatal(http.ListenAndServe(":"+port, handlers.LoggingHandler(os.Stdout,
-		handlers.CompressHandler(router))))
+	log.Fatal(http.ListenAndServe(":"+port, context.ClearHandler(handlers.LoggingHandler(os.Stdout,
+		handlers.CompressHandler(router)))))
 }
 
 // NotImplemented returns the standard response for endpoints that have not been implemented
