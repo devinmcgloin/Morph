@@ -18,7 +18,7 @@ const (
 	CanView       RString = "can_view"
 	CanEdit       RString = "can_edit"
 	CanDelete     RString = "can_delete"
-	Admin         RString = "admin"
+	Admin         RString = "admins"
 	Purchased     RString = "purchased"
 	Downloaded    RString = "downloaded"
 	Seen          RString = "seen"
@@ -28,6 +28,8 @@ const (
 	FavoritedBy   RString = "favorited_by"
 	Stream        RString = "stream"
 	ViewType      RString = "view_type"
+	New           RString = "new"
+	Location      RString = "location"
 )
 
 type Ref struct {

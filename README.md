@@ -40,44 +40,44 @@ Ref bodies have the following format:
 
 
 ### Images
-| Method | Endpoint                | Body           | Returns                                                          |
-|:-------|:------------------------|:---------------|:-----------------------------------------------------------------|
-| GET    | /v0/images/:ID          |                | Image view that contains a filled out user field.                |
-| POST   | /v0/images              | raw image data | create a new image with the authenticated user                   |
-| PUT    | /v0/images/:ID/favorite |                | favorite the image                                               |
-|        | /v0/images/:ID/tags     |                | Add a tag to this image                                          |
-| DELETE | /v0/images/:ID          |                | delete the image, only works if the request maker owns the image |
-|        | /v0/images/:ID/favorite |                | unfavorite the image                                             |
-|        | /v0/images/:ID/tags     |                | remove a tag to this image                                       |
-| PATCH  | /v0/images/:ID          |                | make changes to the image (See notes on patch requests)          |
+| Method | Endpoint                | Body           | Returns                                                          | API Version |
+|:-------|:------------------------|:---------------|:-----------------------------------------------------------------|:------------|
+| GET    | /v0/images/:ID          |                | Image view that contains a filled out user field.                | v0.1        |
+| POST   | /v0/images              | raw image data | create a new image with the authenticated user                   | v0.1        |
+| PUT    | /v0/images/:ID/favorite |                | favorite the image                                               | v0.2        |
+|        | /v0/images/:ID/tags     |                | Add a tag to this image                                          | v0.3        |
+| DELETE | /v0/images/:ID          |                | delete the image, only works if the request maker owns the image | v0.1        |
+|        | /v0/images/:ID/favorite |                | unfavorite the image                                             | v0.2        |
+|        | /v0/images/:ID/tags     |                | remove a tag to this image                                       | v0.3        |
+| PATCH  | /v0/images/:ID          |                | make changes to the image (See notes on patch requests)          | v0.2        |
 
 ### Users
-| Method | Endpoint                     | Body           | Returns                                                |
-|:-------|:-----------------------------|:---------------|:-------------------------------------------------------|
-| GET    | /v0/users/:username          |                | full user view                                         |
-|        | /v0/users/me                 |                | full user view of the logged in user                   |
-| POST   | /v0/users                    |                | create new user                                        |
-| PUT    | /v0/users/:username/avatar   | raw image data | update avatar image                                    |
-|        | /v0/users/:username/favorite |                | favorite this user                                     |
-|        | /v0/users/:username/follow   |                | follow this user                                       |
-| DELETE | /v0/users/:username          |                | Delete this user account                               |
-|        | /v0/users/:username/favorite |                | unfavorite this user                                   |
-|        | /v0/users/:username/follow   |                | unfollow this user                                     |
-| PATCH  | /v0/users/:username          |                | make changes to the user (See notes on patch requests) |
+| Method | Endpoint                     | Body           | Returns                                                | API Version |
+|:-------|:-----------------------------|:---------------|:-------------------------------------------------------|:------------|
+| GET    | /v0/users/:username          |                | full user view                                         | v0.1        |
+|        | /v0/users/me                 |                | full user view of the logged in user                   | v0.1        |
+| POST   | /v0/users                    |                | create new user                                        | v0.1        |
+| PUT    | /v0/users/:username/avatar   | raw image data | update avatar image                                    | v0.1        |
+|        | /v0/users/:username/favorite |                | favorite this user                                     | v0.2        |
+|        | /v0/users/:username/follow   |                | follow this user                                       | v0.4        |
+| DELETE | /v0/users/:username          |                | Delete this user account                               | v0.1        |
+|        | /v0/users/:username/favorite |                | unfavorite this user                                   | v0.2        |
+|        | /v0/users/:username/follow   |                | unfollow this user                                     | v0.4        |
+| PATCH  | /v0/users/:username          |                | make changes to the user (See notes on patch requests) | v0.1        |
 
 ### Collections
-| Method | Endpoint                      | Body                      | Returns |
-|:-------|:------------------------------|:--------------------------|:--------|
-| GET    | /v0/collections/:CID          |                           |         |
-| POST   | /v0/collections               |                           |         |
-|        | /v0/collections/:CID/images   | array of image shortcodes |         |
-| PUT    | /v0/collections/:CID/favorite |                           |         |
-|        | /v0/collections/:CID/follow   |                           |         |
-| DELETE | /v0/collections               |                           |         |
-|        | /v0/collections/:CID/images   | array of image shortcodes |         |
-|        | /v0/collections/:CID/favorite |                           |         |
-|        | /v0/collections/:CID/follow   |                           |         |
-| PATCH  | /v0/collections/:CID          |                           |         |
+| Method | Endpoint                      | Body                      | Returns | API Version |
+|:-------|:------------------------------|:--------------------------|:--------|:------------|
+| GET    | /v0/collections/:CID          |                           |         | v0.5        |
+| POST   | /v0/collections               |                           |         | v0.5        |
+|        | /v0/collections/:CID/images   | array of image shortcodes |         | v0.5        |
+| PUT    | /v0/collections/:CID/favorite |                           |         | TBD         |
+|        | /v0/collections/:CID/follow   |                           |         | TBD         |
+| DELETE | /v0/collections               |                           |         | TBD         |
+|        | /v0/collections/:CID/images   | array of image shortcodes |         | v0.5        |
+|        | /v0/collections/:CID/favorite |                           |         | TBD         |
+|        | /v0/collections/:CID/follow   |                           |         | TBD         |
+| PATCH  | /v0/collections/:CID          |                           |         | TBD         |
 
 
 ## Queries

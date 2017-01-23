@@ -1,9 +1,7 @@
 package model
 
 import (
-	"googlemaps.github.io/maps"
-
-	"gopkg.in/mgo.v2/bson"
+	"fmt"
 
 	gj "github.com/sprioc/geojson"
 )
@@ -12,104 +10,71 @@ import (
 
 // Image contains all the proper information for rendering a single photo
 type Image struct {
-	ID        bson.ObjectId `bson:"_id" json:"-"`
-	ShortCode string        `bson:"shortcode" json:"shortcode"`
+	ShortCode Ref `redis:"-"`
 
-	MetaData    ImageMetaData `bson:"metadata" json:"metadata"`
-	Tags        []string      `bson:"tags" json:"tags"`
-	PublishTime int64         `bson:"publish_time" json:"publish_time"`
-	Sources     ImgSource     `bson:"sources_link" json:"source_link"`
-	Landmarks   []Landmark    `bson:"landmarks" json:"landmarks"`
-	Colors      []Color       `bson:"colors" json:"colors"`
-	Labels      []Label       `bson:"labels" json:"labels"`
+	// Tags         []string `redis:"tags" json:"tags"`
+	PublishTime  int64 `redis:"publish_time"`
+	LastModified int64 `redis:"last_modified"`
+	// Landmarks    []Landmark `redis:"landmarks" json:"landmarks"`
+	// Colors       []Color    `redis:"colors" json:"colors"`
+	// Labels       []Label    `redis:"labels" json:"labels"`
 
-	OwnerLink         string   `bson:"-" json:"owner"`
-	CollectionInLinks []string `bson:"-" json:"collection_links"`
-	FavoritedByLinks  []string `bson:"-" json:"favorited_by_links"`
-	Featured          bool     `bson:"-" json:"featured"`
-	Downloads         int      `bson:"-" json:"downloads"`
-	Views             int      `bson:"-" json:"views"`
-	Purchases         int      `bson:"-" json:"purchases"`
-}
+	Owner     Ref  `redis:"-" json:"owner"`
+	Favorites int  `redis:"-" json:"favorites"`
+	Featured  bool `redis:"-" json:"featured"`
+	Downloads int  `redis:"-" json:"downloads"`
+	Views     int  `redis:"-" json:"views"`
+	Purchases int  `redis:"-" json:"purchases"`
 
-type ImageMetaData struct {
-	Aperture        string    `bson:"aperture" json:"aperture,omitempty"`
-	ExposureTime    string    `bson:"exposure_time" json:"exposure_time,omitempty"`
-	FocalLength     string    `bson:"focal_length" json:"focal_length,omitempty"`
-	ISO             int       `bson:"iso" json:"iso,omitempty"`
-	Make            string    `bson:"make" json:"make,omitempty"`
-	Model           string    `bson:"model" json:"model,omitempty"`
-	LensMake        string    `bson:"lens_make" json:"lens_make,omitempty"`
-	LensModel       string    `bson:"lens_model" json:"lens_model,omitempty"`
-	PixelXDimension int64     `bson:"pixel_xd" json:"pixel_xd,omitempty"`
-	PixelYDimension int64     `bson:"pixel_yd" json:"pixel_yd,omitempty"`
-	CaptureTime     int64     `bson:"capture_time" json:"capture_time,omitempty"`
-	ImgDirection    float64   `bson:"direction" json:"direction,omitempty"`
-	Location        *gj.Point `bson:"location" json:"location,omitempty"`
+	// Image Metadata
+	Aperture        string    `redis:"aperture" json:"aperture,omitempty"`
+	ExposureTime    string    `redis:"exposure_time" json:"exposure_time,omitempty"`
+	FocalLength     string    `redis:"focal_length" json:"focal_length,omitempty"`
+	ISO             int       `redis:"iso" json:"iso,omitempty"`
+	Make            string    `redis:"make" json:"make,omitempty"`
+	Model           string    `redis:"model" json:"model,omitempty"`
+	LensMake        string    `redis:"lens_make" json:"lens_make,omitempty"`
+	LensModel       string    `redis:"lens_model" json:"lens_model,omitempty"`
+	PixelXDimension int64     `redis:"pixel_xd" json:"pixel_xd,omitempty"`
+	PixelYDimension int64     `redis:"pixel_yd" json:"pixel_yd,omitempty"`
+	CaptureTime     int64     `redis:"capture_time" json:"capture_time,omitempty"`
+	ImgDirection    float64   `redis:"direction" json:"direction,omitempty"`
+	Location        *gj.Point `redis:"-" json:"location,omitempty"`
 }
 
 // ImgSource includes the information about the image itself.
 type ImgSource struct {
-	Thumb  string `bson:"thumb" json:"thumb"`
-	Small  string `bson:"small" json:"small"`
-	Medium string `bson:"medium" json:"medium"`
-	Large  string `bson:"large" json:"large"`
-	Raw    string `bson:"raw" json:"raw"`
+	Thumb  string `redis:"thumb" json:"thumb"`
+	Small  string `redis:"small" json:"small"`
+	Medium string `redis:"medium" json:"medium"`
+	Large  string `redis:"large" json:"large"`
+	Raw    string `redis:"raw" json:"raw"`
 }
 
 type User struct {
-	ID        bson.ObjectId `bson:"_id" json:"-"`
-	ShortCode string        `bson:"shortcode" json:"shortcode"`
-	Email     string        `bson:"email" json:"email"`
-	Name      string        `bson:"name" json:"name"`
-	Bio       string        `bson:"bio" json:"bio,omitempty"`
-	URL       string        `bson:"personal_site_link" json:"personal_site_link,omitempty"`
-	Location  *gj.Feature   `bson:"location" json:"location,omitempty"`
-	AvatarURL ImgSource     `bson:"avatar_link" json:"avatar_link"`
+	ShortCode Ref         `redis:"-" json:"username"`
+	Email     string      `redis:"email" json:"email"`
+	Name      string      `redis:"name" json:"name"`
+	Bio       string      `redis:"bio" json:"bio"`
+	URL       string      `redis:"personal_site_link" json:"personal_site_link"`
+	Location  *gj.Feature `redis:"-" json:"location"`
 
-	ImageLinks      []string `bson:"-" json:"iamge_links"`
-	CollectionLinks []string `bson:"-" json:"collection_links"`
+	Password string `redis:"password" json:"-"`
+	Salt     string `redis:"salt" json:"-"`
 
-	FollowedLinks  []string `bson:"-" json:"followed_links"`
-	FavoritedLinks []string `bson:"-" json:"favorited_links"`
+	Images []Ref `redis:"-" json:"image"`
+	// Favorites []Ref `redis:"-" json:"favorited"`
 
-	Featured bool `bson:"-" json:"featured"`
-	Admin    bool `bson:"-" json:"admin"`
-	Views    int  `bson:"-" json:"views"`
+	Featured bool `redis:"-" json:"featured"`
+	Admin    bool `redis:"-" json:"admin"`
+	Views    int  `redis:"-" json:"views"`
+
+	CreatedAt    int64 `redis:"created_at" json:"created_at"`
+	LastModified int64 `redis:"last_modified" json:"last_modified"`
 
 	// Personal Only filled out through /me endpoint
-	FavoritedByLinks []string `bson:"-" json:"favorited_by_links,omitempty"`
-	FollowedByLinks  []string `bson:"-" json:"followed_by_links,omitempty"`
-
-	SeenLinks []string `bson:"-" json:"seen_links,omitempty"`
-	Purchased []string `bson:"-" json:"purchased_links,omitempty"`
-}
-
-type Collection struct {
-	ID        bson.ObjectId `bson:"_id" json:"-"`
-	ShortCode string        `bson:"shortcode" json:"shortcode"`
-	Desc      string        `bson:"desc" json:"desc,omitempty"`
-	Title     string        `bson:"title" json:"title,omitempty"`
-	Location  *gj.Feature   `bson:"location" json:"location,omitempty"`
-
-	OwnerLink        string   `bson:"-" json:"owner"`
-	ImageLinks       []string `bson:"-" json:"iamge_links"`
-	FavoritedByLinks []string `bson:"-" json:"favorited_by_links"`
-	FollowedByLinks  []string `bson:"-" json:"followed_by_links"`
-	Featured         bool     `bson:"-" json:"featured"`
-	Views            int      `bson:"-" json:"views"`
-	ViewType         string   `bson:"-" json:"view_type"`
-}
-
-type Location struct {
-	GoogleLoc maps.GeocodingResult `bson:"google_geo"`
-	Bounds    gj.Polygon           `bson:"bounds"`
-}
-
-type Landmark struct {
-	Description string
-	Location    gj.Point
-	Score       float64
+	SeenLinks []Ref `redis:"-" json:"seen_links,omitempty"`
+	Purchased []Ref `redis:"-" json:"purchased_links,omitempty"`
 }
 
 type Color struct {
@@ -125,4 +90,26 @@ type Color struct {
 type Label struct {
 	Description string  `json:"description"`
 	Score       float64 `json:"score"`
+}
+
+type Landmark struct {
+	Description string
+	Location    gj.Point
+	Score       float64
+}
+
+func (u User) GetTag() string {
+	return fmt.Sprintf("%s:%s", "users", u.ShortCode.ShortCode)
+}
+
+func (i Image) GetTag() string {
+	return fmt.Sprintf("%s:%s", "images", i.ShortCode.ShortCode)
+}
+
+func (u User) GetRef() Ref {
+	return u.ShortCode
+}
+
+func (i Image) GetRef() Ref {
+	return i.ShortCode
 }

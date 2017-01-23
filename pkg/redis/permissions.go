@@ -1,7 +1,6 @@
 package redis
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/garyburd/redigo/redis"
@@ -12,6 +11,7 @@ func Permissions(userRef model.Ref, permission model.RString, item model.Ref) (b
 	conn := pool.Get()
 	defer conn.Close()
 
+	// admins can make any edits.
 	isAdmin, err := IsAdmin(userRef)
 	if err != nil {
 		log.Println(err)
@@ -21,6 +21,7 @@ func Permissions(userRef model.Ref, permission model.RString, item model.Ref) (b
 		return isAdmin, nil
 	}
 
+	// if open to the public action is acceptable
 	containsWildcard, err := redis.Bool(conn.Do("SISMEMBER", item.GetRString(permission),
 		"*"))
 	if err != nil {
@@ -31,6 +32,7 @@ func Permissions(userRef model.Ref, permission model.RString, item model.Ref) (b
 		return containsWildcard, nil
 	}
 
+	// explicit member check
 	isMember, err := redis.Bool(conn.Do("SISMEMBER", item.GetRString(permission), userRef.GetTag()))
 	if err != nil {
 		log.Println(err)
@@ -43,8 +45,7 @@ func AddPermissions(item model.Ref, permission model.RString, userRef model.Ref)
 	conn := pool.Get()
 	defer conn.Close()
 
-	_, err := conn.Do("SADD", fmt.Sprintf("%s:%s", item.GetTag(), permission),
-		fmt.Sprintf("%s", userRef.GetTag()))
+	_, err := conn.Do("SADD", item.GetRString(permission), userRef.GetTag())
 	if err != nil {
 		log.Println(err)
 		return err

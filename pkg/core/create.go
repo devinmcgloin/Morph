@@ -7,10 +7,8 @@ import (
 	"strings"
 	"unicode"
 
-	"gopkg.in/mgo.v2/bson"
-
 	"github.com/sprioc/composer/pkg/model"
-	"github.com/sprioc/composer/pkg/mongo"
+
 	"github.com/sprioc/composer/pkg/redis"
 	"github.com/sprioc/composer/pkg/refs"
 	"github.com/sprioc/composer/pkg/rsp"
@@ -39,7 +37,7 @@ func CreateUser(userData map[string]string) rsp.Response {
 	if email, ok = userData["email"]; !ok {
 		return rsp.Response{Message: "Email not present", Code: http.StatusBadRequest}
 	}
-	email = strings.ToLower(email)
+	email = strings.Trim(strings.ToLower(email), " ")
 
 	if !validEmail.MatchString(email) {
 		return rsp.Response{Message: "Invalid email", Code: http.StatusBadRequest}
@@ -80,64 +78,19 @@ func CreateUser(userData map[string]string) rsp.Response {
 	}
 
 	usr := model.User{
-		ID:        bson.NewObjectId(),
+		ShortCode: model.Ref{Collection: model.Users, ShortCode: username},
 		Email:     email,
-		AvatarURL: formatSources("default", "avatars"),
+		Password:  securePassword,
+		Salt:      salt,
 	}
 
-	err = redis.CreateUser(userRef, usr.ID, email, securePassword, salt)
+	err = redis.CreateUser(usr)
 	if err != nil {
 		return rsp.Response{Message: "Error adding user", Code: http.StatusInternalServerError}
 	}
 
-	err = mongo.Create("users", usr)
-	if err != nil {
-		return rsp.Response{Message: "Error adding user", Code: http.StatusConflict}
-	}
-
 	var response = make(map[string]string)
 	response["link"] = refs.GetURL(refs.GetUserRef(username))
-
-	return rsp.Response{Code: http.StatusAccepted, Data: response}
-}
-
-func CreateCollection(requestFrom model.Ref, colData map[string]string) rsp.Response {
-	if !requestFrom.Valid(model.Users) {
-		return rsp.Response{Message: "Invalid reference", Code: http.StatusBadRequest}
-	}
-	var title, desc string
-	var ok bool
-
-	if title, ok = colData["title"]; !ok {
-		return rsp.Response{Message: "Title not present", Code: http.StatusBadRequest}
-	}
-
-	if desc, ok = colData["desc"]; !ok {
-		desc = ""
-	}
-
-	colRef, err := redis.GenerateShortCode(model.Collections)
-	if err != nil {
-		return rsp.Response{Code: http.StatusInternalServerError}
-	}
-	col := model.Collection{
-		ID:    bson.NewObjectId(),
-		Title: title,
-		Desc:  desc,
-	}
-
-	err = redis.CreateCollection(requestFrom, colRef, col.ID)
-	if err != nil {
-		return rsp.Response{Code: http.StatusInternalServerError}
-	}
-
-	err = mongo.Create("collections", col)
-	if err != nil {
-		return rsp.Response{Code: http.StatusInternalServerError}
-	}
-
-	var response = make(map[string]string)
-	response["link"] = refs.GetURL(colRef)
 
 	return rsp.Response{Code: http.StatusAccepted, Data: response}
 }

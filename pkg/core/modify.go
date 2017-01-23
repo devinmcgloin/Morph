@@ -1,35 +1,25 @@
 package core
 
-// import (
-// 	"net/http"
-//
-// 	"github.com/sprioc/composer/pkg/model"
-// 	"github.com/sprioc/composer/pkg/rsp"
-// 	"github.com/sprioc/composer/pkg/store"
-// 	"gopkg.in/mgo.v2/bson"
-// )
-//
-// func Modify(ref model.Ref, changes bson.M) rsp.Response {
-// 	err := store.Modify(ref, changes)
-// 	if err != nil {
-// 		return rsp.Response{Code: http.StatusInternalServerError}
-// 	}
-// 	return rsp.Response{Code: http.StatusAccepted}
-// }
-//
-// // TODO would really like to lock this down more and do more content validation.
-//
-// func ModifySecure(user model.User, target model.Ref, changes bson.M) rsp.Response {
-//
-// 	resp := VerifyChanges(user, target, changes)
-// 	if !resp.Ok() {
-// 		return resp
-// 	}
-//
-// 	err := store.Modify(target, changes)
-// 	if err != nil {
-// 		return rsp.Response{Message: err.Error(), Code: http.StatusInternalServerError}
-// 	}
-//
-// 	return rsp.Response{Code: 200}
-// }
+import (
+	"net/http"
+
+	"github.com/sprioc/composer/pkg/model"
+	"github.com/sprioc/composer/pkg/redis"
+
+	"github.com/sprioc/composer/pkg/rsp"
+)
+
+func ModifySecure(user model.User, target model.Ref, changes [][]string) rsp.Response {
+
+	// checking if the user has permission to modify the item
+	valid, err := redis.Permissions(user.GetRef(), model.CanEdit, target)
+	if err != nil {
+		return rsp.Response{Code: http.StatusInternalServerError, Message: "Unable to retrieve user permissions."}
+	}
+	if !valid {
+		return rsp.Response{Code: http.StatusForbidden, Message: "User does not have permission to edit item."}
+	}
+
+	// checking if modification is valid.
+	return rsp.Response{Code: http.StatusNotImplemented}
+}

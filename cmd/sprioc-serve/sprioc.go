@@ -33,7 +33,7 @@ func main() {
 
 	//  ROUTES
 	registerImageRoutes(api)
-	// registerUserRoutes(api)
+	registerUserRoutes(api)
 	// registerCollectionRoutes(api)
 	// registerSearchRoutes(api)
 	// registerLuckyRoutes(api)

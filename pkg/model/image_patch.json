@@ -1,0 +1,57 @@
+{
+  "title": "Image Request Schema",
+  "type": "object",
+  "properties": {
+    "aperture": {
+      "type": "string"
+    },
+    "exposure_time": {
+      "type": "string"
+    },
+    "focal_length": {
+      "type": "string"
+    },
+    "iso": {
+      "description": "ISO for the given image.",
+      "type": "integer",
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "make": {
+      "type": "string"
+    },
+    "model": {
+      "type": "string"
+    },
+    "lens_make": {
+      "type": "string"
+    },
+    "lens_model": {
+      "type": "string"
+    },
+    "pixel_xd": {
+      "description": "Pixel X Diemnsion size",
+      "type": "integer",
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "pixel_yd": {
+      "description": "Pixel Y Diemnsion size",
+      "type": "integer",
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "capture_time": {
+      "description": "Unix timestamp for image capture time",
+      "type": "integer",
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "direction": {
+      "description": "Compass Direction for the given image.",
+      "type": "number",
+      "minimum": 0
+    },
+  },
+  "required": ["firstName", "lastName"]
+}

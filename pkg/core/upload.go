@@ -1,71 +1,62 @@
 package core
 
 import (
+	"bytes"
 	"errors"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/sprioc/composer/pkg/contentStorage"
 	"github.com/sprioc/composer/pkg/metadata"
 	"github.com/sprioc/composer/pkg/model"
+	"github.com/sprioc/composer/pkg/redis"
 	"github.com/sprioc/composer/pkg/refs"
 	"github.com/sprioc/composer/pkg/rsp"
 )
 
-var clarifaijobs chan string
-
-func init() {
-	clarifaijobs = make(chan string)
-	metadata.SetupClarifai(clarifaijobs)
-	metadata.Start()
-}
-
 // TODO NEED TO ABSTRACT THIS FURTHER
 
-// func UploadImage(user model.User, file []byte) rsp.Response {
-//
-// 	img := model.Image{
-// 		ID:          bson.NewObjectId(),
-// 		ShortCode:   store.GetNewImageShortCode(),
-// 		Owner:       refs.GetUserRef(user.ShortCode),
-// 		PublishTime: time.Now(),
-// 	}
-//
-// 	n := len(file)
-//
-// 	if n == 0 {
-// 		return rsp.Response{Message: "Cannot upload file with 0 bytes.", Code: http.StatusBadRequest}
-// 	}
-//
-// 	err := contentStorage.ProccessImage(file, n, img.ShortCode, "content")
-// 	if err != nil {
-// 		log.Println(err)
-// 		return rsp.Response{Message: err.Error(), Code: http.StatusBadRequest}
-// 	}
-//
-// 	buf := bytes.NewBuffer(file)
-//
-// 	img.MetaData = metadata.GetMetadata(buf)
-//
-// 	img.Sources = formatSources(img.ShortCode, "content")
-//
-// 	err = store.Create("images", img)
-// 	if err != nil {
-// 		return rsp.Response{Message: "Error while adding image to DB", Code: http.StatusInternalServerError}
-// 	}
-//
-// 	imgRef := refs.GetImageRef(img.ShortCode)
-// 	resp := Modify(refs.GetUserRef(user.ShortCode),
-// 		bson.M{"$push": bson.M{"images": imgRef}})
-// 	if !resp.Ok() {
-// 		return rsp.Response{Message: "Error while adding image to DB", Code: http.StatusInternalServerError}
-// 	}
-//
-// 	go metadata.SetLocation(img.MetaData.Location)
-// 	go func() { clarifaijobs <- img.ShortCode }()
-//
-// 	return rsp.Response{Code: http.StatusAccepted, Data: map[string]string{"link": refs.GetURL(imgRef)}}
-// }
+func UploadImage(user model.User, file []byte) rsp.Response {
+
+	var sc model.Ref
+	var err error
+	if sc, err = redis.GenerateShortCode(model.Images); err != nil {
+		return rsp.Response{Code: http.StatusInternalServerError}
+	}
+
+	img := model.Image{
+		ShortCode:    sc,
+		Owner:        user.ShortCode,
+		PublishTime:  time.Now().Unix(),
+		LastModified: time.Now().Unix(),
+	}
+
+	n := len(file)
+
+	if n == 0 {
+		return rsp.Response{Message: "Cannot upload file with 0 bytes.", Code: http.StatusBadRequest}
+	}
+
+	err = contentStorage.ProccessImage(file, n, img.ShortCode.ShortCode, "content")
+	if err != nil {
+		log.Println(err)
+		return rsp.Response{Message: err.Error(), Code: http.StatusBadRequest}
+	}
+
+	buf := bytes.NewBuffer(file)
+
+	metadata.GetMetadata(buf, &img)
+
+	err = redis.CreateImage(user.GetRef(), img)
+	if err != nil {
+		return rsp.Response{Message: "Error while adding image to DB", Code: http.StatusInternalServerError}
+	}
+
+	// go metadata.SetLocation(img.MetaData.Location)
+
+	return rsp.Response{Code: http.StatusAccepted, Data: map[string]string{"link": refs.GetURL(img.ShortCode)}}
+}
 
 func UploadAvatar(user model.User, file []byte) rsp.Response {
 	n := len(file)
@@ -75,18 +66,12 @@ func UploadAvatar(user model.User, file []byte) rsp.Response {
 	}
 
 	// REVIEW check that you can overwrite on aws
-	err := contentStorage.ProccessImage(file, n, user.ShortCode, "avatar")
+	err := contentStorage.ProccessImage(file, n, user.ShortCode.ShortCode, "avatar")
 	if err != nil {
 		log.Println(err)
 		return rsp.Response{Message: err.Error(), Code: http.StatusBadRequest}
 	}
 
-	sources := formatSources(user.ShortCode, "avatars")
-
-	err = setAvatar(refs.GetUserRef(user.ShortCode), sources)
-	if err != nil {
-		return rsp.Response{Message: "Unable to add image", Code: http.StatusInternalServerError}
-	}
 	return rsp.Response{Code: http.StatusAccepted}
 }
 

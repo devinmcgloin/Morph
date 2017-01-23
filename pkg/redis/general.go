@@ -3,10 +3,7 @@ package redis
 import (
 	"fmt"
 	"log"
-	"strconv"
 	"time"
-
-	"gopkg.in/mgo.v2/bson"
 
 	"github.com/garyburd/redigo/redis"
 	"github.com/sprioc/composer/pkg/model"
@@ -23,19 +20,6 @@ func GetLogin(ref model.Ref) (map[string]string, error) {
 		return nil, err
 	}
 	return m, nil
-}
-
-func GetObjectId(ref model.Ref) (bson.ObjectId, error) {
-	conn := pool.Get()
-	defer conn.Close()
-
-	objectIdHex, err := redis.String(conn.Do("GET",
-		ref.GetTag()))
-	if err != nil {
-		log.Println(err)
-		return bson.ObjectId(""), err
-	}
-	return bson.ObjectIdHex(objectIdHex), nil
 }
 
 func GetOwner(ref model.Ref) (model.Ref, error) {
@@ -55,130 +39,7 @@ func GetOwner(ref model.Ref) (model.Ref, error) {
 	return refs.GetRedisRef(userTag), nil
 }
 
-func SetViewType(ref model.Ref, viewType string) error {
-	if ref.Collection != model.Collections {
-		return fmt.Errorf("Invalid ref type, got %s expected collections", ref.Collection)
-	}
-
-	conn := pool.Get()
-	defer conn.Close()
-
-	_, err := redis.String(conn.Do("SET", ref.GetTag(), viewType))
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-	return nil
-}
-
-func CreateImage(user, image model.Ref, objectID bson.ObjectId) error {
-	if user.Collection != model.Users {
-		return fmt.Errorf("Invalid user type, got %s expected user", user.Collection)
-	}
-	if image.Collection != model.Images {
-		return fmt.Errorf("Invalid image type, got %s expected iamges", image.Collection)
-	}
-
-	conn := pool.Get()
-	defer conn.Close()
-
-	timestamp := time.Now().Unix()
-
-	if err := conn.Send("MULTI"); err != nil {
-		log.Println(err)
-		return err
-	}
-	if err := conn.Send("ZADD", user.GetRString(model.Collections), timestamp, image.GetTag()); err != nil {
-		log.Println(err)
-		return err
-	}
-	if err := conn.Send("SET", image.GetRString(model.Owner), user.GetTag()); err != nil {
-		log.Println(err)
-		return err
-	}
-	if err := conn.Send("SET", image.GetTag(), objectID.Hex()); err != nil {
-		log.Println(err)
-		return err
-	}
-	if err := conn.Send("SADD", image.GetRString(model.CanEdit), user.GetTag()); err != nil {
-		log.Println(err)
-		return err
-	}
-
-	if err := conn.Send("SADD", image.GetRString(model.CanView), user.GetTag()); err != nil {
-		log.Println(err)
-		return err
-	}
-
-	if err := conn.Send("SADD", image.GetRString(model.CanDelete), user.GetTag()); err != nil {
-		log.Println(err)
-		return err
-	}
-	_, err := conn.Do("EXEC")
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-	return nil
-}
-
-func CreateCollection(user, collection model.Ref, objectID bson.ObjectId) error {
-	if user.Collection != model.Users {
-		return fmt.Errorf("Invalid user type, got %s expected user", user.Collection)
-	}
-	if collection.Collection != model.Collections {
-		return fmt.Errorf("Invalid collection type, got %s expected collections", collection.Collection)
-	}
-
-	conn := pool.Get()
-	defer conn.Close()
-
-	timestamp := time.Now().Unix()
-
-	if err := conn.Send("MULTI"); err != nil {
-		log.Println(err)
-		return err
-	}
-
-	if err := conn.Send("ZADD", user.GetRString(model.Collections), timestamp, collection.GetTag()); err != nil {
-		log.Println(err)
-		return err
-	}
-
-	if err := conn.Send("SET", collection.GetRString(model.Owner), user.GetTag()); err != nil {
-		log.Println(err)
-		return err
-	}
-
-	if err := conn.Send("SET", collection.GetTag(), objectID.Hex()); err != nil {
-		log.Println(err)
-		return err
-	}
-
-	if err := conn.Send("SADD", collection.GetRString(model.CanEdit), user.GetTag()); err != nil {
-		log.Println(err)
-		return err
-	}
-
-	if err := conn.Send("SADD", collection.GetRString(model.CanView), user.GetTag()); err != nil {
-		log.Println(err)
-		return err
-	}
-
-	if err := conn.Send("SADD", collection.GetRString(model.CanDelete), user.GetTag()); err != nil {
-		log.Println(err)
-		return err
-	}
-	_, err := conn.Do("EXEC")
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-	return nil
-
-}
-
-func CreateUser(user model.Ref, objectID bson.ObjectId, email, password, salt string) error {
+func CreateImage(user model.Ref, image model.Image) error {
 	if user.Collection != model.Users {
 		return fmt.Errorf("Invalid user type, got %s expected user", user.Collection)
 	}
@@ -186,29 +47,85 @@ func CreateUser(user model.Ref, objectID bson.ObjectId, email, password, salt st
 	conn := pool.Get()
 	defer conn.Close()
 
-	timestamp := time.Now().Unix()
-
-	var m map[string]string
-	m["objectID"] = objectID.Hex()
-	m["email"] = email
-	m["password"] = password
-	m["salt"] = salt
-	m["created_at"] = strconv.FormatInt(timestamp, 10)
-	m["last_modified"] = strconv.FormatInt(timestamp, 10)
-
 	if err := conn.Send("MULTI"); err != nil {
 		log.Println(err)
 		return err
 	}
 
-	for key, val := range m {
-		if err := conn.Send("HMSET", user.GetTag(), key, val); err != nil {
+	if err := conn.Send("HMSET", redis.Args{image.GetTag()}.AddFlat(image)...); err != nil {
+		log.Println(err)
+		return err
+	}
+
+	if err := conn.Send("SADD", image.GetRef().GetRString(model.CanEdit), user.GetTag()); err != nil {
+		log.Println(err)
+		return err
+	}
+
+	if err := conn.Send("SADD", image.GetRef().GetRString(model.CanView), user.GetTag()); err != nil {
+		log.Println(err)
+		return err
+	}
+
+	if err := conn.Send("SADD", image.GetRef().GetRString(model.CanDelete), user.GetTag()); err != nil {
+		log.Println(err)
+		return err
+	}
+
+	if err := conn.Send("SET", image.GetRef().GetRString(model.Owner), user.GetTag()); err != nil {
+		log.Println(err)
+		return err
+	}
+
+	// Adding to new images
+	if err := conn.Send("LPUSH", image.GetRef().GetRSet(model.New), image.GetTag()); err != nil {
+		log.Println(err)
+		return err
+	}
+
+	if err := conn.Send("LTRIM", image.GetRef().GetRSet(model.New), 0, 501); err != nil {
+		log.Println(err)
+		return err
+	}
+
+	// Adding to Geo index
+	if image.Location != nil {
+		if err := conn.Send("GEOADD", image.GetRef().GetRSet(model.Location),
+			image.Location.Coordinates[0], image.Location.Coordinates[1],
+			image.GetTag()); err != nil {
 			log.Println(err)
 			return err
 		}
 	}
 
-	if err := conn.Send("SADD", "users:emails", email); err != nil {
+	_, err := conn.Do("EXEC")
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+}
+
+func CreateUser(user model.User) error {
+	conn := pool.Get()
+	defer conn.Close()
+
+	timestamp := time.Now().Unix()
+
+	user.CreatedAt = timestamp
+	user.LastModified = timestamp
+
+	if err := conn.Send("MULTI"); err != nil {
+		log.Println(err)
+		return err
+	}
+
+	if err := conn.Send("HMSET", redis.Args{user.GetTag()}.AddFlat(user)...); err != nil {
+		log.Println(err)
+		return err
+	}
+
+	if err := conn.Send("SADD", "users:emails", user.Email); err != nil {
 		log.Println(err)
 		return err
 	}

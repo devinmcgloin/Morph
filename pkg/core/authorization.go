@@ -1,29 +1,24 @@
 package core
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/sprioc/composer/pkg/model"
+)
 
 var validOps = []string{"$set", "$unset"}
 
-const (
-	invalid = iota - 1
-	images
-	users
-	collections
-	albums
-	events
-)
-
-func validTarget(kind int, target string) bool {
-	imgTarget := []string{"tags", "featured", "metadata.aperature",
-		"metadata.exposure_time", "metadata.focal_length", "metadata.iso",
-		"metadata.make", "metadata.model", "metadata.lens_make", "metadata.lens_model"}
+func validTarget(ref model.Ref, target string) bool {
+	imgTarget := []string{"tags", "featured", "aperature",
+		"exposure_time", "focal_length", "iso",
+		"make", "model", "lens_make", "lens_model"}
 	userTarget := []string{"name", "bio", "personal_site_link"}
 	albEvntColTarget := []string{"desc", "title", "view_type"}
 
-	switch kind {
-	case images:
+	switch ref.Collection {
+	case model.Images:
 		return in(target, imgTarget)
-	case users:
+	case model.Users:
 		return in(target, userTarget)
 	default:
 		return in(target, albEvntColTarget)

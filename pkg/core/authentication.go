@@ -81,6 +81,8 @@ func CheckUser(r *http.Request) (model.User, rsp.Response) {
 		return model.User{}, rsp.Response{Message: "Bearer Header not present", Code: http.StatusUnauthorized}
 	}
 
+	log.Print(tokenStrings)
+
 	token := strings.Replace(tokenStrings, "Bearer ", "", 1)
 
 	userRef, resp := VerifyJWT(token)
