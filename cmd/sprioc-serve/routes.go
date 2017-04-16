@@ -23,8 +23,8 @@ func registerImageRoutes(api *mux.Router) {
 	// 	put.HandleFunc("/{IID:[a-zA-Z]{12}}/featured", middleware.Secure(handlers.FeatureImage))
 	// 	put.HandleFunc("/{IID:[a-zA-Z]{12}}/favorite", middleware.Secure(handlers.FavoriteImage))
 
-	// del := img.Methods("DELETE").Subrouter()
-	// del.HandleFunc("/{IID:[a-zA-Z]{12}}", middleware.Secure(handlers.DeleteImage))
+	 del := img.Methods("DELETE").Subrouter()
+	 del.HandleFunc("/{IID:[a-zA-Z]{12}}", middleware.Secure(handlers.DeleteImage))
 	// 	del.HandleFunc("/{IID:[a-zA-Z]{12}}/tags", middleware.Secure(NotImplemented))
 	// 	del.HandleFunc("/{IID:[a-zA-Z]{12}}/featured", middleware.Secure(handlers.UnFeatureImage))
 	// 	del.HandleFunc("/{IID:[a-zA-Z]{12}}/favorite", middleware.Secure(handlers.UnFavoriteImage))
@@ -37,9 +37,9 @@ func registerUserRoutes(api *mux.Router) {
 	usr := api.PathPrefix("/users").Subrouter()
 
 	get := usr.Methods("GET").Subrouter()
+	get.HandleFunc("/me", middleware.Secure(handlers.GetLoggedInUser))
 	get.HandleFunc("/{username}", middleware.Unsecure(handlers.GetUser))
 	// get.HandleFunc("/{username}/images", middleware.Unsecure(handlers.GetUserImages))
-	get.HandleFunc("/me", middleware.Secure(handlers.GetLoggedInUser))
 
 	post := api.Methods("POST").Subrouter()
 	post.HandleFunc("/users", middleware.Unsecure(handlers.CreateUser))
@@ -49,8 +49,8 @@ func registerUserRoutes(api *mux.Router) {
 	// put.HandleFunc("/{username}/favorite", middleware.Secure(handlers.FavoriteUser))
 	// put.HandleFunc("/{username}/follow", middleware.Secure(handlers.FollowUser))
 
-	// del := usr.Methods("DELETE").Subrouter()
-	// del.HandleFunc("/{username}", middleware.Secure(handlers.DeleteUser))
+	 del := usr.Methods("DELETE").Subrouter()
+	 del.HandleFunc("/{username}", middleware.Secure(handlers.DeleteUser))
 	// del.HandleFunc("/{username}/favorite", middleware.Secure(handlers.UnFavoriteUser))
 	// del.HandleFunc("/{username}/follow", middleware.Secure(handlers.UnFollowUser))
 
@@ -100,9 +100,9 @@ func registerUserRoutes(api *mux.Router) {
 //
 // }
 //
-// func registerAuthRoutes(api *mux.Router) {
-// 	post := api.Methods("POST").Subrouter()
-//
-// 	post.HandleFunc("/get_token", middleware.Unsecure(handlers.GetToken))
-//
-// }
+ func registerAuthRoutes(api *mux.Router) {
+ 	post := api.Methods("POST").Subrouter()
+
+ 	post.HandleFunc("/get_token", middleware.Unsecure(handlers.GetToken))
+
+ }

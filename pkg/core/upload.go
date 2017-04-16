@@ -10,7 +10,7 @@ import (
 	"github.com/sprioc/composer/pkg/contentStorage"
 	"github.com/sprioc/composer/pkg/metadata"
 	"github.com/sprioc/composer/pkg/model"
-	"github.com/sprioc/composer/pkg/redis"
+	"github.com/sprioc/composer/pkg/sql"
 	"github.com/sprioc/composer/pkg/refs"
 	"github.com/sprioc/composer/pkg/rsp"
 )
@@ -21,7 +21,7 @@ func UploadImage(user model.User, file []byte) rsp.Response {
 
 	var sc model.Ref
 	var err error
-	if sc, err = redis.GenerateShortCode(model.Images); err != nil {
+	if sc, err = sql.GenerateShortCode(model.Images); err != nil {
 		return rsp.Response{Code: http.StatusInternalServerError}
 	}
 
@@ -48,7 +48,7 @@ func UploadImage(user model.User, file []byte) rsp.Response {
 
 	metadata.GetMetadata(buf, &img)
 
-	err = redis.CreateImage(user.GetRef(), img)
+	err = sql.CreateImage(user.GetRef(), img)
 	if err != nil {
 		return rsp.Response{Message: "Error while adding image to DB", Code: http.StatusInternalServerError}
 	}

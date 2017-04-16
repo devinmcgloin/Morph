@@ -14,7 +14,7 @@ import (
 	jwtreq "github.com/dgrijalva/jwt-go/request"
 	"github.com/sprioc/composer/pkg/generator"
 	"github.com/sprioc/composer/pkg/model"
-	"github.com/sprioc/composer/pkg/redis"
+	"github.com/sprioc/composer/pkg/sql"
 	"github.com/sprioc/composer/pkg/rsp"
 )
 
@@ -25,7 +25,7 @@ var sessionLifetime = time.Minute * 10
 var refreshAt = time.Minute * 1
 
 func ValidateCredentialsByUserName(username string, password string) (bool, rsp.Response) {
-	user, err := redis.GetLogin(model.Ref{Collection: model.Users, ShortCode: username})
+	user, err := sql.GetLogin(model.Ref{Collection: model.Users, ShortCode: username})
 	if err != nil {
 		return false, rsp.Response{Message: "Invalid Credentials.", Code: http.StatusUnauthorized}
 	}
@@ -80,8 +80,6 @@ func CheckUser(r *http.Request) (model.User, rsp.Response) {
 	if err != nil {
 		return model.User{}, rsp.Response{Message: "Bearer Header not present", Code: http.StatusUnauthorized}
 	}
-
-	log.Print(tokenStrings)
 
 	token := strings.Replace(tokenStrings, "Bearer ", "", 1)
 

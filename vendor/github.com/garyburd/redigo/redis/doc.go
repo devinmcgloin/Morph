@@ -12,7 +12,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 
-// Package redis is a client for the Redis database.
+// Package sql is a client for the Redis database.
 //
 // The Redigo FAQ (https://github.com/garyburd/redigo/wiki/FAQ) contains more
 // documentation about this package.
@@ -53,7 +53,7 @@
 // Redis command reply types are represented using the following Go types:
 //
 //  Redis type              Go type
-//  error                   redis.Error
+//  error                   sql.Error
 //  integer                 int64
 //  simple string           string
 //  bulk string             []byte or nil if value not present.
@@ -127,13 +127,13 @@
 // send and flush a subscription management command. The receive method
 // converts a pushed message to convenient types for use in a type switch.
 //
-//  psc := redis.PubSubConn{c}
+//  psc := sql.PubSubConn{c}
 //  psc.Subscribe("example")
 //  for {
 //      switch v := psc.Receive().(type) {
-//      case redis.Message:
+//      case sql.Message:
 //          fmt.Printf("%s: message: %s\n", v.Channel, v.Data)
-//      case redis.Subscription:
+//      case sql.Subscription:
 //          fmt.Printf("%s: %s %d\n", v.Channel, v.Kind, v.Count)
 //      case error:
 //          return v
@@ -149,7 +149,7 @@
 // error. If the error is nil, the function converts the reply to the specified
 // type:
 //
-//  exists, err := redis.Bool(c.Do("EXISTS", "foo"))
+//  exists, err := sql.Bool(c.Do("EXISTS", "foo"))
 //  if err != nil {
 //      // handle error return from c.Do or type conversion error.
 //  }
@@ -158,11 +158,11 @@
 //
 //  var value1 int
 //  var value2 string
-//  reply, err := redis.Values(c.Do("MGET", "key1", "key2"))
+//  reply, err := sql.Values(c.Do("MGET", "key1", "key2"))
 //  if err != nil {
 //      // handle error
 //  }
-//   if _, err := redis.Scan(reply, &value1, &value2); err != nil {
+//   if _, err := sql.Scan(reply, &value1, &value2); err != nil {
 //      // handle error
 //  }
 package redis

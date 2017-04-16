@@ -173,8 +173,8 @@ func DialURL(rawurl string, options ...DialOption) (Conn, error) {
 		return nil, err
 	}
 
-	if u.Scheme != "redis" {
-		return nil, fmt.Errorf("invalid redis URL scheme: %s", u.Scheme)
+	if u.Scheme != "sql" {
+		return nil, fmt.Errorf("invalid sql URL scheme: %s", u.Scheme)
 	}
 
 	// As per the IANA draft spec, the host defaults to localhost and

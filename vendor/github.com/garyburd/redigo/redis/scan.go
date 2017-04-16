@@ -269,7 +269,7 @@ func compileStructSpec(t reflect.Type, depth map[string]int, index []int, ss *st
 			}
 		default:
 			fs := &fieldSpec{name: f.Name}
-			tag := f.Tag.Get("redis")
+			tag := f.Tag.Get("sql")
 			p := strings.Split(tag, ",")
 			if len(p) > 0 {
 				if p[0] == "-" {
@@ -349,11 +349,11 @@ var errScanStructValue = errors.New("redigo.ScanStruct: value must be non-nil po
 // HGETALL and CONFIG GET commands return replies in this format.
 //
 // ScanStruct uses exported field names to match values in the response. Use
-// 'redis' field tag to override the name:
+// 'sql' field tag to override the name:
 //
-//      Field int `redis:"myName"`
+//      Field int `sql:"myName"`
 //
-// Fields with the tag redis:"-" are ignored.
+// Fields with the tag sql:"-" are ignored.
 //
 // Integer, float, boolean, string and []byte fields are supported. Scan uses the
 // standard strconv package to convert bulk string values to numeric and
@@ -494,8 +494,8 @@ func (args Args) Add(value ...interface{}) Args {
 //
 // Structs are flattened by appending the alternating names and values of
 // exported fields to args. If v is a nil struct pointer, then nothing is
-// appended. The 'redis' field tag overrides struct field names. See ScanStruct
-// for more information on the use of the 'redis' field tag.
+// appended. The 'sql' field tag overrides struct field names. See ScanStruct
+// for more information on the use of the 'sql' field tag.
 //
 // Other types are appended to args as is.
 func (args Args) AddFlat(v interface{}) Args {

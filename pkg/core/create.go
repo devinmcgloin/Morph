@@ -9,7 +9,7 @@ import (
 
 	"github.com/sprioc/composer/pkg/model"
 
-	"github.com/sprioc/composer/pkg/redis"
+	"github.com/sprioc/composer/pkg/sql"
 	"github.com/sprioc/composer/pkg/refs"
 	"github.com/sprioc/composer/pkg/rsp"
 )
@@ -55,7 +55,7 @@ func CreateUser(userData map[string]string) rsp.Response {
 
 	userRef := model.Ref{Collection: model.Users, ShortCode: username}
 
-	exists, err := redis.Exists(userRef)
+	exists, err := sql.Exists(userRef)
 	if err != nil {
 		return rsp.Response{Code: http.StatusInternalServerError}
 	}
@@ -63,7 +63,7 @@ func CreateUser(userData map[string]string) rsp.Response {
 		return rsp.Response{Message: "Username already exist", Code: http.StatusConflict}
 	}
 
-	exists, err = redis.ExistsEmail(email)
+	exists, err = sql.ExistsEmail(email)
 	if err != nil {
 		return rsp.Response{Code: http.StatusInternalServerError}
 	}
@@ -84,7 +84,7 @@ func CreateUser(userData map[string]string) rsp.Response {
 		Salt:      salt,
 	}
 
-	err = redis.CreateUser(usr)
+	err = sql.CreateUser(usr)
 	if err != nil {
 		return rsp.Response{Message: "Error adding user", Code: http.StatusInternalServerError}
 	}

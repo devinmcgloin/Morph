@@ -48,12 +48,12 @@ var (
 // application creates a pool at application startup and makes it available to
 // request handlers using a global variable.
 //
-//  func newPool(server, password string) *redis.Pool {
-//      return &redis.Pool{
+//  func newPool(server, password string) *sql.Pool {
+//      return &sql.Pool{
 //          MaxIdle: 3,
 //          IdleTimeout: 240 * time.Second,
-//          Dial: func () (redis.Conn, error) {
-//              c, err := redis.Dial("tcp", server)
+//          Dial: func () (sql.Conn, error) {
+//              c, err := sql.Dial("tcp", server)
 //              if err != nil {
 //                  return nil, err
 //              }
@@ -63,7 +63,7 @@ var (
 //              }
 //              return c, err
 //          },
-//          TestOnBorrow: func(c redis.Conn, t time.Time) error {
+//          TestOnBorrow: func(c sql.Conn, t time.Time) error {
 //              _, err := c.Do("PING")
 //              return err
 //          },
@@ -71,7 +71,7 @@ var (
 //  }
 //
 //  var (
-//      pool *redis.Pool
+//      pool *sql.Pool
 //      redisServer = flag.String("redisServer", ":6379", "")
 //      redisPassword = flag.String("redisPassword", "", "")
 //  )

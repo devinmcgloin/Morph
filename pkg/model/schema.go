@@ -1,8 +1,6 @@
 package model
 
 import (
-	"fmt"
-
 	gj "github.com/sprioc/geojson"
 )
 
@@ -10,71 +8,66 @@ import (
 
 // Image contains all the proper information for rendering a single photo
 type Image struct {
-	ShortCode Ref `redis:"-"`
+	ShortCode string `db:"-"`
 
-	// Tags         []string `redis:"tags" json:"tags"`
-	PublishTime  int64 `redis:"publish_time"`
-	LastModified int64 `redis:"last_modified"`
-	// Landmarks    []Landmark `redis:"landmarks" json:"landmarks"`
-	// Colors       []Color    `redis:"colors" json:"colors"`
-	// Labels       []Label    `redis:"labels" json:"labels"`
+	Tags         []string `db:"tags" json:"tags"`
+	PublishTime  int64    `db:"publish_time"`
+	LastModified int64    `db:"last_modified"`
+	// Landmarks    []Landmark `db:"landmarks" json:"landmarks"`
+	// Colors       []Color    `db:"colors" json:"colors"`
+	//Labels []Label `db:"labels" json:"labels"`
 
-	Owner     Ref  `redis:"-" json:"owner"`
-	Favorites int  `redis:"-" json:"favorites"`
-	Featured  bool `redis:"-" json:"featured"`
-	Downloads int  `redis:"-" json:"downloads"`
-	Views     int  `redis:"-" json:"views"`
-	Purchases int  `redis:"-" json:"purchases"`
+	Owner string `db:"owner" json:"owner"`
+	Featured  bool `db:"featured" json:"featured"`
+	Downloads int  `db:"downloads" json:"downloads"`
+	Views     int  `db:"views" json:"views"`
+	//Purchases int    `db:"" json:"purchases"`
+	//Favorites int    `db:"" json:"favorites"`
 
 	// Image Metadata
-	Aperture        string    `redis:"aperture" json:"aperture,omitempty"`
-	ExposureTime    string    `redis:"exposure_time" json:"exposure_time,omitempty"`
-	FocalLength     string    `redis:"focal_length" json:"focal_length,omitempty"`
-	ISO             int       `redis:"iso" json:"iso,omitempty"`
-	Make            string    `redis:"make" json:"make,omitempty"`
-	Model           string    `redis:"model" json:"model,omitempty"`
-	LensMake        string    `redis:"lens_make" json:"lens_make,omitempty"`
-	LensModel       string    `redis:"lens_model" json:"lens_model,omitempty"`
-	PixelXDimension int64     `redis:"pixel_xd" json:"pixel_xd,omitempty"`
-	PixelYDimension int64     `redis:"pixel_yd" json:"pixel_yd,omitempty"`
-	CaptureTime     int64     `redis:"capture_time" json:"capture_time,omitempty"`
-	ImgDirection    float64   `redis:"direction" json:"direction,omitempty"`
-	Location        *gj.Point `redis:"-" json:"location,omitempty"`
+	//Aperture        string    `db:"aperture" json:"aperture,omitempty"`
+	//ExposureTime    string    `db:"exposure_time" json:"exposure_time,omitempty"`
+	//FocalLength     string    `db:"focal_length" json:"focal_length,omitempty"`
+	//ISO             int       `db:"iso" json:"iso,omitempty"`
+	//Make            string    `db:"make" json:"make,omitempty"`
+	//Model           string    `db:"model" json:"model,omitempty"`
+	//LensMake        string    `db:"lens_make" json:"lens_make,omitempty"`
+	//LensModel       string    `db:"lens_model" json:"lens_model,omitempty"`
+	//PixelXDimension int64     `db:"pixel_xd" json:"pixel_xd,omitempty"`
+	//PixelYDimension int64     `db:"pixel_yd" json:"pixel_yd,omitempty"`
+	//CaptureTime     int64     `db:"capture_time" json:"capture_time,omitempty"`
+	//ImgDirection    float64   `db:"direction" json:"direction,omitempty"`
+	//Location        *gj.Point `db:"-" json:"location,omitempty"`
 }
 
 // ImgSource includes the information about the image itself.
 type ImgSource struct {
-	Thumb  string `redis:"thumb" json:"thumb"`
-	Small  string `redis:"small" json:"small"`
-	Medium string `redis:"medium" json:"medium"`
-	Large  string `redis:"large" json:"large"`
-	Raw    string `redis:"raw" json:"raw"`
+	Thumb  string `json:"thumb"`
+	Small  string `json:"small"`
+	Medium string `json:"medium"`
+	Large  string `json:"large"`
+	Raw    string `json:"raw"`
 }
 
 type User struct {
-	ShortCode Ref         `redis:"-" json:"username"`
-	Email     string      `redis:"email" json:"email"`
-	Name      string      `redis:"name" json:"name"`
-	Bio       string      `redis:"bio" json:"bio"`
-	URL       string      `redis:"personal_site_link" json:"personal_site_link"`
-	Location  *gj.Feature `redis:"-" json:"location"`
+	Id    string `db:"id" json:"username"`
+	Email string `db:"email" json:"email"`
+	Name  string `db:"name" json:"name"`
+	Bio   string `db:"bio" json:"bio"`
+	URL   string `db:"personal_site_link" json:"personal_site_link"`
+	//Location  *gj.Feature `db:"-" json:"location"`
 
-	Password string `redis:"password" json:"-"`
-	Salt     string `redis:"salt" json:"-"`
+	Password string `db:"password" json:"-"`
+	Salt     string `db:"salt" json:"-"`
 
-	Images []Ref `redis:"-" json:"image"`
-	// Favorites []Ref `redis:"-" json:"favorited"`
+	Images []string `db:"-" json:"image"`
+	// Favorites []string `db:"-" json:"favorited"`
 
-	Featured bool `redis:"-" json:"featured"`
-	Admin    bool `redis:"-" json:"admin"`
-	Views    int  `redis:"-" json:"views"`
-
-	CreatedAt    int64 `redis:"created_at" json:"created_at"`
-	LastModified int64 `redis:"last_modified" json:"last_modified"`
-
-	// Personal Only filled out through /me endpoint
-	SeenLinks []Ref `redis:"-" json:"seen_links,omitempty"`
-	Purchased []Ref `redis:"-" json:"purchased_links,omitempty"`
+	Featured     bool  `db:"featured" json:"featured"`
+	Admin        bool  `db:"admin" json:"admin"`
+	Views        int   `db:"views" json:"views"`
+	CreatedAt    int64 `db:"created_at" json:"created_at"`
+	LastModified int64 `db:"last_modified" json:"last_modified"`
 }
 
 type Color struct {
@@ -98,18 +91,14 @@ type Landmark struct {
 	Score       float64
 }
 
-func (u User) GetTag() string {
-	return fmt.Sprintf("%s:%s", "users", u.ShortCode.ShortCode)
-}
+type Table int
 
-func (i Image) GetTag() string {
-	return fmt.Sprintf("%s:%s", "images", i.ShortCode.ShortCode)
-}
+const (
+	Users Table = iota
+	Images
+)
 
-func (u User) GetRef() Ref {
-	return u.ShortCode
-}
-
-func (i Image) GetRef() Ref {
-	return i.ShortCode
+type Ref struct {
+	Id    string
+	Table Table
 }

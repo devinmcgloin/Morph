@@ -1,4 +1,4 @@
-package redis
+package sql
 
 import (
 	"log"
@@ -19,6 +19,11 @@ func Permissions(userRef model.Ref, permission model.RString, item model.Ref) (b
 	}
 	if isAdmin {
 		return isAdmin, nil
+	}
+
+	// IF user is modifying themselves it is always acceptable
+	if userRef == item {
+		return true, nil
 	}
 
 	// if open to the public action is acceptable
@@ -57,10 +62,14 @@ func IsAdmin(ref model.Ref) (bool, error) {
 	conn := pool.Get()
 	defer conn.Close()
 
-	isAdmin, err := redis.Bool(conn.Do("SINMEMBER", ref.GetRSet(model.Admin), ref.GetTag()))
+	isAdmin, err := redis.Bool(conn.Do("SISMEMBER", ref.GetRSet(model.Admin), ref.GetTag()))
 	if err != nil {
 		log.Println(err)
 		return false, err
 	}
 	return isAdmin, nil
 }
+func GetLogin(ref model.Ref) (map[string]string, error) {
+
+}
+

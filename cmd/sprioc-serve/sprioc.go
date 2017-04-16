@@ -21,6 +21,7 @@ func init() {
 
 	flag := log.LstdFlags | log.Lmicroseconds | log.Lshortfile
 	log.SetFlags(flag)
+
 }
 
 func main() {
@@ -37,7 +38,7 @@ func main() {
 	// registerCollectionRoutes(api)
 	// registerSearchRoutes(api)
 	// registerLuckyRoutes(api)
-	// registerAuthRoutes(api)
+	 registerAuthRoutes(api)
 
 	log.Fatal(http.ListenAndServe(":"+port, handlers.LoggingHandler(os.Stdout,
 		handlers.CompressHandler(router))))
