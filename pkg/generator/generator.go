@@ -11,7 +11,7 @@ import (
 )
 
 var mutex sync.Mutex
-var src = rand.NewSource(time.Now().UnixNano())
+var src = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 const (
@@ -61,8 +61,11 @@ func generateRandomBytes(n int) ([]byte, error) {
 }
 
 func main() {
-	n := RandString(12)
+	n := src.Int63()
 	fmt.Println(n)
-	uEnc := b64.URLEncoding.EncodeToString([]byte(n))
+	uEnc := b64.URLEncoding.EncodeToString([]byte(fmt.Sprint(n)))
 	fmt.Println(uEnc)
+	//n = RandString(12)
+	//fmt.Println(n)
+
 }

@@ -9,7 +9,6 @@ import (
 
 	"github.com/sprioc/composer/pkg/model"
 
-	"github.com/sprioc/composer/pkg/refs"
 	"github.com/sprioc/composer/pkg/rsp"
 	"github.com/sprioc/composer/pkg/sql"
 )

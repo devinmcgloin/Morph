@@ -13,7 +13,7 @@ func init() {
 	connURL = os.Getenv("POST_URL")
 
 	if connURL == "" {
-		log.Fatal("REDIS_URL not set")
+		log.Fatal("POST_URL not set")
 	}
 
 	db, err := sqlx.Open("postgres", connURL)

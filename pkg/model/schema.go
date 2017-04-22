@@ -4,11 +4,10 @@ import (
 	gj "github.com/sprioc/geojson"
 )
 
-// TODO it would be good to have both public and private collections / images.
-
 // Image contains all the proper information for rendering a single photo
 type Image struct {
-	Id uint32 `db:"id"`
+	Id        uint32 `db:"id" json:"-"`
+	Shortcode string `db:"shortcode" json:"shortcode"`
 
 	//Tags         []string `db:"-" json:"tags"`
 	PublishTime  int64 `db:"publish_time" json:"publish_time"`
@@ -91,9 +90,6 @@ type Landmark struct {
 	Location    gj.Point
 	Score       float64
 }
-
-type UserReference string
-type ImageReference uint32
 
 type Permission string
 

@@ -74,8 +74,7 @@ func generateSaltPass(password string) (string, string, rsp.Response) {
 }
 
 func CheckUser(r *http.Request) (model.User, rsp.Response) {
-	tokenStrings, err := jwtreq.HeaderExtractor{"Authorization"}.
-		ExtractToken(r)
+	tokenStrings, err := jwtreq.HeaderExtractor{"Authorization"}.ExtractToken(r)
 
 	if err != nil {
 		return model.User{}, rsp.Response{Message: "Bearer Header not present", Code: http.StatusUnauthorized}

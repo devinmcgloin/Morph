@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/sprioc/composer/pkg/core"
-	"github.com/sprioc/composer/pkg/refs"
 	"github.com/sprioc/composer/pkg/rsp"
 )
 
