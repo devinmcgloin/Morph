@@ -10,9 +10,9 @@ import (
 	"github.com/sprioc/composer/pkg/contentStorage"
 	"github.com/sprioc/composer/pkg/metadata"
 	"github.com/sprioc/composer/pkg/model"
-	"github.com/sprioc/composer/pkg/sql"
 	"github.com/sprioc/composer/pkg/refs"
 	"github.com/sprioc/composer/pkg/rsp"
+	"github.com/sprioc/composer/pkg/sql"
 )
 
 // TODO NEED TO ABSTRACT THIS FURTHER

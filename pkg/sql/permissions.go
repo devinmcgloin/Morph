@@ -3,73 +3,39 @@ package sql
 import (
 	"log"
 
-	"github.com/garyburd/redigo/redis"
 	"github.com/sprioc/composer/pkg/model"
 )
 
-func Permissions(userRef model.Ref, permission model.RString, item model.Ref) (bool, error) {
-	conn := pool.Get()
-	defer conn.Close()
-
-	// admins can make any edits.
-	isAdmin, err := IsAdmin(userRef)
-	if err != nil {
-		log.Println(err)
-		return false, err
-	}
-	if isAdmin {
-		return isAdmin, nil
-	}
-
-	// IF user is modifying themselves it is always acceptable
-	if userRef == item {
-		return true, nil
-	}
-
-	// if open to the public action is acceptable
-	containsWildcard, err := redis.Bool(conn.Do("SISMEMBER", item.GetRString(permission),
-		"*"))
-	if err != nil {
-		log.Println(err)
-		return false, err
-	}
-	if containsWildcard {
-		return containsWildcard, nil
-	}
-
-	// explicit member check
-	isMember, err := redis.Bool(conn.Do("SISMEMBER", item.GetRString(permission), userRef.GetTag()))
-	if err != nil {
-		log.Println(err)
-		return false, err
-	}
-	return isMember, nil
+func Permissions(userRef model.UserReference, permission model.Permission, item model.ImageReference) (bool, error) {
 }
 
-func AddPermissions(item model.Ref, permission model.RString, userRef model.Ref) error {
-	conn := pool.Get()
-	defer conn.Close()
-
-	_, err := conn.Do("SADD", item.GetRString(permission), userRef.GetTag())
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-	return nil
+func AddPermissions(item model.ImageReference, permission model.Permission, userRef model.UserReference) error {
 }
 
-func IsAdmin(ref model.Ref) (bool, error) {
-	conn := pool.Get()
-	defer conn.Close()
-
-	isAdmin, err := redis.Bool(conn.Do("SISMEMBER", ref.GetRSet(model.Admin), ref.GetTag()))
+// IsAdmin checks if the given user has admin privileges
+func IsAdmin(id model.UserReference) (bool, error) {
+	rows, err := db.Query("SELECT count(*) FROM content.users WHERE id = ? AND admin = TRUE", id)
 	if err != nil {
-		log.Println(err)
+		log.Print(err)
 		return false, err
 	}
-	return isAdmin, nil
+	defer rows.Close()
+
+	var count int
+	for rows.Next() {
+		if err := rows.Scan(&count); err != nil {
+			log.Print(err)
+			return false, err
+		}
+	}
+	if err := rows.Err(); err != nil {
+		log.Print(err)
+		return false, err
+	}
+
+	return count == 1, nil
 }
-func GetLogin(ref model.Ref) (map[string]string, error) {
+
+func GetLogin(ref model.UserReference) (map[string]string, error) {
 
 }
-

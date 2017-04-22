@@ -1,24 +1,27 @@
 package sql
 
 import (
-	"errors"
 	"log"
 
-	"github.com/garyburd/redigo/redis"
 	"github.com/sprioc/composer/pkg/model"
-	"github.com/sprioc/composer/pkg/refs"
 )
 
-func GetUser(u model.Ref, priv bool) (model.User, error) {
-
-}
-
-func GetImage(i model.Ref) (model.Image, error) {
-	img := model.Image{}
-	err := db.Select(img, "SELECT * FROM content.images WHERE id = ?", i.Id)
+func GetUser(u model.UserReference) (model.User, error) {
+	user := model.User{}
+	err := db.Get(&user, "SELECT * FROM content.users WHERE id = ?", u)
 	if err != nil {
 		log.Println(err)
-		return nil, err
+		return model.User{}, err
 	}
+	return user, nil
+}
 
+func GetImage(i model.ImageReference) (model.Image, error) {
+	img := model.Image{}
+	err := db.Get(&img, "SELECT * FROM content.images WHERE id = ?", i)
+	if err != nil {
+		log.Println(err)
+		return model.Image{}, err
+	}
+	return img, nil
 }

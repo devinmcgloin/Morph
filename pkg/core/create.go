@@ -9,9 +9,9 @@ import (
 
 	"github.com/sprioc/composer/pkg/model"
 
-	"github.com/sprioc/composer/pkg/sql"
 	"github.com/sprioc/composer/pkg/refs"
 	"github.com/sprioc/composer/pkg/rsp"
+	"github.com/sprioc/composer/pkg/sql"
 )
 
 var validEmail = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)

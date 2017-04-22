@@ -14,8 +14,8 @@ import (
 	jwtreq "github.com/dgrijalva/jwt-go/request"
 	"github.com/sprioc/composer/pkg/generator"
 	"github.com/sprioc/composer/pkg/model"
-	"github.com/sprioc/composer/pkg/sql"
 	"github.com/sprioc/composer/pkg/rsp"
+	"github.com/sprioc/composer/pkg/sql"
 )
 
 var hmacSecret = []byte(os.Getenv("HMAC_SECRET"))

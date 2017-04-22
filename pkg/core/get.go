@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/sprioc/composer/pkg/model"
-	"github.com/sprioc/composer/pkg/sql"
 	"github.com/sprioc/composer/pkg/rsp"
+	"github.com/sprioc/composer/pkg/sql"
 )
 
 func GetUser(ref model.Ref) (model.User, rsp.Response) {

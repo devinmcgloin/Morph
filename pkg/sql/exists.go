@@ -1,9 +1,15 @@
 package sql
 
-import "log"
+import (
+	"log"
+
+	"github.com/sprioc/composer/pkg/model"
+)
+
+// This can be refactored using the sqlx get operation
 
 // ExistsImage checks if the given id exists in the database
-func ExistsImage(id string) (bool, error) {
+func ExistsImage(id model.ImageReference) (bool, error) {
 	rows, err := db.Query("SELECT count(*) FROM content.images WHERE id = ?", id)
 	if err != nil {
 		log.Print(err)
@@ -27,7 +33,7 @@ func ExistsImage(id string) (bool, error) {
 }
 
 // ExistsUser checks if the given id exists in the database
-func ExistsUser(id string) (bool, error) {
+func ExistsUser(id model.UserReference) (bool, error) {
 	rows, err := db.Query("SELECT count(*) FROM content.users WHERE id = ?", id)
 	if err != nil {
 		log.Print(err)

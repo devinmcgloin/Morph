@@ -8,19 +8,19 @@ import (
 
 // Image contains all the proper information for rendering a single photo
 type Image struct {
-	ShortCode string `db:"-"`
+	Id uint32 `db:"id"`
 
-	Tags         []string `db:"tags" json:"tags"`
-	PublishTime  int64    `db:"publish_time"`
-	LastModified int64    `db:"last_modified"`
+	//Tags         []string `db:"-" json:"tags"`
+	PublishTime  int64 `db:"publish_time" json:"publish_time"`
+	LastModified int64 `db:"last_modified" json:"last_modified"`
 	// Landmarks    []Landmark `db:"landmarks" json:"landmarks"`
 	// Colors       []Color    `db:"colors" json:"colors"`
 	//Labels []Label `db:"labels" json:"labels"`
 
-	Owner string `db:"owner" json:"owner"`
-	Featured  bool `db:"featured" json:"featured"`
-	Downloads int  `db:"downloads" json:"downloads"`
-	Views     int  `db:"views" json:"views"`
+	Owner     string `db:"owner" json:"owner"`
+	Featured  bool   `db:"featured" json:"featured"`
+	Downloads int    `db:"downloads" json:"downloads"`
+	Views     int    `db:"views" json:"views"`
 	//Purchases int    `db:"" json:"purchases"`
 	//Favorites int    `db:"" json:"favorites"`
 
@@ -50,11 +50,12 @@ type ImgSource struct {
 }
 
 type User struct {
-	Id    string `db:"id" json:"username"`
-	Email string `db:"email" json:"email"`
-	Name  string `db:"name" json:"name"`
-	Bio   string `db:"bio" json:"bio"`
-	URL   string `db:"personal_site_link" json:"personal_site_link"`
+	Id       uint32 `db:"id" json:"-"`
+	Username string `db:"username" json:"username"`
+	Email    string `db:"email" json:"email"`
+	Name     string `db:"name" json:"name"`
+	Bio      string `db:"bio" json:"bio"`
+	URL      string `db:"personal_site_link" json:"personal_site_link"`
 	//Location  *gj.Feature `db:"-" json:"location"`
 
 	Password string `db:"password" json:"-"`
@@ -91,14 +92,13 @@ type Landmark struct {
 	Score       float64
 }
 
-type Table int
+type UserReference string
+type ImageReference uint32
+
+type Permission string
 
 const (
-	Users Table = iota
-	Images
+	CanEdit   = Permission("can_edit")
+	CanDelete = Permission("can_delete")
+	CanView   = Permission("can_view")
 )
-
-type Ref struct {
-	Id    string
-	Table Table
-}
