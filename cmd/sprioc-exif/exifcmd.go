@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"sort"
@@ -9,7 +11,6 @@ import (
 
 	"github.com/rwcarlsen/goexif/exif"
 	"github.com/rwcarlsen/goexif/tiff"
-	"github.com/sprioc/composer/pkg/metadata"
 )
 
 func main() {
@@ -22,7 +23,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	meta, err := metadata.GetExif(f)
+	meta, err := GetExif(f)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -36,7 +37,9 @@ func main() {
 	}
 
 	lat, lon, err := meta.LatLong()
-	if err == nil {
+	if err != nil {
+		fmt.Println("Unable to parse lat / lon")
+	} else {
 		fmt.Printf("lat=%f, long=%f", lat, lon)
 	}
 }
@@ -70,4 +73,13 @@ func (dw detailedWalker) Swap(i, j int) {
 
 func (dw detailedWalker) Less(i, j int) bool {
 	return strings.Compare(string(dw.tags[i].name), string(dw.tags[j].name)) < 0
+}
+
+func GetExif(image io.Reader) (*exif.Exif, error) {
+	exifDat, err := exif.Decode(image)
+	if err != nil {
+		return &exif.Exif{}, errors.New("Unable to parse exif")
+	}
+
+	return exifDat, nil
 }

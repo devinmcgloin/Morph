@@ -45,7 +45,5 @@ func UploadImage(w http.ResponseWriter, r *http.Request) rsp.Response {
 			Code: http.StatusBadRequest}
 	}
 
-	go core.UploadImage(user, file)
-
-	return rsp.Response{Code: http.StatusAccepted}
+	return core.UploadImage(user, file)
 }

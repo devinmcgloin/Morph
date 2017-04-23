@@ -3,131 +3,108 @@ package model
 import (
 	"time"
 
-	"googlemaps.github.io/maps"
-
-	"gopkg.in/mgo.v2/bson"
-
-	"github.com/sprioc/clarifai-go"
 	gj "github.com/sprioc/geojson"
 )
 
-// TODO it would be good to have both public and private collections / images.
-
 // Image contains all the proper information for rendering a single photo
 type Image struct {
-	ID        bson.ObjectId `bson:"_id" json:"-"`
-	ShortCode string        `bson:"shortcode" json:"shortcode"`
+	Id        uint32 `db:"id" json:"-"`
+	Shortcode string `db:"shortcode" json:"shortcode"`
 
-	MetaData    ImageMetaData    `bson:"metadata" json:"metadata"`
-	Tags        []string         `bson:"tags" json:"tags"`
-	MachineTags []string         `bson:"machine_tags" json:"machine_tags"`
-	ColorTags   []clarifai.Color `bson:"color_tags" json:"color_tags"`
-	PublishTime time.Time        `bson:"publish_time" json:"publish_time"`
+	//Tags         []string `db:"-" json:"tags"`
+	PublishTime  time.Time `db:"publish_time" json:"publish_time"`
+	LastModified time.Time `db:"last_modified" json:"last_modified"`
+	// Landmarks    []Landmark `db:"landmarks" json:"landmarks"`
+	// Colors       []Color    `db:"colors" json:"colors"`
+	//Labels []Label `db:"labels" json:"labels"`
 
-	Owner     DBRef  `bson:"owner" json:"-"`
-	OwnerLink string `bson:"-" json:"owner"`
+	Owner     uint32 `db:"owner" json:"owner"`
+	Featured  bool   `db:"featured" json:"featured"`
+	Downloads int    `db:"downloads" json:"downloads"`
+	Views     int    `db:"views" json:"views"`
+	//Purchases int    `db:"" json:"purchases"`
+	//Favorites int    `db:"" json:"favorites"`
 
-	Collections     []DBRef  `bson:"collections" json:"-"`
-	CollectionLinks []string `bson:"-" json:"collection_links"`
-
-	FavoritedBy      []DBRef  `bson:"favorited_by" json:"-"`
-	FavoritedByLinks []string `bson:"-" json:"favorited_by_links"`
-
-	Sources ImgSource `bson:"sources_link" json:"source_link"`
-
-	Featured  bool `bson:"featured" json:"featured"`
-	Downloads int  `bson:"downloads" json:"downloads"`
-	Hidden    bool `bson:"hidden" json:"hidden"`
+	// Image Metadata
+	//Aperture        string    `db:"aperture" json:"aperture,omitempty"`
+	//ExposureTime    string    `db:"exposure_time" json:"exposure_time,omitempty"`
+	//FocalLength     string    `db:"focal_length" json:"focal_length,omitempty"`
+	//ISO             int       `db:"iso" json:"iso,omitempty"`
+	//Make            string    `db:"make" json:"make,omitempty"`
+	//Model           string    `db:"model" json:"model,omitempty"`
+	//LensMake        string    `db:"lens_make" json:"lens_make,omitempty"`
+	//LensModel       string    `db:"lens_model" json:"lens_model,omitempty"`
+	//PixelXDimension int64     `db:"pixel_xd" json:"pixel_xd,omitempty"`
+	//PixelYDimension int64     `db:"pixel_yd" json:"pixel_yd,omitempty"`
+	//CaptureTime     int64     `db:"capture_time" json:"capture_time,omitempty"`
+	//ImgDirection    float64   `db:"direction" json:"direction,omitempty"`
+	Location *gj.Point `db:"location" json:"location,omitempty"`
 }
 
-type ImageMetaData struct {
-	Aperture     string `bson:"aperture" json:"aperture"`
-	ExposureTime string `bson:"exposure_time" json:"exposure_time"`
-	FocalLength  string `bson:"focal_length" json:"focal_length"`
-	ISO          int    `bson:"iso" json:"iso"`
-
-	Make            string    `bson:"make" json:"make"`
-	Model           string    `bson:"model" json:"model"`
-	LensMake        string    `bson:"lens_make" json:"lens_make"`
-	LensModel       string    `bson:"lens_model" json:"lens_model"`
-	PixelXDimension int64     `bson:"pixel_xd" json:"pixel_xd"`
-	PixelYDimension int64     `bson:"pixel_yd" json:"pixel_yd"`
-	CaptureTime     time.Time `bson:"capture_time" json:"capture_time"`
-	ImgDirection    float64   `bson:"direction" json:"direction"`
-	Location        gj.Point  `bson:"location" json:"location"`
+func (i Image) GetRef() Ref {
+	return Ref{Collection: Images, Id: i.Id, Shortcode: i.Shortcode}
 }
 
 // ImgSource includes the information about the image itself.
 type ImgSource struct {
-	Thumb  string `bson:"thumb" json:"thumb"`
-	Small  string `bson:"small" json:"small"`
-	Medium string `bson:"medium" json:"medium"`
-	Large  string `bson:"large" json:"large"`
-	Raw    string `bson:"raw" json:"raw"`
+	Thumb  string `json:"thumb"`
+	Small  string `json:"small"`
+	Medium string `json:"medium"`
+	Large  string `json:"large"`
+	Raw    string `json:"raw"`
 }
 
 type User struct {
-	ID        bson.ObjectId `bson:"_id" json:"-"`
-	ShortCode string        `bson:"shortcode" json:"shortcode"`
-	Admin     bool          `bson:"admin" json:"admin"`
+	Id       uint32  `db:"id" json:"-"`
+	Username string  `db:"username" json:"username"`
+	Email    string  `db:"email" json:"email"`
+	Name     *string `db:"name" json:"name,omitempty"`
+	Bio      *string `db:"bio" json:"bio,omitempty"`
+	URL      *string `db:"url" json:"url,omitempty"`
+	//Location  *gj.Feature `db:"-" json:"location"`
 
-	Images     []DBRef  `bson:"images" json:"-"`
-	ImageLinks []string `bson:"-" json:"image_links"`
+	Password string `db:"password" json:"-"`
+	Salt     string `db:"salt" json:"-"`
 
-	Collections     []DBRef  `bson:"collections" json:"-"`
-	CollectionLinks []string `bson:"-" json:"collection_links"`
+	Images []string `db:"-" json:"image,omitempty"`
+	// Favorites []string `db:"-" json:"favorited"`
 
-	Followes    []DBRef  `bson:"followes" json:"-"`
-	FollowLinks []string `bson:"-" json:"follow_links"`
-
-	Favorites     []DBRef  `bson:"favorites" json:"-"`
-	FavoriteLinks []string `bson:"-" json:"favorite_links"`
-
-	FollowedBy      []DBRef  `bson:"followed_by" json:"-"`
-	FollowedByLinks []string `bson:"-" json:"followed_by_links"`
-
-	FavoritedBy      []DBRef  `bson:"favorited_by" json:"-"`
-	FavoritedByLinks []string `bson:"-" json:"favorited_by_links"`
-
-	Email     string     `bson:"email" json:"email"`
-	Pass      string     `bson:"password" json:"-"`
-	Salt      string     `bson:"salt" json:"-"`
-	Name      string     `bson:"name" json:"name"`
-	Bio       string     `bson:"bio" json:"bio"`
-	URL       string     `bson:"personal_site_link" json:"personal_site_link"`
-	Location  gj.Feature `bson:"location" json:"location"`
-	AvatarURL ImgSource  `bson:"avatar_link" json:"avatar_link"`
+	Featured     bool      `db:"featured" json:"featured"`
+	Admin        bool      `db:"admin" json:"admin"`
+	Views        int       `db:"views" json:"views"`
+	CreatedAt    time.Time `db:"created_at" json:"created_at"`
+	LastModified time.Time `db:"last_modified" json:"last_modified"`
 }
 
-type Collection struct {
-	ID        bson.ObjectId `bson:"_id" json:"-"`
-	ShortCode string        `bson:"shortcode" json:"shortcode"`
-
-	Images     []DBRef  `bson:"images" json:"-"`
-	ImageLinks []string `bson:"-" json:"image_links"`
-
-	Owner       DBRef `bson:"owner" json:"-"`
-	OwnerExtern User  `bson:"-" json:"owner"`
-
-	FollowedBy      []DBRef  `bson:"followed_by" json:"-"`
-	FollowedByLinks []string `bson:"-" json:"followed_by_links"`
-
-	FavoritedBy      []DBRef  `bson:"favorited_by" json:"-"`
-	FavoritedByLinks []string `bson:"-" json:"favorited_by_links"`
-
-	Desc     string     `bson:"desc" json:"desc"`
-	Title    string     `bson:"title" json:"title"`
-	ViewType string     `bson:"view_type" json:"view_type"`
-	Location gj.Feature `bson:"location" json:"location"`
+func (u User) GetRef() Ref {
+	return Ref{Collection: Users, Id: u.Id, Shortcode: u.Username}
 }
 
-type DBRef struct {
-	Collection string `bson:"collection" json:"collection"`
-	Shortcode  string `bson:"shortcode" json:"shortcode"`
-	Database   string `bson:"db" json:"-"`
+type Color struct {
+	Color struct {
+		Red   int
+		Green int
+		Blue  int
+	}
+	PixelFraction float64
+	Score         float64
 }
 
-type Location struct {
-	GoogleLoc maps.GeocodingResult `bson:"google_geo"`
-	Bounds    gj.Polygon           `bson:"bounds"`
+type Label struct {
+	Description string  `json:"description"`
+	Score       float64 `json:"score"`
 }
+
+type Landmark struct {
+	Description string
+	Location    gj.Point
+	Score       float64
+}
+
+type Permission string
+
+const (
+	CanEdit   = Permission("can_edit")
+	CanDelete = Permission("can_delete")
+	CanView   = Permission("can_view")
+)

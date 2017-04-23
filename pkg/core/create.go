@@ -7,12 +7,10 @@ import (
 	"strings"
 	"unicode"
 
-	"gopkg.in/mgo.v2/bson"
-
 	"github.com/sprioc/composer/pkg/model"
-	"github.com/sprioc/composer/pkg/refs"
+
 	"github.com/sprioc/composer/pkg/rsp"
-	"github.com/sprioc/composer/pkg/store"
+	"github.com/sprioc/composer/pkg/sql"
 )
 
 var validEmail = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
@@ -38,7 +36,7 @@ func CreateUser(userData map[string]string) rsp.Response {
 	if email, ok = userData["email"]; !ok {
 		return rsp.Response{Message: "Email not present", Code: http.StatusBadRequest}
 	}
-	email = strings.ToLower(email)
+	email = strings.Trim(strings.ToLower(email), " ")
 
 	if !validEmail.MatchString(email) {
 		return rsp.Response{Message: "Invalid email", Code: http.StatusBadRequest}
@@ -47,84 +45,51 @@ func CreateUser(userData map[string]string) rsp.Response {
 	if password, ok = userData["password"]; !ok {
 		return rsp.Response{Message: "Password not present", Code: http.StatusBadRequest}
 	}
-	log.Println(password)
-	password = strings.TrimSpace(password)
 
-	log.Println(validPassword(password), validPassPhrase(password))
+	password = strings.TrimSpace(password)
 
 	if !(validPassword(password) || validPassPhrase(password)) {
 		return rsp.Response{Message: "Invalid password", Code: http.StatusBadRequest}
 	}
-	log.Println(password)
 
-	if store.ExistsUserID(username) || store.ExistsEmail(email) {
-		return rsp.Response{Message: "Username or Email already exist", Code: http.StatusConflict}
+	userRef := model.Ref{Collection: model.Users, Shortcode: username}
+
+	exists, err := sql.ExistsUser(userRef.Shortcode)
+	if err != nil {
+		return rsp.Response{Code: http.StatusInternalServerError}
+	}
+	if exists {
+		return rsp.Response{Message: "Username already exist", Code: http.StatusConflict}
 	}
 
-	securePassword, salt, resp := GetSaltPass(password)
+	exists, err = sql.ExistsEmail(email)
+	if err != nil {
+		return rsp.Response{Code: http.StatusInternalServerError}
+	}
+	if exists {
+		return rsp.Response{Message: "Email already exist", Code: http.StatusConflict}
+	}
+
+	securePassword, salt, resp := generateSaltPass(password)
 	if !resp.Ok() {
 		log.Println(resp)
 		return rsp.Response{Message: "Error adding user", Code: http.StatusConflict}
 	}
 
 	usr := model.User{
-		ID:        bson.NewObjectId(),
-		Email:     email,
-		Pass:      securePassword,
-		Salt:      salt,
-		ShortCode: username,
-		AvatarURL: formatSources("default", "avatars"),
+		Username: username,
+		Email:    email,
+		Password: securePassword,
+		Salt:     salt,
 	}
 
-	log.Printf("%+v", usr)
-
-	err := store.Create("users", usr)
+	err = sql.CreateUser(usr)
 	if err != nil {
-		return rsp.Response{Message: "Error adding user", Code: http.StatusConflict}
+		return rsp.Response{Message: "Error adding user", Code: http.StatusInternalServerError}
 	}
 
 	var response = make(map[string]string)
-	response["link"] = refs.GetURL(refs.GetUserRef(username))
-
-	return rsp.Response{Code: http.StatusAccepted, Data: response}
-}
-
-func CreateCollection(requestuser model.User, colData map[string]string) rsp.Response {
-	var title, desc string
-	var ok bool
-
-	if title, ok = colData["title"]; !ok {
-		return rsp.Response{Message: "Title not present", Code: http.StatusBadRequest}
-	}
-
-	if desc, ok = colData["desc"]; !ok {
-		desc = ""
-	}
-
-	userRef := refs.GetUserRef(requestuser.ShortCode)
-	colRef := refs.GetCollectionRef(store.GetNewCollectionShortCode())
-
-	col := model.Collection{
-		ID:        bson.NewObjectId(),
-		Title:     title,
-		Desc:      desc,
-		Owner:     refs.GetUserRef(requestuser.ShortCode),
-		ShortCode: colRef.Shortcode,
-	}
-
-	err := store.Create("collections", col)
-	if err != nil {
-		return rsp.Response{Code: http.StatusInternalServerError}
-	}
-
-	resp := Modify(userRef,
-		bson.M{"$addToSet": bson.M{"collections": colRef}})
-	if !resp.Ok() {
-		return rsp.Response{Code: http.StatusInternalServerError}
-	}
-
-	var response = make(map[string]string)
-	response["link"] = refs.GetURL(colRef)
+	response["link"] = userRef.ToURL()
 
 	return rsp.Response{Code: http.StatusAccepted, Data: response}
 }
@@ -150,7 +115,6 @@ func validPassword(password string) bool {
 		}
 	}
 
-	log.Println(hasLower, hasUpper, hasNumber, hasSpecial, len(password))
 	return hasLower && hasUpper && hasNumber && hasSpecial && len(password) > 8
 }
 

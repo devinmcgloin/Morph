@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/sprioc/composer/pkg/core"
+	"github.com/sprioc/composer/pkg/model"
 	"github.com/sprioc/composer/pkg/rsp"
 )
 
@@ -29,13 +30,13 @@ func GetToken(w http.ResponseWriter, r *http.Request) rsp.Response {
 		return rsp.Response{Message: "Bad Request", Code: http.StatusBadRequest}
 	}
 
-	valid, user, resp := core.ValidateCredentialsByUserName(username, password)
+	valid, resp := core.ValidateCredentialsByUserName(username, password)
 	if !resp.Ok() {
 		return rsp.Response{Message: "Invalid Credentials", Code: http.StatusUnauthorized}
 	}
 
 	if valid {
-		token, resp := core.CreateJWT(user)
+		token, resp := core.CreateJWT(model.Ref{Collection: model.Users, Shortcode: username})
 		if !resp.Ok() {
 			log.Println(resp)
 			return resp

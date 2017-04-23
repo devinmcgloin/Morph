@@ -2,14 +2,16 @@ package generator
 
 import (
 	crypto "crypto/rand"
+	b64 "encoding/base64"
 	"encoding/hex"
+	"fmt"
 	"math/rand"
 	"sync"
 	"time"
 )
 
 var mutex sync.Mutex
-var src = rand.NewSource(time.Now().UnixNano())
+var src = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 const (
@@ -56,4 +58,14 @@ func generateRandomBytes(n int) ([]byte, error) {
 		return nil, err
 	}
 	return b, nil
+}
+
+func main() {
+	n := src.Int63()
+	fmt.Println(n)
+	uEnc := b64.URLEncoding.EncodeToString([]byte(fmt.Sprint(n)))
+	fmt.Println(uEnc)
+	//n = RandString(12)
+	//fmt.Println(n)
+
 }
