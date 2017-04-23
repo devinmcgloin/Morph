@@ -52,9 +52,9 @@ func CreateUser(userData map[string]string) rsp.Response {
 		return rsp.Response{Message: "Invalid password", Code: http.StatusBadRequest}
 	}
 
-	userRef := model.Ref{Collection: model.Users, ShortCode: username}
+	userRef := model.Ref{Collection: model.Users, Shortcode: username}
 
-	exists, err := sql.Exists(userRef)
+	exists, err := sql.ExistsUser(userRef.Shortcode)
 	if err != nil {
 		return rsp.Response{Code: http.StatusInternalServerError}
 	}
@@ -77,7 +77,7 @@ func CreateUser(userData map[string]string) rsp.Response {
 	}
 
 	usr := model.User{
-		ShortCode: model.Ref{Collection: model.Users, ShortCode: username},
+		Username:  username,
 		Email:     email,
 		Password:  securePassword,
 		Salt:      salt,
@@ -89,7 +89,7 @@ func CreateUser(userData map[string]string) rsp.Response {
 	}
 
 	var response = make(map[string]string)
-	response["link"] = refs.GetURL(refs.GetUserRef(username))
+	response["link"] = userRef.ToURL()
 
 	return rsp.Response{Code: http.StatusAccepted, Data: response}
 }

@@ -14,11 +14,11 @@ func Permissions(userRef uint32, permission model.Permission, item uint32) (bool
 
 	switch permission {
 	case model.CanEdit:
-		stmt, err = db.Preparex("SELECT count(*) FROM permissions.can_edit WHERE user_id = ? AND o_id = ?;")
+		stmt, err = db.Preparex("SELECT count(*) FROM permissions.can_edit WHERE user_id = $1 AND o_id = $1;")
 	case model.CanView:
-		stmt, err = db.Preparex("SELECT count(*) FROM permissions.can_view WHERE user_id = ? AND o_id = ?;")
+		stmt, err = db.Preparex("SELECT count(*) FROM permissions.can_view WHERE user_id = $1 AND o_id = $1;")
 	case model.CanDelete:
-		stmt, err = db.Preparex("SELECT count(*) FROM permissions.can_delete WHERE user_id = ? AND o_id = ?;")
+		stmt, err = db.Preparex("SELECT count(*) FROM permissions.can_delete WHERE user_id = $1 AND o_id = $1;")
 	}
 	if err != nil {
 		log.Println(err)
@@ -39,11 +39,11 @@ func AddPermissions(item uint32, permission model.Permission, userRef uint32) er
 
 	switch permission {
 	case model.CanEdit:
-		stmt, err = db.Preparex("INSERT INTO permissions.can_edit(user_id, o_id) VALUES(?, ?);")
+		stmt, err = db.Preparex("INSERT INTO permissions.can_edit(user_id, o_id) VALUES($1, $2);")
 	case model.CanView:
-		stmt, err = db.Preparex("INSERT INTO permissions.can_view(user_id, o_id) VALUES(?, ?);")
+		stmt, err = db.Preparex("INSERT INTO permissions.can_view(user_id, o_id) VALUES($1, $2);")
 	case model.CanDelete:
-		stmt, err = db.Preparex("INSERT INTO permissions.can_delete(user_id, o_id) VALUES(?, ?);")
+		stmt, err = db.Preparex("INSERT INTO permissions.can_delete(user_id, o_id) VALUES($1, $2);")
 	}
 	if err != nil {
 		log.Println(err)
@@ -59,7 +59,7 @@ func AddPermissions(item uint32, permission model.Permission, userRef uint32) er
 
 // IsAdmin checks if the given user has admin privileges
 func IsAdmin(id uint32) (bool, error) {
-	rows, err := db.Query("SELECT count(*) FROM content.users WHERE id = ? AND admin = TRUE", id)
+	rows, err := db.Query("SELECT count(*) FROM content.users WHERE id = $1 AND admin = TRUE", id)
 	if err != nil {
 		log.Print(err)
 		return false, err
@@ -82,26 +82,34 @@ func IsAdmin(id uint32) (bool, error) {
 }
 
 // GetLogin returns the salt, password, email and username for a given user.
-func GetLogin(ref uint32) (map[string]string, error) {
-
-	rows, err := db.Query("SELECT (id, username, salt, password, email) FROM content.users WHERE username = ? LIMIT 1;", ref)
+func GetLogin(ref string) (map[string]interface{}, error) {
+	userInfo := make(map[string]interface{})
+	rows, err := db.Query("SELECT id, username, salt, password, email FROM content.users WHERE username = $1 LIMIT 1;", ref)
 	if err != nil {
 		log.Print(err)
-		return map[string]string{}, err
+		return userInfo, err
 	}
 	defer rows.Close()
-	var userInfo = map[string]string{}
-
+	var id uint32
+	var username string
+	var salt string
+	var password string
+	var email string
 	for rows.Next() {
-		if err := rows.Scan(&userInfo); err != nil {
+		if err := rows.Scan(&id, &username, &salt, &password, &email); err != nil {
 			log.Print(err)
-			return map[string]string{}, err
+			return userInfo, err
 		}
 	}
 	if err := rows.Err(); err != nil {
 		log.Print(err)
-		return map[string]string{}, err
+		return userInfo, err
 	}
+	userInfo["id"] = id
+	userInfo["username"] = username
+	userInfo["salt"] = salt
+	userInfo["password"] = password
+	userInfo["email"] = email
 
 	return userInfo, nil
 }

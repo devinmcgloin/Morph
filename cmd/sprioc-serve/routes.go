@@ -9,22 +9,22 @@ import (
 // TODO lock these routes down to alphabetical only with regex.
 
 func registerImageRoutes(api *mux.Router) {
-	img := api.PathPrefix("/images").Subrouter()
+	img := api.PathPrefix("/i").Subrouter()
 
 	get := img.Methods("GET").Subrouter()
 	// 	get.HandleFunc("/featured", middleware.Unsecure(handlers.GetFeaturedImages))
 	get.HandleFunc("/{IID:[a-zA-Z]{12}}", middleware.Unsecure(handlers.GetImage))
 
 	post := api.Methods("POST").Subrouter()
-	post.HandleFunc("/images", middleware.Secure(handlers.UploadImage))
+	post.HandleFunc("/i", middleware.Secure(handlers.UploadImage))
 
 	// 	put := img.Methods("PUT").Subrouter()
 	// 	put.HandleFunc("/{IID:[a-zA-Z]{12}}/tags", middleware.Secure(NotImplemented))
 	// 	put.HandleFunc("/{IID:[a-zA-Z]{12}}/featured", middleware.Secure(handlers.FeatureImage))
 	// 	put.HandleFunc("/{IID:[a-zA-Z]{12}}/favorite", middleware.Secure(handlers.FavoriteImage))
 
-	 del := img.Methods("DELETE").Subrouter()
-	 del.HandleFunc("/{IID:[a-zA-Z]{12}}", middleware.Secure(handlers.DeleteImage))
+	del := img.Methods("DELETE").Subrouter()
+	del.HandleFunc("/{IID:[a-zA-Z]{12}}", middleware.Secure(handlers.DeleteImage))
 	// 	del.HandleFunc("/{IID:[a-zA-Z]{12}}/tags", middleware.Secure(NotImplemented))
 	// 	del.HandleFunc("/{IID:[a-zA-Z]{12}}/featured", middleware.Secure(handlers.UnFeatureImage))
 	// 	del.HandleFunc("/{IID:[a-zA-Z]{12}}/favorite", middleware.Secure(handlers.UnFavoriteImage))
@@ -34,7 +34,7 @@ func registerImageRoutes(api *mux.Router) {
 }
 
 func registerUserRoutes(api *mux.Router) {
-	usr := api.PathPrefix("/users").Subrouter()
+	usr := api.PathPrefix("/u").Subrouter()
 
 	get := usr.Methods("GET").Subrouter()
 	get.HandleFunc("/me", middleware.Secure(handlers.GetLoggedInUser))
@@ -42,15 +42,15 @@ func registerUserRoutes(api *mux.Router) {
 	// get.HandleFunc("/{username}/images", middleware.Unsecure(handlers.GetUserImages))
 
 	post := api.Methods("POST").Subrouter()
-	post.HandleFunc("/users", middleware.Unsecure(handlers.CreateUser))
+	post.HandleFunc("/u", middleware.Unsecure(handlers.CreateUser))
 
 	put := usr.Methods("PUT").Subrouter()
 	put.HandleFunc("/{username}/avatar", middleware.Secure(handlers.UploadAvatar))
 	// put.HandleFunc("/{username}/favorite", middleware.Secure(handlers.FavoriteUser))
 	// put.HandleFunc("/{username}/follow", middleware.Secure(handlers.FollowUser))
 
-	 del := usr.Methods("DELETE").Subrouter()
-	 del.HandleFunc("/{username}", middleware.Secure(handlers.DeleteUser))
+	del := usr.Methods("DELETE").Subrouter()
+	del.HandleFunc("/{username}", middleware.Secure(handlers.DeleteUser))
 	// del.HandleFunc("/{username}/favorite", middleware.Secure(handlers.UnFavoriteUser))
 	// del.HandleFunc("/{username}/follow", middleware.Secure(handlers.UnFollowUser))
 
@@ -100,9 +100,9 @@ func registerUserRoutes(api *mux.Router) {
 //
 // }
 //
- func registerAuthRoutes(api *mux.Router) {
- 	post := api.Methods("POST").Subrouter()
+func registerAuthRoutes(api *mux.Router) {
+	post := api.Methods("POST").Subrouter()
 
- 	post.HandleFunc("/get_token", middleware.Unsecure(handlers.GetToken))
+	post.HandleFunc("/get_token", middleware.Unsecure(handlers.GetToken))
 
- }
+}

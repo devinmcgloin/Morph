@@ -4,7 +4,7 @@ import (
 	"github.com/sprioc/composer/pkg/generator"
 )
 
-func generateSC(collection uint32) (string, error) {
+func GenerateSC(collection uint32) (string, error) {
 
 	id := generator.RandString(12)
 

@@ -12,7 +12,7 @@ import (
 func ModifySecure(user model.User, target model.Ref, changes [][]string) rsp.Response {
 
 	// checking if the user has permission to modify the item
-	valid, err := sql.Permissions(user.GetRef(), model.CanEdit, target)
+	valid, err := sql.Permissions(user.Id, model.CanEdit, target.Id)
 	if err != nil {
 		return rsp.Response{Code: http.StatusInternalServerError, Message: "Unable to retrieve user permissions."}
 	}

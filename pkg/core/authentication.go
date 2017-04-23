@@ -25,20 +25,20 @@ var sessionLifetime = time.Minute * 10
 var refreshAt = time.Minute * 1
 
 func ValidateCredentialsByUserName(username string, password string) (bool, rsp.Response) {
-	user, err := sql.GetLogin(model.Ref{Collection: model.Users, ShortCode: username})
+	user, err := sql.GetLogin(username)
 	if err != nil {
 		return false, rsp.Response{Message: "Invalid Credentials.", Code: http.StatusUnauthorized}
 	}
 	return validUser(user, password)
 }
 
-func validUser(user map[string]string, password string) (bool, rsp.Response) {
-	salt, ok := user["salt"]
+func validUser(user map[string]interface{}, password string) (bool, rsp.Response) {
+	salt, ok := user["salt"].(string)
 	if !ok {
 		return false, rsp.Response{Message: "Invalid Credentials.", Code: http.StatusUnauthorized}
 	}
 
-	truePass, ok := user["password"]
+	truePass, ok := user["password"].(string)
 	if !ok {
 		return false, rsp.Response{Message: "Invalid Credentials.", Code: http.StatusUnauthorized}
 	}
@@ -102,7 +102,7 @@ func CreateJWT(u model.Ref) (string, rsp.Response) {
 		//IssuedAt:  time.Now().Unix(),
 		//ExpiresAt: time.Now().Add(time.Minute * 10).Unix(),
 		Issuer:  "composer",
-		Subject: u.ShortCode,
+		Subject: u.Shortcode,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -132,7 +132,7 @@ func VerifyJWT(tokenString string) (model.Ref, rsp.Response) {
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if token.Valid && ok {
 			id := claims["sub"].(string)
-			return model.Ref{Collection: model.Users, ShortCode: id},
+			return model.Ref{Collection: model.Users, Shortcode: id},
 				rsp.Response{Code: http.StatusOK}
 		}
 	} else if err, ok := err.(*jwt.ValidationError); ok {

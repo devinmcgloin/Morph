@@ -13,7 +13,7 @@ import (
 func GetUser(w http.ResponseWriter, r *http.Request) rsp.Response {
 	id := mux.Vars(r)["username"]
 
-	ref := refs.GetUserRef(id)
+	ref := model.GetUserRef(id)
 
 	user, resp := core.GetUser(ref)
 	if !resp.Ok() {
@@ -39,7 +39,7 @@ func GetLoggedInUser(w http.ResponseWriter, r *http.Request) rsp.Response {
 func GetImage(w http.ResponseWriter, r *http.Request) rsp.Response {
 	id := mux.Vars(r)["IID"]
 
-	ref := refs.GetImageRef(id)
+	ref := model.GetImageRef(id)
 
 	img, resp := core.GetImage(ref)
 	if !resp.Ok() {

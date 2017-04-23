@@ -11,12 +11,13 @@ import (
 
 func init() {
 	connURL = os.Getenv("POST_URL")
+	var err error
 
 	if connURL == "" {
 		log.Fatal("POST_URL not set")
 	}
 
-	db, err := sqlx.Open("postgres", connURL)
+	db, err = sqlx.Open("postgres", connURL)
 	if err != nil {
 		log.Fatal(err)
 	}

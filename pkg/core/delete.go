@@ -5,13 +5,13 @@ import (
 	"reflect"
 
 	"github.com/sprioc/composer/pkg/model"
-	"github.com/sprioc/composer/pkg/sql"
 	"github.com/sprioc/composer/pkg/rsp"
+	"github.com/sprioc/composer/pkg/sql"
 )
 
 func DeleteImage(requestFrom model.Ref, image model.Ref) rsp.Response {
 	// checking if the user has permission to delete the item
-	valid, err := sql.Permissions(requestFrom, model.CanDelete, image)
+	valid, err := sql.Permissions(requestFrom.Id, model.CanDelete, image.Id)
 	if err != nil {
 		return rsp.Response{Code: http.StatusInternalServerError, Message: "Unable to retrieve user permissions."}
 	}
@@ -19,7 +19,7 @@ func DeleteImage(requestFrom model.Ref, image model.Ref) rsp.Response {
 		return rsp.Response{Code: http.StatusForbidden, Message: "User does not have permission to delete item."}
 	}
 
-	err = sql.DeleteImage(image)
+	err = sql.DeleteImage(image.Id)
 	if err != nil {
 		return rsp.Response{Code: http.StatusInternalServerError,
 			Message: "Unable to delete user."}
@@ -30,7 +30,7 @@ func DeleteImage(requestFrom model.Ref, image model.Ref) rsp.Response {
 
 func DeleteUser(requestFrom model.Ref, user model.Ref) rsp.Response {
 	// checking if the user has permission to delete the item
-	valid, err := sql.Permissions(requestFrom, model.CanDelete, user)
+	valid, err := sql.Permissions(requestFrom.Id, model.CanDelete, user.Id)
 	if err != nil {
 		return rsp.Response{Code: http.StatusInternalServerError,
 			Message: "Unable to retrieve user permissions."}
@@ -40,7 +40,7 @@ func DeleteUser(requestFrom model.Ref, user model.Ref) rsp.Response {
 			Message: "User does not have permission to delete item."}
 	}
 
-	err = sql.DeleteUser(user)
+	err = sql.DeleteUser(user.Id)
 	if err != nil {
 		return rsp.Response{Code: http.StatusInternalServerError,
 			Message: "Unable to delete user."}

@@ -19,7 +19,7 @@ func DeleteImage(w http.ResponseWriter, r *http.Request) rsp.Response {
 
 	id := mux.Vars(r)["IID"]
 
-	ref := refs.GetImageRef(id)
+	ref := model.GetImageRef(id)
 
 	return core.DeleteImage(user.GetRef(), ref)
 }
@@ -32,7 +32,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) rsp.Response {
 
 	id := mux.Vars(r)["username"]
 
-	ref := refs.GetUserRef(id)
+	ref := model.GetUserRef(id)
 
 	return core.DeleteUser(user.GetRef(), ref)
 }

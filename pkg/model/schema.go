@@ -1,6 +1,8 @@
 package model
 
 import (
+	"time"
+
 	gj "github.com/sprioc/geojson"
 )
 
@@ -10,13 +12,13 @@ type Image struct {
 	Shortcode string `db:"shortcode" json:"shortcode"`
 
 	//Tags         []string `db:"-" json:"tags"`
-	PublishTime  int64 `db:"publish_time" json:"publish_time"`
-	LastModified int64 `db:"last_modified" json:"last_modified"`
+	PublishTime  time.Time `db:"publish_time" json:"publish_time"`
+	LastModified time.Time `db:"last_modified" json:"last_modified"`
 	// Landmarks    []Landmark `db:"landmarks" json:"landmarks"`
 	// Colors       []Color    `db:"colors" json:"colors"`
 	//Labels []Label `db:"labels" json:"labels"`
 
-	Owner     string `db:"owner" json:"owner"`
+	Owner     uint32 `db:"owner" json:"owner"`
 	Featured  bool   `db:"featured" json:"featured"`
 	Downloads int    `db:"downloads" json:"downloads"`
 	Views     int    `db:"views" json:"views"`
@@ -36,7 +38,11 @@ type Image struct {
 	//PixelYDimension int64     `db:"pixel_yd" json:"pixel_yd,omitempty"`
 	//CaptureTime     int64     `db:"capture_time" json:"capture_time,omitempty"`
 	//ImgDirection    float64   `db:"direction" json:"direction,omitempty"`
-	//Location        *gj.Point `db:"-" json:"location,omitempty"`
+	Location *gj.Point `db:"location" json:"location,omitempty"`
+}
+
+func (i Image) GetRef() Ref {
+	return Ref{Collection: Images, Id: i.Id, Shortcode: i.Shortcode}
 }
 
 // ImgSource includes the information about the image itself.
@@ -49,25 +55,29 @@ type ImgSource struct {
 }
 
 type User struct {
-	Id       uint32 `db:"id" json:"-"`
-	Username string `db:"username" json:"username"`
-	Email    string `db:"email" json:"email"`
-	Name     string `db:"name" json:"name"`
-	Bio      string `db:"bio" json:"bio"`
-	URL      string `db:"personal_site_link" json:"personal_site_link"`
+	Id       uint32  `db:"id" json:"-"`
+	Username string  `db:"username" json:"username"`
+	Email    string  `db:"email" json:"email"`
+	Name     *string `db:"name" json:"name,omitempty"`
+	Bio      *string `db:"bio" json:"bio,omitempty"`
+	URL      *string `db:"url" json:"url,omitempty"`
 	//Location  *gj.Feature `db:"-" json:"location"`
 
 	Password string `db:"password" json:"-"`
 	Salt     string `db:"salt" json:"-"`
 
-	Images []string `db:"-" json:"image"`
+	Images []string `db:"-" json:"image,omitempty"`
 	// Favorites []string `db:"-" json:"favorited"`
 
-	Featured     bool  `db:"featured" json:"featured"`
-	Admin        bool  `db:"admin" json:"admin"`
-	Views        int   `db:"views" json:"views"`
-	CreatedAt    int64 `db:"created_at" json:"created_at"`
-	LastModified int64 `db:"last_modified" json:"last_modified"`
+	Featured     bool      `db:"featured" json:"featured"`
+	Admin        bool      `db:"admin" json:"admin"`
+	Views        int       `db:"views" json:"views"`
+	CreatedAt    time.Time `db:"created_at" json:"created_at"`
+	LastModified time.Time `db:"last_modified" json:"last_modified"`
+}
+
+func (u User) GetRef() Ref {
+	return Ref{Collection: Users, Id: u.Id, Shortcode: u.Username}
 }
 
 type Color struct {

@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/sprioc/composer/pkg/core"
+	"github.com/sprioc/composer/pkg/model"
 	"github.com/sprioc/composer/pkg/rsp"
 )
 
@@ -35,7 +36,7 @@ func GetToken(w http.ResponseWriter, r *http.Request) rsp.Response {
 	}
 
 	if valid {
-		token, resp := core.CreateJWT(refs.GetUserRef(username))
+		token, resp := core.CreateJWT(model.Ref{Collection: model.Users, Shortcode: username})
 		if !resp.Ok() {
 			log.Println(resp)
 			return resp

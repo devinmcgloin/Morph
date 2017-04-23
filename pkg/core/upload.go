@@ -1,14 +1,11 @@
 package core
 
 import (
-	"bytes"
 	"errors"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/sprioc/composer/pkg/contentStorage"
-	"github.com/sprioc/composer/pkg/metadata"
 	"github.com/sprioc/composer/pkg/model"
 	"github.com/sprioc/composer/pkg/rsp"
 	"github.com/sprioc/composer/pkg/sql"
@@ -18,17 +15,16 @@ import (
 
 func UploadImage(user model.User, file []byte) rsp.Response {
 
-	var sc model.Ref
 	var err error
-	if sc, err = sql.GenerateShortCode(model.Images); err != nil {
-		return rsp.Response{Code: http.StatusInternalServerError}
+	sc, err := sql.GenerateSC(model.Images)
+	if err != nil {
+		log.Println(err)
+		return rsp.Response{Message: "Unable to generate new shortcode", Code: http.StatusInternalServerError}
 	}
 
 	img := model.Image{
-		ShortCode:    sc,
-		Owner:        user.ShortCode,
-		PublishTime:  time.Now().Unix(),
-		LastModified: time.Now().Unix(),
+		Shortcode: sc,
+		Owner:     user.Id,
 	}
 
 	n := len(file)
@@ -37,24 +33,24 @@ func UploadImage(user model.User, file []byte) rsp.Response {
 		return rsp.Response{Message: "Cannot upload file with 0 bytes.", Code: http.StatusBadRequest}
 	}
 
-	err = contentStorage.ProccessImage(file, n, img.ShortCode.ShortCode, "content")
+	err = contentStorage.ProccessImage(file, n, img.Shortcode, "content")
 	if err != nil {
 		log.Println(err)
 		return rsp.Response{Message: err.Error(), Code: http.StatusBadRequest}
 	}
 
-	buf := bytes.NewBuffer(file)
+	//buf := bytes.NewBuffer(file)
 
-	metadata.GetMetadata(buf, &img)
+	//metadata.GetMetadata(buf, &img)
 
-	err = sql.CreateImage(user.GetRef(), img)
+	err = sql.CreateImage(img)
 	if err != nil {
 		return rsp.Response{Message: "Error while adding image to DB", Code: http.StatusInternalServerError}
 	}
 
 	// go metadata.SetLocation(img.MetaData.Location)
 
-	return rsp.Response{Code: http.StatusAccepted, Data: map[string]string{"link": refs.GetURL(img.ShortCode)}}
+	return rsp.Response{Code: http.StatusAccepted, Data: map[string]string{"link": ""}}
 }
 
 func UploadAvatar(user model.User, file []byte) rsp.Response {
@@ -65,7 +61,7 @@ func UploadAvatar(user model.User, file []byte) rsp.Response {
 	}
 
 	// REVIEW check that you can overwrite on aws
-	err := contentStorage.ProccessImage(file, n, user.ShortCode.ShortCode, "avatar")
+	err := contentStorage.ProccessImage(file, n, user.Username, "avatar")
 	if err != nil {
 		log.Println(err)
 		return rsp.Response{Message: err.Error(), Code: http.StatusBadRequest}
