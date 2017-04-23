@@ -19,9 +19,9 @@ type Ref struct {
 func (r Ref) ToURL() string {
 	switch r.Collection {
 	case Users:
-		return fmt.Sprint("http:localhost/u/%s", r.Shortcode)
+		return fmt.Sprintf("http://localhost:8080/u/%s", r.Shortcode)
 	case Images:
-		return fmt.Sprint("http:localhost/i/%s", r.Shortcode)
+		return fmt.Sprintf("http://localhost:8080/i/%s", r.Shortcode)
 	default:
 		log.Panic("Invalid Collection Type")
 	}
