@@ -77,10 +77,10 @@ func CreateUser(userData map[string]string) rsp.Response {
 	}
 
 	usr := model.User{
-		Username:  username,
-		Email:     email,
-		Password:  securePassword,
-		Salt:      salt,
+		Username: username,
+		Email:    email,
+		Password: securePassword,
+		Salt:     salt,
 	}
 
 	err = sql.CreateUser(usr)

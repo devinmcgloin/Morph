@@ -38,7 +38,7 @@ func main() {
 	// registerCollectionRoutes(api)
 	// registerSearchRoutes(api)
 	// registerLuckyRoutes(api)
-	 registerAuthRoutes(api)
+	registerAuthRoutes(api)
 
 	log.Fatal(http.ListenAndServe(":"+port, handlers.LoggingHandler(os.Stdout,
 		handlers.CompressHandler(router))))
