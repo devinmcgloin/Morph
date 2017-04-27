@@ -3,6 +3,7 @@ package sql
 import (
 	"log"
 
+	"github.com/lib/pq"
 	"github.com/sprioc/composer/pkg/model"
 )
 
@@ -24,4 +25,18 @@ func GetImage(i string) (model.Image, error) {
 		return model.Image{}, err
 	}
 	return img, nil
+}
+
+func GetFeaturedImages(limit int) ([]model.Image, error) {
+	imgs := []model.Image{}
+	err := db.Select(&imgs,
+		"SELECT * FROM content.images WHERE featured = TRUE ORDER BY publish_time DESC LIMIT $1",
+		limit)
+	if err != nil {
+		if err, ok := err.(*pq.Error); ok {
+			log.Printf("%+v", err)
+		}
+		return []model.Image{}, err
+	}
+	return imgs, nil
 }

@@ -12,7 +12,8 @@ func registerImageRoutes(api *mux.Router) {
 	img := api.PathPrefix("/i").Subrouter()
 
 	get := img.Methods("GET").Subrouter()
-	// 	get.HandleFunc("/featured", middleware.Unsecure(handlers.GetFeaturedImages))
+	get.HandleFunc("/featured/{limit:[0-9]+}", middleware.Unsecure(handlers.GetFeaturedImages))
+	//get.HandleFunc("/recent", middleware.Unsecure(handlers.GetRecentImages))
 	get.HandleFunc("/{IID:[a-zA-Z]{12}}", middleware.Unsecure(handlers.GetImage))
 
 	post := api.Methods("POST").Subrouter()

@@ -36,7 +36,17 @@ func GetImage(ref model.Ref) (model.Image, rsp.Response) {
 
 	image, err := sql.GetImage(ref.Shortcode)
 	if err != nil {
-		return model.Image{}, rsp.Response{Message: err.Error(), Code: http.StatusInternalServerError}
+		return model.Image{}, rsp.Response{Message: err.Error(),
+			Code: http.StatusInternalServerError}
 	}
 	return image, rsp.Response{Code: http.StatusOK}
+}
+
+func GetFeaturedImages(limit int) ([]model.Image, rsp.Response) {
+	images, err := sql.GetFeaturedImages(limit)
+	if err != nil {
+		return []model.Image{}, rsp.Response{Message: err.Error(),
+			Code: http.StatusInternalServerError}
+	}
+	return images, rsp.Response{Code: http.StatusOK}
 }
