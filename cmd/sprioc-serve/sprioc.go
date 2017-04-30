@@ -1,52 +1,37 @@
 package main
 
 import (
+	"flag"
 	"log"
-	"net/http"
 	"os"
 
-	"github.com/gorilla/context"
-	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
-
-	"github.com/sprioc/composer/pkg/rsp"
+	"github.com/sprioc/composer/pkg/daemon"
 )
 
-func init() {
+func ProcessFlags() *daemon.Config {
+	cfg := &daemon.Config{}
 
-	port := os.Getenv("PORT")
+	flag.StringVar(&cfg.Host, "host-name", "localhost", "Host name to serve at")
+	flag.IntVar(&cfg.Port, "port", 8080, "Port to Listen on")
 
-	if port == "" {
-		log.Fatal("Port must be set")
+	flag.Parse()
+	return cfg
+}
+func main() {
+	cfg := ProcessFlags()
+
+	postgresURL := os.Getenv("POSTGRES_URL")
+	if postgresURL == "" {
+		log.Fatal("Postgres URL not set at POSTGRES_URL")
 	}
 
-	flag := log.LstdFlags | log.Lmicroseconds | log.Lshortfile
-	log.SetFlags(flag)
+	googleToken := os.Getenv("GOOGLE_API_TOKEN")
+	if googleToken == "" {
+		log.Fatal("Google API Token not set at GOOGLE_API_TOKEN")
+	}
 
-}
+	cfg.GoogleToken = googleToken
+	cfg.PostgresURL = postgresURL
 
-func main() {
-
-	router := mux.NewRouter()
-	api := router.PathPrefix("/v0/").Subrouter()
-	port := os.Getenv("PORT")
-
-	log.Printf("Serving at http://localhost:%s", port)
-
-	//  ROUTES
-	registerImageRoutes(api)
-	registerUserRoutes(api)
-	// registerCollectionRoutes(api)
-	// registerSearchRoutes(api)
-	// registerLuckyRoutes(api)
-	registerAuthRoutes(api)
-
-	log.Fatal(http.ListenAndServe(":"+port, context.ClearHandler(handlers.LoggingHandler(os.Stdout,
-		handlers.CompressHandler(router)))))
-}
-
-// NotImplemented returns the standard response for endpoints that have not been implemented
-func NotImplemented(w http.ResponseWriter, r *http.Request) rsp.Response {
-	log.Printf("Not implemented called from %s", r.URL)
-	return rsp.Response{Code: http.StatusNotImplemented, Message: "This endpoint is not implemented. It'll be here soon!"}
+	daemon.Run(cfg)
 }

@@ -4,27 +4,9 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io"
-	"log"
-	"net/http"
-	"os"
 
-	"google.golang.org/api/googleapi/transport"
 	"google.golang.org/api/vision/v1"
 )
-
-var visionService *vision.Service
-
-func init() {
-	var err error
-
-	client := &http.Client{
-		Transport: &transport.APIKey{Key: os.Getenv("GOOGLE_API_KEY")},
-	}
-	visionService, err = vision.New(client)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
 
 func GetResponse(file io.Reader) error {
 	var b []byte

@@ -1,23 +1,5 @@
 package metadata
 
-import (
-	"log"
-	"os"
-
-	"googlemaps.github.io/maps"
-)
-
-var mapsClient *maps.Client
-
-func init() {
-	var err error
-
-	mapsClient, err = maps.NewClient(maps.WithAPIKey(os.Getenv("GOOGLE_API_KEY")))
-	if err != nil {
-		log.Printf("fatal error: %s\n", err)
-	}
-}
-
 // func SetLocation(point *gj.Point) {
 //
 // 	if point == nil {

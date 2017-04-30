@@ -2,22 +2,16 @@ package sql
 
 import (
 	"log"
-	"os"
 
 	"github.com/jmoiron/sqlx"
 
 	_ "github.com/lib/pq" // Importing the package for its side effect.
 )
 
-func init() {
-	connURL = os.Getenv("POST_URL")
+func Configure(postgresURL string) {
 	var err error
 
-	if connURL == "" {
-		log.Fatal("POST_URL not set")
-	}
-
-	db, err = sqlx.Open("postgres", connURL)
+	db, err = sqlx.Open("postgres", postgresURL)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -25,8 +19,6 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Print("Connected Succesfully to Postgres DB\n")
 }
 
-var connURL string
 var db *sqlx.DB
