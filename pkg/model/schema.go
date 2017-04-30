@@ -18,10 +18,11 @@ type Image struct {
 	// Colors       []Color    `db:"colors" json:"colors"`
 	//Labels []Label `db:"labels" json:"labels"`
 
-	Owner     uint32 `db:"owner" json:"owner"`
-	Featured  bool   `db:"featured" json:"featured"`
-	Downloads int    `db:"downloads" json:"downloads"`
-	Views     int    `db:"views" json:"views"`
+	Owner         uint32 `db:"owner_id" json:"-"`
+	OwnerUsername string `db:"username" json:"username"`
+	Featured      bool   `db:"featured" json:"featured"`
+	Downloads     int    `db:"downloads" json:"downloads"`
+	Views         int    `db:"views" json:"views"`
 	//Purchases int    `db:"" json:"purchases"`
 	//Favorites int    `db:"" json:"favorites"`
 

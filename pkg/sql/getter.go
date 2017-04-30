@@ -14,12 +14,27 @@ func GetUser(u string) (model.User, error) {
 		log.Println(err)
 		return model.User{}, err
 	}
+	images := []string{}
+	err = db.Select(&images, `
+	SELECT shortcode
+	FROM content.images AS images
+	WHERE owner_id = $1`, user.Id)
+	if err != nil {
+		log.Println(err)
+		return model.User{}, err
+	}
+	user.Images = images
 	return user, nil
 }
 
 func GetImage(i string) (model.Image, error) {
 	img := model.Image{}
-	err := db.Get(&img, "SELECT * FROM content.images WHERE shortcode = $1", i)
+	err := db.Get(&img, `
+	SELECT images.id, shortcode, publish_time, images.last_modified,
+        owner_id, users.username, images.featured, images.downloads, images.views
+	FROM content.images AS images
+  		JOIN content.users AS users ON owner_id = users.id
+	WHERE shortcode = $1`, i)
 	if err != nil {
 		log.Println(err)
 		return model.Image{}, err
