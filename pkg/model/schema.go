@@ -27,19 +27,19 @@ type Image struct {
 	//Favorites int    `db:"" json:"favorites"`
 
 	// Image Metadata
-	//Aperture        string    `db:"aperture" json:"aperture,omitempty"`
-	//ExposureTime    string    `db:"exposure_time" json:"exposure_time,omitempty"`
-	//FocalLength     string    `db:"focal_length" json:"focal_length,omitempty"`
-	//ISO             int       `db:"iso" json:"iso,omitempty"`
-	//Make            string    `db:"make" json:"make,omitempty"`
-	//Model           string    `db:"model" json:"model,omitempty"`
-	//LensMake        string    `db:"lens_make" json:"lens_make,omitempty"`
-	//LensModel       string    `db:"lens_model" json:"lens_model,omitempty"`
-	//PixelXDimension int64     `db:"pixel_xd" json:"pixel_xd,omitempty"`
-	//PixelYDimension int64     `db:"pixel_yd" json:"pixel_yd,omitempty"`
-	//CaptureTime     int64     `db:"capture_time" json:"capture_time,omitempty"`
-	//ImgDirection    float64   `db:"direction" json:"direction,omitempty"`
-	Location *gj.Point `db:"location" json:"location,omitempty"`
+	Aperture        *string    `db:"aperture" json:"aperture,omitempty"`
+	ExposureTime    *string    `db:"exposure_time" json:"exposure_time,omitempty"`
+	FocalLength     *string    `db:"focal_length" json:"focal_length,omitempty"`
+	ISO             *int       `db:"iso" json:"iso,omitempty"`
+	Make            *string    `db:"make" json:"make,omitempty"`
+	Model           *string    `db:"model" json:"model,omitempty"`
+	LensMake        *string    `db:"lens_make" json:"lens_make,omitempty"`
+	LensModel       *string    `db:"lens_model" json:"lens_model,omitempty"`
+	PixelXDimension *int64     `db:"pixel_xd" json:"pixel_xd,omitempty"`
+	PixelYDimension *int64     `db:"pixel_yd" json:"pixel_yd,omitempty"`
+	CaptureTime     *time.Time `db:"capture_time" json:"capture_time,omitempty"`
+	ImgDirection    *float64   `db:"direction" json:"direction,omitempty"`
+	Location        *gj.Point  `db:"location" json:"location,omitempty"`
 }
 
 func (i Image) GetRef() Ref {

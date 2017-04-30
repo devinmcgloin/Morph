@@ -31,9 +31,12 @@ func GetImage(i string) (model.Image, error) {
 	img := model.Image{}
 	err := db.Get(&img, `
 	SELECT images.id, shortcode, publish_time, images.last_modified,
-        owner_id, users.username, images.featured, images.downloads, images.views
+		owner_id, users.username, images.featured, images.downloads, images.views,
+		aperture, exposure_time, focal_length, iso, make, model, lens_make, lens_model,
+		pixel_xd, pixel_yd, capture_time, direction, location
 	FROM content.images AS images
-  		JOIN content.users AS users ON owner_id = users.id
+		JOIN content.users AS users ON owner_id = users.id
+		JOIN content.image_metadata AS metadata ON image_id = images.id
 	WHERE shortcode = $1`, i)
 	if err != nil {
 		log.Println(err)

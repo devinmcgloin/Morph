@@ -14,7 +14,7 @@ func init() {
 
 	mapsClient, err = maps.NewClient(maps.WithAPIKey(os.Getenv("GOOGLE_API_KEY")))
 	if err != nil {
-		log.Fatalf("fatal error: %s", err)
+		log.Printf("fatal error: %s\n", err)
 	}
 }
 

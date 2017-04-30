@@ -1,11 +1,13 @@
 package core
 
 import (
+	"bytes"
 	"errors"
 	"log"
 	"net/http"
 
 	"github.com/sprioc/composer/pkg/contentStorage"
+	"github.com/sprioc/composer/pkg/metadata"
 	"github.com/sprioc/composer/pkg/model"
 	"github.com/sprioc/composer/pkg/rsp"
 	"github.com/sprioc/composer/pkg/sql"
@@ -39,9 +41,9 @@ func UploadImage(user model.User, file []byte) rsp.Response {
 		return rsp.Response{Message: err.Error(), Code: http.StatusBadRequest}
 	}
 
-	//buf := bytes.NewBuffer(file)
+	buf := bytes.NewBuffer(file)
 
-	//metadata.GetMetadata(buf, &img)
+	metadata.GetMetadata(buf, &img)
 
 	err = sql.CreateImage(img)
 	if err != nil {

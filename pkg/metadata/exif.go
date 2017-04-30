@@ -1,120 +1,134 @@
 package metadata
 
-//func GetExif(image io.Reader) (*exif.Exif, error) {
-//exifDat, err := exif.Decode(image)
-//if err != nil {
-//return &exif.Exif{}, errors.New("Unable to parse exif")
-//}
+import (
+	"errors"
+	"io"
+	"log"
+	"strconv"
 
-//return exifDat, nil
-//}
+	"github.com/rwcarlsen/goexif/exif"
+	"github.com/sprioc/composer/pkg/model"
+	gj "github.com/sprioc/geojson"
+)
 
-//func GetMetadata(file io.Reader, img *model.Image) error {
-//x, err := GetExif(file)
-//if err != nil {
-//return err
-//}
+func GetExif(image io.Reader) (*exif.Exif, error) {
+	exifDat, err := exif.Decode(image)
+	if err != nil {
+		return &exif.Exif{}, errors.New("Unable to parse exif")
+	}
 
-//lat, lon, err := x.LatLong()
-//if err != nil {
-//img.Location = nil
-//} else {
-//point := gj.NewPoint(gj.Coordinate{gj.CoordType(lon), gj.CoordType(lat)})
-//point.Type = "Point"
-//img.Location = point
-//}
+	return exifDat, nil
+}
 
-//captureTime, err := x.DateTime()
-//if err == nil {
-//img.CaptureTime = captureTime.Unix()
-//}
+func GetMetadata(file io.Reader, img *model.Image) error {
+	x, err := GetExif(file)
+	if err != nil {
+		return err
+	}
 
-////	Classic stats
-//ExposureTime, err := x.Get(exif.ExposureTime)
-//if err == nil {
-//num, den, err := ExposureTime.Rat2(0)
+	lat, lon, err := x.LatLong()
+	if err != nil {
+		img.Location = nil
+	} else {
+		point := gj.NewPoint(gj.Coordinate{gj.CoordType(lon), gj.CoordType(lat)})
+		point.Type = "Point"
+		img.Location = point
+	}
 
-//if err == nil {
-//img.ExposureTime = strconv.FormatInt(num, 10) + "/" + strconv.FormatInt(den, 10)
-//} else {
-//log.Println(err)
-//}
-//}
+	captureTime, err := x.DateTime()
+	if err == nil {
+		img.CaptureTime = &captureTime
+	}
 
-//Aperture, err := x.Get(exif.ApertureValue)
-//if err == nil {
-//num, den, err := Aperture.Rat2(0)
-//if err == nil {
-//img.Aperture = strconv.FormatInt(num/den, 10)
-//}
-//}
+	//	Classic stats
+	ExposureTime, err := x.Get(exif.ExposureTime)
+	if err == nil {
+		num, den, err := ExposureTime.Rat2(0)
 
-//FocalLength, err := x.Get(exif.FocalLength)
-//if err == nil {
-//num, den, err := FocalLength.Rat2(0)
-//if err == nil {
-//img.FocalLength = strconv.FormatInt(num/den, 10)
-//}
-//}
+		if err == nil {
+			et := strconv.FormatInt(num, 10) + "/" + strconv.FormatInt(den, 10)
+			img.ExposureTime = &et
+		} else {
+			log.Println(err)
+		}
+	}
 
-//ISO, err := x.Get(exif.ISOSpeedRatings)
-//if err == nil {
-//short, err := ISO.Int(0)
-//if err == nil {
-//img.ISO = short
-//}
-//}
+	Aperture, err := x.Get(exif.ApertureValue)
+	if err == nil {
+		num, den, err := Aperture.Rat2(0)
+		if err == nil {
+			a := strconv.FormatInt(num/den, 10)
+			img.Aperture = &a
+		}
+	}
 
-//// Make and model info
-//Make, err := x.Get(exif.Make)
-//if err == nil {
-//str, err := Make.StringVal()
-//if err == nil {
-//img.Make = str
-//}
-//}
+	FocalLength, err := x.Get(exif.FocalLength)
+	if err == nil {
+		num, den, err := FocalLength.Rat2(0)
+		if err == nil {
+			fl := strconv.FormatInt(num/den, 10)
+			img.FocalLength = &fl
+		}
+	}
 
-//Model, err := x.Get(exif.Model)
-//if err == nil {
-//str, err := Model.StringVal()
-//if err == nil {
-//img.Model = str
-//}
-//}
+	ISO, err := x.Get(exif.ISOSpeedRatings)
+	if err == nil {
+		short, err := ISO.Int(0)
+		if err == nil {
+			img.ISO = &short
+		}
+	}
 
-//LensMake, err := x.Get(exif.LensMake)
-//if err == nil {
-//str, err := LensMake.StringVal()
-//if err == nil {
-//img.LensMake = str
-//}
-//}
+	// Make and model info
+	Make, err := x.Get(exif.Make)
+	if err == nil {
+		str, err := Make.StringVal()
+		if err == nil {
+			img.Make = &str
+		}
+	}
 
-//LensModel, err := x.Get(exif.LensModel)
-//if err == nil {
-//str, err := LensModel.StringVal()
-//if err == nil {
-//img.LensModel = str
-//}
-//}
+	Model, err := x.Get(exif.Model)
+	if err == nil {
+		str, err := Model.StringVal()
+		if err == nil {
+			img.Model = &str
+		}
+	}
 
-//// Setting fields in sources for orig image
+	LensMake, err := x.Get(exif.LensMake)
+	if err == nil {
+		str, err := LensMake.StringVal()
+		if err == nil {
+			img.LensMake = &str
+		}
+	}
 
-//PixelXDimension, err := x.Get(exif.PixelXDimension)
-//if err == nil {
-//n, err := PixelXDimension.Int64(0)
-//if err == nil {
-//img.PixelXDimension = n
-//}
-//}
+	LensModel, err := x.Get(exif.LensModel)
+	if err == nil {
+		str, err := LensModel.StringVal()
+		if err == nil {
+			img.LensModel = &str
+		}
+	}
 
-//PixelYDimension, err := x.Get(exif.PixelYDimension)
-//if err == nil {
-//n, err := PixelYDimension.Int64(0)
-//if err == nil {
-//img.PixelYDimension = n
-//}
-//}
+	// Setting fields in sources for orig image
 
-//return nil
-//}
+	PixelXDimension, err := x.Get(exif.PixelXDimension)
+	if err == nil {
+		n, err := PixelXDimension.Int64(0)
+		if err == nil {
+			img.PixelXDimension = &n
+		}
+	}
+
+	PixelYDimension, err := x.Get(exif.PixelYDimension)
+	if err == nil {
+		n, err := PixelYDimension.Int64(0)
+		if err == nil {
+			img.PixelYDimension = &n
+		}
+	}
+
+	return nil
+}
