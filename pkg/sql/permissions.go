@@ -7,7 +7,7 @@ import (
 	"github.com/sprioc/composer/pkg/model"
 )
 
-func Permissions(userRef uint32, permission model.Permission, item uint32) (bool, error) {
+func Permissions(userRef int64, permission model.Permission, item int64) (bool, error) {
 	var valid int
 	var err error
 	var stmt *sqlx.Stmt
@@ -33,7 +33,7 @@ func Permissions(userRef uint32, permission model.Permission, item uint32) (bool
 
 }
 
-func AddPermissions(item uint32, permission model.Permission, userRef uint32) error {
+func AddPermissions(item int64, permission model.Permission, userRef int64) error {
 	var err error
 	var stmt *sqlx.Stmt
 
@@ -58,7 +58,7 @@ func AddPermissions(item uint32, permission model.Permission, userRef uint32) er
 }
 
 // IsAdmin checks if the given user has admin privileges
-func IsAdmin(id uint32) (bool, error) {
+func IsAdmin(id int64) (bool, error) {
 	rows, err := db.Query("SELECT count(*) FROM content.users WHERE id = $1 AND admin = TRUE", id)
 	if err != nil {
 		log.Print(err)
@@ -90,7 +90,7 @@ func GetLogin(ref string) (map[string]interface{}, error) {
 		return userInfo, err
 	}
 	defer rows.Close()
-	var id uint32
+	var id int64
 	var username string
 	var salt string
 	var password string

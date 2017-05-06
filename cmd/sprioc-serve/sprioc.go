@@ -11,7 +11,7 @@ import (
 func ProcessFlags() *daemon.Config {
 	cfg := &daemon.Config{}
 
-	flag.StringVar(&cfg.Host, "host-name", "localhost", "Host name to serve at")
+	flag.StringVar(&cfg.Host, "host", "localhost", "Host name to serve at")
 	flag.IntVar(&cfg.Port, "port", 8080, "Port to Listen on")
 
 	flag.Parse()

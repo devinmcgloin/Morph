@@ -8,7 +8,7 @@ import (
 
 // Image contains all the proper information for rendering a single photo
 type Image struct {
-	Id        uint32 `db:"id" json:"-"`
+	Id        int64  `db:"id" json:"-"`
 	Shortcode string `db:"shortcode" json:"shortcode"`
 
 	//Tags         []string `db:"-" json:"tags"`
@@ -18,7 +18,7 @@ type Image struct {
 	// Colors       []Color    `db:"colors" json:"colors"`
 	//Labels []Label `db:"labels" json:"labels"`
 
-	Owner         uint32 `db:"owner_id" json:"-"`
+	Owner         int64  `db:"owner_id" json:"-"`
 	OwnerUsername string `db:"username" json:"username"`
 	Featured      bool   `db:"featured" json:"featured"`
 	Downloads     int    `db:"downloads" json:"downloads"`
@@ -56,7 +56,7 @@ type ImgSource struct {
 }
 
 type User struct {
-	Id       uint32  `db:"id" json:"-"`
+	Id       int64   `db:"id" json:"-"`
 	Username string  `db:"username" json:"username"`
 	Email    string  `db:"email" json:"email"`
 	Name     *string `db:"name" json:"name,omitempty"`

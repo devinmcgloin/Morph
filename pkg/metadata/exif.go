@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"strconv"
+	"strings"
 
 	"github.com/rwcarlsen/goexif/exif"
 	"github.com/sprioc/composer/pkg/model"
@@ -57,7 +58,8 @@ func GetMetadata(file io.Reader, img *model.Image) error {
 	if err == nil {
 		num, den, err := Aperture.Rat2(0)
 		if err == nil {
-			a := strconv.FormatInt(num/den, 10)
+			log.Println(float64(num) / float64(den))
+			a := strconv.FormatFloat(float64(num)/float64(den), 'f', 1, 64)
 			img.Aperture = &a
 		}
 	}
@@ -83,6 +85,7 @@ func GetMetadata(file io.Reader, img *model.Image) error {
 	Make, err := x.Get(exif.Make)
 	if err == nil {
 		str, err := Make.StringVal()
+		str = strings.TrimSpace(str)
 		if err == nil {
 			img.Make = &str
 		}
@@ -91,6 +94,7 @@ func GetMetadata(file io.Reader, img *model.Image) error {
 	Model, err := x.Get(exif.Model)
 	if err == nil {
 		str, err := Model.StringVal()
+		str = strings.TrimSpace(str)
 		if err == nil {
 			img.Model = &str
 		}
@@ -99,6 +103,7 @@ func GetMetadata(file io.Reader, img *model.Image) error {
 	LensMake, err := x.Get(exif.LensMake)
 	if err == nil {
 		str, err := LensMake.StringVal()
+		str = strings.TrimSpace(str)
 		if err == nil {
 			img.LensMake = &str
 		}
@@ -107,6 +112,7 @@ func GetMetadata(file io.Reader, img *model.Image) error {
 	LensModel, err := x.Get(exif.LensModel)
 	if err == nil {
 		str, err := LensModel.StringVal()
+		str = strings.TrimSpace(str)
 		if err == nil {
 			img.LensModel = &str
 		}

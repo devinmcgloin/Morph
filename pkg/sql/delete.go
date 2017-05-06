@@ -7,8 +7,8 @@ import (
 // DeleteUser removes all references to a given user, as well as the images
 // they have uploaded. In the future it will also remove following relationships
 // and other graph relationships.
-func DeleteUser(id uint32) error {
-	var image_ids []uint32
+func DeleteUser(id int64) error {
+	var image_ids []int64
 	err := db.Select(&image_ids, "SELECT id FROM content.images WHERE owner = ?", id)
 	if err != nil {
 		log.Println(err)
@@ -32,7 +32,7 @@ func DeleteUser(id uint32) error {
 
 // DeleteImage removes all keys for the given image, as well as removing it from
 // the owner. In the future it will also handle favorites and collections.
-func DeleteImage(id uint32) error {
+func DeleteImage(id int64) error {
 	tx, err := db.Begin()
 	if err != nil {
 		log.Print(err)

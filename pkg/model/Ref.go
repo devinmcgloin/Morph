@@ -11,7 +11,7 @@ const (
 )
 
 type Ref struct {
-	Id         uint32
+	Id         int64
 	Collection uint32
 	Shortcode  string
 }
