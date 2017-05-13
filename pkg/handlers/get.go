@@ -50,6 +50,16 @@ func GetImage(w http.ResponseWriter, r *http.Request) rsp.Response {
 	return rsp.Response{Code: http.StatusOK, Data: img}
 }
 
+func GetRecentImages(w http.ResponseWriter, r *http.Request) rsp.Response {
+	vars := mux.Vars(r)
+	// save to ignore error as route has to match [0-9]+ regex to hit his handler
+	limit, _ := strconv.Atoi(vars["limit"])
+	imgs, resp := core.GetRecentImages(limit)
+	if !resp.Ok() {
+		return resp
+	}
+	return rsp.Response{Code: http.StatusOK, Data: imgs}
+}
 func GetFeaturedImages(w http.ResponseWriter, r *http.Request) rsp.Response {
 	vars := mux.Vars(r)
 	// save to ignore error as route has to match [0-9]+ regex to hit his handler

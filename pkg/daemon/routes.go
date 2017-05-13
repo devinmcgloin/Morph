@@ -13,23 +13,23 @@ func registerImageRoutes(api *mux.Router) {
 
 	get := img.Methods("GET").Subrouter()
 	get.HandleFunc("/featured/{limit:[0-9]+}", middleware.Unsecure(handlers.GetFeaturedImages))
-	//get.HandleFunc("/recent", middleware.Unsecure(handlers.GetRecentImages))
+	get.HandleFunc("/recent/{limit:[0-9]+}", middleware.Unsecure(handlers.GetRecentImages))
 	get.HandleFunc("/{IID:[a-zA-Z]{12}}", middleware.Unsecure(handlers.GetImage))
 
 	post := api.Methods("POST").Subrouter()
 	post.HandleFunc("/i", middleware.Secure(handlers.UploadImage))
 
-	// 	put := img.Methods("PUT").Subrouter()
-	// 	put.HandleFunc("/{IID:[a-zA-Z]{12}}/tags", middleware.Secure(NotImplemented))
-	// 	put.HandleFunc("/{IID:[a-zA-Z]{12}}/featured", middleware.Secure(handlers.FeatureImage))
-	// 	put.HandleFunc("/{IID:[a-zA-Z]{12}}/favorite", middleware.Secure(handlers.FavoriteImage))
+	put := img.Methods("PUT").Subrouter()
+	put.HandleFunc("/{IID:[a-zA-Z]{12}}/tags/{tag}", middleware.Secure(NotImplemented))
+	put.HandleFunc("/{IID:[a-zA-Z]{12}}/featured", middleware.Secure(NotImplemented))
+	put.HandleFunc("/{IID:[a-zA-Z]{12}}/favorite", middleware.Secure(NotImplemented))
 
 	del := img.Methods("DELETE").Subrouter()
 	del.HandleFunc("/{IID:[a-zA-Z]{12}}", middleware.Secure(handlers.DeleteImage))
-	// 	del.HandleFunc("/{IID:[a-zA-Z]{12}}/tags", middleware.Secure(NotImplemented))
-	// 	del.HandleFunc("/{IID:[a-zA-Z]{12}}/featured", middleware.Secure(handlers.UnFeatureImage))
-	// 	del.HandleFunc("/{IID:[a-zA-Z]{12}}/favorite", middleware.Secure(handlers.UnFavoriteImage))
-	//
+	del.HandleFunc("/{IID:[a-zA-Z]{12}}/tags/{tag}", middleware.Secure(NotImplemented))
+	del.HandleFunc("/{IID:[a-zA-Z]{12}}/featured", middleware.Secure(NotImplemented))
+	del.HandleFunc("/{IID:[a-zA-Z]{12}}/favorite", middleware.Secure(NotImplemented))
+
 	//patch := img.Methods("PATCH").Subrouter()
 	//patch.HandleFunc("/{IID:[a-zA-Z]{12}}", middleware.Secure(handlers.ModifyImage))
 }
@@ -40,20 +40,18 @@ func registerUserRoutes(api *mux.Router) {
 	get := usr.Methods("GET").Subrouter()
 	get.HandleFunc("/me", middleware.Secure(handlers.GetLoggedInUser))
 	get.HandleFunc("/{username}", middleware.Unsecure(handlers.GetUser))
-	// get.HandleFunc("/{username}/images", middleware.Unsecure(handlers.GetUserImages))
+	get.HandleFunc("/{username}/images", middleware.Unsecure(NotImplemented))
 
 	post := api.Methods("POST").Subrouter()
 	post.HandleFunc("/u", middleware.Unsecure(handlers.CreateUser))
 
 	put := usr.Methods("PUT").Subrouter()
 	put.HandleFunc("/{username}/avatar", middleware.Secure(handlers.UploadAvatar))
-	// put.HandleFunc("/{username}/favorite", middleware.Secure(handlers.FavoriteUser))
-	// put.HandleFunc("/{username}/follow", middleware.Secure(handlers.FollowUser))
+	put.HandleFunc("/{username}/follow", middleware.Secure(NotImplemented))
 
 	del := usr.Methods("DELETE").Subrouter()
 	del.HandleFunc("/{username}", middleware.Secure(handlers.DeleteUser))
-	// del.HandleFunc("/{username}/favorite", middleware.Secure(handlers.UnFavoriteUser))
-	// del.HandleFunc("/{username}/follow", middleware.Secure(handlers.UnFollowUser))
+	del.HandleFunc("/{username}/follow", middleware.Secure(NotImplemented))
 
 	// patch := usr.Methods("PATCH").Subrouter()
 	// patch.HandleFunc("/{username}", middleware.Secure(handlers.ModifyUser))

@@ -1,0 +1,9 @@
+
+install:
+	go install ./...
+
+test:
+	go install ./...
+	go vet -x ./pkg/... && go test -v ./pkg/...
+
+
