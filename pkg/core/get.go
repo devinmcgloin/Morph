@@ -1,7 +1,6 @@
 package core
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/sprioc/composer/pkg/model"
@@ -10,7 +9,6 @@ import (
 )
 
 func GetUser(ref model.Ref) (model.User, rsp.Response) {
-	log.Println(ref)
 	if ref.Collection != model.Users {
 		return model.User{}, rsp.Response{Message: "Ref is of the wrong collection type",
 			Code: http.StatusBadRequest}
