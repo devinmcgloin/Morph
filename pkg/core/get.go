@@ -39,6 +39,15 @@ func GetImage(ref model.Ref) (model.Image, rsp.Response) {
 	}
 	return image, rsp.Response{Code: http.StatusOK}
 }
+
+func GetUserFavorites(username string) ([]model.Image, rsp.Response) {
+	images, err := sql.GetUserFavorites(username)
+	if err != nil {
+		return []model.Image{}, rsp.Response{Message: err.Error(),
+			Code: http.StatusInternalServerError}
+	}
+	return images, rsp.Response{Code: http.StatusOK}
+}
 func GetUserImages(username string) ([]model.Image, rsp.Response) {
 	images, err := sql.GetUserImages(username)
 	if err != nil {

@@ -39,7 +39,7 @@ func registerUserRoutes(api *mux.Router) {
 	get.HandleFunc("/me", middleware.Secure(handlers.GetLoggedInUser))
 	get.HandleFunc("/{username}", middleware.Unsecure(handlers.GetUser))
 	get.HandleFunc("/{username}/images", middleware.Unsecure(handlers.GetUserImages))
-	get.HandleFunc("/{username}/favorite", middleware.Unsecure(NotImplemented))
+	get.HandleFunc("/{username}/favorite", middleware.Unsecure(handlers.GetUserFavorites))
 	get.HandleFunc("/{username}/follow", middleware.Unsecure(NotImplemented))
 
 	post := api.Methods("POST").Subrouter()

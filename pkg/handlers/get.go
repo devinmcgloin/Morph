@@ -50,11 +50,20 @@ func GetImage(w http.ResponseWriter, r *http.Request) rsp.Response {
 	return rsp.Response{Code: http.StatusOK, Data: img}
 }
 
+func GetUserFavorites(w http.ResponseWriter, r *http.Request) rsp.Response {
+	vars := mux.Vars(r)
+	username := vars["username"]
+	imgs, resp := core.GetUserFavorites(username)
+	if !resp.Ok() {
+		return resp
+	}
+	return rsp.Response{Code: http.StatusOK, Data: imgs}
+}
+
 func GetUserImages(w http.ResponseWriter, r *http.Request) rsp.Response {
 	vars := mux.Vars(r)
-	// save to ignore error as route has to match [0-9]+ regex to hit his handler
-	UID := vars["username"]
-	imgs, resp := core.GetUserImages(UID)
+	username := vars["username"]
+	imgs, resp := core.GetUserImages(username)
 	if !resp.Ok() {
 		return resp
 	}
