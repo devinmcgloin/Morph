@@ -68,6 +68,34 @@ func GetRecentImages(limit int) ([]model.Image, error) {
 	return imgs, nil
 }
 
+func GetUserFollowed(username string) ([]model.User, error) {
+	users := []model.User{}
+	var owner_id int64
+	err := db.Get(&owner_id, "SELECT id FROM content.users WHERE username = $1", username)
+	if err != nil {
+		if err, ok := err.(*pq.Error); ok {
+			log.Printf("%+v", err)
+		}
+		return []model.User{}, err
+	}
+	err = db.Select(&users,
+		`
+	SELECT id, username, email, name, bio, url, password, salt, featured, admin, 
+		views, created_at, last_modified
+	FROM content.user_follows AS follows 
+		JOIN content.users AS users ON id = follows.followed_id
+	WHERE follows.user_id = $1
+		`,
+		owner_id)
+	if err != nil {
+		if err, ok := err.(*pq.Error); ok {
+			log.Printf("%+v", err)
+		}
+		return []model.User{}, err
+	}
+	return users, nil
+}
+
 func GetUserFavorites(username string) ([]model.Image, error) {
 	imgs := []model.Image{}
 	var owner_id int64

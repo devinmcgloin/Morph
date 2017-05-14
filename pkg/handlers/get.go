@@ -49,7 +49,15 @@ func GetImage(w http.ResponseWriter, r *http.Request) rsp.Response {
 
 	return rsp.Response{Code: http.StatusOK, Data: img}
 }
-
+func GetUserFollowed(w http.ResponseWriter, r *http.Request) rsp.Response {
+	vars := mux.Vars(r)
+	username := vars["username"]
+	users, resp := core.GetUserFollowed(username)
+	if !resp.Ok() {
+		return resp
+	}
+	return rsp.Response{Code: http.StatusOK, Data: users}
+}
 func GetUserFavorites(w http.ResponseWriter, r *http.Request) rsp.Response {
 	vars := mux.Vars(r)
 	username := vars["username"]
