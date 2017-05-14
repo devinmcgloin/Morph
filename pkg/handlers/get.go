@@ -29,7 +29,7 @@ func GetLoggedInUser(w http.ResponseWriter, r *http.Request) rsp.Response {
 	var user model.User
 	val, ok := context.GetOk(r, "auth")
 	if !ok {
-		return rsp.Response{Code: http.StatusUnauthorized, Message: "Must be logged in to delete image"}
+		return rsp.Response{Code: http.StatusUnauthorized, Message: "Must be logged in to use this endpoint"}
 	}
 
 	user = val.(model.User)
@@ -50,6 +50,17 @@ func GetImage(w http.ResponseWriter, r *http.Request) rsp.Response {
 	return rsp.Response{Code: http.StatusOK, Data: img}
 }
 
+func GetUserImages(w http.ResponseWriter, r *http.Request) rsp.Response {
+	vars := mux.Vars(r)
+	// save to ignore error as route has to match [0-9]+ regex to hit his handler
+	UID := vars["username"]
+	imgs, resp := core.GetUserImages(UID)
+	if !resp.Ok() {
+		return resp
+	}
+	return rsp.Response{Code: http.StatusOK, Data: imgs}
+}
+
 func GetRecentImages(w http.ResponseWriter, r *http.Request) rsp.Response {
 	vars := mux.Vars(r)
 	// save to ignore error as route has to match [0-9]+ regex to hit his handler
@@ -60,6 +71,7 @@ func GetRecentImages(w http.ResponseWriter, r *http.Request) rsp.Response {
 	}
 	return rsp.Response{Code: http.StatusOK, Data: imgs}
 }
+
 func GetFeaturedImages(w http.ResponseWriter, r *http.Request) rsp.Response {
 	vars := mux.Vars(r)
 	// save to ignore error as route has to match [0-9]+ regex to hit his handler

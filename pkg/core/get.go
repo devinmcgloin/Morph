@@ -41,7 +41,14 @@ func GetImage(ref model.Ref) (model.Image, rsp.Response) {
 	}
 	return image, rsp.Response{Code: http.StatusOK}
 }
-
+func GetUserImages(username string) ([]model.Image, rsp.Response) {
+	images, err := sql.GetUserImages(username)
+	if err != nil {
+		return []model.Image{}, rsp.Response{Message: err.Error(),
+			Code: http.StatusInternalServerError}
+	}
+	return images, rsp.Response{Code: http.StatusOK}
+}
 func GetRecentImages(limit int) ([]model.Image, rsp.Response) {
 	images, err := sql.GetRecentImages(limit)
 	if err != nil {

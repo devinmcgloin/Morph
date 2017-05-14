@@ -6,8 +6,6 @@ import (
 	"github.com/sprioc/composer/pkg/middleware"
 )
 
-// TODO lock these routes down to alphabetical only with regex.
-
 func registerImageRoutes(api *mux.Router) {
 	img := api.PathPrefix("/i").Subrouter()
 
@@ -40,7 +38,9 @@ func registerUserRoutes(api *mux.Router) {
 	get := usr.Methods("GET").Subrouter()
 	get.HandleFunc("/me", middleware.Secure(handlers.GetLoggedInUser))
 	get.HandleFunc("/{username}", middleware.Unsecure(handlers.GetUser))
-	get.HandleFunc("/{username}/images", middleware.Unsecure(NotImplemented))
+	get.HandleFunc("/{username}/images", middleware.Unsecure(handlers.GetUserImages))
+	get.HandleFunc("/{username}/favorite", middleware.Unsecure(NotImplemented))
+	get.HandleFunc("/{username}/follow", middleware.Unsecure(NotImplemented))
 
 	post := api.Methods("POST").Subrouter()
 	post.HandleFunc("/u", middleware.Unsecure(handlers.CreateUser))
@@ -92,13 +92,13 @@ func registerUserRoutes(api *mux.Router) {
 // 	post.HandleFunc("/search", middleware.Unsecure(handlers.Search))
 //
 // }
-//
-// // routes that return random results for a given collection.
-// // TODO redirect to new thing or just return random one like normal.
-// func registerLuckyRoutes(api *mux.Router) {
-//
-// }
-//
+
+// routes that return random results for a given collection.
+// TODO redirect to new thing or just return random one like normal.
+func registerLuckyRoutes(api *mux.Router) {
+
+}
+
 func registerAuthRoutes(api *mux.Router) {
 	post := api.Methods("POST").Subrouter()
 
