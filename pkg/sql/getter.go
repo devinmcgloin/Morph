@@ -27,6 +27,15 @@ func GetUser(u string) (model.User, error) {
 	return user, nil
 }
 
+func GetUserID(u string) (int64, error) {
+	var uID int64
+	err = db.Get(&uID, "SELECT id FROM content.users WHERE username = $1", username)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+}
+
 func GetImage(i string) (model.Image, error) {
 	img := model.Image{}
 	err := db.Get(&img, `
@@ -45,6 +54,16 @@ func GetImage(i string) (model.Image, error) {
 	return img, nil
 }
 
+func GetImageID(i string) (int64, error) {
+	var iID int64
+
+	err := db.Get(&iID, "SELECT id FROM content.images WHERE shortcode = $1", shortcode)
+	if err != nil {
+		log.Println(err)
+		return 0, err
+	}
+	return iID, nil
+}
 func GetRecentImages(limit int) ([]model.Image, error) {
 	imgs := []model.Image{}
 	err := db.Select(&imgs,

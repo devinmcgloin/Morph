@@ -48,7 +48,6 @@ func CreateImage(image model.Image) error {
 		return err
 	}
 	return nil
-
 }
 
 func CreateUser(user model.User) error {
