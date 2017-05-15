@@ -6,24 +6,24 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-func Get(url string) ([]byte, error) {
+func Get(key string) ([]byte, error) {
 	conn := pool.Get()
 	defer conn.Close()
 
 	b, err := redis.Bytes(conn.Do("GET", key))
 	if err != nil {
 		log.Println(err)
-		return "", err
+		return []byte{}, err
 	}
 
 	return b, nil
 }
 
-func Invalidate(url string) error {
+func Invalidate(key string) error {
 	conn := pool.Get()
 	defer conn.Close()
 
-	_, err := conn.Do("DEL", content)
+	_, err := conn.Do("DEL", key)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -32,11 +32,11 @@ func Invalidate(url string) error {
 
 }
 
-func Cache(url string, content []byte) error {
+func Cache(key string, content []byte) error {
 	conn := pool.Get()
 	defer conn.Close()
 
-	_, err := conn.Do("SET", content)
+	_, err := conn.Do("SET", key, content)
 	if err != nil {
 		log.Println(err)
 		return err
