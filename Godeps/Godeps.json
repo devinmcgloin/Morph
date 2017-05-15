@@ -132,6 +132,16 @@
 			"Rev": "01aeca54ebda6e0fbfafd0a524d234159c05ec20"
 		},
 		{
+			"ImportPath": "github.com/garyburd/redigo/internal",
+			"Comment": "v1.0.0-1-gb8dc900",
+			"Rev": "b8dc90050f24c1a73a52f107f3f575be67b21b7c"
+		},
+		{
+			"ImportPath": "github.com/garyburd/redigo/redis",
+			"Comment": "v1.0.0-1-gb8dc900",
+			"Rev": "b8dc90050f24c1a73a52f107f3f575be67b21b7c"
+		},
+		{
 			"ImportPath": "github.com/go-ini/ini",
 			"Comment": "v1.18.0",
 			"Rev": "cf53f9204df4fbdd7ec4164b57fa6184ba168292"
