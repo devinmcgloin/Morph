@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 
+	"github.com/sprioc/composer/pkg/cache"
 	"github.com/sprioc/composer/pkg/metadata"
 	"github.com/sprioc/composer/pkg/rsp"
 	"github.com/sprioc/composer/pkg/sql"
@@ -42,6 +43,7 @@ func Run(cfg *Config) {
 
 	metadata.Configure(cfg.GoogleToken)
 	sql.Configure(cfg.PostgresURL)
+	cache.Configure(cfg.RedisURL)
 
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(cfg.Port), context.ClearHandler(handlers.LoggingHandler(os.Stdout,
 		handlers.CompressHandler(router)))))
