@@ -33,7 +33,7 @@ func Permissions(userRef int64, permission model.Permission, item int64) (bool, 
 
 }
 
-func AddPermissions(item int64, permission model.Permission, userRef int64) error {
+func AddPermissions(userRef int64, permission model.Permission, item int64) error {
 	var err error
 	var stmt *sqlx.Stmt
 

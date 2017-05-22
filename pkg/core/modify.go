@@ -9,7 +9,7 @@ import (
 	"github.com/sprioc/composer/pkg/rsp"
 )
 
-func ModifySecure(user model.User, target model.Ref, changes [][]string) rsp.Response {
+func canModify(user model.User, target model.Ref) rsp.Response {
 
 	// checking if the user has permission to modify the item
 	valid, err := sql.Permissions(user.Id, model.CanEdit, target.Id)
@@ -21,5 +21,5 @@ func ModifySecure(user model.User, target model.Ref, changes [][]string) rsp.Res
 	}
 
 	// checking if modification is valid.
-	return rsp.Response{Code: http.StatusNotImplemented}
+	return rsp.Response{Code: http.StatusOK}
 }

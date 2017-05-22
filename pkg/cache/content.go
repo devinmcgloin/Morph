@@ -6,6 +6,7 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
+// Get returns the data cached at the key string and throws an error otherwise.
 func Get(key string) ([]byte, error) {
 	conn := pool.Get()
 	defer conn.Close()
@@ -29,7 +30,6 @@ func Invalidate(key string) error {
 		return err
 	}
 	return nil
-
 }
 
 func Cache(key string, content []byte) error {
