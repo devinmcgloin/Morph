@@ -14,7 +14,10 @@ import (
 func GetUser(w http.ResponseWriter, r *http.Request) rsp.Response {
 	id := mux.Vars(r)["username"]
 
-	ref := model.GetUserRef(id)
+	ref, resp := core.GetUserRef(id)
+	if !resp.Ok() {
+		return resp
+	}
 
 	user, resp := core.GetUser(ref)
 	if !resp.Ok() {
@@ -26,13 +29,16 @@ func GetUser(w http.ResponseWriter, r *http.Request) rsp.Response {
 
 func GetLoggedInUser(w http.ResponseWriter, r *http.Request) rsp.Response {
 
-	var user model.User
 	val, ok := context.GetOk(r, "auth")
 	if !ok {
 		return rsp.Response{Code: http.StatusUnauthorized, Message: "Must be logged in to use this endpoint"}
 	}
 
-	user = val.(model.User)
+	usrRef := val.(model.Ref)
+	user, resp := core.GetUser(usrRef)
+	if !resp.Ok() {
+		return resp
+	}
 
 	return rsp.Response{Code: http.StatusOK, Data: user}
 }
@@ -40,7 +46,10 @@ func GetLoggedInUser(w http.ResponseWriter, r *http.Request) rsp.Response {
 func GetImage(w http.ResponseWriter, r *http.Request) rsp.Response {
 	id := mux.Vars(r)["IID"]
 
-	ref := model.GetImageRef(id)
+	ref, resp := core.GetImageRef(id)
+	if !resp.Ok() {
+		return resp
+	}
 
 	img, resp := core.GetImage(ref)
 	if !resp.Ok() {
@@ -52,7 +61,13 @@ func GetImage(w http.ResponseWriter, r *http.Request) rsp.Response {
 func GetUserFollowed(w http.ResponseWriter, r *http.Request) rsp.Response {
 	vars := mux.Vars(r)
 	username := vars["username"]
-	users, resp := core.GetUserFollowed(username)
+
+	ref, resp := core.GetUserRef(username)
+	if !resp.Ok() {
+		return resp
+	}
+
+	users, resp := core.GetUserFollowed(ref)
 	if !resp.Ok() {
 		return resp
 	}
@@ -61,7 +76,13 @@ func GetUserFollowed(w http.ResponseWriter, r *http.Request) rsp.Response {
 func GetUserFavorites(w http.ResponseWriter, r *http.Request) rsp.Response {
 	vars := mux.Vars(r)
 	username := vars["username"]
-	imgs, resp := core.GetUserFavorites(username)
+
+	ref, resp := core.GetUserRef(username)
+	if !resp.Ok() {
+		return resp
+	}
+
+	imgs, resp := core.GetUserFavorites(ref)
 	if !resp.Ok() {
 		return resp
 	}
@@ -71,7 +92,13 @@ func GetUserFavorites(w http.ResponseWriter, r *http.Request) rsp.Response {
 func GetUserImages(w http.ResponseWriter, r *http.Request) rsp.Response {
 	vars := mux.Vars(r)
 	username := vars["username"]
-	imgs, resp := core.GetUserImages(username)
+
+	ref, resp := core.GetUserRef(username)
+	if !resp.Ok() {
+		return resp
+	}
+
+	imgs, resp := core.GetUserImages(ref)
 	if !resp.Ok() {
 		return resp
 	}

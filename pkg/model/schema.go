@@ -11,7 +11,7 @@ type Image struct {
 	Id        int64  `db:"id" json:"-"`
 	Shortcode string `db:"shortcode" json:"shortcode"`
 
-	//Tags         []string `db:"-" json:"tags"`
+	Tags         []string  `db:"-" json:"tags"`
 	PublishTime  time.Time `db:"publish_time" json:"publish_time"`
 	LastModified time.Time `db:"last_modified" json:"last_modified"`
 	// Landmarks    []Landmark `db:"landmarks" json:"landmarks"`

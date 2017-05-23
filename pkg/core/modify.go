@@ -9,7 +9,7 @@ import (
 	"github.com/sprioc/composer/pkg/rsp"
 )
 
-func canModify(user model.User, target model.Ref) rsp.Response {
+func canModify(user, target model.Ref) rsp.Response {
 
 	// checking if the user has permission to modify the item
 	valid, err := sql.Permissions(user.Id, model.CanEdit, target.Id)
@@ -22,4 +22,30 @@ func canModify(user model.User, target model.Ref) rsp.Response {
 
 	// checking if modification is valid.
 	return rsp.Response{Code: http.StatusOK}
+}
+
+func AddImageTag(usr model.Ref, image model.Ref, tag model.Ref) rsp.Response {
+	resp := canModify(usr, image)
+	if !resp.Ok() {
+		return resp
+	}
+
+	err := sql.AddTag(image.Id, tag.Id)
+	if err != nil {
+		return rsp.Response{Message: "Unable to modify image", Code: http.StatusInternalServerError}
+	}
+	return rsp.Response{Code: http.StatusCreated}
+}
+
+func RemoveImageTag(usr model.Ref, image model.Ref, tag model.Ref) rsp.Response {
+	resp := canModify(usr, image)
+	if !resp.Ok() {
+		return resp
+	}
+
+	err := sql.RemoveTag(image.Id, tag.Id)
+	if err != nil {
+		return rsp.Response{Message: "Unable to modify image", Code: http.StatusInternalServerError}
+	}
+	return rsp.Response{Code: http.StatusCreated}
 }

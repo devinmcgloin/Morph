@@ -52,7 +52,7 @@ func AddTag(iID, tagID int64) error {
 }
 
 func RemoveTag(iID, tagID int64) error {
-	stmt, err := db.Preparex("DELETE FROM content.image_tag_bridge WHERE image_id = $1 AND tag_id = $1")
+	stmt, err := db.Preparex("DELETE FROM content.image_tag_bridge WHERE image_id = $1 AND tag_id = $2")
 	if err != nil {
 		log.Println(err)
 		return err

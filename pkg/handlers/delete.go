@@ -12,27 +12,31 @@ import (
 
 func DeleteImage(w http.ResponseWriter, r *http.Request) rsp.Response {
 
-	var user model.User
+	var user model.Ref
 	val, _ := context.GetOk(r, "auth")
 
-	user = val.(model.User)
+	user = val.(model.Ref)
 
 	id := mux.Vars(r)["IID"]
-
-	ref := model.GetImageRef(id)
-
-	return core.DeleteImage(user.GetRef(), ref)
+	img, resp := core.GetImageRef(id)
+	if !resp.Ok() {
+		return resp
+	}
+	return core.DeleteImage(user, img)
 }
 
 func DeleteUser(w http.ResponseWriter, r *http.Request) rsp.Response {
-	var user model.User
+	var user model.Ref
 	val, _ := context.GetOk(r, "auth")
 
-	user = val.(model.User)
+	user = val.(model.Ref)
 
 	id := mux.Vars(r)["username"]
 
-	ref := model.GetUserRef(id)
+	usr, resp := core.GetUserRef(id)
+	if !resp.Ok() {
+		return resp
+	}
 
-	return core.DeleteUser(user.GetRef(), ref)
+	return core.DeleteUser(user, usr)
 }
