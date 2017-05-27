@@ -19,13 +19,13 @@ func registerImageRoutes(api *mux.Router) {
 
 	put := img.Methods("PUT").Subrouter()
 	put.HandleFunc("/{IID:[a-zA-Z]{12}}/tags/{tag}", middleware.Secure(handlers.AddImageTag))
-	put.HandleFunc("/{IID:[a-zA-Z]{12}}/featured", middleware.Secure(NotImplemented))
+	put.HandleFunc("/{IID:[a-zA-Z]{12}}/featured", middleware.Secure(handlers.FeatureImage))
 	put.HandleFunc("/{IID:[a-zA-Z]{12}}/favorite", middleware.Secure(NotImplemented))
 
 	del := img.Methods("DELETE").Subrouter()
 	del.HandleFunc("/{IID:[a-zA-Z]{12}}", middleware.Secure(handlers.DeleteImage))
 	del.HandleFunc("/{IID:[a-zA-Z]{12}}/tags/{tag}", middleware.Secure(handlers.RemoveImageTag))
-	del.HandleFunc("/{IID:[a-zA-Z]{12}}/featured", middleware.Secure(NotImplemented))
+	del.HandleFunc("/{IID:[a-zA-Z]{12}}/featured", middleware.Secure(handlers.UnFeatureImage))
 	del.HandleFunc("/{IID:[a-zA-Z]{12}}/favorite", middleware.Secure(NotImplemented))
 
 	//patch := img.Methods("PATCH").Subrouter()

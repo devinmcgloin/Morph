@@ -49,3 +49,29 @@ func RemoveImageTag(usr model.Ref, image model.Ref, tag model.Ref) rsp.Response 
 	}
 	return rsp.Response{Code: http.StatusCreated}
 }
+
+func FeatureImage(usr model.Ref, image model.Ref) rsp.Response {
+	resp := canModify(usr, image)
+	if !resp.Ok() {
+		return resp
+	}
+
+	err := sql.Feature(image.Id)
+	if err != nil {
+		return rsp.Response{Message: "Unable to feature image", Code: http.StatusInternalServerError}
+	}
+	return rsp.Response{Code: http.StatusAccepted}
+}
+
+func UnFeatureImage(usr model.Ref, image model.Ref) rsp.Response {
+	resp := canModify(usr, image)
+	if !resp.Ok() {
+		return resp
+	}
+
+	err := sql.UnFeature(image.Id)
+	if err != nil {
+		return rsp.Response{Message: "Unable to feature image", Code: http.StatusInternalServerError}
+	}
+	return rsp.Response{Code: http.StatusAccepted}
+}

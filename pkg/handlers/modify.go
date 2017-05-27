@@ -40,6 +40,7 @@ func AddImageTag(w http.ResponseWriter, r *http.Request) rsp.Response {
 
 	return core.AddImageTag(usrRef, imageRef, tagRef)
 }
+
 func RemoveImageTag(w http.ResponseWriter, r *http.Request) rsp.Response {
 	var usrRef model.Ref
 	vars := mux.Vars(r)
@@ -68,4 +69,52 @@ func RemoveImageTag(w http.ResponseWriter, r *http.Request) rsp.Response {
 	}
 
 	return core.RemoveImageTag(usrRef, imageRef, tagRef)
+}
+
+func FeatureImage(w http.ResponseWriter, r *http.Request) rsp.Response {
+	var usrRef model.Ref
+	vars := mux.Vars(r)
+
+	id := vars["IID"]
+
+	usr, ok := context.GetOk(r, "auth")
+	if ok {
+		usrRef = usr.(model.Ref)
+	} else {
+		return rsp.Response{
+			Message: "Unauthorized Request, must be logged in to modify an image",
+			Code:    http.StatusUnauthorized,
+		}
+	}
+
+	imageRef, resp := core.GetImageRef(id)
+	if !resp.Ok() {
+		return resp
+	}
+
+	return core.FeatureImage(usrRef, imageRef)
+}
+
+func UnFeatureImage(w http.ResponseWriter, r *http.Request) rsp.Response {
+	var usrRef model.Ref
+	vars := mux.Vars(r)
+
+	id := vars["IID"]
+
+	usr, ok := context.GetOk(r, "auth")
+	if ok {
+		usrRef = usr.(model.Ref)
+	} else {
+		return rsp.Response{
+			Message: "Unauthorized Request, must be logged in to modify an image",
+			Code:    http.StatusUnauthorized,
+		}
+	}
+
+	imageRef, resp := core.GetImageRef(id)
+	if !resp.Ok() {
+		return resp
+	}
+
+	return core.UnFeatureImage(usrRef, imageRef)
 }
