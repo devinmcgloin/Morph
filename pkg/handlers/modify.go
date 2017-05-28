@@ -118,3 +118,51 @@ func UnFeatureImage(w http.ResponseWriter, r *http.Request) rsp.Response {
 
 	return core.UnFeatureImage(usrRef, imageRef)
 }
+
+func FavoriteImage(w http.ResponseWriter, r *http.Request) rsp.Response {
+	var usrRef model.Ref
+	vars := mux.Vars(r)
+
+	id := vars["IID"]
+
+	usr, ok := context.GetOk(r, "auth")
+	if ok {
+		usrRef = usr.(model.Ref)
+	} else {
+		return rsp.Response{
+			Message: "Unauthorized Request, must be logged in to modify an image",
+			Code:    http.StatusUnauthorized,
+		}
+	}
+
+	imageRef, resp := core.GetImageRef(id)
+	if !resp.Ok() {
+		return resp
+	}
+
+	return core.FavoriteImage(usrRef, imageRef)
+}
+
+func UnFavoriteImage(w http.ResponseWriter, r *http.Request) rsp.Response {
+	var usrRef model.Ref
+	vars := mux.Vars(r)
+
+	id := vars["IID"]
+
+	usr, ok := context.GetOk(r, "auth")
+	if ok {
+		usrRef = usr.(model.Ref)
+	} else {
+		return rsp.Response{
+			Message: "Unauthorized Request, must be logged in to modify an image",
+			Code:    http.StatusUnauthorized,
+		}
+	}
+
+	imageRef, resp := core.GetImageRef(id)
+	if !resp.Ok() {
+		return resp
+	}
+
+	return core.UnFavoriteImage(usrRef, imageRef)
+}

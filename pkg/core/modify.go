@@ -9,10 +9,10 @@ import (
 	"github.com/sprioc/composer/pkg/rsp"
 )
 
-func canModify(user, target model.Ref) rsp.Response {
+func permission(user model.Ref, kind model.Permission, target model.Ref) rsp.Response {
 
 	// checking if the user has permission to modify the item
-	valid, err := sql.Permissions(user.Id, model.CanEdit, target.Id)
+	valid, err := sql.Permissions(user.Id, kind, target.Id)
 	if err != nil {
 		return rsp.Response{Code: http.StatusInternalServerError, Message: "Unable to retrieve user permissions."}
 	}
@@ -25,7 +25,7 @@ func canModify(user, target model.Ref) rsp.Response {
 }
 
 func AddImageTag(usr model.Ref, image model.Ref, tag model.Ref) rsp.Response {
-	resp := canModify(usr, image)
+	resp := permission(usr, model.CanEdit, image)
 	if !resp.Ok() {
 		return resp
 	}
@@ -38,7 +38,7 @@ func AddImageTag(usr model.Ref, image model.Ref, tag model.Ref) rsp.Response {
 }
 
 func RemoveImageTag(usr model.Ref, image model.Ref, tag model.Ref) rsp.Response {
-	resp := canModify(usr, image)
+	resp := permission(usr, model.CanEdit, image)
 	if !resp.Ok() {
 		return resp
 	}
@@ -51,7 +51,7 @@ func RemoveImageTag(usr model.Ref, image model.Ref, tag model.Ref) rsp.Response 
 }
 
 func FeatureImage(usr model.Ref, image model.Ref) rsp.Response {
-	resp := canModify(usr, image)
+	resp := permission(usr, model.CanEdit, image)
 	if !resp.Ok() {
 		return resp
 	}
@@ -64,12 +64,38 @@ func FeatureImage(usr model.Ref, image model.Ref) rsp.Response {
 }
 
 func UnFeatureImage(usr model.Ref, image model.Ref) rsp.Response {
-	resp := canModify(usr, image)
+	resp := permission(usr, model.CanEdit, image)
 	if !resp.Ok() {
 		return resp
 	}
 
 	err := sql.UnFeature(image.Id)
+	if err != nil {
+		return rsp.Response{Message: "Unable to feature image", Code: http.StatusInternalServerError}
+	}
+	return rsp.Response{Code: http.StatusAccepted}
+}
+
+func FavoriteImage(usr model.Ref, image model.Ref) rsp.Response {
+	resp := permission(usr, model.CanView, image)
+	if !resp.Ok() {
+		return resp
+	}
+
+	err := sql.Favorite(usr.Id, image.Id)
+	if err != nil {
+		return rsp.Response{Message: "Unable to feature image", Code: http.StatusInternalServerError}
+	}
+	return rsp.Response{Code: http.StatusAccepted}
+}
+
+func UnFavoriteImage(usr model.Ref, image model.Ref) rsp.Response {
+	resp := permission(usr, model.CanView, image)
+	if !resp.Ok() {
+		return resp
+	}
+
+	err := sql.UnFavorite(usr.Id, image.Id)
 	if err != nil {
 		return rsp.Response{Message: "Unable to feature image", Code: http.StatusInternalServerError}
 	}

@@ -67,8 +67,8 @@ type User struct {
 	Password string `db:"password" json:"-"`
 	Salt     string `db:"salt" json:"-"`
 
-	Images []string `db:"-" json:"image,omitempty"`
-	// Favorites []string `db:"-" json:"favorited"`
+	Images    []string `db:"-" json:"image,omitempty"`
+	Favorites []string `db:"-" json:"favorited"`
 
 	Featured     bool      `db:"featured" json:"featured"`
 	Admin        bool      `db:"admin" json:"admin"`

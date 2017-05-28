@@ -25,6 +25,19 @@ func GetUser(u int64) (model.User, error) {
 		return model.User{}, err
 	}
 	user.Images = images
+
+	favorites := []string{}
+	err = db.Select(&favorites, `
+	SELECT shortcode
+	FROM content.user_favorites
+	JOIN content.images ON content.user_favorites.image_id = content.images.id
+	WHERE user_id = $1`, user.Id)
+	if err != nil {
+		log.Println(err)
+		return model.User{}, err
+	}
+	user.Favorites = favorites
+
 	return user, nil
 }
 
