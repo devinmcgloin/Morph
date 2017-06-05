@@ -9,6 +9,7 @@ import (
 // and other graph relationships.
 func DeleteUser(id int64) error {
 	var image_ids []int64
+
 	err := db.Select(&image_ids, "SELECT id FROM content.images WHERE owner = ?", id)
 	if err != nil {
 		log.Println(err)
@@ -24,8 +25,10 @@ func DeleteUser(id int64) error {
 	tx.Exec("DELETE FROM content.users WHERE id = ?", id)
 	for _, img := range image_ids {
 		tx.Exec("DELETE FROM content.images WHERE id = ?", img)
-		//tx.Exec("DELETE FROM content.image_tags WHERE image_id = ?", img)
-		//tx.Exec("DELETE FROM content.image_labels WHERE image_id = ?", img)
+		tx.Exec("DELETE FROM content.image_metadata WHERE image_id = ?", img)
+		tx.Exec("DELETE FROM content.image_label_bridge WHERE image_id = ?", img)
+		tx.Exec("DELETE FROM content.image_tag_bridge WHERE image_id = ?", img)
+		tx.Exec("DELETE FROM content.user_favorites WHERE image_id = ?", img)
 	}
 	return tx.Commit()
 }
@@ -38,8 +41,11 @@ func DeleteImage(id int64) error {
 		log.Print(err)
 		return err
 	}
+
 	tx.Exec("DELETE FROM content.images WHERE id = ?", id)
-	//tx.Exec("DELETE FROM content.image_tags WHERE image_id = ?", ref)
-	//tx.Exec("DELETE FROM content.image_labels WHERE image_id = ?", ref)
+	tx.Exec("DELETE FROM content.image_metadata WHERE image_id = ?", id)
+	tx.Exec("DELETE FROM content.image_label_bridge WHERE image_id = ?", id)
+	tx.Exec("DELETE FROM content.image_tag_bridge WHERE image_id = ?", id)
+	tx.Exec("DELETE FROM content.user_favorites WHERE image_id = ?", id)
 	return tx.Commit()
 }

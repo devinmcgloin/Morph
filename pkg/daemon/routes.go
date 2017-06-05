@@ -18,15 +18,15 @@ func registerImageRoutes(api *mux.Router) {
 	post.HandleFunc("/i", middleware.Secure(handlers.UploadImage))
 
 	put := img.Methods("PUT").Subrouter()
-	put.HandleFunc("/{IID:[a-zA-Z]{12}}/tags/{tag}", middleware.Secure(NotImplemented))
-	put.HandleFunc("/{IID:[a-zA-Z]{12}}/featured", middleware.Secure(NotImplemented))
-	put.HandleFunc("/{IID:[a-zA-Z]{12}}/favorite", middleware.Secure(NotImplemented))
+	put.HandleFunc("/{IID:[a-zA-Z]{12}}/tags/{tag}", middleware.Secure(handlers.AddImageTag))
+	put.HandleFunc("/{IID:[a-zA-Z]{12}}/featured", middleware.Secure(handlers.FeatureImage))
+	put.HandleFunc("/{IID:[a-zA-Z]{12}}/favorite", middleware.Secure(handlers.FavoriteImage))
 
 	del := img.Methods("DELETE").Subrouter()
 	del.HandleFunc("/{IID:[a-zA-Z]{12}}", middleware.Secure(handlers.DeleteImage))
-	del.HandleFunc("/{IID:[a-zA-Z]{12}}/tags/{tag}", middleware.Secure(NotImplemented))
-	del.HandleFunc("/{IID:[a-zA-Z]{12}}/featured", middleware.Secure(NotImplemented))
-	del.HandleFunc("/{IID:[a-zA-Z]{12}}/favorite", middleware.Secure(NotImplemented))
+	del.HandleFunc("/{IID:[a-zA-Z]{12}}/tags/{tag}", middleware.Secure(handlers.RemoveImageTag))
+	del.HandleFunc("/{IID:[a-zA-Z]{12}}/featured", middleware.Secure(handlers.UnFeatureImage))
+	del.HandleFunc("/{IID:[a-zA-Z]{12}}/favorite", middleware.Secure(handlers.UnFavoriteImage))
 
 	//patch := img.Methods("PATCH").Subrouter()
 	//patch.HandleFunc("/{IID:[a-zA-Z]{12}}", middleware.Secure(handlers.ModifyImage))
@@ -47,11 +47,11 @@ func registerUserRoutes(api *mux.Router) {
 
 	put := usr.Methods("PUT").Subrouter()
 	put.HandleFunc("/{username}/avatar", middleware.Secure(handlers.UploadAvatar))
-	put.HandleFunc("/{username}/follow", middleware.Secure(NotImplemented))
+	put.HandleFunc("/{username}/follow", middleware.Secure(handlers.Follow))
 
 	del := usr.Methods("DELETE").Subrouter()
 	del.HandleFunc("/{username}", middleware.Secure(handlers.DeleteUser))
-	del.HandleFunc("/{username}/follow", middleware.Secure(NotImplemented))
+	del.HandleFunc("/{username}/follow", middleware.Secure(handlers.UnFollow))
 
 	// patch := usr.Methods("PATCH").Subrouter()
 	// patch.HandleFunc("/{username}", middleware.Secure(handlers.ModifyUser))

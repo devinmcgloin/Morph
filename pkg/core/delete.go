@@ -2,7 +2,6 @@ package core
 
 import (
 	"net/http"
-	"reflect"
 
 	"github.com/sprioc/composer/pkg/model"
 	"github.com/sprioc/composer/pkg/rsp"
@@ -47,13 +46,4 @@ func DeleteUser(requestFrom model.Ref, user model.Ref) rsp.Response {
 	}
 	return rsp.Response{Code: http.StatusAccepted}
 
-}
-
-func inRef(item model.Ref, collection []model.Ref) bool {
-	for _, x := range collection {
-		if reflect.DeepEqual(x, item) {
-			return true
-		}
-	}
-	return false
 }

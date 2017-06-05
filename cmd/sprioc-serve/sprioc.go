@@ -29,9 +29,14 @@ func main() {
 	if googleToken == "" {
 		log.Fatal("Google API Token not set at GOOGLE_API_TOKEN")
 	}
+	redisURL := os.Getenv("REDIS_URL")
+	if redisURL == "" {
+		log.Fatal("Redis URL not set at REDIS_URL")
+	}
 
 	cfg.GoogleToken = googleToken
 	cfg.PostgresURL = postgresURL
+	cfg.RedisURL = redisURL
 
 	daemon.Run(cfg)
 }

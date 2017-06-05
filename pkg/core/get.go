@@ -8,13 +8,40 @@ import (
 	"github.com/sprioc/composer/pkg/sql"
 )
 
+func GetUserRef(username string) (model.Ref, rsp.Response) {
+	usr, err := sql.GetUserRef(username)
+	if err != nil {
+		return model.Ref{}, rsp.Response{Code: http.StatusNotFound, Message: "Unable to retrieve reference"}
+	}
+
+	return usr, rsp.Response{Code: http.StatusOK}
+}
+
+func GetTagRef(tag string) (model.Ref, rsp.Response) {
+	usr, err := sql.GetTagRef(tag)
+	if err != nil {
+		return model.Ref{}, rsp.Response{Code: http.StatusNotFound, Message: "Unable to retrieve reference"}
+	}
+
+	return usr, rsp.Response{Code: http.StatusOK}
+}
+
+func GetImageRef(shortcode string) (model.Ref, rsp.Response) {
+	usr, err := sql.GetImageRef(shortcode)
+	if err != nil {
+		return model.Ref{}, rsp.Response{Code: http.StatusNotFound, Message: "Unable to retrieve reference"}
+	}
+
+	return usr, rsp.Response{Code: http.StatusOK}
+}
+
 func GetUser(ref model.Ref) (model.User, rsp.Response) {
 	if ref.Collection != model.Users {
 		return model.User{}, rsp.Response{Message: "Ref is of the wrong collection type",
 			Code: http.StatusBadRequest}
 	}
 
-	user, err := sql.GetUser(ref.Shortcode)
+	user, err := sql.GetUser(ref.Id)
 	if err != nil {
 		switch err.Error() {
 		case "User not found.":
@@ -32,37 +59,53 @@ func GetImage(ref model.Ref) (model.Image, rsp.Response) {
 			Code: http.StatusBadRequest}
 	}
 
-	image, err := sql.GetImage(ref.Shortcode)
+	image, err := sql.GetImage(ref.Id)
 	if err != nil {
 		return model.Image{}, rsp.Response{Message: err.Error(),
 			Code: http.StatusInternalServerError}
 	}
 	return image, rsp.Response{Code: http.StatusOK}
 }
-func GetUserFollowed(username string) ([]model.User, rsp.Response) {
-	images, err := sql.GetUserFollowed(username)
+
+func GetUserFollowed(ref model.Ref) ([]model.User, rsp.Response) {
+	if ref.Collection != model.Users {
+		return []model.User{}, rsp.Response{Message: "Ref is of the wrong collection type",
+			Code: http.StatusBadRequest}
+	}
+	images, err := sql.GetUserFollowed(ref.Id)
 	if err != nil {
 		return []model.User{}, rsp.Response{Message: err.Error(),
 			Code: http.StatusInternalServerError}
 	}
 	return images, rsp.Response{Code: http.StatusOK}
 }
-func GetUserFavorites(username string) ([]model.Image, rsp.Response) {
-	images, err := sql.GetUserFavorites(username)
+
+func GetUserFavorites(ref model.Ref) ([]model.Image, rsp.Response) {
+	if ref.Collection != model.Users {
+		return []model.Image{}, rsp.Response{Message: "Ref is of the wrong collection type",
+			Code: http.StatusBadRequest}
+	}
+	images, err := sql.GetUserFavorites(ref.Id)
 	if err != nil {
 		return []model.Image{}, rsp.Response{Message: err.Error(),
 			Code: http.StatusInternalServerError}
 	}
 	return images, rsp.Response{Code: http.StatusOK}
 }
-func GetUserImages(username string) ([]model.Image, rsp.Response) {
-	images, err := sql.GetUserImages(username)
+
+func GetUserImages(ref model.Ref) ([]model.Image, rsp.Response) {
+	if ref.Collection != model.Users {
+		return []model.Image{}, rsp.Response{Message: "Ref is of the wrong collection type",
+			Code: http.StatusBadRequest}
+	}
+	images, err := sql.GetUserImages(ref.Id)
 	if err != nil {
 		return []model.Image{}, rsp.Response{Message: err.Error(),
 			Code: http.StatusInternalServerError}
 	}
 	return images, rsp.Response{Code: http.StatusOK}
 }
+
 func GetRecentImages(limit int) ([]model.Image, rsp.Response) {
 	images, err := sql.GetRecentImages(limit)
 	if err != nil {
@@ -71,6 +114,7 @@ func GetRecentImages(limit int) ([]model.Image, rsp.Response) {
 	}
 	return images, rsp.Response{Code: http.StatusOK}
 }
+
 func GetFeaturedImages(limit int) ([]model.Image, rsp.Response) {
 	images, err := sql.GetFeaturedImages(limit)
 	if err != nil {

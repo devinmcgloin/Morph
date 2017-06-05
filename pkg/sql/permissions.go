@@ -14,26 +14,28 @@ func Permissions(userRef int64, permission model.Permission, item int64) (bool, 
 
 	switch permission {
 	case model.CanEdit:
-		stmt, err = db.Preparex("SELECT count(*) FROM permissions.can_edit WHERE user_id = $1 AND o_id = $1;")
+		stmt, err = db.Preparex("SELECT count(*) FROM permissions.can_edit WHERE user_id = $1 AND o_id = $2;")
 	case model.CanView:
-		stmt, err = db.Preparex("SELECT count(*) FROM permissions.can_view WHERE user_id = $1 AND o_id = $1;")
+		stmt, err = db.Preparex("SELECT count(*) FROM permissions.can_view WHERE user_id = $1 AND o_id = $2;")
 	case model.CanDelete:
-		stmt, err = db.Preparex("SELECT count(*) FROM permissions.can_delete WHERE user_id = $1 AND o_id = $1;")
+		stmt, err = db.Preparex("SELECT count(*) FROM permissions.can_delete WHERE user_id = $1 AND o_id = $2;")
 	}
 	if err != nil {
 		log.Println(err)
 		return false, err
 	}
+	log.Printf("usr: %d, permission: %v, item: %d ", userRef, permission, item)
 	err = stmt.Get(&valid, userRef, item)
 	if err != nil {
 		log.Println(err)
 		return false, err
 	}
+	log.Printf("valid: %d\n", valid)
 	return valid == 1, nil
 
 }
 
-func AddPermissions(item int64, permission model.Permission, userRef int64) error {
+func AddPermissions(userRef int64, permission model.Permission, item int64) error {
 	var err error
 	var stmt *sqlx.Stmt
 

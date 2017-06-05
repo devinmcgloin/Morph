@@ -73,11 +73,11 @@ func generateSaltPass(password string) (string, string, rsp.Response) {
 	return saltedPass, salt, rsp.Response{Code: http.StatusOK}
 }
 
-func CheckUser(r *http.Request) (model.User, rsp.Response) {
+func CheckUser(r *http.Request) (model.Ref, rsp.Response) {
 	tokenStrings, err := jwtreq.HeaderExtractor{"Authorization"}.ExtractToken(r)
 
 	if err != nil {
-		return model.User{}, rsp.Response{Message: "Bearer Header not present", Code: http.StatusUnauthorized}
+		return model.Ref{}, rsp.Response{Message: "Bearer Header not present", Code: http.StatusUnauthorized}
 	}
 
 	token := strings.Replace(tokenStrings, "Bearer ", "", 1)
@@ -85,15 +85,10 @@ func CheckUser(r *http.Request) (model.User, rsp.Response) {
 	userRef, resp := VerifyJWT(token)
 	if !resp.Ok() {
 		log.Println("CheckUser")
-		return model.User{}, resp
+		return model.Ref{}, resp
 	}
 
-	user, resp := GetUser(userRef)
-	if !resp.Ok() {
-		return model.User{}, resp
-	}
-
-	return user, rsp.Response{Code: http.StatusOK}
+	return userRef, rsp.Response{Code: http.StatusOK}
 }
 
 func CreateJWT(u model.Ref) (string, rsp.Response) {
@@ -131,9 +126,14 @@ func VerifyJWT(tokenString string) (model.Ref, rsp.Response) {
 	if token.Valid {
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if token.Valid && ok {
-			id := claims["sub"].(string)
-			return model.Ref{Collection: model.Users, Shortcode: id},
-				rsp.Response{Code: http.StatusOK}
+			shortcode := claims["sub"].(string)
+			id, err := sql.GetUserRef(shortcode)
+			if err != nil {
+				return model.Ref{}, rsp.Response{
+					Code:    http.StatusBadRequest,
+					Message: "Token is malformed"}
+			}
+			return id, rsp.Response{Code: http.StatusOK}
 		}
 	} else if err, ok := err.(*jwt.ValidationError); ok {
 		if err.Errors&jwt.ValidationErrorMalformed != 0 {

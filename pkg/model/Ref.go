@@ -8,6 +8,7 @@ import (
 const (
 	Images uint32 = iota
 	Users
+	Tags
 )
 
 type Ref struct {
@@ -26,12 +27,4 @@ func (r Ref) ToURL() string {
 		log.Panic("Invalid Collection Type")
 	}
 	return ""
-}
-
-func GetUserRef(username string) Ref {
-	return Ref{Collection: Users, Shortcode: username}
-}
-
-func GetImageRef(shortcode string) Ref {
-	return Ref{Collection: Images, Shortcode: shortcode}
 }

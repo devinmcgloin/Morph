@@ -9,17 +9,17 @@ import (
 // Image contains all the proper information for rendering a single photo
 type Image struct {
 	Id        int64  `db:"id" json:"-"`
-	Shortcode string `db:"shortcode" json:"shortcode"`
+	Shortcode string `db:"shortcode" json:"permalink"`
 
-	//Tags         []string `db:"-" json:"tags"`
+	Tags         []string  `db:"-" json:"tags"`
 	PublishTime  time.Time `db:"publish_time" json:"publish_time"`
 	LastModified time.Time `db:"last_modified" json:"last_modified"`
-	// Landmarks    []Landmark `db:"landmarks" json:"landmarks"`
+	// Landmarks    []Landmark `db:"landmarks" json:"landmark_links"`
 	// Colors       []Color    `db:"colors" json:"colors"`
 	//Labels []Label `db:"labels" json:"labels"`
 
 	Owner         int64  `db:"owner_id" json:"-"`
-	OwnerUsername string `db:"username" json:"username"`
+	OwnerUsername string `db:"username" json:"owner_link"`
 	Featured      bool   `db:"featured" json:"featured"`
 	Downloads     int    `db:"downloads" json:"downloads"`
 	Views         int    `db:"views" json:"views"`
@@ -57,7 +57,7 @@ type ImgSource struct {
 
 type User struct {
 	Id       int64   `db:"id" json:"-"`
-	Username string  `db:"username" json:"username"`
+	Username string  `db:"username" json:"permalink"`
 	Email    string  `db:"email" json:"email"`
 	Name     *string `db:"name" json:"name,omitempty"`
 	Bio      *string `db:"bio" json:"bio,omitempty"`
@@ -67,8 +67,8 @@ type User struct {
 	Password string `db:"password" json:"-"`
 	Salt     string `db:"salt" json:"-"`
 
-	Images []string `db:"-" json:"image,omitempty"`
-	// Favorites []string `db:"-" json:"favorited"`
+	Images    []string `db:"-" json:"image_links"`
+	Favorites []string `db:"-" json:"favorited_links"`
 
 	Featured     bool      `db:"featured" json:"featured"`
 	Admin        bool      `db:"admin" json:"admin"`

@@ -7,9 +7,10 @@ import (
 	"github.com/sprioc/composer/pkg/model"
 )
 
-func GetUser(u string) (model.User, error) {
+// GetUser returns the fields of a user row into a User struct, including image references.
+func GetUser(u int64) (model.User, error) {
 	user := model.User{}
-	err := db.Get(&user, "SELECT * FROM content.users WHERE username = $1", u)
+	err := db.Get(&user, "SELECT * FROM content.users WHERE id = $1", u)
 	if err != nil {
 		log.Println(err)
 		return model.User{}, err
@@ -24,10 +25,25 @@ func GetUser(u string) (model.User, error) {
 		return model.User{}, err
 	}
 	user.Images = images
+
+	favorites := []string{}
+	err = db.Select(&favorites, `
+	SELECT shortcode
+	FROM content.user_favorites
+	JOIN content.images ON content.user_favorites.image_id = content.images.id
+	WHERE user_id = $1`, user.Id)
+	if err != nil {
+		log.Println(err)
+		return model.User{}, err
+	}
+	user.Favorites = favorites
+
 	return user, nil
 }
 
-func GetImage(i string) (model.Image, error) {
+// GetImage takes an image ID and returns a image row into a Image struct including metadata
+// and user data.
+func GetImage(i int64) (model.Image, error) {
 	img := model.Image{}
 	err := db.Get(&img, `
 	SELECT images.id, shortcode, publish_time, images.last_modified,
@@ -37,12 +53,35 @@ func GetImage(i string) (model.Image, error) {
 	FROM content.images AS images
 		JOIN content.users AS users ON owner_id = users.id
 		JOIN content.image_metadata AS metadata ON image_id = images.id
-	WHERE shortcode = $1`, i)
+	WHERE images.id = $1`, i)
 	if err != nil {
 		log.Println(err)
 		return model.Image{}, err
 	}
+
+	tags := []string{}
+	err = db.Select(&tags, `
+	SELECT description FROM content.image_tags
+	JOIN content.image_tag_bridge ON content.image_tags.id = content.image_tag_bridge.tag_id
+	WHERE image_tag_bridge.image_id = $1;
+	`, img.Id)
+	if err != nil {
+		log.Println(err)
+		return model.Image{}, err
+	}
+	img.Tags = tags
 	return img, nil
+}
+
+func GetImageID(i string) (int64, error) {
+	var iID int64
+
+	err := db.Get(&iID, "SELECT id FROM content.images WHERE shortcode = $1", i)
+	if err != nil {
+		log.Println(err)
+		return 0, err
+	}
+	return iID, nil
 }
 
 func GetRecentImages(limit int) ([]model.Image, error) {
@@ -68,17 +107,9 @@ func GetRecentImages(limit int) ([]model.Image, error) {
 	return imgs, nil
 }
 
-func GetUserFollowed(username string) ([]model.User, error) {
+func GetUserFollowed(userID int64) ([]model.User, error) {
 	users := []model.User{}
-	var owner_id int64
-	err := db.Get(&owner_id, "SELECT id FROM content.users WHERE username = $1", username)
-	if err != nil {
-		if err, ok := err.(*pq.Error); ok {
-			log.Printf("%+v", err)
-		}
-		return []model.User{}, err
-	}
-	err = db.Select(&users,
+	err := db.Select(&users,
 		`
 	SELECT id, username, email, name, bio, url, password, salt, featured, admin, 
 		views, created_at, last_modified
@@ -86,7 +117,7 @@ func GetUserFollowed(username string) ([]model.User, error) {
 		JOIN content.users AS users ON id = follows.followed_id
 	WHERE follows.user_id = $1
 		`,
-		owner_id)
+		userID)
 	if err != nil {
 		if err, ok := err.(*pq.Error); ok {
 			log.Printf("%+v", err)
@@ -96,17 +127,9 @@ func GetUserFollowed(username string) ([]model.User, error) {
 	return users, nil
 }
 
-func GetUserFavorites(username string) ([]model.Image, error) {
+func GetUserFavorites(userID int64) ([]model.Image, error) {
 	imgs := []model.Image{}
-	var owner_id int64
-	err := db.Get(&owner_id, "SELECT id FROM content.users WHERE username = $1", username)
-	if err != nil {
-		if err, ok := err.(*pq.Error); ok {
-			log.Printf("%+v", err)
-		}
-		return []model.Image{}, err
-	}
-	err = db.Select(&imgs,
+	err := db.Select(&imgs,
 		`
 	SELECT images.id, shortcode, publish_time, images.last_modified,
 		owner_id, users.username, images.featured, images.downloads, images.views,
@@ -119,7 +142,7 @@ func GetUserFavorites(username string) ([]model.Image, error) {
 	WHERE favs.user_id = $1
 	ORDER BY publish_time DESC
 		`,
-		owner_id)
+		userID)
 	if err != nil {
 		if err, ok := err.(*pq.Error); ok {
 			log.Printf("%+v", err)
@@ -129,17 +152,10 @@ func GetUserFavorites(username string) ([]model.Image, error) {
 	return imgs, nil
 }
 
-func GetUserImages(username string) ([]model.Image, error) {
+func GetUserImages(userID int64) ([]model.Image, error) {
 	imgs := []model.Image{}
-	var owner_id int64
-	err := db.Get(&owner_id, "SELECT id FROM content.users WHERE username = $1", username)
-	if err != nil {
-		if err, ok := err.(*pq.Error); ok {
-			log.Printf("%+v", err)
-		}
-		return []model.Image{}, err
-	}
-	err = db.Select(&imgs,
+
+	err := db.Select(&imgs,
 		`
 	SELECT images.id, shortcode, publish_time, images.last_modified,
 		owner_id, users.username, images.featured, images.downloads, images.views,
@@ -151,7 +167,7 @@ func GetUserImages(username string) ([]model.Image, error) {
 	WHERE owner_id = $1
 	ORDER BY publish_time DESC
 		`,
-		owner_id)
+		userID)
 	if err != nil {
 		if err, ok := err.(*pq.Error); ok {
 			log.Printf("%+v", err)
@@ -183,4 +199,39 @@ func GetFeaturedImages(limit int) ([]model.Image, error) {
 		return []model.Image{}, err
 	}
 	return imgs, nil
+}
+
+func GetTagRef(t string) (model.Ref, error) {
+	ref := model.Ref{Collection: model.Tags}
+	err := db.Get(&ref.Id, "SELECT id FROM content.image_tags WHERE description = $1", t)
+	if err != nil {
+		log.Println(err)
+		rows := db.QueryRow("INSERT INTO content.image_tags (description) VALUES ($1) RETURNING id", t)
+		err = rows.Scan(&ref.Id)
+		if err != nil {
+			return model.Ref{}, err
+		}
+		return ref, nil
+	}
+	return ref, nil
+}
+
+func GetImageRef(i string) (model.Ref, error) {
+	ref := model.Ref{Collection: model.Images}
+	err := db.Get(&ref.Id, "SELECT id FROM content.images WHERE shortcode = $1", i)
+	if err != nil {
+		log.Println(err)
+		return model.Ref{}, err
+	}
+	return ref, nil
+}
+
+func GetUserRef(u string) (model.Ref, error) {
+	ref := model.Ref{Collection: model.Users}
+	err := db.Get(&ref.Id, "SELECT id FROM content.users WHERE username = $1", u)
+	if err != nil {
+		log.Println(err)
+		return model.Ref{}, err
+	}
+	return ref, nil
 }
