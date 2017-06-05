@@ -47,11 +47,11 @@ func registerUserRoutes(api *mux.Router) {
 
 	put := usr.Methods("PUT").Subrouter()
 	put.HandleFunc("/{username}/avatar", middleware.Secure(handlers.UploadAvatar))
-	put.HandleFunc("/{username}/follow", middleware.Secure(NotImplemented))
+	put.HandleFunc("/{username}/follow", middleware.Secure(handlers.Follow))
 
 	del := usr.Methods("DELETE").Subrouter()
 	del.HandleFunc("/{username}", middleware.Secure(handlers.DeleteUser))
-	del.HandleFunc("/{username}/follow", middleware.Secure(NotImplemented))
+	del.HandleFunc("/{username}/follow", middleware.Secure(handlers.UnFollow))
 
 	// patch := usr.Methods("PATCH").Subrouter()
 	// patch.HandleFunc("/{username}", middleware.Secure(handlers.ModifyUser))

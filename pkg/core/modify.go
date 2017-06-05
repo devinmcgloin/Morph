@@ -16,6 +16,9 @@ func permission(user model.Ref, kind model.Permission, target model.Ref) rsp.Res
 	if err != nil {
 		return rsp.Response{Code: http.StatusInternalServerError, Message: "Unable to retrieve user permissions."}
 	}
+	if !valid && kind != model.CanView {
+		return rsp.Response{Code: http.StatusNotFound, Message: "Target object not found"}
+	}
 	if !valid {
 		return rsp.Response{Code: http.StatusForbidden, Message: "User does not have permission to edit item."}
 	}
@@ -96,6 +99,31 @@ func UnFavoriteImage(usr model.Ref, image model.Ref) rsp.Response {
 	}
 
 	err := sql.UnFavorite(usr.Id, image.Id)
+	if err != nil {
+		return rsp.Response{Message: "Unable to feature image", Code: http.StatusInternalServerError}
+	}
+	return rsp.Response{Code: http.StatusAccepted}
+}
+func FollowUser(usr model.Ref, userB model.Ref) rsp.Response {
+	resp := permission(usr, model.CanView, userB)
+	if !resp.Ok() {
+		return resp
+	}
+
+	err := sql.Follow(usr.Id, userB.Id)
+	if err != nil {
+		return rsp.Response{Message: "Unable to feature image", Code: http.StatusInternalServerError}
+	}
+	return rsp.Response{Code: http.StatusAccepted}
+}
+
+func UnFollowUser(usr model.Ref, userB model.Ref) rsp.Response {
+	resp := permission(usr, model.CanView, userB)
+	if !resp.Ok() {
+		return resp
+	}
+
+	err := sql.UnFollow(usr.Id, userB.Id)
 	if err != nil {
 		return rsp.Response{Message: "Unable to feature image", Code: http.StatusInternalServerError}
 	}

@@ -59,7 +59,7 @@ func GetImage(i int64) (model.Image, error) {
 		return model.Image{}, err
 	}
 
-	var tags []string
+	tags := []string{}
 	err = db.Select(&tags, `
 	SELECT description FROM content.image_tags
 	JOIN content.image_tag_bridge ON content.image_tags.id = content.image_tag_bridge.tag_id
