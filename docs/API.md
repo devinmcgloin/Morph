@@ -1,6 +1,72 @@
 # API Overview
 
-### Images
+## Patch Requests
+Sprioc works with patch requests as defined in
+[RFC #7396][https://tools.ietf.org/html/rfc7396]
+
+Consider a user resource as follows:
+
+```json
+{
+  "permalink": "wRbjZBxEiZGO",
+  "tags": ["lake", "forrest", "road"],
+  "publish_time": "2017-05-06T06:49:30.864002-04:00",
+  "last_modified": "2017-05-06T06:49:30.864002-04:00",
+  "owner_link": "devinmcgloin",
+  "featured": false,
+  "downloads": 0,
+  "views": 0,
+  "aperture": "2",
+  "exposure_time": "1/60",
+  "focal_length": "4",
+  "iso": 32,
+  "make": "Apple",
+  "model": "iPhone 6s",
+  "lens_make": "Apple",
+  "lens_model": "iPhone 6s back camera 4.15mm f/2.2",
+  "pixel_xd": 4032,
+  "pixel_yd": 4032,
+  "capture_time": "2017-03-27T19:08:21Z"
+  }
+```
+
+In order to change the tags, iso and lens_model you would send the following
+json body to `/v0/i/wRbjZBxEiZGO` as a PATCH request:
+```json
+{
+    "tags": ["boat", "lake", "forrest"],
+    "iso": 100,
+    "lens_model": "iPhone 6s 4.15mm f/2.2"
+}
+```
+
+This would create the following document:
+
+```json
+{
+  "permalink": "wRbjZBxEiZGO",
+  "tags": ["lake", "forrest", "boat"],
+  "publish_time": "2017-05-06T06:49:30.864002-04:00",
+  "last_modified": "2017-05-06T06:49:30.864002-04:00",
+  "owner_link": "devinmcgloin",
+  "featured": false,
+  "downloads": 0,
+  "views": 0,
+  "aperture": "2",
+  "exposure_time": "1/60",
+  "focal_length": "4",
+  "iso": 100,
+  "make": "Apple",
+  "model": "iPhone 6s",
+  "lens_make": "Apple",
+  "lens_model": "iPhone 6s 4.15mm f/2.2",
+  "pixel_xd": 4032,
+  "pixel_yd": 4032,
+  "capture_time": "2017-03-27T19:08:21Z"
+  }
+```
+
+## Images
 | Method | Endpoint                | Body           | Semantics                                               |
 |:-------|:------------------------|:---------------|:--------------------------------------------------------|
 | GET    | /v0/images/:ID          |                | Image view that contains a filled out user field.       |
@@ -12,7 +78,10 @@
 |        | /v0/images/:ID/tags     |                | remove a tag to this image                              |
 | PATCH  | /v0/images/:ID          |                | make changes to the image (See notes on patch requests) |
 
-### Users
+For images valid patch targets are as follows: tags, aperature, exposure_time,
+focal_length, iso, make, model, lens_make, lens_model, capture_time.
+
+## Users
 | Method | Endpoint                     | Body           | Semantics |
 |:-------|:-----------------------------|:---------------|:-------------------------------------------------------|
 | GET    | /v0/users/:username          |                | full user view                                         |
@@ -26,7 +95,10 @@
 |        | /v0/users/:username/follow   |                | unfollow this user                                     |
 | PATCH  | /v0/users/:username          |                | make changes to the user (See notes on patch requests) |
 
-### Collections
+For users valid patch request fields are bio, url, and name. All other fields
+should be modified through their specific endpoints.
+
+## Collections
 
 Note: Collections are not implemented yet and none of these endpoints are
 active.
