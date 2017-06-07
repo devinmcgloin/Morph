@@ -15,7 +15,7 @@ import (
 
 // TODO NEED TO ABSTRACT THIS FURTHER
 
-func UploadImage(user model.User, file []byte) rsp.Response {
+func UploadImage(user model.Ref, file []byte) rsp.Response {
 
 	var err error
 	sc, err := sql.GenerateSC(model.Images)
@@ -55,15 +55,20 @@ func UploadImage(user model.User, file []byte) rsp.Response {
 	return rsp.Response{Code: http.StatusAccepted, Data: map[string]string{"link": ""}}
 }
 
-func UploadAvatar(user model.User, file []byte) rsp.Response {
+func UploadAvatar(userRef model.Ref, file []byte) rsp.Response {
 	n := len(file)
 
 	if n == 0 {
 		return rsp.Response{Message: "Cannot upload file with 0 bytes.", Code: http.StatusBadRequest}
 	}
 
+	user, err := sql.GetUser(userRef.Id)
+	if err != nil {
+		return rsp.Response{Code: http.StatusNotFound}
+	}
+
 	// REVIEW check that you can overwrite on aws
-	err := contentStorage.ProccessImage(file, n, user.Username, "avatar")
+	err = contentStorage.ProccessImage(file, n, user.Username, "avatar")
 	if err != nil {
 		log.Println(err)
 		return rsp.Response{Message: err.Error(), Code: http.StatusBadRequest}

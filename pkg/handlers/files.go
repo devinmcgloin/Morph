@@ -11,10 +11,10 @@ import (
 )
 
 func UploadAvatar(w http.ResponseWriter, r *http.Request) rsp.Response {
-	var user model.User
+	var user model.Ref
 	val, ok := context.GetOk(r, "auth")
 	if ok {
-		user = val.(model.User)
+		user = val.(model.Ref)
 	} else {
 		return rsp.Response{Message: "Unauthorized Request, must be logged in to upload a new image.",
 			Code: http.StatusUnauthorized}
@@ -30,10 +30,10 @@ func UploadAvatar(w http.ResponseWriter, r *http.Request) rsp.Response {
 }
 
 func UploadImage(w http.ResponseWriter, r *http.Request) rsp.Response {
-	var user model.User
+	var user model.Ref
 	val, ok := context.GetOk(r, "auth")
 	if ok {
-		user = val.(model.User)
+		user = val.(model.Ref)
 	} else {
 		return rsp.Response{Message: "Unauthorized Request, must be logged in to upload a new image.",
 			Code: http.StatusUnauthorized}

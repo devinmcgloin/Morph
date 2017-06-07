@@ -28,6 +28,8 @@ func CreateImage(image model.Image) error {
 		rows.Scan(&id)
 	}
 
+	rows.Close()
+
 	image.Id = id
 
 	_, err = tx.NamedExec(`
@@ -42,17 +44,50 @@ func CreateImage(image model.Image) error {
 		return err
 	}
 
+	_, err = tx.NamedExec(`
+	INSERT INTO permissions.can_edit(user_id, o_id, type) VALUES (:owner_id, :id, 'image');
+	`, image)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	_, err = tx.NamedExec(`
+	INSERT INTO permissions.can_delete(user_id, o_id, type) VALUES (:owner_id, :id, 'image');
+	`, image)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	_, err = tx.NamedExec(`
+	INSERT INTO permissions.can_view(user_id, o_id, type) VALUES (-1, :id, 'image');
+	`, image)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
 	err = tx.Commit()
 	if err != nil {
 		log.Println(err)
+		if err := tx.Rollback(); err != nil {
+			log.Println(err)
+			return err
+		}
 		return err
 	}
 	return nil
 }
 
 func CreateUser(user model.User) error {
-	log.Println(user)
-	_, err := db.NamedExec(`
+	tx, err := db.Beginx()
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	_, err = tx.NamedExec(`
 	INSERT INTO content.users(username, email, password, salt)
 	VALUES(:username, :email, :password, :salt);`,
 		user)
@@ -60,5 +95,28 @@ func CreateUser(user model.User) error {
 		log.Println(err)
 		return err
 	}
+
+	log.Println(user)
+	_, err = tx.NamedExec(`
+	INSERT INTO permissions.can_edit(user_id, o_id, type) VALUES (:id, :id, 'user')`, user)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	_, err = tx.NamedExec(`
+	INSERT INTO permissions.can_delete(user_id, o_id, type) VALUES (:id, :id, 'user')`, user)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	_, err = tx.NamedQuery(`
+	INSERT INTO permissions.can_view(user_id, o_id, type) VALUES (-1, :id, 'user')`, user)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
 	return nil
 }
