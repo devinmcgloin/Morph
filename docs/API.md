@@ -72,10 +72,8 @@ This would create the following document:
 | GET    | /v0/images/:ID          |                | Image view that contains a filled out user field.       |
 | POST   | /v0/images              | raw image data | create a new image with the authenticated user          |
 | PUT    | /v0/images/:ID/favorite |                | favorite the image                                      |
-|        | /v0/images/:ID/tags     |                | Add a tag to this image                                 |
 | DELETE | /v0/images/:ID          |                | delete the image                                        |
 |        | /v0/images/:ID/favorite |                | unfavorite the image                                    |
-|        | /v0/images/:ID/tags     |                | remove a tag to this image                              |
 | PATCH  | /v0/images/:ID          |                | make changes to the image (See notes on patch requests) |
 
 For images valid patch targets are as follows: tags, aperature, exposure_time,

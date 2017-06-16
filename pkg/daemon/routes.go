@@ -18,18 +18,16 @@ func registerImageRoutes(api *mux.Router) {
 	post.HandleFunc("/i", middleware.Secure(handlers.UploadImage))
 
 	put := img.Methods("PUT").Subrouter()
-	put.HandleFunc("/{IID:[a-zA-Z]{12}}/tags/{tag}", middleware.Secure(handlers.AddImageTag))
 	put.HandleFunc("/{IID:[a-zA-Z]{12}}/featured", middleware.Secure(handlers.FeatureImage))
 	put.HandleFunc("/{IID:[a-zA-Z]{12}}/favorite", middleware.Secure(handlers.FavoriteImage))
 
 	del := img.Methods("DELETE").Subrouter()
 	del.HandleFunc("/{IID:[a-zA-Z]{12}}", middleware.Secure(handlers.DeleteImage))
-	del.HandleFunc("/{IID:[a-zA-Z]{12}}/tags/{tag}", middleware.Secure(handlers.RemoveImageTag))
 	del.HandleFunc("/{IID:[a-zA-Z]{12}}/featured", middleware.Secure(handlers.UnFeatureImage))
 	del.HandleFunc("/{IID:[a-zA-Z]{12}}/favorite", middleware.Secure(handlers.UnFavoriteImage))
 
-	//patch := img.Methods("PATCH").Subrouter()
-	//patch.HandleFunc("/{IID:[a-zA-Z]{12}}", middleware.Secure(handlers.ModifyImage))
+	patch := img.Methods("PATCH").Subrouter()
+	patch.HandleFunc("/{IID:[a-zA-Z]{12}}", middleware.Secure(handlers.PatchImage))
 }
 
 func registerUserRoutes(api *mux.Router) {

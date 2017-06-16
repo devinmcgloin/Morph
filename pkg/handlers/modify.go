@@ -1,8 +1,8 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
-	"strings"
 
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
@@ -10,66 +10,6 @@ import (
 	"github.com/sprioc/composer/pkg/model"
 	"github.com/sprioc/composer/pkg/rsp"
 )
-
-func AddImageTag(w http.ResponseWriter, r *http.Request) rsp.Response {
-	var usrRef model.Ref
-	vars := mux.Vars(r)
-
-	id := vars["IID"]
-	tag := strings.TrimSpace(vars["tag"])
-
-	usr, ok := context.GetOk(r, "auth")
-	if ok {
-		usrRef = usr.(model.Ref)
-	} else {
-		return rsp.Response{
-			Message: "Unauthorized Request, must be logged in to modify an image",
-			Code:    http.StatusUnauthorized,
-		}
-	}
-
-	imageRef, resp := core.GetImageRef(id)
-	if !resp.Ok() {
-		return resp
-	}
-
-	tagRef, resp := core.GetTagRef(tag)
-	if !resp.Ok() {
-		return resp
-	}
-
-	return core.AddImageTag(usrRef, imageRef, tagRef)
-}
-
-func RemoveImageTag(w http.ResponseWriter, r *http.Request) rsp.Response {
-	var usrRef model.Ref
-	vars := mux.Vars(r)
-
-	id := vars["IID"]
-	tag := strings.TrimSpace(vars["tag"])
-
-	usr, ok := context.GetOk(r, "auth")
-	if ok {
-		usrRef = usr.(model.Ref)
-	} else {
-		return rsp.Response{
-			Message: "Unauthorized Request, must be logged in to modify an image",
-			Code:    http.StatusUnauthorized,
-		}
-	}
-
-	imageRef, resp := core.GetImageRef(id)
-	if !resp.Ok() {
-		return resp
-	}
-
-	tagRef, resp := core.GetTagRef(tag)
-	if !resp.Ok() {
-		return resp
-	}
-
-	return core.RemoveImageTag(usrRef, imageRef, tagRef)
-}
 
 func FeatureImage(w http.ResponseWriter, r *http.Request) rsp.Response {
 	var usrRef model.Ref
@@ -213,4 +153,38 @@ func UnFollow(w http.ResponseWriter, r *http.Request) rsp.Response {
 	}
 
 	return core.UnFollowUser(usrRef, userRef)
+}
+
+func PatchImage(w http.ResponseWriter, r *http.Request) rsp.Response {
+
+	var usrRef model.Ref
+	vars := mux.Vars(r)
+
+	id := vars["IID"]
+
+	usr, ok := context.GetOk(r, "auth")
+	if ok {
+		usrRef = usr.(model.Ref)
+	} else {
+		return rsp.Response{
+			Message: "Unauthorized Request, must be logged in to modify an image",
+			Code:    http.StatusUnauthorized,
+		}
+	}
+
+	image, resp := core.GetImageRef(id)
+	if !resp.Ok() {
+		return resp
+	}
+
+	decoder := json.NewDecoder(r.Body)
+
+	var request map[string]interface{}
+
+	err := decoder.Decode(&request)
+	if err != nil {
+		return rsp.Response{Message: "Bad Request", Code: http.StatusBadRequest}
+	}
+
+	return core.PatchImage(usrRef, image, request)
 }
