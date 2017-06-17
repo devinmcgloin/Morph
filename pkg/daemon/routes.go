@@ -51,8 +51,8 @@ func registerUserRoutes(api *mux.Router) {
 	del.HandleFunc("/{username}", middleware.Secure(handlers.DeleteUser))
 	del.HandleFunc("/{username}/follow", middleware.Secure(handlers.UnFollow))
 
-	// patch := usr.Methods("PATCH").Subrouter()
-	// patch.HandleFunc("/{username}", middleware.Secure(handlers.ModifyUser))
+	patch := usr.Methods("PATCH").Subrouter()
+	patch.HandleFunc("/{username}", middleware.Secure(handlers.PatchUser))
 }
 
 //

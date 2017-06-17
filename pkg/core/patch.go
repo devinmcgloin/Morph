@@ -35,3 +35,23 @@ func PatchImage(user model.Ref, image model.Ref, request map[string]interface{})
 	}
 	return rsp.Response{Code: http.StatusAccepted}
 }
+
+func PatchUser(user model.Ref, target model.Ref, request map[string]interface{}) rsp.Response {
+	resp := permission(user, model.CanEdit, user)
+	if !resp.Ok() {
+		return resp
+	}
+
+	valid := make(map[string]interface{})
+	dest := [3]string{"bio", "url", "name"}
+
+	for _, loc := range dest {
+		valid[loc] = request[loc]
+	}
+
+	err := sql.PatchUser(target, valid)
+	if err != nil {
+		return rsp.Response{Code: http.StatusInternalServerError}
+	}
+	return rsp.Response{Code: http.StatusAccepted}
+}
