@@ -38,8 +38,8 @@ type Image struct {
 	PixelXDimension *int64     `db:"pixel_xd" json:"pixel_xd,omitempty"`
 	PixelYDimension *int64     `db:"pixel_yd" json:"pixel_yd,omitempty"`
 	CaptureTime     *time.Time `db:"capture_time" json:"capture_time,omitempty"`
-	//ImgDirection    *float64   `db:"direction" json:"direction,omitempty"`
-	Location *gj.Point `db:"location" json:"location,omitempty"`
+	ImgDirection    *float64   `db:"direction" json:"direction,omitempty"`
+	Location        *gj.Point  `db:"location" json:"location,omitempty"`
 }
 
 func (i Image) GetRef() Ref {

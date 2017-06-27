@@ -44,6 +44,16 @@ func CreateImage(image model.Image) error {
 		return err
 	}
 
+	_, err = tx.Exec(`
+	INSERT INTO content.image_geo (image_id, loc, dir) 
+	VALUES ($1, ST_GeographyFromText('SRID=4326;POINT($2 $3)'), $4);
+	`, image.Id, image.Location.Coordinates[0], image.Location.Coordinates[1],
+		image.ImgDirection)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
 	_, err = tx.NamedExec(`
 	INSERT INTO permissions.can_edit(user_id, o_id, type) VALUES (:owner_id, :id, 'image');
 	`, image)

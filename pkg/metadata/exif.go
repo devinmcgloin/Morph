@@ -36,6 +36,14 @@ func GetMetadata(file io.Reader, img *model.Image) error {
 		img.Location = point
 	}
 
+	dirTag, err := x.Get(exif.GPSImgDirection)
+	if err == nil {
+		dir, err := dirTag.Float(0)
+		if err == nil {
+			img.ImgDirection = &dir
+		}
+	}
+
 	captureTime, err := x.DateTime()
 	if err == nil {
 		img.CaptureTime = &captureTime
