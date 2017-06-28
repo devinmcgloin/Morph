@@ -21,8 +21,8 @@ import (
 var hmacSecret = []byte(os.Getenv("HMAC_SECRET"))
 var dbase = os.Getenv("MONGODB_NAME")
 
-var sessionLifetime = time.Minute * 10
-var refreshAt = time.Minute * 1
+const sessionLifetime = time.Minute * 10
+const refreshAt = time.Minute * 1
 
 func ValidateCredentialsByUserName(username string, password string) (bool, rsp.Response) {
 	user, err := sql.GetLogin(username)

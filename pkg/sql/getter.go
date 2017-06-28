@@ -70,6 +70,13 @@ func GetImage(i int64) (model.Image, error) {
 		return model.Image{}, err
 	}
 	img.Tags = tags
+
+	err = db.Get(img.Favorites, `
+	SELECT count(*) FROM content.user_favorites WHERE image_id = $1`, img.Id)
+	if err != nil {
+		log.Println(err)
+		return model.Image{}, err
+	}
 	return img, nil
 }
 

@@ -3,6 +3,7 @@ package model
 import (
 	"time"
 
+	"github.com/sprioc/clr/clr"
 	gj "github.com/sprioc/geojson"
 )
 
@@ -11,20 +12,19 @@ type Image struct {
 	Id        int64  `db:"id" json:"-"`
 	Shortcode string `db:"shortcode" json:"permalink"`
 
-	Tags         []string  `db:"-" json:"tags"`
-	PublishTime  time.Time `db:"publish_time" json:"publish_time"`
-	LastModified time.Time `db:"last_modified" json:"last_modified"`
-	// Landmarks    []Landmark `db:"landmarks" json:"landmark_links"`
-	// Colors       []Color    `db:"colors" json:"colors"`
-	//Labels []Label `db:"labels" json:"labels"`
+	Tags         []string   `db:"-" json:"tags"`
+	PublishTime  time.Time  `db:"publish_time" json:"publish_time"`
+	LastModified time.Time  `db:"last_modified" json:"last_modified"`
+	Landmarks    []Landmark `db:"-" json:"landmarks"`
+	Colors       []Color    `db:"-" json:"colors"`
+	Labels       []Label    `db:"-" json:"labels"`
 
 	Owner         int64  `db:"owner_id" json:"-"`
 	OwnerUsername string `db:"username" json:"owner_link"`
 	Featured      bool   `db:"featured" json:"featured"`
 	Downloads     int    `db:"downloads" json:"downloads"`
 	Views         int    `db:"views" json:"views"`
-	//Purchases int    `db:"" json:"purchases"`
-	//Favorites int    `db:"" json:"favorites"`
+	Favorites     int    `db:"" json:"favorites"`
 
 	// Image Metadata
 	Aperture        *string    `db:"aperture" json:"aperture,omitempty"`
@@ -56,13 +56,13 @@ type ImgSource struct {
 }
 
 type User struct {
-	Id       int64   `db:"id" json:"-"`
-	Username string  `db:"username" json:"permalink"`
-	Email    string  `db:"email" json:"email"`
-	Name     *string `db:"name" json:"name,omitempty"`
-	Bio      *string `db:"bio" json:"bio,omitempty"`
-	URL      *string `db:"url" json:"url,omitempty"`
-	//Location  *gj.Feature `db:"-" json:"location"`
+	Id       int64       `db:"id" json:"-"`
+	Username string      `db:"username" json:"permalink"`
+	Email    string      `db:"email" json:"email"`
+	Name     *string     `db:"name" json:"name,omitempty"`
+	Bio      *string     `db:"bio" json:"bio,omitempty"`
+	URL      *string     `db:"url" json:"url,omitempty"`
+	Location *gj.Feature `db:"-" json:"location"`
 
 	Password string `db:"password" json:"-"`
 	Salt     string `db:"salt" json:"-"`
@@ -82,13 +82,9 @@ func (u User) GetRef() Ref {
 }
 
 type Color struct {
-	Color struct {
-		Red   int
-		Green int
-		Blue  int
-	}
-	PixelFraction float64
-	Score         float64
+	Color         clr.RGB `json:"color"`
+	PixelFraction float64 `json:"pixel_fraction"`
+	Score         float64 `json:"score"`
 }
 
 type Label struct {
@@ -97,9 +93,9 @@ type Label struct {
 }
 
 type Landmark struct {
-	Description string
-	Location    gj.Point
-	Score       float64
+	Description string   `json:"description"`
+	Location    gj.Point `json:"location"`
+	Score       float64  `json:"score"`
 }
 
 type Permission string

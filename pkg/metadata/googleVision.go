@@ -2,17 +2,26 @@ package metadata
 
 import (
 	"encoding/base64"
-	"fmt"
 	"io"
 
+	"github.com/sprioc/clr/clr"
+	"github.com/sprioc/composer/pkg/model"
+	gj "github.com/sprioc/geojson"
 	"google.golang.org/api/vision/v1"
 )
 
-func GetResponse(file io.Reader) error {
+type ImageResponse struct {
+	Labels          []model.Label
+	Safe            bool
+	ColorProperties []model.Color
+	Landmark        []model.Landmark
+}
+
+func AnnotateImage(file io.Reader) (ImageResponse, error) {
 	var b []byte
 	_, err := file.Read(b)
 	if err != nil {
-		return err
+		return ImageResponse{}, err
 	}
 
 	req := &vision.AnnotateImageRequest{
@@ -34,9 +43,57 @@ func GetResponse(file io.Reader) error {
 
 	res, err := visionService.Images.Annotate(batch).Do()
 	if err != nil {
-		return err
+		return ImageResponse{}, err
 	}
-	fmt.Println(res)
-	return nil
 
+	r := res.Responses[0]
+	rsp := ImageResponse{Safe: true}
+	for _, col := range r.ImagePropertiesAnnotation.DominantColors.Colors {
+		rsp.ColorProperties = append(rsp.ColorProperties, model.Color{
+			Color: clr.RGB{
+				R: uint8(255 * col.Color.Red),
+				G: uint8(255 * col.Color.Green),
+				B: uint8(255 * col.Color.Blue)},
+			PixelFraction: col.PixelFraction,
+			Score:         col.Score,
+		})
+	}
+
+	for _, likelihood := range []string{"POSSIBLE", "LIKELY", "VERY_LIKELY"} {
+		if r.SafeSearchAnnotation.Adult == likelihood {
+			rsp.Safe = false
+		}
+		if r.SafeSearchAnnotation.Violence == likelihood {
+			rsp.Safe = false
+		}
+		if r.SafeSearchAnnotation.Medical == likelihood {
+			rsp.Safe = false
+		}
+		if r.SafeSearchAnnotation.Spoof == likelihood {
+			rsp.Safe = false
+		}
+	}
+
+	for _, label := range r.LabelAnnotations {
+		rsp.Labels = append(rsp.Labels, model.Label{
+			Description: label.Description,
+			Score:       label.Score,
+		})
+	}
+
+	for _, landmark := range r.LandmarkAnnotations {
+		rsp.Landmark = append(rsp.Landmark, model.Landmark{
+			Description: landmark.Description,
+			Score:       landmark.Score,
+			Location: gj.Point{
+				Type: "point",
+				Coordinates: gj.Coordinate{
+					gj.Coord(landmark.Locations[0].LatLng.Latitude),
+					gj.Coord(landmark.Locations[0].LatLng.Longitude),
+				},
+			},
+		})
+
+	}
+	return rsp, nil
 }

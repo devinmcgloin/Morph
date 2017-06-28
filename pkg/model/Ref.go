@@ -9,6 +9,8 @@ const (
 	Images uint32 = iota
 	Users
 	Tags
+	Labels
+	Landmarks
 )
 
 type Ref struct {
