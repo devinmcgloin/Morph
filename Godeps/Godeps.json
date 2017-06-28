@@ -201,7 +201,7 @@
 		},
 		{
 			"ImportPath": "github.com/sprioc/clr/clr",
-			"Rev": "2272cce434ad19d6a5c4167d632e8d0cbd662545"
+			"Rev": "c9d5c82df77dff430895f6a68c72caa3e5e2cb43"
 		},
 		{
 			"ImportPath": "github.com/sprioc/geojson",

@@ -9,8 +9,6 @@ import (
 )
 
 func SetLocation(point *gj.Point) {
-	log.Println("Finding new location")
-
 	r := &maps.GeocodingRequest{
 		LatLng: &maps.LatLng{
 			Lat: float64(point.Coordinates[1]),

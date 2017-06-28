@@ -17,11 +17,14 @@ import (
 )
 
 type Config struct {
-	Port        int
-	Host        string
-	PostgresURL string
-	RedisURL    string
-	GoogleToken string
+	Port               int
+	Host               string
+	PostgresURL        string
+	RedisURL           string
+	RedisPass          string
+	GoogleToken        string
+	AWSAccessKeyId     string
+	AWSSecretAccessKey string
 }
 
 func Run(cfg *Config) {
@@ -43,7 +46,7 @@ func Run(cfg *Config) {
 
 	metadata.Configure(cfg.GoogleToken)
 	sql.Configure(cfg.PostgresURL)
-	cache.Configure(cfg.RedisURL)
+	cache.Configure(cfg.RedisURL, cfg.RedisPass)
 
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(cfg.Port), context.ClearHandler(handlers.LoggingHandler(os.Stdout,
 		handlers.CompressHandler(router)))))

@@ -17,15 +17,6 @@ func GetUserRef(username string) (model.Ref, rsp.Response) {
 	return usr, rsp.Response{Code: http.StatusOK}
 }
 
-func GetTagRef(tag string) (model.Ref, rsp.Response) {
-	usr, err := sql.GetTagRef(tag)
-	if err != nil {
-		return model.Ref{}, rsp.Response{Code: http.StatusNotFound, Message: "Unable to retrieve reference"}
-	}
-
-	return usr, rsp.Response{Code: http.StatusOK}
-}
-
 func GetImageRef(shortcode string) (model.Ref, rsp.Response) {
 	usr, err := sql.GetImageRef(shortcode)
 	if err != nil {

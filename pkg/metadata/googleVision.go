@@ -49,13 +49,21 @@ func AnnotateImage(file io.Reader) (ImageResponse, error) {
 	r := res.Responses[0]
 	rsp := ImageResponse{Safe: true}
 	for _, col := range r.ImagePropertiesAnnotation.DominantColors.Colors {
+		sRGB := clr.RGB{
+			R: uint8(255 * col.Color.Red),
+			G: uint8(255 * col.Color.Green),
+			B: uint8(255 * col.Color.Blue)}
+		h, s, v := sRGB.HSV()
 		rsp.ColorProperties = append(rsp.ColorProperties, model.Color{
-			Color: clr.RGB{
-				R: uint8(255 * col.Color.Red),
-				G: uint8(255 * col.Color.Green),
-				B: uint8(255 * col.Color.Blue)},
+			SRGB:          sRGB,
 			PixelFraction: col.PixelFraction,
 			Score:         col.Score,
+			Hex:           sRGB.Hex(),
+			HSV: clr.HSV{
+				h, s, v,
+			},
+			Shade:     sRGB.Shade(),
+			ColorName: sRGB.ColorName(),
 		})
 	}
 
@@ -93,7 +101,7 @@ func AnnotateImage(file io.Reader) (ImageResponse, error) {
 				},
 			},
 		})
-
 	}
+
 	return rsp, nil
 }
