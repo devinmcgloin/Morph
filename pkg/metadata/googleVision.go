@@ -60,7 +60,7 @@ func AnnotateImage(file io.Reader) (ImageResponse, error) {
 			Score:         col.Score,
 			Hex:           sRGB.Hex(),
 			HSV: clr.HSV{
-				h, s, v,
+				H: h, S: s, V: v,
 			},
 			Shade:     sRGB.Shade(),
 			ColorName: sRGB.ColorName(),
