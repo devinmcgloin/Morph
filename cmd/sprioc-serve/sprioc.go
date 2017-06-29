@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 
+	"strconv"
+
 	"github.com/sprioc/composer/pkg/daemon"
 )
 
@@ -19,6 +21,12 @@ func ProcessFlags() *daemon.Config {
 }
 func main() {
 	cfg := ProcessFlags()
+
+	port := os.Getenv("PORT")
+	if port != "" {
+		p, _ := strconv.ParseInt(port, 10, 32)
+		cfg.Port = int(p)
+	}
 
 	postgresURL := os.Getenv("DATABASE_URL")
 	if postgresURL == "" {
