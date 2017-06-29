@@ -2,7 +2,7 @@ package metadata
 
 import (
 	"encoding/base64"
-	"io"
+	"log"
 
 	"github.com/sprioc/clr/clr"
 	"github.com/sprioc/composer/pkg/model"
@@ -17,18 +17,21 @@ type ImageResponse struct {
 	Landmark        []model.Landmark
 }
 
-func AnnotateImage(file io.Reader) (ImageResponse, error) {
-	var b []byte
-	_, err := file.Read(b)
-	if err != nil {
-		return ImageResponse{}, err
-	}
+func AnnotateImage(b []byte) (ImageResponse, error) {
+	//var b []byte
+	//_, err := file.Read(b)
+	//if err != nil {
+	//	log.Println(err)
+	//	return ImageResponse{}, err
+	//}
 
+	// Construct a text request, encoding the image in base64.
 	req := &vision.AnnotateImageRequest{
+		// Apply image which is encoded by base64
 		Image: &vision.Image{
 			Content: base64.StdEncoding.EncodeToString(b),
 		},
-
+		// Apply features to indicate what type of image detection
 		Features: []*vision.Feature{
 			{Type: "SAFE_SEARCH_DETECTION"},
 			{Type: "LANDMARK_DETECTION"},
@@ -43,6 +46,7 @@ func AnnotateImage(file io.Reader) (ImageResponse, error) {
 
 	res, err := visionService.Images.Annotate(batch).Do()
 	if err != nil {
+		log.Println(err)
 		return ImageResponse{}, err
 	}
 
@@ -62,8 +66,8 @@ func AnnotateImage(file io.Reader) (ImageResponse, error) {
 			HSV: clr.HSV{
 				H: h, S: s, V: v,
 			},
-			Shade:     sRGB.Shade(),
-			ColorName: sRGB.ColorName(),
+			//Shade:     sRGB.Shade(),
+			//ColorName: sRGB.ColorName(),
 		})
 	}
 

@@ -26,6 +26,6 @@ func Configure(apiKey string) {
 
 	mapsClient, err = maps.NewClient(maps.WithAPIKey(apiKey))
 	if err != nil {
-		log.Printf("fatal error: %s\n", err)
+		log.Fatal(err)
 	}
 }

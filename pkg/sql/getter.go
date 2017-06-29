@@ -8,7 +8,7 @@ import (
 )
 
 // GetUser returns the fields of a user row into a User struct, including image references.
-func GetUser(u int64) (model.User, error) {
+func GetUser(u int64, retrieveImages bool) (model.User, error) {
 	user := model.User{}
 	err := db.Get(&user, "SELECT * FROM content.users WHERE id = $1", u)
 	if err != nil {
@@ -16,19 +16,19 @@ func GetUser(u int64) (model.User, error) {
 		return model.User{}, err
 	}
 
-	images, err := GetUserImages(u)
-	if err != nil {
-		log.Println(err)
-		return model.User{}, err
-	}
-	user.Images = images
+	if retrieveImages {
+		images, err := GetUserImages(u)
+		if err != nil {
+			return model.User{}, err
+		}
+		user.Images = images
 
-	favorites, err := userFavorites(u)
-	if err != nil {
-		log.Println(err)
-		return model.User{}, err
+		favorites, err := userFavorites(u)
+		if err != nil {
+			return model.User{}, err
+		}
+		user.Favorites = favorites
 	}
-	user.Favorites = favorites
 
 	return user, nil
 }
@@ -36,7 +36,7 @@ func GetUser(u int64) (model.User, error) {
 func GetUsers(userIds []int64) ([]model.User, error) {
 	users := []model.User{}
 	for _, userId := range userIds {
-		usr, err := GetUser(userId)
+		usr, err := GetUser(userId, true)
 		if err != nil {
 			log.Println(err)
 			return []model.User{}, err
@@ -77,7 +77,6 @@ func GetImages(imageIDS []int64) ([]model.Image, error) {
 	for _, imageId := range imageIDS {
 		img, err := GetImage(imageId)
 		if err != nil {
-			log.Println(err)
 			return []model.Image{}, err
 		}
 		images = append(images, img)
@@ -90,7 +89,7 @@ func GetImages(imageIDS []int64) ([]model.Image, error) {
 func GetImage(i int64) (model.Image, error) {
 	img := model.Image{}
 	err := db.Get(&img, `
-	SELECT * FROM content.images AS images
+	SELECT id, shortcode, publish_time, last_modified, user_id, featured FROM content.images AS images
 	WHERE images.id = $1`, i)
 	if err != nil {
 		log.Println(err)
@@ -99,38 +98,36 @@ func GetImage(i int64) (model.Image, error) {
 
 	img.Metadata, err = imageMetadata(i)
 	if err != nil {
-		log.Println(err)
 		return model.Image{}, err
 	}
 
 	img.Landmarks, err = imageLandmarks(i)
 	if err != nil {
-		log.Println(err)
 		return model.Image{}, err
 	}
 
 	img.Labels, err = imageLabels(i)
 	if err != nil {
-		log.Println(err)
 		return model.Image{}, err
 	}
 	img.Tags, err = imageTags(i)
 	if err != nil {
-		log.Println(err)
 		return model.Image{}, err
 	}
 	img.Colors, err = imageColors(i)
 	if err != nil {
-		log.Println(err)
 		return model.Image{}, err
 	}
 
 	img.Stats, err = imageStats(i)
 	if err != nil {
-		log.Println(err)
 		return model.Image{}, err
 	}
 
+	img.User, err = GetUser(img.UserId, false)
+	if err != nil {
+		return model.Image{}, err
+	}
 	img.Source = imageSources(img.Shortcode, "content")
 
 	return img, nil
@@ -190,7 +187,7 @@ func imageTags(imageId int64) ([]string, error) {
 	tags := []string{}
 	err := db.Select(&tags, `
 	SELECT description FROM content.image_tags AS tags
-	JOIN content.image_tag_bridge AS bridge ON tags.id = content.image_tag_bridge.tag_id
+	JOIN content.image_tag_bridge AS bridge ON tags.id = bridge.tag_id
 	WHERE bridge.image_id = $1`,
 		imageId)
 	if err != nil {
@@ -202,9 +199,26 @@ func imageTags(imageId int64) ([]string, error) {
 
 func imageStats(imageId int64) (model.ImageStats, error) {
 	stats := model.ImageStats{}
-	err := db.Get(&stats, `
-	SELECT downloads, views, favorites FROM content.images
-	WHERE id = $1`, imageId)
+
+	err := db.Get(&stats.Favorites, `
+	SELECT count(*) FROM content.user_favorites
+	WHERE image_id = $1`, imageId)
+	if err != nil {
+		log.Println(err)
+		return stats, err
+	}
+
+	err = db.Get(&stats.Views, `
+	SELECT count(*) FROM content.image_stats
+	WHERE image_id = $1 AND type = 'view'`, imageId)
+	if err != nil {
+		log.Println(err)
+		return stats, err
+	}
+
+	err = db.Get(&stats.Downloads, `
+	SELECT count(*) FROM content.image_stats
+	WHERE image_id = $1 AND type = 'download'`, imageId)
 	if err != nil {
 		log.Println(err)
 		return stats, err
@@ -216,8 +230,8 @@ func imageColors(imageId int64) ([]model.Color, error) {
 	colors := []model.Color{}
 
 	rows, err := db.Query(`
-	SELECT red,green,blue, hue,saturation,val, shade, color, pixel_fraction, score from content.colors AS colors
-	JOIN content.image_color_bridge AS bridge ON colors.id = content.image_color_bridge.color_id
+	SELECT red,green,blue, hue,saturation,val, shade, color, pixel_fraction, score FROM content.colors AS colors
+	JOIN content.image_color_bridge AS bridge ON colors.id = bridge.color_id
 	WHERE bridge.image_id = $1
 	`, imageId)
 	if err != nil {
@@ -244,7 +258,8 @@ func imageColors(imageId int64) ([]model.Color, error) {
 func imageMetadata(imageId int64) (model.ImageMetadata, error) {
 	meta := model.ImageMetadata{}
 	err := db.Get(&meta, `
-	SELECT * FROM content.image_metadata
+	SELECT aperture, exposure_time, focal_length, iso, make, model, lens_make, lens_model, pixel_yd, pixel_xd, capture_time 
+	FROM content.image_metadata
 	WHERE image_id = $1`, imageId)
 	if err != nil {
 		log.Println(err)
@@ -342,20 +357,20 @@ func GetFeaturedImages(limit int) ([]model.Image, error) {
 }
 
 func GetImageRef(i string) (model.Ref, error) {
-	ref := model.Ref{Collection: model.Images}
+	ref := model.Ref{Collection: model.Images, Shortcode: i}
 	err := db.Get(&ref.Id, "SELECT id FROM content.images WHERE shortcode = $1", i)
 	if err != nil {
-		log.Println(err)
+		log.Printf("Error Retrieving: %v %v\n", ref, err)
 		return model.Ref{}, err
 	}
 	return ref, nil
 }
 
 func GetUserRef(u string) (model.Ref, error) {
-	ref := model.Ref{Collection: model.Users}
+	ref := model.Ref{Collection: model.Users, Shortcode: u}
 	err := db.Get(&ref.Id, "SELECT id FROM content.users WHERE username = $1", u)
 	if err != nil {
-		log.Println(err)
+		log.Printf("Error Retrieving: %v %v\n", ref, err)
 		return model.Ref{}, err
 	}
 	return ref, nil

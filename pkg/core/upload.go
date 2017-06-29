@@ -26,7 +26,7 @@ func UploadImage(user model.Ref, file []byte) rsp.Response {
 
 	img := model.Image{
 		Shortcode: sc,
-		OwnerId:   user.Id,
+		UserId:    user.Id,
 	}
 
 	n := len(file)
@@ -45,7 +45,7 @@ func UploadImage(user model.Ref, file []byte) rsp.Response {
 
 	metadata.GetMetadata(buf, &img.Metadata)
 
-	annotations, err := metadata.AnnotateImage(bytes.NewBuffer(file))
+	annotations, err := metadata.AnnotateImage(file)
 	if err != nil {
 		log.Println(err)
 	} else {
@@ -69,7 +69,7 @@ func UploadAvatar(userRef model.Ref, file []byte) rsp.Response {
 		return rsp.Response{Message: "Cannot upload file with 0 bytes.", Code: http.StatusBadRequest}
 	}
 
-	user, err := sql.GetUser(userRef.Id)
+	user, err := sql.GetUser(userRef.Id, false)
 	if err != nil {
 		return rsp.Response{Code: http.StatusNotFound}
 	}

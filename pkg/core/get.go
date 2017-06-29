@@ -32,7 +32,7 @@ func GetUser(ref model.Ref) (model.User, rsp.Response) {
 			Code: http.StatusBadRequest}
 	}
 
-	user, err := sql.GetUser(ref.Id)
+	user, err := sql.GetUser(ref.Id, true)
 	if err != nil {
 		switch err.Error() {
 		case "User not found.":

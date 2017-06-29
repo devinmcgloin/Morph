@@ -3,6 +3,7 @@ package sql
 import (
 	"log"
 
+	postgis "github.com/cridenour/go-postgis"
 	"github.com/sprioc/composer/pkg/model"
 )
 
@@ -16,8 +17,8 @@ func CreateImage(image model.Image) error {
 	}
 	var id int64
 	rows, err := tx.NamedQuery(`
-	INSERT INTO content.images(owner_id, shortcode)
-	VALUES(:owner_id, :shortcode) RETURNING id;`,
+	INSERT INTO content.images(user_id, shortcode)
+	VALUES(:user_id, :shortcode) RETURNING id;`,
 		image)
 	if err != nil {
 		log.Println(err)
@@ -35,20 +36,23 @@ func CreateImage(image model.Image) error {
 	_, err = tx.NamedExec(`
 	INSERT INTO content.image_metadata(image_id, aperture, exposure_time, 
 	focal_length, iso, make, model, lens_make, lens_model, pixel_xd, 
-	pixel_yd, capture_time) VALUES (:id, :aperture, :exposure_time,
-	:focal_length, :iso, :make, :model, :lens_make, :lens_model, :pixel_xd, 
-	:pixel_yd, :capture_time);
+	pixel_yd, capture_time) VALUES (:id, :metadata.aperture, :metadata.exposure_time,
+	:metadata.focal_length, :metadata.iso, :metadata.make, :metadata.model,
+	:metadata.lens_make, :metadata.lens_model, :metadata.pixel_xd,
+	:metadata.pixel_yd, :metadata.capture_time);
 	`, image)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
+	point := postgis.PointS{SRID: 4326,
+		X: float64(image.Metadata.Location.Coordinates[0]),
+		Y: float64(image.Metadata.Location.Coordinates[1])}
 	_, err = tx.Exec(`
 	INSERT INTO content.image_geo (image_id, loc, dir) 
-	VALUES ($1, ST_GeographyFromText('SRID=4326;POINT($2 $3)'), $4);
-	`, image.Id, image.Metadata.Location.Coordinates[0], image.Metadata.Location.Coordinates[1],
-		image.Metadata.ImageDirection)
+	VALUES ($1, GeomFromEWKB($2), $3);
+	`, image.Id, point, image.Metadata.ImageDirection)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -63,10 +67,14 @@ func CreateImage(image model.Image) error {
 			return err
 		}
 		if landmarkID == 0 {
+			point := postgis.PointS{SRID: 4326,
+				X: float64(landmark.Location.Coordinates[0]),
+				Y: float64(landmark.Location.Coordinates[1])}
+
 			err = tx.Get(&landmarkID, `
 			INSERT INTO content.landmarks(desc, location)
-			VALUES($1, ST_GeographyFromText('SRID=4326;POINT($2 $3) RETURNING id;`, landmark.Description,
-				landmark.Location.Coordinates[0], landmark.Location.Coordinates[1])
+			VALUES($1, GeomFromEWKB($2)) RETURNING id;`, landmark.Description,
+				point)
 			if err != nil {
 				log.Println(err)
 				return err
@@ -135,7 +143,7 @@ func CreateImage(image model.Image) error {
 
 	// Permissions
 	_, err = tx.NamedExec(`
-	INSERT INTO permissions.can_edit(user_id, o_id, type) VALUES (:owner_id, :id, 'image');
+	INSERT INTO permissions.can_edit(user_id, o_id, type) VALUES (:user_id, :id, 'image');
 	`, image)
 	if err != nil {
 		log.Println(err)
@@ -143,7 +151,7 @@ func CreateImage(image model.Image) error {
 	}
 
 	_, err = tx.NamedExec(`
-	INSERT INTO permissions.can_delete(user_id, o_id, type) VALUES (:owner_id, :id, 'image');
+	INSERT INTO permissions.can_delete(user_id, o_id, type) VALUES (:user_id, :id, 'image');
 	`, image)
 	if err != nil {
 		log.Println(err)
@@ -171,40 +179,60 @@ func CreateImage(image model.Image) error {
 }
 
 func CreateUser(user model.User) error {
+	log.Println(user)
+
 	tx, err := db.Beginx()
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
-	_, err = tx.NamedExec(`
+	rows, err := tx.NamedQuery(`
 	INSERT INTO content.users(username, email, password, salt)
-	VALUES(:username, :email, :password, :salt);`,
+	VALUES(:username, :email, :password, :salt) RETURNING id;`,
 		user)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
-	log.Println(user)
+	for rows.Next() {
+		err = rows.Scan(&user.Id)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+	}
+	rows.Close()
+
 	_, err = tx.NamedExec(`
-	INSERT INTO permissions.can_edit(user_id, o_id, type) VALUES (:id, :id, 'user')`, user)
+	INSERT INTO permissions.can_edit(user_id, o_id, type) VALUES (:id, :id, 'user');`, user)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
 	_, err = tx.NamedExec(`
-	INSERT INTO permissions.can_delete(user_id, o_id, type) VALUES (:id, :id, 'user')`, user)
+	INSERT INTO permissions.can_delete(user_id, o_id, type) VALUES (:id, :id, 'user');`, user)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
-	_, err = tx.NamedQuery(`
-	INSERT INTO permissions.can_view(user_id, o_id, type) VALUES (-1, :id, 'user')`, user)
+	_, err = tx.NamedExec(`
+	INSERT INTO permissions.can_view(user_id, o_id, type) VALUES (-1, :id, 'user');`, user)
 	if err != nil {
 		log.Println(err)
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		log.Println(err)
+		if err := tx.Rollback(); err != nil {
+			log.Println(err)
+			return err
+		}
 		return err
 	}
 

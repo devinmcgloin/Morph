@@ -46,7 +46,10 @@ func PatchUser(user model.Ref, target model.Ref, request map[string]interface{})
 	dest := [3]string{"bio", "url", "name"}
 
 	for _, loc := range dest {
-		valid[loc] = request[loc]
+		change, ok := request[loc]
+		if ok {
+			valid[loc] = change
+		}
 	}
 
 	err := sql.PatchUser(target, valid)

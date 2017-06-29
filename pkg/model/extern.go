@@ -14,18 +14,17 @@ type User struct {
 	Name     *string     `json:"name,omitempty"`
 	Bio      *string     `json:"bio,omitempty"`
 	URL      *string     `json:"url,omitempty"`
-	Location *gj.Feature `json:"location"`
+	Location *gj.Feature `json:"location,omitempty"`
 
-	Images    []Image `json:"image_links"`
-	Favorites []Image `json:"favorited_links"`
+	Images    []Image `json:"images"`
+	Favorites []Image `json:"favorited"`
 
 	Password string `db:"password" json:"-"`
 	Salt     string `db:"salt" json:"-"`
 
 	Featured     bool      `json:"featured"`
 	Admin        bool      `json:"admin"`
-	Views        int       `json:"views"`
-	CreatedAt    time.Time `json:"created_at"`
+	CreatedAt    time.Time `db:"created_at" json:"created_at"`
 	LastModified time.Time `db:"last_modified" json:"last_modified"`
 }
 
@@ -40,8 +39,8 @@ type Image struct {
 	Tags         []string   `json:"tags"`
 	Labels       []Label    `json:"labels"`
 
-	OwnerId  int64 `json:"-"`
-	Owner    User  `json:"owner"`
+	UserId   int64 `db:"user_id" json:"-"`
+	User     User  `json:"user"`
 	Featured bool  `json:"featured"`
 
 	Stats    ImageStats    `json:"stats"`

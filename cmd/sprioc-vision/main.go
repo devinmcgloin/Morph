@@ -24,7 +24,7 @@ func main() {
 	log.SetFlags(flags)
 
 	client := &http.Client{
-		Transport: &transport.APIKey{Key: os.Getenv("GOOGLE_API_KEY")},
+		Transport: &transport.APIKey{Key: os.Getenv("GOOGLE_API_TOKEN")},
 	}
 	visionService, err = vision.New(client)
 	if err != nil {
@@ -86,6 +86,7 @@ func run(file string) error {
 	if err != nil {
 		log.Print(err)
 	}
+
 	ioutil.WriteFile("./temp.json", b, 0644)
 	return nil
 }

@@ -66,7 +66,6 @@ func GetMetadata(file io.Reader, metadata *model.ImageMetadata) error {
 	if err == nil {
 		num, den, err := Aperture.Rat2(0)
 		if err == nil {
-			log.Println(float64(num) / float64(den))
 			a := strconv.FormatFloat(float64(num)/float64(den), 'f', 1, 64)
 			metadata.Aperture = &a
 		}
