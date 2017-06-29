@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	"github.com/sprioc/clr/clr"
+	"github.com/devinmcgloin/clr/clr"
 	gj "github.com/sprioc/geojson"
 )
 

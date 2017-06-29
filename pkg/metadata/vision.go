@@ -4,7 +4,7 @@ import (
 	"encoding/base64"
 	"log"
 
-	"github.com/sprioc/clr/clr"
+	"github.com/devinmcgloin/clr/clr"
 	"github.com/sprioc/composer/pkg/model"
 	gj "github.com/sprioc/geojson"
 	"google.golang.org/api/vision/v1"

@@ -63,10 +63,6 @@ func CreateImage(image model.Image) error {
 	for _, landmark := range image.Landmarks {
 		err := tx.Get(&landmarkID, "SELECT id FROM content.landmarks WHERE desc = $1", landmark.Description)
 		if err != nil {
-			log.Println(err)
-			return err
-		}
-		if landmarkID == 0 {
 			point := postgis.PointS{SRID: 4326,
 				X: float64(landmark.Location.Coordinates[0]),
 				Y: float64(landmark.Location.Coordinates[1])}
@@ -95,10 +91,6 @@ func CreateImage(image model.Image) error {
 		err := tx.Get(&colorID, "SELECT id FROM content.colors "+
 			"WHERE red = $1 AND green = $2 AND blue = $3", color.SRGB.R, color.SRGB.G, color.SRGB.B)
 		if err != nil {
-			log.Println(err)
-			return err
-		}
-		if colorID == 0 {
 			err = tx.Get(&colorID, `
 			INSERT INTO content.colors (red, green, blue, hue, saturation, val, shade, color)
 			VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id;`, color.SRGB.R, color.SRGB.G, color.SRGB.B,
@@ -123,13 +115,12 @@ func CreateImage(image model.Image) error {
 		err := tx.Get(&labelID, ` SELECT id FROM content.labels WHERE description = $1`,
 			label.Description)
 		if err != nil {
-			log.Println(err)
-			return err
-		}
-
-		if labelID == 0 {
 			err = tx.Get(&labelID, `INSERT INTO content.labels (description) VALUES($1) RETURNING id;`,
 				label.Description)
+			if err != nil {
+				log.Println(err)
+				return err
+			}
 		}
 
 		_, err = tx.Exec(`

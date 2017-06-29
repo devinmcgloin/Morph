@@ -132,6 +132,10 @@
 			"Rev": "07bea7123e00b49f286932473cbaf79b60d40fa5"
 		},
 		{
+			"ImportPath": "github.com/devinmcgloin/clr/clr",
+			"Rev": "84bf0bfb607e89805037abcd56f4af6c8fd55613"
+		},
+		{
 			"ImportPath": "github.com/dgrijalva/jwt-go",
 			"Comment": "v3.0.0-4-g01aeca5",
 			"Rev": "01aeca54ebda6e0fbfafd0a524d234159c05ec20"
@@ -203,10 +207,6 @@
 		{
 			"ImportPath": "github.com/rwcarlsen/goexif/tiff",
 			"Rev": "709fab3d192d7c62f86043caff1e7e3fb0f42bd8"
-		},
-		{
-			"ImportPath": "github.com/sprioc/clr/clr",
-			"Rev": "c9d5c82df77dff430895f6a68c72caa3e5e2cb43"
 		},
 		{
 			"ImportPath": "github.com/sprioc/geojson",

@@ -15,12 +15,15 @@ func PatchImage(user model.Ref, image model.Ref, request map[string]interface{})
 		return resp
 	}
 
-	var valid map[string]interface{}
+	valid := make(map[string]interface{})
 	dest := [10]string{"tags", "aperature", "exposure_time", "focal_length",
 		"iso", "make", "model", "lens_make", "lens_model", "capture_time"}
 
 	for _, loc := range dest {
-		valid[loc] = request[loc]
+		change, ok := request[loc]
+		if ok {
+			valid[loc] = change
+		}
 	}
 
 	tags, notPresent := valid["tags"]
