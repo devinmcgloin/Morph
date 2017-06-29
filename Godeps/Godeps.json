@@ -127,6 +127,11 @@
 			"Rev": "4b1578637669ed2a10689caf88cae18dbef08edb"
 		},
 		{
+			"ImportPath": "github.com/cridenour/go-postgis",
+			"Comment": "v1.0.0",
+			"Rev": "07bea7123e00b49f286932473cbaf79b60d40fa5"
+		},
+		{
 			"ImportPath": "github.com/dgrijalva/jwt-go",
 			"Comment": "v3.0.0-4-g01aeca5",
 			"Rev": "01aeca54ebda6e0fbfafd0a524d234159c05ec20"
