@@ -3,21 +3,24 @@ package model
 import (
 	"time"
 
+	postgis "github.com/cridenour/go-postgis"
 	"github.com/devinmcgloin/clr/clr"
-	gj "github.com/sprioc/geojson"
 )
 
 type User struct {
-	Id       int64       `json:"-"`
-	Username string      `json:"permalink"`
-	Email    string      `json:"email"`
-	Name     *string     `json:"name,omitempty"`
-	Bio      *string     `json:"bio,omitempty"`
-	URL      *string     `json:"url,omitempty"`
-	Location *gj.Feature `json:"location,omitempty"`
+	Id       int64           `json:"-"`
+	Username string          `json:"permalink"`
+	Email    string          `json:"email"`
+	Name     *string         `json:"name,omitempty"`
+	Bio      *string         `json:"bio,omitempty"`
+	URL      *string         `json:"url,omitempty"`
+	Location *postgis.PointS `json:"location,omitempty"`
 
-	Images    []Image `json:"images"`
-	Favorites []Image `json:"favorited"`
+	Images     *[]Image  `json:"images,omitempty"`
+	ImageLinks *[]string `json:"images_links,omitempty"`
+
+	Favorites     *[]Image  `json:"favorited,omitempty"`
+	FavoriteLinks *[]string `json:"favorite_links,omitempty"`
 
 	Password string `db:"password" json:"-"`
 	Salt     string `db:"salt" json:"-"`
@@ -40,7 +43,7 @@ type Image struct {
 	Labels       []Label    `json:"labels"`
 
 	UserId   int64 `db:"user_id" json:"-"`
-	User     User  `json:"user"`
+	User     *User `json:"user,omitempty"`
 	Featured bool  `json:"featured"`
 
 	Stats    ImageStats    `json:"stats"`
@@ -63,19 +66,19 @@ type ImageSource struct {
 }
 
 type ImageMetadata struct {
-	Aperture        *string    `db:"aperture" json:"aperture,omitempty"`
-	ExposureTime    *string    `db:"exposure_time" json:"exposure_time,omitempty"`
-	FocalLength     *string    `db:"focal_length" json:"focal_length,omitempty"`
-	ISO             *int       `db:"iso" json:"iso,omitempty"`
-	Make            *string    `db:"make" json:"make,omitempty"`
-	Model           *string    `db:"model" json:"model,omitempty"`
-	LensMake        *string    `db:"lens_make" json:"lens_make,omitempty"`
-	LensModel       *string    `db:"lens_model" json:"lens_model,omitempty"`
-	PixelXDimension *int64     `db:"pixel_xd" json:"pixel_xd,omitempty"`
-	PixelYDimension *int64     `db:"pixel_yd" json:"pixel_yd,omitempty"`
-	CaptureTime     *time.Time `db:"capture_time" json:"capture_time,omitempty"`
-	ImageDirection  *float64   `db:"direction" json:"direction,omitempty"`
-	Location        *gj.Point  `db:"location" json:"location,omitempty"`
+	Aperture        *string         `db:"aperture" json:"aperture,omitempty"`
+	ExposureTime    *string         `db:"exposure_time" json:"exposure_time,omitempty"`
+	FocalLength     *string         `db:"focal_length" json:"focal_length,omitempty"`
+	ISO             *int            `db:"iso" json:"iso,omitempty"`
+	Make            *string         `db:"make" json:"make,omitempty"`
+	Model           *string         `db:"model" json:"model,omitempty"`
+	LensMake        *string         `db:"lens_make" json:"lens_make,omitempty"`
+	LensModel       *string         `db:"lens_model" json:"lens_model,omitempty"`
+	PixelXDimension *int64          `db:"pixel_xd" json:"pixel_xd,omitempty"`
+	PixelYDimension *int64          `db:"pixel_yd" json:"pixel_yd,omitempty"`
+	CaptureTime     *time.Time      `db:"capture_time" json:"capture_time,omitempty"`
+	ImageDirection  *float64        `db:"dir" json:"direction,omitempty"`
+	Location        *postgis.PointS `db:"loc" json:"location,omitempty"`
 }
 
 type Color struct {
@@ -94,7 +97,7 @@ type Label struct {
 }
 
 type Landmark struct {
-	Description string   `json:"description"`
-	Location    gj.Point `json:"location"`
-	Score       float64  `json:"score"`
+	Description string         `json:"description"`
+	Location    postgis.PointS `json:"location"`
+	Score       float64        `json:"score"`
 }

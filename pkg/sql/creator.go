@@ -3,7 +3,6 @@ package sql
 import (
 	"log"
 
-	postgis "github.com/cridenour/go-postgis"
 	"github.com/sprioc/composer/pkg/model"
 )
 
@@ -46,13 +45,10 @@ func CreateImage(image model.Image) error {
 		return err
 	}
 
-	point := postgis.PointS{SRID: 4326,
-		X: float64(image.Metadata.Location.Coordinates[0]),
-		Y: float64(image.Metadata.Location.Coordinates[1])}
 	_, err = tx.Exec(`
 	INSERT INTO content.image_geo (image_id, loc, dir) 
 	VALUES ($1, GeomFromEWKB($2), $3);
-	`, image.Id, point, image.Metadata.ImageDirection)
+	`, image.Id, image.Metadata.Location, image.Metadata.ImageDirection)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -61,16 +57,13 @@ func CreateImage(image model.Image) error {
 	// Adding landmarks
 	var landmarkID int64
 	for _, landmark := range image.Landmarks {
-		err := tx.Get(&landmarkID, "SELECT id FROM content.landmarks WHERE desc = $1", landmark.Description)
+		err := tx.Get(&landmarkID, "SELECT id FROM content.landmarks WHERE description = $1", landmark.Description)
 		if err != nil {
-			point := postgis.PointS{SRID: 4326,
-				X: float64(landmark.Location.Coordinates[0]),
-				Y: float64(landmark.Location.Coordinates[1])}
 
 			err = tx.Get(&landmarkID, `
-			INSERT INTO content.landmarks(desc, location)
+			INSERT INTO content.landmarks(description, location)
 			VALUES($1, GeomFromEWKB($2)) RETURNING id;`, landmark.Description,
-				point)
+				landmark.Location)
 			if err != nil {
 				log.Println(err)
 				return err

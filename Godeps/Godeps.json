@@ -133,7 +133,7 @@
 		},
 		{
 			"ImportPath": "github.com/devinmcgloin/clr/clr",
-			"Rev": "84bf0bfb607e89805037abcd56f4af6c8fd55613"
+			"Rev": "818f121d7e446f09e02a7eeee09c582e33e432e8"
 		},
 		{
 			"ImportPath": "github.com/dgrijalva/jwt-go",

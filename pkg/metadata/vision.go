@@ -4,9 +4,10 @@ import (
 	"encoding/base64"
 	"log"
 
+	"github.com/cridenour/go-postgis"
 	"github.com/devinmcgloin/clr/clr"
 	"github.com/sprioc/composer/pkg/model"
-	gj "github.com/sprioc/geojson"
+	"github.com/sprioc/composer/pkg/sql"
 	"google.golang.org/api/vision/v1"
 )
 
@@ -52,6 +53,10 @@ func AnnotateImage(b []byte) (ImageResponse, error) {
 
 	r := res.Responses[0]
 	rsp := ImageResponse{Safe: true}
+
+	shade := sql.RetrieveColorTable(sql.Shade)
+	specific := sql.RetrieveColorTable(sql.SpecificColor)
+
 	for _, col := range r.ImagePropertiesAnnotation.DominantColors.Colors {
 		sRGB := clr.RGB{
 			R: uint8(255 * col.Color.Red),
@@ -66,8 +71,8 @@ func AnnotateImage(b []byte) (ImageResponse, error) {
 			HSV: clr.HSV{
 				H: h, S: s, V: v,
 			},
-			//Shade:     sRGB.Shade(),
-			//ColorName: sRGB.ColorName(),
+			Shade:     sRGB.ColorName(shade),
+			ColorName: sRGB.ColorName(specific),
 		})
 	}
 
@@ -97,12 +102,10 @@ func AnnotateImage(b []byte) (ImageResponse, error) {
 		rsp.Landmark = append(rsp.Landmark, model.Landmark{
 			Description: landmark.Description,
 			Score:       landmark.Score,
-			Location: gj.Point{
-				Type: "point",
-				Coordinates: gj.Coordinate{
-					gj.Coord(landmark.Locations[0].LatLng.Latitude),
-					gj.Coord(landmark.Locations[0].LatLng.Longitude),
-				},
+			Location: postgis.PointS{
+				SRID: 4326,
+				X:    landmark.Locations[0].LatLng.Latitude,
+				Y:    landmark.Locations[0].LatLng.Longitude,
 			},
 		})
 	}

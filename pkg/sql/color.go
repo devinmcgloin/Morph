@@ -3,8 +3,54 @@ package sql
 import (
 	"log"
 
+	"github.com/devinmcgloin/clr/clr"
+	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 )
+
+type ColorCatagory string
+
+const Shade = "shade"
+const SpecificColor = "specific"
+
+type SpriocColorTable struct {
+	db   *sqlx.DB
+	Type ColorCatagory
+}
+
+func (spc SpriocColorTable) Iterate() []clr.Color {
+	hexColors := []struct{ Hex string }{}
+	err := db.Select(&hexColors, `SELECT hex FROM colors.clr WHERE type = $1`, spc.Type)
+
+	if err != nil {
+		log.Println(err)
+		return []clr.Color{}
+	}
+
+	colors := make([]clr.Color, len(hexColors))
+	for i, color := range hexColors {
+		colors[i] = clr.Hex{Code: color.Hex}
+	}
+
+	return colors
+}
+
+func (spc SpriocColorTable) Lookup(hex string) clr.ColorSpace {
+	var name string
+	err := db.Get(&name, `SELECT name FROM colors.clr WHERE hex = $1`, hex)
+	if err != nil {
+		log.Println(err)
+		return ""
+	}
+	return clr.ColorSpace(name)
+}
+
+func RetrieveColorTable(t ColorCatagory) SpriocColorTable {
+	return SpriocColorTable{
+		db:   db,
+		Type: t,
+	}
+}
 
 func AddColor(name, hex, t string) error {
 	_, err := db.Exec("INSERT INTO colors.clr(name, hex, type) VALUES($1, $2, $3)",

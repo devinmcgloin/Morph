@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/cridenour/go-postgis"
 	"github.com/rwcarlsen/goexif/exif"
 	"github.com/sprioc/composer/pkg/model"
-	gj "github.com/sprioc/geojson"
 )
 
 func GetExif(image io.Reader) (*exif.Exif, error) {
@@ -31,8 +31,10 @@ func GetMetadata(file io.Reader, metadata *model.ImageMetadata) error {
 	if err != nil {
 		metadata.Location = nil
 	} else {
-		point := gj.NewPoint(gj.Coordinate{gj.CoordType(lon), gj.CoordType(lat)})
-		point.Type = "Point"
+		point := &postgis.PointS{SRID: 4326,
+			X: lon,
+			Y: lat}
+
 		metadata.Location = point
 	}
 

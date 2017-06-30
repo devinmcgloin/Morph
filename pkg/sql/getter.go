@@ -19,15 +19,34 @@ func GetUser(u int64, retrieveImages bool) (model.User, error) {
 	if retrieveImages {
 		images, err := GetUserImages(u)
 		if err != nil {
+			log.Println(err)
 			return model.User{}, err
 		}
-		user.Images = images
+		user.Images = &images
 
 		favorites, err := userFavorites(u)
 		if err != nil {
+			log.Println(err)
 			return model.User{}, err
 		}
-		user.Favorites = favorites
+		user.Favorites = &favorites
+	} else {
+		images := []string{}
+		err = db.Select(&images, `SELECT shortcode FROM content.images WHERE user_id = $1`, u)
+		if err != nil {
+			log.Println(err)
+			return model.User{}, err
+		}
+		user.ImageLinks = &images
+
+		favorites := []string{}
+		err = db.Select(&favorites, `SELECT images.shortcode FROM content.images AS images
+		JOIN content.user_favorites AS favs ON favs.image_id = images.id WHERE favs.user_id = $1`, u)
+		if err != nil {
+			log.Println(err)
+			return model.User{}, err
+		}
+		user.FavoriteLinks = &favorites
 	}
 
 	return user, nil
@@ -124,19 +143,21 @@ func GetImage(i int64) (model.Image, error) {
 		return model.Image{}, err
 	}
 
-	img.User, err = GetUser(img.UserId, false)
+	usr, err := GetUser(img.UserId, false)
 	if err != nil {
 		return model.Image{}, err
 	}
+	img.User = &usr
 	img.Source = imageSources(img.Shortcode, "content")
 
+	AddStat(i, "view")
 	return img, nil
 }
 
 func imageLandmarks(imageId int64) ([]model.Landmark, error) {
 	landmarks := []model.Landmark{}
 	rows, err := db.Query(`
-	SELECT landmark.desc, landmark.location, bridge.score FROM content.image_landmark_bridge AS bridge
+	SELECT landmark.description, landmark.location, bridge.score FROM content.image_landmark_bridge AS bridge
 	JOIN content.landmarks AS landmark ON bridge.landmark_id = landmark.id
 	WHERE bridge.image_id = $1`, imageId)
 	if err != nil {
@@ -146,12 +167,11 @@ func imageLandmarks(imageId int64) ([]model.Landmark, error) {
 	defer rows.Close()
 	for rows.Next() {
 		landmark := model.Landmark{}
-		var loc string
-		err = rows.Scan(&landmark.Description, &loc, &landmark.Score)
+		err = rows.Scan(&landmark.Description, &landmark.Location, &landmark.Score)
 		if err != nil {
 			log.Println(err)
 		}
-		log.Println(loc)
+
 		landmarks = append(landmarks, landmark)
 	}
 	return landmarks, nil
@@ -258,9 +278,11 @@ func imageColors(imageId int64) ([]model.Color, error) {
 func imageMetadata(imageId int64) (model.ImageMetadata, error) {
 	meta := model.ImageMetadata{}
 	err := db.Get(&meta, `
-	SELECT aperture, exposure_time, focal_length, iso, make, model, lens_make, lens_model, pixel_yd, pixel_xd, capture_time 
-	FROM content.image_metadata
-	WHERE image_id = $1`, imageId)
+	SELECT aperture, exposure_time, focal_length, iso, make, model,
+	lens_make, lens_model, pixel_yd, pixel_xd, capture_time, loc, dir
+	FROM content.image_metadata AS meta
+	JOIN content.image_geo AS geo ON geo.image_id = meta.image_id
+	WHERE meta.image_id = $1`, imageId)
 	if err != nil {
 		log.Println(err)
 		return meta, err
