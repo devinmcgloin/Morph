@@ -1,14 +1,12 @@
 {
-  "name": "sprioc",
-  "description": "Sprioc is a simple photography app",
+  "name": "fokal",
+  "description": "fokal is a simple photography app",
   "keywords": [
-    "sprioc",
     "photography",
     "portfolio",
     "golang"
   ],
   "image": "heroku/go:1.6",
-  "mount_dir": "src/github.com/sprioc/sprioc-core",
   "website": "http://sprioc.xyz",
-  "repository": "http://github.com/sprioc/sprioc-core"
+  "repository": "http://github.com/devinmcgloin/fokal"
 }
