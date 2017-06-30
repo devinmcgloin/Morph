@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/devinmcgloin/fokal/pkg/core"
+	"github.com/devinmcgloin/fokal/pkg/model"
+	"github.com/devinmcgloin/fokal/pkg/rsp"
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
-	"github.com/sprioc/composer/pkg/core"
-	"github.com/sprioc/composer/pkg/model"
-	"github.com/sprioc/composer/pkg/rsp"
 )
 
 func FeatureImage(w http.ResponseWriter, r *http.Request) rsp.Response {

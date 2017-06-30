@@ -3,8 +3,8 @@ package sql
 import (
 	"log"
 
+	"github.com/devinmcgloin/fokal/pkg/model"
 	"github.com/jmoiron/sqlx"
-	"github.com/sprioc/composer/pkg/model"
 )
 
 func Permissions(userRef int64, permission model.Permission, item int64) (bool, error) {

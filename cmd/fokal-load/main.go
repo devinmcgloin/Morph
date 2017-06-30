@@ -9,7 +9,7 @@ import (
 	"io/ioutil"
 
 	"github.com/BurntSushi/toml"
-	"github.com/sprioc/composer/pkg/sql"
+	"github.com/devinmcgloin/fokal/pkg/sql"
 )
 
 type color struct {

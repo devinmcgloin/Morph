@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/sprioc/composer/pkg/model"
+	"github.com/devinmcgloin/fokal/pkg/model"
 )
 
 func PatchImage(image model.Ref, changes map[string]interface{}) error {

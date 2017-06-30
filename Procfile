@@ -1,1 +1,1 @@
-web: sprioc-serve
+web: fokal-serve

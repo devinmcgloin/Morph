@@ -1,7 +1,7 @@
 package sql
 
 import (
-	"github.com/sprioc/composer/pkg/model"
+	"github.com/devinmcgloin/fokal/pkg/model"
 	gj "github.com/sprioc/geojson"
 )
 

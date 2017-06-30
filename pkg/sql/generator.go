@@ -1,8 +1,6 @@
 package sql
 
-import (
-	"github.com/sprioc/composer/pkg/generator"
-)
+import "github.com/devinmcgloin/fokal/pkg/generator"
 
 func GenerateSC(collection uint32) (string, error) {
 

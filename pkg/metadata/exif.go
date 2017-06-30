@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/cridenour/go-postgis"
+	"github.com/devinmcgloin/fokal/pkg/model"
 	"github.com/rwcarlsen/goexif/exif"
-	"github.com/sprioc/composer/pkg/model"
 )
 
 func GetExif(image io.Reader) (*exif.Exif, error) {

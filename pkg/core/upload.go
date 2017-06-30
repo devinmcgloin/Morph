@@ -6,11 +6,11 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/sprioc/composer/pkg/contentStorage"
-	"github.com/sprioc/composer/pkg/metadata"
-	"github.com/sprioc/composer/pkg/model"
-	"github.com/sprioc/composer/pkg/rsp"
-	"github.com/sprioc/composer/pkg/sql"
+	"github.com/devinmcgloin/fokal/pkg/contentStorage"
+	"github.com/devinmcgloin/fokal/pkg/metadata"
+	"github.com/devinmcgloin/fokal/pkg/model"
+	"github.com/devinmcgloin/fokal/pkg/rsp"
+	"github.com/devinmcgloin/fokal/pkg/sql"
 )
 
 // TODO NEED TO ABSTRACT THIS FURTHER

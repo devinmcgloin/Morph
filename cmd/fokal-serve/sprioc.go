@@ -5,9 +5,9 @@ import (
 	"log"
 	"os"
 
-	"strconv"
+	"github.com/devinmcgloin/fokal/pkg/daemon"
 
-	"github.com/sprioc/composer/pkg/daemon"
+	"strconv"
 )
 
 func ProcessFlags() *daemon.Config {

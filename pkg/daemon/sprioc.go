@@ -6,14 +6,13 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/devinmcgloin/fokal/pkg/cache"
+	"github.com/devinmcgloin/fokal/pkg/metadata"
+	"github.com/devinmcgloin/fokal/pkg/rsp"
+	"github.com/devinmcgloin/fokal/pkg/sql"
 	"github.com/gorilla/context"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-
-	"github.com/sprioc/composer/pkg/cache"
-	"github.com/sprioc/composer/pkg/metadata"
-	"github.com/sprioc/composer/pkg/rsp"
-	"github.com/sprioc/composer/pkg/sql"
 )
 
 type Config struct {

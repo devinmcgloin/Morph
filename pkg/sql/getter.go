@@ -3,8 +3,8 @@ package sql
 import (
 	"log"
 
+	"github.com/devinmcgloin/fokal/pkg/model"
 	"github.com/lib/pq"
-	"github.com/sprioc/composer/pkg/model"
 )
 
 // GetUser returns the fields of a user row into a User struct, including image references.

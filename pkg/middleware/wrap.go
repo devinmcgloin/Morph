@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/sprioc/composer/pkg/rsp"
+	"github.com/devinmcgloin/fokal/pkg/rsp"
 )
 
 func Wrap(f ...func(http.ResponseWriter, *http.Request) rsp.Response) func(http.ResponseWriter, *http.Request) {

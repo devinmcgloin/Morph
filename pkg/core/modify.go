@@ -3,10 +3,9 @@ package core
 import (
 	"net/http"
 
-	"github.com/sprioc/composer/pkg/model"
-	"github.com/sprioc/composer/pkg/sql"
-
-	"github.com/sprioc/composer/pkg/rsp"
+	"github.com/devinmcgloin/fokal/pkg/model"
+	"github.com/devinmcgloin/fokal/pkg/rsp"
+	"github.com/devinmcgloin/fokal/pkg/sql"
 )
 
 func permission(user model.Ref, kind model.Permission, target model.Ref) rsp.Response {

@@ -10,12 +10,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/devinmcgloin/fokal/pkg/generator"
+	"github.com/devinmcgloin/fokal/pkg/model"
+	"github.com/devinmcgloin/fokal/pkg/rsp"
+	"github.com/devinmcgloin/fokal/pkg/sql"
 	"github.com/dgrijalva/jwt-go"
 	jwtreq "github.com/dgrijalva/jwt-go/request"
-	"github.com/sprioc/composer/pkg/generator"
-	"github.com/sprioc/composer/pkg/model"
-	"github.com/sprioc/composer/pkg/rsp"
-	"github.com/sprioc/composer/pkg/sql"
 )
 
 var hmacSecret = []byte(os.Getenv("HMAC_SECRET"))

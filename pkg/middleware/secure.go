@@ -6,9 +6,9 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/devinmcgloin/fokal/pkg/core"
+	"github.com/devinmcgloin/fokal/pkg/rsp"
 	"github.com/gorilla/context"
-	"github.com/sprioc/composer/pkg/core"
-	"github.com/sprioc/composer/pkg/rsp"
 )
 
 // TODO remove access crontrol for production

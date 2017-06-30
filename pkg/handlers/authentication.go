@@ -5,9 +5,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/sprioc/composer/pkg/core"
-	"github.com/sprioc/composer/pkg/model"
-	"github.com/sprioc/composer/pkg/rsp"
+	"github.com/devinmcgloin/fokal/pkg/core"
+	"github.com/devinmcgloin/fokal/pkg/model"
+	"github.com/devinmcgloin/fokal/pkg/rsp"
 )
 
 func GetToken(w http.ResponseWriter, r *http.Request) rsp.Response {

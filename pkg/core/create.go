@@ -7,10 +7,9 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/sprioc/composer/pkg/model"
-
-	"github.com/sprioc/composer/pkg/rsp"
-	"github.com/sprioc/composer/pkg/sql"
+	"github.com/devinmcgloin/fokal/pkg/model"
+	"github.com/devinmcgloin/fokal/pkg/rsp"
+	"github.com/devinmcgloin/fokal/pkg/sql"
 )
 
 var validEmail = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)

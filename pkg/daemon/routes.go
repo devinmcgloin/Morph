@@ -1,9 +1,9 @@
 package daemon
 
 import (
+	"github.com/devinmcgloin/fokal/pkg/handlers"
+	"github.com/devinmcgloin/fokal/pkg/middleware"
 	"github.com/gorilla/mux"
-	"github.com/sprioc/composer/pkg/handlers"
-	"github.com/sprioc/composer/pkg/middleware"
 )
 
 func registerImageRoutes(api *mux.Router) {

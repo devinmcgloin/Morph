@@ -3,7 +3,7 @@ package sql
 import (
 	"log"
 
-	"github.com/sprioc/composer/pkg/model"
+	"github.com/devinmcgloin/fokal/pkg/model"
 )
 
 // CreateImage stores the image data in the database under the given user.

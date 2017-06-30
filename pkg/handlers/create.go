@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/sprioc/composer/pkg/core"
-	"github.com/sprioc/composer/pkg/rsp"
+	"github.com/devinmcgloin/fokal/pkg/core"
+	"github.com/devinmcgloin/fokal/pkg/rsp"
 )
 
 func CreateUser(w http.ResponseWriter, r *http.Request) rsp.Response {

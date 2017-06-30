@@ -6,8 +6,9 @@ import (
 
 	"github.com/cridenour/go-postgis"
 	"github.com/devinmcgloin/clr/clr"
-	"github.com/sprioc/composer/pkg/model"
-	"github.com/sprioc/composer/pkg/sql"
+	"github.com/devinmcgloin/fokal/pkg/model"
+	"github.com/devinmcgloin/fokal/pkg/sql"
+
 	"google.golang.org/api/vision/v1"
 )
 
