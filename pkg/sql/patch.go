@@ -49,9 +49,10 @@ func PatchImage(image model.Ref, changes map[string]interface{}) error {
 				}
 			}
 		} else {
-			_, err = tx.Exec(`UPDATE content.metadata ($1) VALUES ($2) WHERE image_id = $3;`, val, key, image.Id)
+			_, err = tx.Exec(fmt.Sprintf(`UPDATE content.image_metadata SET %s = $1 WHERE image_id = $2;`, key), val, image.Id)
 			if err != nil {
 				log.Println(err)
+				log.Printf(`UPDATE content.image_metadata SET %s = $1 WHERE image_id = $2;`, key)
 				return err
 			}
 		}
@@ -74,7 +75,7 @@ func PatchUser(user model.Ref, changes map[string]interface{}) error {
 	}
 
 	for key, val := range changes {
-		log.Printf("UPDATE content.users set %s = %s WHERE id = %d", key, val, user.Id)
+		log.Printf("UPDATE content.users SET %s = %s WHERE id = %d", key, val, user.Id)
 		stmt := fmt.Sprintf("UPDATE content.users SET %s = $1 WHERE id = $2", key)
 		_, err = tx.Exec(stmt, val, user.Id)
 		if err != nil {

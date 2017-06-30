@@ -26,9 +26,9 @@ func PatchImage(user model.Ref, image model.Ref, request map[string]interface{})
 		}
 	}
 
-	tags, notPresent := valid["tags"]
+	tags, present := valid["tags"]
 	_, ok := tags.([]string)
-	if !ok && !notPresent {
+	if !ok && present {
 		return rsp.Response{Code: http.StatusBadRequest, Message: "Tags must be an array of new values"}
 	}
 
