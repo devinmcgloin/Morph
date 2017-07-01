@@ -19,12 +19,18 @@ type Ref struct {
 	Shortcode  string
 }
 
-func (r Ref) ToURL() string {
+func (r Ref) ToURL(local bool) string {
+	var host string
+	if local {
+		host = "http://localhost:8080"
+	} else {
+		host = "https://api.sprioc.xyz"
+	}
 	switch r.Collection {
 	case Users:
-		return fmt.Sprintf("http://localhost:8080/u/%s", r.Shortcode)
+		return fmt.Sprintf("%s/u/%s", host, r.Shortcode)
 	case Images:
-		return fmt.Sprintf("http://localhost:8080/i/%s", r.Shortcode)
+		return fmt.Sprintf("%s/i/%s", host, r.Shortcode)
 	default:
 		log.Panic("Invalid Collection Type")
 	}

@@ -7,7 +7,7 @@ import (
 )
 
 // Get returns the data cached at the key string and throws an error otherwise.
-func Get(key string) ([]byte, error) {
+func Get(pool *redis.Pool, key string) ([]byte, error) {
 	conn := pool.Get()
 	defer conn.Close()
 
@@ -20,7 +20,7 @@ func Get(key string) ([]byte, error) {
 	return b, nil
 }
 
-func Invalidate(key string) error {
+func Invalidate(pool *redis.Pool, key string) error {
 	conn := pool.Get()
 	defer conn.Close()
 
@@ -32,7 +32,7 @@ func Invalidate(key string) error {
 	return nil
 }
 
-func Cache(key string, content []byte) error {
+func Cache(pool *redis.Pool, key string, content []byte) error {
 	conn := pool.Get()
 	defer conn.Close()
 

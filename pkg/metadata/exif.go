@@ -21,10 +21,10 @@ func GetExif(image io.Reader) (*exif.Exif, error) {
 	return exifDat, nil
 }
 
-func GetMetadata(file io.Reader, metadata *model.ImageMetadata) error {
+func GetMetadata(file io.Reader) (metadata model.ImageMetadata, err error) {
 	x, err := GetExif(file)
 	if err != nil {
-		return err
+		return
 	}
 
 	lat, lon, err := x.LatLong()
@@ -145,5 +145,5 @@ func GetMetadata(file io.Reader, metadata *model.ImageMetadata) error {
 		}
 	}
 
-	return nil
+	return metadata, nil
 }

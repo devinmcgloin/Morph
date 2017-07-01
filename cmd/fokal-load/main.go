@@ -10,6 +10,7 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/devinmcgloin/fokal/pkg/sql"
+	"github.com/devinmcgloin/fokal/pkg/conn"
 )
 
 type color struct {
@@ -29,7 +30,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Postgres URL not set at POSTGRES_URL")
 		os.Exit(1)
 	}
-	sql.Configure(postgresURL)
+	conn.DialPostgres(postgresURL)
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s <path-to-file>\n", filepath.Base(os.Args[0]))
@@ -68,7 +69,7 @@ func run(file, t string) error {
 	for _, clr := range colors.Color {
 		toAdd[clr.Hex] = clr.Name
 	}
-	err = sql.AddColors(toAdd, t)
+	err = color.AddColors(toAdd, t)
 	if err != nil {
 		return err
 	}
