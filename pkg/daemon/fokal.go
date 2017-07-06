@@ -68,8 +68,8 @@ func Run(cfg *Config) {
 		AllowCredentials: true,
 	})
 
-	var base = alice.New(logging.IP, logging.UUID, secureMiddleware.Handler, crs.Handler,
-		context.ClearHandler, handlers.CompressHandler, logging.ContentTypeJSON, handler.Timeout)
+	var base = alice.New(handler.Timeout, logging.IP, logging.UUID, secureMiddleware.Handler, crs.Handler,
+		context.ClearHandler, handlers.CompressHandler, logging.ContentTypeJSON)
 
 	//  ROUTES
 	registerImageRoutes(api, base)
