@@ -61,7 +61,7 @@ type State struct {
 	Maps   *maps.Client
 }
 
-// The Handler struct that takes a configured Env and a function matching
+// Handler struct that takes a configured Env and a function matching
 // our useful signature.
 type Handler struct {
 	*State

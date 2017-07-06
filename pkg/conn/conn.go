@@ -34,7 +34,7 @@ func DialRedis(server, password string) *redis.Pool {
 		MaxIdle:     3,
 		IdleTimeout: 240 * time.Second,
 		Dial: func() (redis.Conn, error) {
-			c, err := redis.Dial("tcp", server)
+			c, err := redis.DialURL(server)
 			if err != nil {
 				log.Println(err)
 				return nil, err

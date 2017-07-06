@@ -15,10 +15,12 @@ func ProcessFlags() *daemon.Config {
 
 	flag.StringVar(&cfg.Host, "host", "localhost", "Host name to serve at")
 	flag.IntVar(&cfg.Port, "port", 8080, "Port to Listen on")
+	flag.BoolVar(&cfg.Local, "local", false, "True if running locally")
 
 	flag.Parse()
 	return cfg
 }
+
 func main() {
 	cfg := ProcessFlags()
 

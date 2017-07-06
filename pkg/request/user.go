@@ -30,9 +30,9 @@ func (cf *CreateUserRequest) FieldMap(req *http.Request) binding.FieldMap {
 }
 
 type PatchUserRequest struct {
-	Bio  string
-	URL  string
-	Name string
+	Bio  string `structs:"bio,omitempty"`
+	URL  string `structs:"url,omitempty"`
+	Name string `structs:"name,omitempty"`
 }
 
 func (cf *PatchUserRequest) FieldMap(req *http.Request) binding.FieldMap {

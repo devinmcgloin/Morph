@@ -2,12 +2,14 @@ package retrieval
 
 import (
 	"log"
+
+	"github.com/jmoiron/sqlx"
 )
 
 // This can be refactored using the sqlx get operation
 
 // ExistsImage checks if the given id exists in the database
-func ExistsImage(shortcode string) (bool, error) {
+func ExistsImage(db *sqlx.DB, shortcode string) (bool, error) {
 	rows, err := db.Query("SELECT count(*) FROM content.images WHERE shortcode = $1;", shortcode)
 	if err != nil {
 		log.Print(err)
@@ -31,7 +33,7 @@ func ExistsImage(shortcode string) (bool, error) {
 }
 
 // ExistsUser checks if the given id exists in the database
-func ExistsUser(username string) (bool, error) {
+func ExistsUser(db *sqlx.DB, username string) (bool, error) {
 	count := 0
 	err := db.Get(&count, "SELECT count(*) FROM content.users WHERE username = $1;", username)
 	if err != nil {
@@ -42,7 +44,7 @@ func ExistsUser(username string) (bool, error) {
 }
 
 // ExistsEmail checks if there is a user record with the given email
-func ExistsEmail(email string) (bool, error) {
+func ExistsEmail(db *sqlx.DB, email string) (bool, error) {
 	rows, err := db.Query("SELECT count(*) FROM content.users WHERE email = $1;", email)
 	if err != nil {
 		log.Print(err)

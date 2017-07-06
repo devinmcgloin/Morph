@@ -1,142 +1,142 @@
 package modification
 
 import (
-	"encoding/json"
 	"net/http"
 
-	"errors"
+	"log"
 
 	"github.com/devinmcgloin/fokal/pkg/handler"
-	"github.com/devinmcgloin/fokal/pkg/model"
 	"github.com/devinmcgloin/fokal/pkg/request"
-	"github.com/gorilla/context"
+	"github.com/devinmcgloin/fokal/pkg/retrieval"
+	"github.com/fatih/structs"
 	"github.com/gorilla/mux"
 	"github.com/mholt/binding"
 )
 
-//func FeatureImage(w http.ResponseWriter, r *http.Request) rsp.Response {
-//	var usrRef model.Ref
-//	vars := mux.Vars(r)
-//
-//	id := vars["IID"]
-//
-//	usr, ok := context.GetOk(r, "auth")
-//	if ok {
-//		usrRef = usr.(model.Ref)
-//	} else {
-//		return rsp.Response{
-//			Message: "Unauthorized Request, must be logged in to modify an image",
-//			Code:    http.StatusUnauthorized,
-//		}
-//	}
-//
-//	imageRef, resp := core.GetImageRef(id)
-//	if !resp.Ok() {
-//		return resp
-//	}
-//
-//	return core.FeatureImage(usrRef, imageRef)
-//}
-//
-//func UnFeatureImage(w http.ResponseWriter, r *http.Request) rsp.Response {
-//	var usrRef model.Ref
-//	vars := mux.Vars(r)
-//
-//	id := vars["IID"]
-//
-//	usr, ok := context.GetOk(r, "auth")
-//	if ok {
-//		usrRef = usr.(model.Ref)
-//	} else {
-//		return rsp.Response{
-//			Message: "Unauthorized Request, must be logged in to modify an image",
-//			Code:    http.StatusUnauthorized,
-//		}
-//	}
-//
-//	imageRef, resp := core.GetImageRef(id)
-//	if !resp.Ok() {
-//		return resp
-//	}
-//
-//	return core.UnFeatureImage(usrRef, imageRef)
-//}
-
-func PatchImage(w http.ResponseWriter, r *http.Request) rsp.Response {
-
-	var usrRef model.Ref
+func FeatureImage(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
 	vars := mux.Vars(r)
 
-	id := vars["IID"]
+	id := vars["ID"]
 
-	usr, ok := context.GetOk(r, "auth")
-	if ok {
-		usrRef = usr.(model.Ref)
-	} else {
-		return rsp.Response{
-			Message: "Unauthorized Request, must be logged in to modify an image",
-			Code:    http.StatusUnauthorized,
-		}
-	}
-
-	image, resp := core.GetImageRef(id)
-	if !resp.Ok() {
-		return resp
-	}
-
-	decoder := json.NewDecoder(r.Body)
-
-	var request map[string]interface{}
-
-	err := decoder.Decode(&request)
+	imageRef, err := retrieval.GetImageRef(store.DB, id)
 	if err != nil {
-		return rsp.Response{Message: "Bad Request", Code: http.StatusBadRequest}
+		return handler.Response{}, err
 	}
 
-	return core.PatchImage(usrRef, image, request)
+	err = Feature(store.DB, imageRef.Id)
+	if err != nil {
+		return handler.Response{}, err
+	}
+
+	return handler.Response{
+		Code: http.StatusAccepted,
+	}, nil
+}
+
+func UnFeatureImage(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
+	vars := mux.Vars(r)
+
+	id := vars["ID"]
+
+	imageRef, err := retrieval.GetImageRef(store.DB, id)
+	if err != nil {
+		return handler.Response{}, err
+	}
+
+	err = UnFeature(store.DB, imageRef.Id)
+	if err != nil {
+		return handler.Response{}, err
+	}
+
+	return handler.Response{
+		Code: http.StatusAccepted,
+	}, nil
+}
+
+func PatchImage(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
+	vars := mux.Vars(r)
+	log.Println("Inside PatchImage")
+
+	id := vars["ID"]
+
+	ref, err := retrieval.GetImageRef(store.DB, id)
+	if err != nil {
+		return handler.Response{}, err
+	}
+
+	req := new(request.PatchImageRequest)
+	if err := binding.Bind(r, req); err != nil {
+		return handler.Response{}, err
+	}
+
+	err = commitImagePatch(store.DB, ref, structs.Map(req))
+	if err != nil {
+		return handler.Response{}, err
+	}
+
+	return handler.Response{
+		Code: http.StatusAccepted,
+	}, nil
 }
 
 func PatchUser(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
 
-	var usrRef model.Ref
 	vars := mux.Vars(r)
 
-	id := vars["username"]
-
-	usr, ok := context.GetOk(r, "auth")
-	if ok {
-		usrRef = usr.(model.Ref)
-	} else {
-		return nil, handler.StatusError{
-			Err:  errors.New("Unauthorized Request, must be logged in to modify an image"),
-			Code: http.StatusUnauthorized,
-		}
-	}
+	id := vars["ID"]
 
 	req := new(request.PatchUserRequest)
 	if err := binding.Bind(r, req); err != nil {
-		return nil, err
+		return handler.Response{}, err
 	}
+
+	ref, err := retrieval.GetUserRef(store.DB, id)
+	if err != nil {
+		return handler.Response{}, err
+	}
+
+	err = commitUserPatch(store.DB, ref, structs.Map(req))
+	if err != nil {
+		return handler.Response{}, err
+	}
+	return handler.Response{
+		Code: http.StatusAccepted,
+	}, nil
 
 }
 
-//
-//func DeleteImage(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
-//	var user model.Ref
-//	val, _ := context.GetOk(r, "auth")
-//
-//	user = val.(model.Ref)
-//
-//	id := mux.Vars(r)["IID"]
-//
-//}
-//
-//func DeleteUser(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
-//	var user model.Ref
-//	val, _ := context.GetOk(r, "auth")
-//
-//	user = val.(model.Ref)
-//
-//	id := mux.Vars(r)["username"]
-//
-//}
+func DeleteImage(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
+	id := mux.Vars(r)["ID"]
+
+	ref, err := retrieval.GetImageRef(store.DB, id)
+	if err != nil {
+		return handler.Response{}, err
+	}
+
+	err = deleteImage(store.DB, ref.Id)
+	if err != nil {
+		return handler.Response{}, err
+	}
+
+	return handler.Response{
+		Code: http.StatusAccepted,
+	}, nil
+}
+
+func DeleteUser(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
+	id := mux.Vars(r)["ID"]
+
+	ref, err := retrieval.GetUserRef(store.DB, id)
+	if err != nil {
+		return handler.Response{}, err
+	}
+
+	err = deleteUser(store.DB, ref.Id)
+	if err != nil {
+		return handler.Response{}, err
+	}
+
+	return handler.Response{
+		Code: http.StatusAccepted,
+	}, nil
+}

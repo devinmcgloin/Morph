@@ -3,6 +3,8 @@ package cache
 import (
 	"log"
 
+	"time"
+
 	"github.com/garyburd/redigo/redis"
 )
 
@@ -32,7 +34,19 @@ func Invalidate(pool *redis.Pool, key string) error {
 	return nil
 }
 
-func Cache(pool *redis.Pool, key string, content []byte) error {
+func ExpireAt(pool *redis.Pool, key string, t time.Duration) error {
+	conn := pool.Get()
+	defer conn.Close()
+
+	_, err := conn.Do("EXPIRE", key, t.Seconds())
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+}
+
+func Set(pool *redis.Pool, key string, content []byte) error {
 	conn := pool.Get()
 	defer conn.Close()
 

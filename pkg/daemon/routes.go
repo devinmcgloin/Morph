@@ -1,57 +1,85 @@
 package daemon
 
 import (
-	"github.com/devinmcgloin/fokal/pkg/handlers"
-	"github.com/devinmcgloin/fokal/pkg/middleware"
+	"net/http"
+
+	"github.com/devinmcgloin/fokal/pkg/create"
+	"github.com/devinmcgloin/fokal/pkg/handler"
+	"github.com/devinmcgloin/fokal/pkg/model"
+	"github.com/devinmcgloin/fokal/pkg/modification"
+	"github.com/devinmcgloin/fokal/pkg/retrieval"
+	"github.com/devinmcgloin/fokal/pkg/security/permissions"
+	"github.com/devinmcgloin/fokal/pkg/social"
 	"github.com/gorilla/mux"
+	"github.com/justinas/alice"
 )
 
-func registerImageRoutes(api *mux.Router) {
+func registerImageRoutes(api *mux.Router, chain alice.Chain) {
 	img := api.PathPrefix("/i").Subrouter()
 
 	get := img.Methods("GET").Subrouter()
-	get.HandleFunc("/{IID:[a-zA-Z]{12}}", middleware.Unsecure(handlers.GetImage))
+	get.Handle("/{ID:[a-zA-Z]{12}}", permission(chain, permissions.CanView, model.Images).Then(handler.Handler{State: &AppState, H: retrieval.ImageHandler}))
 
 	post := api.Methods("POST").Subrouter()
-	post.HandleFunc("/i", middleware.Secure(handlers.UploadImage))
+	post.Handle("/i", auth(chain).Then(handler.Handler{State: &AppState, H: create.ImageHandler}))
 
 	put := img.Methods("PUT").Subrouter()
-	put.HandleFunc("/{IID:[a-zA-Z]{12}}/featured", middleware.Secure(handlers.FeatureImage))
-	put.HandleFunc("/{IID:[a-zA-Z]{12}}/favorite", middleware.Secure(handlers.FavoriteImage))
+	put.Handle("/{ID:[a-zA-Z]{12}}/featured",
+		permission(chain, permissions.CanEdit, model.Images).Then(handler.Handler{State: &AppState, H: modification.FeatureImage}))
+	put.Handle("/{ID:[a-zA-Z]{12}}/favorite",
+		permission(chain, permissions.CanView, model.Images).Then(handler.Handler{State: &AppState, H: social.FavoriteHandler}))
 
 	del := img.Methods("DELETE").Subrouter()
-	del.HandleFunc("/{IID:[a-zA-Z]{12}}", middleware.Secure(handlers.DeleteImage))
-	del.HandleFunc("/{IID:[a-zA-Z]{12}}/featured", middleware.Secure(handlers.UnFeatureImage))
-	del.HandleFunc("/{IID:[a-zA-Z]{12}}/favorite", middleware.Secure(handlers.UnFavoriteImage))
+	del.Handle("/{ID:[a-zA-Z]{12}}",
+		permission(chain, permissions.CanDelete, model.Images).Then(handler.Handler{State: &AppState, H: modification.DeleteImage}))
+
+	del.Handle("/{ID:[a-zA-Z]{12}}/featured",
+		permission(chain, permissions.CanEdit, model.Images).Then(handler.Handler{State: &AppState, H: modification.UnFeatureImage}))
+
+	del.Handle("/{ID:[a-zA-Z]{12}}/favorite",
+		permission(chain, permissions.CanView, model.Images).Then(handler.Handler{State: &AppState, H: social.UnFavoriteHandler}))
 
 	patch := img.Methods("PATCH").Subrouter()
-	patch.HandleFunc("/{IID:[a-zA-Z]{12}}", middleware.Secure(handlers.PatchImage))
+	patch.Handle("/{ID:[a-zA-Z]{12}}",
+		permission(chain, permissions.CanEdit, model.Images).Then(handler.Handler{State: &AppState, H: modification.PatchImage}))
+
 }
 
-func registerUserRoutes(api *mux.Router) {
+func registerUserRoutes(api *mux.Router, chain alice.Chain) {
 	usr := api.PathPrefix("/u").Subrouter()
 
 	get := usr.Methods("GET").Subrouter()
-	get.HandleFunc("/me", middleware.Secure(handlers.GetLoggedInUser))
-	get.HandleFunc("/{username}", middleware.Unsecure(handlers.GetUser))
+	//get.Handle("/me", chain.Then(handler.Handler{State: &AppState, H: retrieval.UserHandler}))
+	get.Handle("/{ID}", chain.Then(handler.Handler{State: &AppState, H: retrieval.UserHandler}))
 
 	post := api.Methods("POST").Subrouter()
-	post.HandleFunc("/u", middleware.Unsecure(handlers.CreateUser))
+	post.Handle("/u", auth(chain).Then(handler.Handler{State: &AppState, H: create.UserHandler}))
 
 	put := usr.Methods("PUT").Subrouter()
-	put.HandleFunc("/{username}/avatar", middleware.Secure(handlers.UploadAvatar))
-	put.HandleFunc("/{username}/follow", middleware.Secure(handlers.Follow))
-
+	put.Handle("/{ID}/avatar", permission(chain, permissions.CanEdit, model.Users).Then(handler.Handler{
+		State: &AppState,
+		H:     create.AvatarHandler,
+	}))
+	put.Handle("/{ID}/follow", permission(chain, permissions.CanView, model.Users).Then(handler.Handler{
+		State: &AppState,
+		H:     social.FollowHandler,
+	}))
 	del := usr.Methods("DELETE").Subrouter()
-	del.HandleFunc("/{username}", middleware.Secure(handlers.DeleteUser))
-	del.HandleFunc("/{username}/follow", middleware.Secure(handlers.UnFollow))
+	del.Handle("/{ID}", permission(chain, permissions.CanDelete, model.Users).Then(handler.Handler{
+		State: &AppState,
+		H:     modification.DeleteUser,
+	}))
+	del.Handle("/{ID}/follow",
+		permission(chain, permissions.CanView, model.Users).Then(handler.Handler{State: &AppState, H: social.UnFollowHandler}))
 
 	patch := usr.Methods("PATCH").Subrouter()
-	patch.HandleFunc("/{username}", middleware.Secure(handlers.PatchUser))
+	patch.Handle("/{ID}",
+		permission(chain, permissions.CanEdit, model.Users).Then(handler.Handler{State: &AppState, H: modification.PatchUser}))
+
 }
 
 //
-// func registerCollectionRoutes(api *mux.Router) {
+// func registerCollectionRoutes(api *mux.Router, chain http.Handler) {
 // 	col := api.PathPrefix("/collections").Subrouter()
 //
 // 	get := col.Methods("GET").Subrouter()
@@ -76,7 +104,7 @@ func registerUserRoutes(api *mux.Router) {
 // 	patch.HandleFunc("/{CID:[a-zA-Z]{12}}", middleware.Secure(handlers.ModifyCollection))
 // }
 //
-// func registerSearchRoutes(api *mux.Router) {
+// func registerSearchRoutes(api *mux.Router, chain http.Handler) {
 // 	get := api.Methods("GET").Subrouter()
 //
 // 	get.HandleFunc("/stream", middleware.Secure(handlers.GetStream))
@@ -88,13 +116,14 @@ func registerUserRoutes(api *mux.Router) {
 
 // routes that return random results for a given collection.
 // TODO redirect to new thing or just return random one like normal.
-func registerLuckyRoutes(api *mux.Router) {
+func registerLuckyRoutes(api *mux.Router, chain http.Handler) {
 
 }
 
-func registerAuthRoutes(api *mux.Router) {
-	post := api.Methods("POST").Subrouter()
-
-	post.HandleFunc("/get_token", middleware.Unsecure(handlers.GetToken))
-
-}
+//
+//func registerAuthRoutes(api *mux.Router, chain http.Handler) {
+//	post := api.Methods("POST").Subrouter()
+//
+//	post.HandleFunc("/get_token", middleware.Unsecure(handlers.GetToken))
+//
+//}

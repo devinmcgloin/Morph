@@ -3,42 +3,58 @@ package permissions
 import (
 	"log"
 
-	"database/sql"
 	"net/http"
 
+	"errors"
+
+	"github.com/devinmcgloin/fokal/pkg/handler"
 	"github.com/devinmcgloin/fokal/pkg/model"
 	"github.com/jmoiron/sqlx"
 )
 
-func permission(user model.Ref, kind model.Permission, target model.Ref) rsp.Response {
+type Permission string
+
+const (
+	CanEdit   = Permission("can_edit")
+	CanDelete = Permission("can_delete")
+	CanView   = Permission("can_view")
+)
+
+func permission(db *sqlx.DB, user model.Ref, kind Permission, target model.Ref) error {
 
 	// checking if the user has permission to modify the item
-	valid, err := sql.Permissions(user.Id, kind, target.Id)
+	valid, err := Valid(db, user.Id, kind, target.Id)
 	if err != nil {
-		return rsp.Response{Code: http.StatusInternalServerError, Message: "Unable to retrieve user permissions."}
+		return handler.StatusError{
+			Code: http.StatusInternalServerError,
+			Err:  errors.New("Unable to retrieve user permissions.")}
 	}
-	if !valid && kind != model.CanView {
-		return rsp.Response{Code: http.StatusNotFound, Message: "Target object not found"}
+	if !valid && kind != CanView {
+		return handler.StatusError{
+			Code: http.StatusNotFound,
+			Err:  errors.New("Target object not found")}
 	}
 	if !valid {
-		return rsp.Response{Code: http.StatusForbidden, Message: "User does not have permission to edit item."}
+		return handler.StatusError{
+			Code: http.StatusForbidden,
+			Err:  errors.New("User does not have permission to edit item.")}
 	}
 
 	// checking if modification is valid.
-	return rsp.Response{Code: http.StatusOK}
+	return nil
 }
 
-func Permissions(userRef int64, permission model.Permission, item int64) (bool, error) {
+func Valid(db *sqlx.DB, userRef int64, permission Permission, item int64) (bool, error) {
 	var valid int
 	var err error
 	var stmt *sqlx.Stmt
 
 	switch permission {
-	case model.CanEdit:
+	case CanEdit:
 		stmt, err = db.Preparex("SELECT count(*) FROM permissions.can_edit WHERE user_id = $1 AND o_id = $2;")
-	case model.CanView:
+	case CanView:
 		stmt, err = db.Preparex("SELECT count(*) FROM permissions.can_view WHERE (user_id = $1 OR user_id = -1) AND o_id = $2;")
-	case model.CanDelete:
+	case CanDelete:
 		stmt, err = db.Preparex("SELECT count(*) FROM permissions.can_delete WHERE user_id = $1 AND o_id = $2;")
 	}
 	if err != nil {
@@ -56,16 +72,16 @@ func Permissions(userRef int64, permission model.Permission, item int64) (bool, 
 
 }
 
-func AddPermissions(userRef int64, permission model.Permission, item int64) error {
+func Add(db *sqlx.DB, userRef int64, permission Permission, item int64) error {
 	var err error
 	var stmt *sqlx.Stmt
 
 	switch permission {
-	case model.CanEdit:
+	case CanEdit:
 		stmt, err = db.Preparex("INSERT INTO permissions.can_edit(user_id, o_id) VALUES($1, $2);")
-	case model.CanView:
+	case CanView:
 		stmt, err = db.Preparex("INSERT INTO permissions.can_view(user_id, o_id) VALUES($1, $2);")
-	case model.CanDelete:
+	case CanDelete:
 		stmt, err = db.Preparex("INSERT INTO permissions.can_delete(user_id, o_id) VALUES($1, $2);")
 	}
 	if err != nil {
@@ -81,7 +97,7 @@ func AddPermissions(userRef int64, permission model.Permission, item int64) erro
 }
 
 // IsAdmin checks if the given user has admin privileges
-func IsAdmin(id int64) (bool, error) {
+func IsAdmin(db *sqlx.DB, id int64) (bool, error) {
 	rows, err := db.Query("SELECT count(*) FROM content.users WHERE id = $1 AND admin = TRUE", id)
 	if err != nil {
 		log.Print(err)
@@ -102,37 +118,4 @@ func IsAdmin(id int64) (bool, error) {
 	}
 
 	return count == 1, nil
-}
-
-// GetLogin returns the salt, password, email and username for a given user.
-func GetLogin(ref string) (map[string]interface{}, error) {
-	userInfo := make(map[string]interface{})
-	rows, err := db.Query("SELECT id, username, salt, password, email FROM content.users WHERE username = $1 LIMIT 1;", ref)
-	if err != nil {
-		log.Print(err)
-		return userInfo, err
-	}
-	defer rows.Close()
-	var id int64
-	var username string
-	var salt string
-	var password string
-	var email string
-	for rows.Next() {
-		if err := rows.Scan(&id, &username, &salt, &password, &email); err != nil {
-			log.Print(err)
-			return userInfo, err
-		}
-	}
-	if err := rows.Err(); err != nil {
-		log.Print(err)
-		return userInfo, err
-	}
-	userInfo["id"] = id
-	userInfo["username"] = username
-	userInfo["salt"] = salt
-	userInfo["password"] = password
-	userInfo["email"] = email
-
-	return userInfo, nil
 }

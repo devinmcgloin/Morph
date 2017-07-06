@@ -7,7 +7,9 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/devinmcgloin/fokal/pkg/ferr"
+	"errors"
+
+	"github.com/devinmcgloin/fokal/pkg/handler"
 	"github.com/devinmcgloin/fokal/pkg/model"
 	"github.com/devinmcgloin/fokal/pkg/request"
 	"github.com/devinmcgloin/fokal/pkg/retrieval"
@@ -21,42 +23,42 @@ var validUsername = regexp.MustCompile(`^[^\<\>\!\{\}\[\]\!\@\#\$\%\^\&\*\(\)\.\
 
 var letters = regexp.MustCompile("^[a-zA-Z]+$")
 
-func validateUser(userData *request.CreateUserRequest) error {
+func validateUser(db *sqlx.DB, userData *request.CreateUserRequest) error {
 	userData.Username = strings.ToLower(userData.Username)
 
 	if !validUsername.MatchString(userData.Username) {
-		return ferr.FError{Message: "Invalid username", Code: http.StatusBadRequest}
+		return handler.StatusError{Err: errors.New("Invalid username"), Code: http.StatusBadRequest}
 	}
 
 	userData.Email = strings.Trim(strings.ToLower(userData.Email), " ")
 
 	if !validEmail.MatchString(userData.Email) {
-		return ferr.FError{Message: "Invalid email", Code: http.StatusBadRequest}
+		return handler.StatusError{Err: errors.New("Invalid email"), Code: http.StatusBadRequest}
 	}
 
 	if !(validPassword(userData.Password) || validPassPhrase(userData.Password)) {
-		return ferr.FError{Message: "Invalid password", Code: http.StatusBadRequest}
+		return handler.StatusError{Err: errors.New("Invalid password"), Code: http.StatusBadRequest}
 	}
 
 	userRef := model.Ref{Collection: model.Users, Shortcode: userData.Username}
 
-	exists, err := retrieval.ExistsUser(userRef.Shortcode)
+	exists, err := retrieval.ExistsUser(db, userRef.Shortcode)
 	if err != nil {
-		return ferr.FError{Code: http.StatusInternalServerError}
+		return handler.StatusError{Code: http.StatusInternalServerError}
 	}
 	if exists {
-		return ferr.FError{Message: "Username already exist", Code: http.StatusConflict}
+		return handler.StatusError{Err: errors.New("Username already exist"), Code: http.StatusConflict}
 	}
 
-	exists, err = retrieval.ExistsEmail(userData.Email)
+	exists, err = retrieval.ExistsEmail(db, userData.Email)
 	if err != nil {
-		return ferr.FError{Code: http.StatusInternalServerError}
+		return handler.StatusError{Code: http.StatusInternalServerError}
 	}
 	if exists {
-		return ferr.FError{Message: "Email already exist", Code: http.StatusConflict}
+		return handler.StatusError{Err: errors.New("Email already exist"), Code: http.StatusConflict}
 	}
 
-	return ferr.FError{Code: http.StatusOK}
+	return handler.StatusError{Code: http.StatusOK}
 }
 
 func validPassword(password string) bool {

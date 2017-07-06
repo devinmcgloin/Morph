@@ -25,17 +25,17 @@ import (
 func UserHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
 	req := new(request.CreateUserRequest)
 	if err := binding.Bind(r, req); err != nil {
-		return nil, err
+		return handler.Response{}, err
 	}
 
-	err := validateUser(req)
+	err := validateUser(store.DB, req)
 	if err != nil {
-		return nil, err
+		return handler.Response{}, err
 	}
 
 	securePassword, salt, err := security.GenerateSaltPass(req.Password)
 	if err != nil {
-		return nil, err
+		return handler.Response{}, err
 	}
 
 	usr := model.User{
@@ -47,7 +47,7 @@ func UserHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (
 
 	err = commitUser(store.DB, usr)
 	if err != nil {
-		return nil, err
+		return handler.Response{}, err
 	}
 
 	ref := model.Ref{Collection: model.Users, Shortcode: usr.Username}
@@ -63,19 +63,19 @@ func ImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) 
 	if ok {
 		user = val.(model.Ref)
 	} else {
-		return nil, handler.StatusError{Code: http.StatusUnauthorized}
+		return handler.Response{}, handler.StatusError{Code: http.StatusUnauthorized}
 	}
 
 	file, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		return nil, handler.StatusError{
+		return handler.Response{}, handler.StatusError{
 			Err:  errors.New("Unable to read image body."),
 			Code: http.StatusBadRequest}
 	}
 
 	sc, err := generator.GenerateSC(store.DB, model.Images)
 	if err != nil {
-		return nil, handler.StatusError{
+		return handler.Response{}, handler.StatusError{
 			Err:  errors.New("Unable to generate new shortcode"),
 			Code: http.StatusInternalServerError}
 	}
@@ -88,24 +88,24 @@ func ImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) 
 	n := len(file)
 
 	if n == 0 {
-		return nil, handler.StatusError{
+		return handler.Response{}, handler.StatusError{
 			Err:  errors.New("Cannot upload file with 0 bytes."),
 			Code: http.StatusBadRequest}
 	}
 
 	err = upload.ProccessImage(file, n, img.Shortcode, "content")
 	if err != nil {
-		return nil, handler.StatusError{Err: err, Code: http.StatusBadRequest}
+		return handler.Response{}, handler.StatusError{Err: err, Code: http.StatusBadRequest}
 	}
 
 	buf := bytes.NewBuffer(file)
 
 	img.Metadata, err = metadata.GetMetadata(buf)
 	if err != nil {
-		return nil, handler.StatusError{Err: err, Code: http.StatusBadRequest}
+		return handler.Response{}, handler.StatusError{Err: err, Code: http.StatusBadRequest}
 	}
 
-	annotations, err := vision.AnnotateImage(store.Vision, file)
+	annotations, err := vision.AnnotateImage(store.DB, store.Vision, file)
 	if err != nil {
 		log.Println(err)
 	} else {
@@ -116,7 +116,7 @@ func ImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) 
 
 	err = commitImage(store.DB, img)
 	if err != nil {
-		return nil, handler.StatusError{
+		return handler.Response{}, handler.StatusError{
 			Err:  errors.New("Error while adding image to DB"),
 			Code: http.StatusInternalServerError}
 	}
@@ -135,26 +135,26 @@ func AvatarHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 	if ok {
 		user = val.(model.Ref)
 	} else {
-		return nil, handler.StatusError{Code: http.StatusUnauthorized}
+		return handler.Response{}, handler.StatusError{Code: http.StatusUnauthorized}
 	}
 
 	file, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		return nil, handler.StatusError{Err: errors.New("Unable to read image body."),
+		return handler.Response{}, handler.StatusError{Err: errors.New("Unable to read image body."),
 			Code: http.StatusBadRequest}
 	}
 
 	n := len(file)
 
 	if n == 0 {
-		return nil, handler.StatusError{
+		return handler.Response{}, handler.StatusError{
 			Err:  errors.New("Cannot upload file with 0 bytes."),
 			Code: http.StatusBadRequest}
 	}
 
 	err = upload.ProccessImage(file, n, user.Shortcode, "avatar")
 	if err != nil {
-		return nil, handler.StatusError{Err: err, Code: http.StatusBadRequest}
+		return handler.Response{}, handler.StatusError{Err: err, Code: http.StatusBadRequest}
 	}
 
 	return handler.Response{

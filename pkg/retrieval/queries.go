@@ -4,11 +4,13 @@ import (
 	"log"
 
 	"github.com/devinmcgloin/fokal/pkg/model"
+	"github.com/devinmcgloin/fokal/pkg/stats"
+	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 )
 
 // GetUser returns the fields of a user row into a User struct, including image references.
-func GetUser(u int64, retrieveImages bool) (model.User, error) {
+func GetUser(db *sqlx.DB, u int64, retrieveImages bool) (model.User, error) {
 	user := model.User{}
 	err := db.Get(&user, "SELECT * FROM content.users WHERE id = $1", u)
 	if err != nil {
@@ -17,14 +19,14 @@ func GetUser(u int64, retrieveImages bool) (model.User, error) {
 	}
 
 	if retrieveImages {
-		images, err := GetUserImages(u)
+		images, err := GetUserImages(db, u)
 		if err != nil {
 			log.Println(err)
 			return model.User{}, err
 		}
 		user.Images = &images
 
-		favorites, err := userFavorites(u)
+		favorites, err := GetUserFavorites(db, u)
 		if err != nil {
 			log.Println(err)
 			return model.User{}, err
@@ -53,10 +55,10 @@ func GetUser(u int64, retrieveImages bool) (model.User, error) {
 }
 
 // GetUsers TODO rewrite this to make a single call to the database.
-func GetUsers(userIds []int64) ([]model.User, error) {
+func GetUsers(db *sqlx.DB, userIds []int64) ([]model.User, error) {
 	users := []model.User{}
 	for _, userId := range userIds {
-		usr, err := GetUser(userId, true)
+		usr, err := GetUser(db, userId, true)
 		if err != nil {
 			log.Println(err)
 			return []model.User{}, err
@@ -66,7 +68,7 @@ func GetUsers(userIds []int64) ([]model.User, error) {
 	return users, nil
 }
 
-func GetUserImages(userId int64) ([]model.Image, error) {
+func GetUserImages(db *sqlx.DB, userId int64) ([]model.Image, error) {
 	images := []int64{}
 	err := db.Select(&images, `
 	SELECT id FROM content.images
@@ -76,27 +78,14 @@ func GetUserImages(userId int64) ([]model.Image, error) {
 		return []model.Image{}, err
 	}
 
-	return GetImages(images)
-}
-
-func userFavorites(userId int64) ([]model.Image, error) {
-	favorites := []int64{}
-	err := db.Select(&favorites, `
-	SELECT image_id FROM content.user_favorites
-	WHERE user_id = $1`, userId)
-	if err != nil {
-		log.Println(err)
-		return []model.Image{}, err
-	}
-
-	return GetImages(favorites)
+	return GetImages(db, images)
 }
 
 // GetImages TODO retwrite to make a single call to the database
-func GetImages(imageIDS []int64) ([]model.Image, error) {
+func GetImages(db *sqlx.DB, imageIDS []int64) ([]model.Image, error) {
 	images := []model.Image{}
 	for _, imageId := range imageIDS {
-		img, err := GetImage(imageId)
+		img, err := GetImage(db, imageId)
 		if err != nil {
 			return []model.Image{}, err
 		}
@@ -107,7 +96,7 @@ func GetImages(imageIDS []int64) ([]model.Image, error) {
 
 // GetImage takes an image ID and returns a image row into a Image struct including metadata
 // and user data.
-func GetImage(i int64) (model.Image, error) {
+func GetImage(db *sqlx.DB, i int64) (model.Image, error) {
 	img := model.Image{}
 	err := db.Get(&img, `
 	SELECT id, shortcode, publish_time, last_modified, user_id, featured FROM content.images AS images
@@ -117,46 +106,46 @@ func GetImage(i int64) (model.Image, error) {
 		return model.Image{}, err
 	}
 
-	img.Metadata, err = imageMetadata(i)
+	img.Metadata, err = imageMetadata(db, i)
 	if err != nil {
 		return model.Image{}, err
 	}
 
-	img.Landmarks, err = imageLandmarks(i)
+	img.Landmarks, err = imageLandmarks(db, i)
 	if err != nil {
 		return model.Image{}, err
 	}
 
-	img.Labels, err = imageLabels(i)
+	img.Labels, err = imageLabels(db, i)
 	if err != nil {
 		return model.Image{}, err
 	}
-	img.Tags, err = imageTags(i)
+	img.Tags, err = imageTags(db, i)
 	if err != nil {
 		return model.Image{}, err
 	}
-	img.Colors, err = imageColors(i)
-	if err != nil {
-		return model.Image{}, err
-	}
-
-	img.Stats, err = imageStats(i)
+	img.Colors, err = imageColors(db, i)
 	if err != nil {
 		return model.Image{}, err
 	}
 
-	usr, err := GetUser(img.UserId, false)
+	img.Stats, err = imageStats(db, i)
+	if err != nil {
+		return model.Image{}, err
+	}
+
+	usr, err := GetUser(db, img.UserId, false)
 	if err != nil {
 		return model.Image{}, err
 	}
 	img.User = &usr
 	img.Source = imageSources(img.Shortcode, "content")
 
-	AddStat(i, "view")
+	stats.AddStat(db, i, "view")
 	return img, nil
 }
 
-func imageLandmarks(imageId int64) ([]model.Landmark, error) {
+func imageLandmarks(db *sqlx.DB, imageId int64) ([]model.Landmark, error) {
 	landmarks := []model.Landmark{}
 	rows, err := db.Query(`
 	SELECT landmark.description, landmark.location, bridge.score FROM content.image_landmark_bridge AS bridge
@@ -191,7 +180,7 @@ func imageSources(shortcode, location string) model.ImageSource {
 	}
 }
 
-func imageLabels(imageId int64) ([]model.Label, error) {
+func imageLabels(db *sqlx.DB, imageId int64) ([]model.Label, error) {
 	labels := []model.Label{}
 	err := db.Select(&labels, `
 	SELECT description, score FROM content.image_label_bridge
@@ -205,7 +194,7 @@ func imageLabels(imageId int64) ([]model.Label, error) {
 	return labels, nil
 }
 
-func imageTags(imageId int64) ([]string, error) {
+func imageTags(db *sqlx.DB, imageId int64) ([]string, error) {
 	tags := []string{}
 	err := db.Select(&tags, `
 	SELECT description FROM content.image_tags AS tags
@@ -219,7 +208,7 @@ func imageTags(imageId int64) ([]string, error) {
 	return tags, nil
 }
 
-func imageStats(imageId int64) (model.ImageStats, error) {
+func imageStats(db *sqlx.DB, imageId int64) (model.ImageStats, error) {
 	stats := model.ImageStats{}
 
 	err := db.Get(&stats.Favorites, `
@@ -248,7 +237,7 @@ func imageStats(imageId int64) (model.ImageStats, error) {
 	return stats, nil
 }
 
-func imageColors(imageId int64) ([]model.Color, error) {
+func imageColors(db *sqlx.DB, imageId int64) ([]model.Color, error) {
 	colors := []model.Color{}
 
 	rows, err := db.Query(`
@@ -277,7 +266,7 @@ func imageColors(imageId int64) ([]model.Color, error) {
 	return colors, nil
 }
 
-func imageMetadata(imageId int64) (model.ImageMetadata, error) {
+func imageMetadata(db *sqlx.DB, imageId int64) (model.ImageMetadata, error) {
 	meta := model.ImageMetadata{}
 	err := db.Get(&meta, `
 	SELECT aperture, exposure_time, focal_length, iso, make, model,
@@ -292,7 +281,7 @@ func imageMetadata(imageId int64) (model.ImageMetadata, error) {
 	return meta, nil
 }
 
-func GetImageID(shortcode string) (int64, error) {
+func GetImageID(db *sqlx.DB, shortcode string) (int64, error) {
 	var iID int64
 
 	err := db.Get(&iID, "SELECT id FROM content.images WHERE shortcode = $1",
@@ -304,7 +293,7 @@ func GetImageID(shortcode string) (int64, error) {
 	return iID, nil
 }
 
-func GetRecentImages(limit int) ([]model.Image, error) {
+func GetRecentImages(db *sqlx.DB, limit int) ([]model.Image, error) {
 	imageIds := []int64{}
 	err := db.Select(&imageIds,
 		`
@@ -319,15 +308,15 @@ func GetRecentImages(limit int) ([]model.Image, error) {
 		}
 		return []model.Image{}, err
 	}
-	return GetImages(imageIds)
+	return GetImages(db, imageIds)
 }
 
-func GetUserFollowed(userID int64) ([]model.User, error) {
+func GetUserFollowed(db *sqlx.DB, userID int64) ([]model.User, error) {
 	userIds := []int64{}
 	err := db.Select(&userIds,
 		`
 	SELECT users.id
-	FROM content.user_follows AS follows 
+	FROM content.user_follows AS follows
 		JOIN content.users AS users ON id = follows.followed_id
 	WHERE follows.user_id = $1
 		`,
@@ -338,10 +327,10 @@ func GetUserFollowed(userID int64) ([]model.User, error) {
 		}
 		return []model.User{}, err
 	}
-	return GetUsers(userIds)
+	return GetUsers(db, userIds)
 }
 
-func GetUserFavorites(userID int64) ([]model.Image, error) {
+func GetUserFavorites(db *sqlx.DB, userID int64) ([]model.Image, error) {
 	imgs := []int64{}
 	err := db.Select(&imgs,
 		`
@@ -358,16 +347,16 @@ func GetUserFavorites(userID int64) ([]model.Image, error) {
 		}
 		return []model.Image{}, err
 	}
-	return GetImages(imgs)
+	return GetImages(db, imgs)
 }
 
-func GetFeaturedImages(limit int) ([]model.Image, error) {
+func GetFeaturedImages(db *sqlx.DB, limit int) ([]model.Image, error) {
 	imgs := []int64{}
 	err := db.Select(&imgs,
 		`
 	SELECT images.id
 	FROM content.images AS images
-	WHERE featured = TRUE 
+	WHERE featured = TRUE
 	ORDER BY publish_time DESC LIMIT $1
 		`,
 		limit)
@@ -377,10 +366,10 @@ func GetFeaturedImages(limit int) ([]model.Image, error) {
 		}
 		return []model.Image{}, err
 	}
-	return GetImages(imgs)
+	return GetImages(db, imgs)
 }
 
-func GetImageRef(i string) (model.Ref, error) {
+func GetImageRef(db *sqlx.DB, i string) (model.Ref, error) {
 	ref := model.Ref{Collection: model.Images, Shortcode: i}
 	err := db.Get(&ref.Id, "SELECT id FROM content.images WHERE shortcode = $1", i)
 	if err != nil {
@@ -390,7 +379,7 @@ func GetImageRef(i string) (model.Ref, error) {
 	return ref, nil
 }
 
-func GetUserRef(u string) (model.Ref, error) {
+func GetUserRef(db *sqlx.DB, u string) (model.Ref, error) {
 	ref := model.Ref{Collection: model.Users, Shortcode: u}
 	err := db.Get(&ref.Id, "SELECT id FROM content.users WHERE username = $1", u)
 	if err != nil {

@@ -9,17 +9,18 @@ import (
 	"io/ioutil"
 
 	"github.com/BurntSushi/toml"
-	"github.com/devinmcgloin/fokal/pkg/sql"
+	"github.com/devinmcgloin/fokal/pkg/color"
 	"github.com/devinmcgloin/fokal/pkg/conn"
+	"github.com/jmoiron/sqlx"
 )
 
-type color struct {
+type clr struct {
 	Name string `toml:"name"`
 	Hex  string `toml:"hex"`
 }
 
 type colors struct {
-	Color []color
+	Color []clr
 }
 
 func main() {
@@ -30,7 +31,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Postgres URL not set at POSTGRES_URL")
 		os.Exit(1)
 	}
-	conn.DialPostgres(postgresURL)
+	db := conn.DialPostgres(postgresURL)
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s <path-to-file>\n", filepath.Base(os.Args[0]))
@@ -46,30 +47,31 @@ func main() {
 	}
 
 	fmt.Println(path, contentType)
-	if err := run(path, contentType); err != nil {
+	if err := run(db, path, contentType); err != nil {
 		fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 		os.Exit(1)
 	}
 
 }
 
-func run(file, t string) error {
-	var colors colors
+func run(db *sqlx.DB, file, t string) error {
+	var c colors
 	toAdd := make(map[string]string)
 
 	blob, err := ioutil.ReadFile(file)
 	if err != nil {
 		return err
 	}
-	if _, err := toml.Decode(string(blob), &colors); err != nil {
+	if _, err := toml.Decode(string(blob), &c); err != nil {
 		return err
 	}
 
-	fmt.Printf("Path %s contains %d colors.\n", file, len(colors.Color))
-	for _, clr := range colors.Color {
+	fmt.Printf("Path %s contains %d colors.\n", file, len(c.Color))
+	for _, clr := range c.Color {
 		toAdd[clr.Hex] = clr.Name
 	}
-	err = color.AddColors(toAdd, t)
+
+	err = color.AddColors(db, toAdd, t)
 	if err != nil {
 		return err
 	}

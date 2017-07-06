@@ -8,6 +8,7 @@ import (
 	"github.com/devinmcgloin/clr/clr"
 	"github.com/devinmcgloin/fokal/pkg/color"
 	"github.com/devinmcgloin/fokal/pkg/model"
+	"github.com/jmoiron/sqlx"
 
 	"google.golang.org/api/vision/v1"
 )
@@ -19,7 +20,7 @@ type ImageResponse struct {
 	Landmark        []model.Landmark
 }
 
-func AnnotateImage(vision *vision.Service, b []byte) (ImageResponse, error) {
+func AnnotateImage(db *sqlx.DB, visionService *vision.Service, b []byte) (ImageResponse, error) {
 	//var b []byte
 	//_, err := file.Read(b)
 	//if err != nil {
@@ -28,6 +29,7 @@ func AnnotateImage(vision *vision.Service, b []byte) (ImageResponse, error) {
 	//}
 
 	// Construct a text request, encoding the image in base64.
+
 	req := &vision.AnnotateImageRequest{
 		// Apply image which is encoded by base64
 		Image: &vision.Image{
@@ -46,7 +48,7 @@ func AnnotateImage(vision *vision.Service, b []byte) (ImageResponse, error) {
 		Requests: []*vision.AnnotateImageRequest{req},
 	}
 
-	res, err := vision.Images.Annotate(batch).Do()
+	res, err := visionService.Images.Annotate(batch).Do()
 	if err != nil {
 		log.Println(err)
 		return ImageResponse{}, err
@@ -55,8 +57,8 @@ func AnnotateImage(vision *vision.Service, b []byte) (ImageResponse, error) {
 	r := res.Responses[0]
 	rsp := ImageResponse{Safe: true}
 
-	shade := color.RetrieveColorTable(color.Shade)
-	specific := color.RetrieveColorTable(color.SpecificColor)
+	shade := color.RetrieveColorTable(db, color.Shade)
+	specific := color.RetrieveColorTable(db, color.SpecificColor)
 
 	for _, col := range r.ImagePropertiesAnnotation.DominantColors.Colors {
 		sRGB := clr.RGB{
