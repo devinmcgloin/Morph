@@ -146,6 +146,11 @@
 			"Rev": "01aeca54ebda6e0fbfafd0a524d234159c05ec20"
 		},
 		{
+			"ImportPath": "github.com/fatih/structs",
+			"Comment": "v1.0-4-g7e5a8ee",
+			"Rev": "7e5a8eef611ee84dd359503f3969f80df4c50723"
+		},
+		{
 			"ImportPath": "github.com/garyburd/redigo/internal",
 			"Comment": "v1.0.0-1-gb8dc900",
 			"Rev": "b8dc90050f24c1a73a52f107f3f575be67b21b7c"
@@ -191,6 +196,11 @@
 			"Rev": "3564e3a314b957a161fefa0e7aea85b4d741c94e"
 		},
 		{
+			"ImportPath": "github.com/justinas/alice",
+			"Comment": "1.0.0-16-g1051eaf",
+			"Rev": "1051eaf52fcafdd87ead59d28b065f1fcb8274ec"
+		},
+		{
 			"ImportPath": "github.com/lib/pq",
 			"Comment": "go1.0-cutoff-166-g2704adc",
 			"Rev": "2704adc878c21e1329f46f6e56a1c387d788ff94"
@@ -201,6 +211,16 @@
 			"Rev": "2704adc878c21e1329f46f6e56a1c387d788ff94"
 		},
 		{
+			"ImportPath": "github.com/mholt/binding",
+			"Comment": "v0.3.0-32-g9e84d4a",
+			"Rev": "9e84d4a48983e44b646bda238afbdb810d79256b"
+		},
+		{
+			"ImportPath": "github.com/rs/cors",
+			"Comment": "v.1.1",
+			"Rev": "8dd4211afb5d08dbb39a533b9bb9e4b486351df6"
+		},
+		{
 			"ImportPath": "github.com/rwcarlsen/goexif/exif",
 			"Rev": "709fab3d192d7c62f86043caff1e7e3fb0f42bd8"
 		},
@@ -209,8 +229,17 @@
 			"Rev": "709fab3d192d7c62f86043caff1e7e3fb0f42bd8"
 		},
 		{
+			"ImportPath": "github.com/satori/go.uuid",
+			"Comment": "v1.1.0-8-g5bf94b6",
+			"Rev": "5bf94b69c6b68ee1b541973bb8e1144db23a194b"
+		},
+		{
 			"ImportPath": "github.com/sprioc/geojson",
 			"Rev": "748fac79e3b76d72c81b101dd7ecb051e5482882"
+		},
+		{
+			"ImportPath": "github.com/unrolled/secure",
+			"Rev": "179957f53e4db0bcd04dd42c95b07b1d12c34f5e"
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",
