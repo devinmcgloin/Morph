@@ -10,11 +10,11 @@ import (
 	"bytes"
 	"log"
 
-	"github.com/devinmcgloin/fokal/pkg/generator"
 	"github.com/devinmcgloin/fokal/pkg/handler"
 	"github.com/devinmcgloin/fokal/pkg/metadata"
 	"github.com/devinmcgloin/fokal/pkg/model"
 	"github.com/devinmcgloin/fokal/pkg/request"
+	"github.com/devinmcgloin/fokal/pkg/retrieval"
 	"github.com/devinmcgloin/fokal/pkg/security"
 	"github.com/devinmcgloin/fokal/pkg/upload"
 	"github.com/devinmcgloin/fokal/pkg/vision"
@@ -53,7 +53,7 @@ func UserHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (
 	ref := model.Ref{Collection: model.Users, Shortcode: usr.Username}
 	return handler.Response{
 		Code: http.StatusAccepted,
-		Data: map[string]string{"link": ref.ToURL(store.Local)},
+		Data: map[string]string{"link": ref.ToURL(store.Port, store.Local)},
 	}, nil
 }
 
@@ -73,7 +73,7 @@ func ImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) 
 			Code: http.StatusBadRequest}
 	}
 
-	sc, err := generator.GenerateSC(store.DB, model.Images)
+	sc, err := retrieval.GenerateSC(store.DB, model.Images)
 	if err != nil {
 		return handler.Response{}, handler.StatusError{
 			Err:  errors.New("Unable to generate new shortcode"),
@@ -124,7 +124,7 @@ func ImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) 
 	ref := model.Ref{Collection: model.Images, Shortcode: img.Shortcode}
 	return handler.Response{
 		Code: http.StatusAccepted,
-		Data: map[string]string{"link": ref.ToURL(store.Local)},
+		Data: map[string]string{"link": ref.ToURL(store.Port, store.Local)},
 	}, nil
 
 }

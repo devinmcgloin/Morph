@@ -20,10 +20,26 @@ func UserHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (
 		return rsp, err
 	}
 
-	user, err := GetUser(store.DB, ref.Id, true)
+	user, err := GetUser(store, ref.Id)
 	return handler.Response{
 		Code: http.StatusOK,
 		Data: user,
+	}, nil
+}
+
+func UserImagesHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
+	var rsp handler.Response
+	username := mux.Vars(r)["ID"]
+
+	ref, err := GetUserRef(store.DB, username)
+	if err != nil {
+		return rsp, err
+	}
+
+	images, err := GetUserImages(store, ref.Id)
+	return handler.Response{
+		Code: http.StatusOK,
+		Data: images,
 	}, nil
 }
 
@@ -38,7 +54,7 @@ func LoggedInUserHandler(store *handler.State, w http.ResponseWriter, r *http.Re
 	}
 
 	usrRef := val.(model.Ref)
-	user, err := GetUser(store.DB, usrRef.Id, true)
+	user, err := GetUser(store, usrRef.Id)
 	if err != nil {
 		return rsp, err
 	}
@@ -59,7 +75,7 @@ func ImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) 
 		return rsp, err
 	}
 
-	img, err := GetImage(store.DB, ref.Id)
+	img, err := GetImage(store, ref.Id)
 	if err != nil {
 		return rsp, err
 	}

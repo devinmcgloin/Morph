@@ -15,5 +15,5 @@ func (m Middleware) Handler(next http.Handler) http.Handler {
 }
 
 func Timeout(h http.Handler) http.Handler {
-	return http.TimeoutHandler(h, time.Second*5, "Application has timed out.")
+	return http.TimeoutHandler(h, time.Second*15, "Application has timed out.")
 }

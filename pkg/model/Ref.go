@@ -19,10 +19,10 @@ type Ref struct {
 	Shortcode  string
 }
 
-func (r Ref) ToURL(local bool) string {
+func (r Ref) ToURL(port int, local bool) string {
 	var host string
 	if local {
-		host = "http://localhost:8080"
+		host = fmt.Sprintf("http://localhost:%d/v0", port)
 	} else {
 		host = "https://api.sprioc.xyz"
 	}

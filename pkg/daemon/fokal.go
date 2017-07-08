@@ -9,6 +9,7 @@ import (
 	"github.com/devinmcgloin/fokal/pkg/conn"
 	"github.com/devinmcgloin/fokal/pkg/handler"
 	"github.com/devinmcgloin/fokal/pkg/logging"
+	"github.com/devinmcgloin/fokal/pkg/routes"
 	"github.com/gorilla/context"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -46,6 +47,7 @@ func Run(cfg *Config) {
 	AppState.DB = conn.DialPostgres(cfg.PostgresURL)
 	AppState.RD = conn.DialRedis(cfg.RedisURL, cfg.RedisPass)
 	AppState.Local = cfg.Local
+	AppState.Port = cfg.Port
 
 	var secureMiddleware = secure.New(secure.Options{
 		AllowedHosts:          []string{"api.sprioc.xyz"},
@@ -72,8 +74,11 @@ func Run(cfg *Config) {
 		context.ClearHandler, handlers.CompressHandler, logging.ContentTypeJSON)
 
 	//  ROUTES
-	registerImageRoutes(api, base)
-	//registerUserRoutes(api)
+	routes.RegisterCreateRoutes(&AppState, api, base)
+	routes.RegisterModificationRoutes(&AppState, api, base)
+	routes.RegisterRetrievalRoutes(&AppState, api, base)
+	routes.RegisterSocialRoutes(&AppState, api, base)
+
 	// registerCollectionRoutes(api)
 	// registerSearchRoutes(api)
 	// registerLuckyRoutes(api)

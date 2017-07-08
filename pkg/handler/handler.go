@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	elastic "gopkg.in/olivere/elastic.v5"
+
 	"bytes"
 	"encoding/json"
 
@@ -53,10 +55,11 @@ func (rsp Response) Format() []byte {
 
 // A (simple) example of our application-wide configuration.
 type State struct {
-	DB *sqlx.DB
-	//ES
+	DB     *sqlx.DB
+	ES     *elastic.Client
 	RD     *redis.Pool
 	Local  bool
+	Port   int
 	Vision *vision.Service
 	Maps   *maps.Client
 }

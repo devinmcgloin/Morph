@@ -16,10 +16,7 @@ type User struct {
 	URL      *string         `json:"url,omitempty"`
 	Location *postgis.PointS `json:"location,omitempty"`
 
-	Images     *[]Image  `json:"images,omitempty"`
-	ImageLinks *[]string `json:"images_links,omitempty"`
-
-	Favorites     *[]Image  `json:"favorited,omitempty"`
+	ImageLinks    *[]string `json:"images_links,omitempty"`
 	FavoriteLinks *[]string `json:"favorite_links,omitempty"`
 
 	Password string `db:"password" json:"-"`

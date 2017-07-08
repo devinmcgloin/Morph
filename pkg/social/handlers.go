@@ -78,7 +78,6 @@ func FollowHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 
 func UnFollowHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
 	vars := mux.Vars(r)
-
 	id := vars["ID"]
 
 	var usrRef model.Ref

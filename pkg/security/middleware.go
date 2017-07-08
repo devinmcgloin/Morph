@@ -26,12 +26,35 @@ func Authenticate(state *handler.State, next http.Handler) http.Handler {
 					http.StatusInternalServerError)
 			}
 		} else {
-
-			log.Println(user)
-
 			context.Set(r, "auth", user)
 			next.ServeHTTP(w, r)
+		}
 
+	})
+}
+
+func SetAuthenticatedUser(state *handler.State, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		user, err := CheckUser(state.DB, r)
+		if err != nil {
+			switch e := err.(type) {
+			case handler.Error:
+				// We can retrieve the status here and write out a specific
+				// HTTP status code.
+				if e.Status() != http.StatusUnauthorized {
+					log.Printf("HTTP %d - %s", e.Status(), e.Error())
+					http.Error(w, e.Error(), e.Status())
+				}
+			default:
+				// Any error types we don't specifically look out for default
+				// to serving a HTTP 500
+				http.Error(w, http.StatusText(http.StatusInternalServerError),
+					http.StatusInternalServerError)
+			}
+			next.ServeHTTP(w, r)
+		} else {
+			context.Set(r, "auth", user)
+			next.ServeHTTP(w, r)
 		}
 
 	})
