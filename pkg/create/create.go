@@ -9,6 +9,8 @@ import (
 
 	"errors"
 
+	"fmt"
+
 	"github.com/devinmcgloin/fokal/pkg/handler"
 	"github.com/devinmcgloin/fokal/pkg/model"
 	"github.com/devinmcgloin/fokal/pkg/request"
@@ -176,10 +178,13 @@ func commitImage(db *sqlx.DB, image model.Image) error {
 		err := tx.Get(&colorID, "SELECT id FROM content.colors "+
 			"WHERE red = $1 AND green = $2 AND blue = $3", color.SRGB.R, color.SRGB.G, color.SRGB.B)
 		if err != nil {
+			l, a, b := color.SRGB.CIELAB()
+			lab := fmt.Sprintf("(%f, %f, %f)", l, a, b)
+
 			err = tx.Get(&colorID, `
-			INSERT INTO content.colors (red, green, blue, hue, saturation, val, shade, color)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id;`, color.SRGB.R, color.SRGB.G, color.SRGB.B,
-				color.HSV.H, color.HSV.S, color.HSV.V, color.Shade, color.ColorName)
+			INSERT INTO content.colors (red, green, blue, hue, saturation, val, shade, color, cielab)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::cube) RETURNING id;`, color.SRGB.R, color.SRGB.G, color.SRGB.B,
+				color.HSV.H, color.HSV.S, color.HSV.V, color.Shade, color.ColorName, lab)
 			if err != nil {
 				log.Println(err)
 				return err

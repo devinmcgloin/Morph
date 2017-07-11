@@ -70,7 +70,9 @@ func Run(cfg *Config) {
 		AllowCredentials: true,
 	})
 
-	var base = alice.New(handler.Timeout, logging.IP, logging.UUID, secureMiddleware.Handler, crs.Handler,
+	var base = alice.New(
+		handler.Timeout,
+		logging.IP, logging.UUID, secureMiddleware.Handler, crs.Handler,
 		context.ClearHandler, handlers.CompressHandler, logging.ContentTypeJSON)
 
 	//  ROUTES
@@ -78,6 +80,7 @@ func Run(cfg *Config) {
 	routes.RegisterModificationRoutes(&AppState, api, base)
 	routes.RegisterRetrievalRoutes(&AppState, api, base)
 	routes.RegisterSocialRoutes(&AppState, api, base)
+	routes.RegisterSearchRoutes(&AppState, api, base)
 
 	// registerCollectionRoutes(api)
 	// registerSearchRoutes(api)

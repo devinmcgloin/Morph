@@ -82,10 +82,10 @@ type Color struct {
 	SRGB          clr.RGB `json:"sRGB"`
 	Hex           string
 	HSV           clr.HSV
-	Shade         clr.ColorSpace
-	ColorName     clr.ColorSpace
-	PixelFraction float64 `json:"pixel_fraction"`
-	Score         float64 `json:"score"`
+	Shade         clr.ColorSpace `db:"shade" json:"shade"`
+	ColorName     clr.ColorSpace `db:"color" json:"color_name"`
+	PixelFraction float64        `json:"pixel_fraction"`
+	Score         float64        `json:"score"`
 }
 
 type Label struct {

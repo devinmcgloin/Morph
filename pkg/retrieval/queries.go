@@ -7,7 +7,6 @@ import (
 	"github.com/devinmcgloin/fokal/pkg/model"
 	"github.com/devinmcgloin/fokal/pkg/stats"
 	"github.com/jmoiron/sqlx"
-	"github.com/lib/pq"
 )
 
 // GetUser returns the fields of a user row into a User struct, including image references.
@@ -63,19 +62,6 @@ func GetUsers(state *handler.State, userIds []int64) ([]model.User, error) {
 		users = append(users, usr)
 	}
 	return users, nil
-}
-
-func GetUserImages(state *handler.State, userId int64) ([]model.Image, error) {
-	images := []int64{}
-	err := state.DB.Select(&images, `
-	SELECT id FROM content.images
-	WHERE user_id = $1`, userId)
-	if err != nil {
-		log.Println(err)
-		return []model.Image{}, err
-	}
-
-	return GetImages(state, images)
 }
 
 // GetImages TODO retwrite to make a single call to the database
@@ -218,7 +204,7 @@ func imageStats(db *sqlx.DB, imageId int64) (model.ImageStats, error) {
 
 	err = db.Get(&stats.Views, `
 	SELECT count(*) FROM content.image_stats
-	WHERE image_id = $1 AND type = 'view'`, imageId)
+	WHERE image_id = $1 AND stat_type = 'view'`, imageId)
 	if err != nil {
 		log.Println(err)
 		return stats, err
@@ -226,7 +212,7 @@ func imageStats(db *sqlx.DB, imageId int64) (model.ImageStats, error) {
 
 	err = db.Get(&stats.Downloads, `
 	SELECT count(*) FROM content.image_stats
-	WHERE image_id = $1 AND type = 'download'`, imageId)
+	WHERE image_id = $1 AND stat_type = 'download'`, imageId)
 	if err != nil {
 		log.Println(err)
 		return stats, err
@@ -260,6 +246,7 @@ func imageColors(db *sqlx.DB, imageId int64) ([]model.Color, error) {
 		color.Hex = color.SRGB.Hex()
 		colors = append(colors, color)
 	}
+	log.Println(colors)
 	return colors, nil
 }
 
@@ -278,92 +265,19 @@ func imageMetadata(db *sqlx.DB, imageId int64) (model.ImageMetadata, error) {
 	return meta, nil
 }
 
-func GetImageID(db *sqlx.DB, shortcode string) (int64, error) {
-	var iID int64
-
-	err := db.Get(&iID, "SELECT id FROM content.images WHERE shortcode = $1",
-		shortcode)
+func GetUserImages(state *handler.State, userId int64) ([]model.Image, error) {
+	images := []int64{}
+	err := state.DB.Select(&images, `
+	SELECT images.id
+	FROM content.images AS images
+	INNER JOIN permissions.can_view AS view ON view.o_id = images.id
+    	WHERE (view.user_id = -1 OR view.user_id = $1) AND user_id = $1`, userId)
 	if err != nil {
 		log.Println(err)
-		return 0, err
-	}
-	return iID, nil
-}
-
-func GetRecentImages(state *handler.State, limit int) ([]model.Image, error) {
-	imageIds := []int64{}
-	err := state.DB.Select(&imageIds,
-		`
-	SELECT images.id
-	FROM content.images AS images
-	ORDER BY publish_time DESC LIMIT $1
-		`,
-		limit)
-	if err != nil {
-		if err, ok := err.(*pq.Error); ok {
-			log.Printf("%+v", err)
-		}
 		return []model.Image{}, err
 	}
-	return GetImages(state, imageIds)
-}
 
-func GetUserFollowed(state *handler.State, userID int64, local bool) ([]model.User, error) {
-	userIds := []int64{}
-	err := state.DB.Select(&userIds,
-		`
-	SELECT users.id
-	FROM content.user_follows AS follows
-		JOIN content.users AS users ON id = follows.followed_id
-	WHERE follows.user_id = $1
-		`,
-		userID)
-	if err != nil {
-		if err, ok := err.(*pq.Error); ok {
-			log.Printf("%+v", err)
-		}
-		return []model.User{}, err
-	}
-	return GetUsers(state, userIds)
-}
-
-func GetUserFavorites(state *handler.State, userID int64) ([]model.Image, error) {
-	imgs := []int64{}
-	err := state.DB.Select(&imgs,
-		`
-	SELECT images.id
-	FROM content.user_favorites AS favs
-		JOIN content.images AS images ON favs.image_id = images.id
-	WHERE favs.user_id = $1
-	ORDER BY publish_time DESC
-		`,
-		userID)
-	if err != nil {
-		if err, ok := err.(*pq.Error); ok {
-			log.Printf("%+v", err)
-		}
-		return []model.Image{}, err
-	}
-	return GetImages(state, imgs)
-}
-
-func GetFeaturedImages(state *handler.State, limit int) ([]model.Image, error) {
-	imgs := []int64{}
-	err := state.DB.Select(&imgs,
-		`
-	SELECT images.id
-	FROM content.images AS images
-	WHERE featured = TRUE
-	ORDER BY publish_time DESC LIMIT $1
-		`,
-		limit)
-	if err != nil {
-		if err, ok := err.(*pq.Error); ok {
-			log.Printf("%+v", err)
-		}
-		return []model.Image{}, err
-	}
-	return GetImages(state, imgs)
+	return GetImages(state, images)
 }
 
 func GetImageRef(db *sqlx.DB, i string) (model.Ref, error) {
