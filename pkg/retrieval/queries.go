@@ -33,19 +33,24 @@ func GetUser(state *handler.State, u int64) (model.User, error) {
 	user.ImageLinks = &imageLinks
 
 	favorites := []string{}
-	err = state.DB.Select(&favorites, `SELECT images.shortcode FROM content.images AS images
-		JOIN content.user_favorites AS favs ON favs.image_id = images.id WHERE favs.user_id = $1`, u)
+	err = state.DB.Select(&favorites, `
+	SELECT images.shortcode
+	FROM content.images AS images
+		JOIN content.user_favorites AS favs ON favs.image_id = images.id
+	WHERE favs.user_id = $1`, u)
 	if err != nil {
 		log.Println(err)
 		return model.User{}, err
 	}
 
-	favoriteLinks := make([]string, len(images))
-	for i, v := range images {
+	favoriteLinks := make([]string, len(favorites))
+	for i, v := range favorites {
 		favoriteLinks[i] = model.Ref{Collection: model.Images, Shortcode: v}.ToURL(state.Port, state.Local)
 	}
 
 	user.FavoriteLinks = &favoriteLinks
+
+	user.Username = model.Ref{Collection: model.Users, Shortcode: user.Username}.ToURL(state.Port, state.Local)
 
 	return user, nil
 }
@@ -88,6 +93,8 @@ func GetImage(state *handler.State, i int64) (model.Image, error) {
 		log.Println(err)
 		return model.Image{}, err
 	}
+
+	img.Shortcode = model.Ref{Collection: model.Images, Shortcode: img.Shortcode}.ToURL(state.Port, state.Local)
 
 	img.Metadata, err = imageMetadata(state.DB, i)
 	if err != nil {
@@ -246,7 +253,6 @@ func imageColors(db *sqlx.DB, imageId int64) ([]model.Color, error) {
 		color.Hex = color.SRGB.Hex()
 		colors = append(colors, color)
 	}
-	log.Println(colors)
 	return colors, nil
 }
 

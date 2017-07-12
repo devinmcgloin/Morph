@@ -20,14 +20,15 @@ func Color(state *handler.State, color clr.Color, pixelFraction float64, limit, 
 	l, a, b := color.CIELAB()
 	cube := fmt.Sprintf("(%f, %f, %f)", l, a, b)
 
+	log.Println(cube)
 	err := state.DB.Select(&ids, `
 			SELECT bridge.image_id
 			FROM content.colors AS colors
   				INNER JOIN content.image_color_bridge AS bridge ON colors.id = bridge.color_id
-  				INNER JOIN permissions.can_view AS view ON view.o_id = bridge.id
-  				WHERE (view.user_id = -1 OR view.user_id = $1) AND bridge.pixel_fraction > $4
-			ORDER BY $1::cube <-> cielab;
-			OFFSET $2 LIMIT $3`, cube, offset, limit, pixelFraction)
+  				INNER JOIN permissions.can_view AS view ON view.o_id = bridge.image_id
+  				WHERE view.user_id = -1 AND bridge.pixel_fraction >= $4
+			ORDER BY $1::cube <-> cielab
+			OFFSET $2 LIMIT $3;`, cube, offset, limit, pixelFraction)
 	if err != nil {
 		return []model.Image{}, err
 	}
@@ -149,7 +150,7 @@ func RecentImages(state *handler.State, userId int64, limit, offset int) ([]mode
 		SELECT images.id
 		FROM content.images AS images
 		INNER JOIN permissions.can_view AS view ON view.o_id = images.id
-		WHERE view.user_id = -1
+		WHERE view.user_id = -1 OR view.user_id = $1
 		ORDER BY publish_time DESC
 		OFFSET $2 LIMIT $3
 		`)

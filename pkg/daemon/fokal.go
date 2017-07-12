@@ -81,11 +81,7 @@ func Run(cfg *Config) {
 	routes.RegisterRetrievalRoutes(&AppState, api, base)
 	routes.RegisterSocialRoutes(&AppState, api, base)
 	routes.RegisterSearchRoutes(&AppState, api, base)
-
-	// registerCollectionRoutes(api)
-	// registerSearchRoutes(api)
-	// registerLuckyRoutes(api)
-	//registerAuthRoutes(api)
+	routes.RegisterRandomRoutes(&AppState, api, base)
 
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(cfg.Port),
 		handlers.LoggingHandler(os.Stdout, router)))

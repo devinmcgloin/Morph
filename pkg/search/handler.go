@@ -12,18 +12,21 @@ import (
 	"github.com/devinmcgloin/fokal/pkg/handler"
 	"github.com/devinmcgloin/fokal/pkg/model"
 	"github.com/gorilla/context"
+	"github.com/pkg/errors"
 )
 
 func parsePaginationParams(params url.Values) (limit int, offset int, err error) {
 	l, ok := params["limit"]
-
 	if ok {
 		if len(l) == 1 {
-			limit, _ = strconv.Atoi(l[0])
+			limit, err = strconv.Atoi(l[0])
+			if err != nil {
+				limit = 25
+			}
 		}
 	}
 
-	if limit == -1 {
+	if limit == 0 {
 		limit = 25
 	}
 
@@ -35,10 +38,6 @@ func parsePaginationParams(params url.Values) (limit int, offset int, err error)
 				offset = 0
 			}
 		}
-	}
-
-	if offset == -1 {
-		offset = 0
 	}
 
 	return
@@ -57,7 +56,7 @@ func ColorHandler(store *handler.State, w http.ResponseWriter, r *http.Request) 
 
 	hex, ok := params["hex"]
 	if !ok {
-		return rsp, handler.StatusError{Code: http.StatusBadRequest}
+		return rsp, handler.StatusError{Code: http.StatusBadRequest, Err: errors.New("Missing hex url parameter.")}
 	}
 
 	var pixelFraction float64
@@ -71,7 +70,7 @@ func ColorHandler(store *handler.State, w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	log.Printf("%d %d\n", limit, offset)
+	log.Printf("%d %d %s\n", limit, offset, hex[0])
 	images, err := Color(store, clr.Hex{Code: hex[0]}, pixelFraction, limit, offset)
 	if err != nil {
 		return rsp, err

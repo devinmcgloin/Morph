@@ -82,6 +82,7 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		default:
 			// Any error types we don't specifically look out for default
 			// to serving a HTTP 500
+			log.Printf("HTTP %d - %s", http.StatusInternalServerError, e.Error())
 			http.Error(w, http.StatusText(http.StatusInternalServerError),
 				http.StatusInternalServerError)
 		}
