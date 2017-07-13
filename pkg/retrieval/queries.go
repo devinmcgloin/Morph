@@ -94,8 +94,6 @@ func GetImage(state *handler.State, i int64) (model.Image, error) {
 		return model.Image{}, err
 	}
 
-	img.Shortcode = model.Ref{Collection: model.Images, Shortcode: img.Shortcode}.ToURL(state.Port, state.Local)
-
 	img.Metadata, err = imageMetadata(state.DB, i)
 	if err != nil {
 		return model.Image{}, err
@@ -131,6 +129,7 @@ func GetImage(state *handler.State, i int64) (model.Image, error) {
 	img.User = &usr
 	img.Source = imageSources(img.Shortcode, "content")
 
+	img.Shortcode = model.Ref{Collection: model.Images, Shortcode: img.Shortcode}.ToURL(state.Port, state.Local)
 	stats.AddStat(state.DB, i, "view")
 	return img, nil
 }
