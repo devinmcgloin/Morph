@@ -15,9 +15,7 @@ func RegisterCreateRoutes(state *handler.State, api *mux.Router, chain alice.Cha
 	post.Handle("/i", chain.Append(handler.Middleware{
 		State: state,
 		M:     security.Authenticate}.Handler).Then(handler.Handler{State: state, H: create.ImageHandler}))
-	post.Handle("/u", chain.Append(handler.Middleware{
-		State: state,
-		M:     security.Authenticate}.Handler).Then(handler.Handler{State: state, H: create.UserHandler}))
+	post.Handle("/u", chain.Then(handler.Handler{State: state, H: create.UserHandler}))
 
 	put := api.Methods("PUT").Subrouter()
 	put.Handle("/u/{ID}/avatar", chain.Append(handler.Middleware{

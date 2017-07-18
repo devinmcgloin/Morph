@@ -59,7 +59,7 @@ func Run(cfg *Config) {
 
 	// RSA Keys
 	AppState.PrivateKey, AppState.PublicKeys = ParseKeys()
-	AppState.SessionLifetime = time.Minute * 20
+	AppState.SessionLifetime = time.Hour * 16
 
 	var secureMiddleware = secure.New(secure.Options{
 		AllowedHosts:          []string{"api.sprioc.xyz"},

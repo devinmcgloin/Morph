@@ -46,7 +46,8 @@ func validateUser(db *sqlx.DB, userData *request.CreateUserRequest) error {
 
 	exists, err := retrieval.ExistsUser(db, userRef.Shortcode)
 	if err != nil {
-		return handler.StatusError{Code: http.StatusInternalServerError}
+		return handler.StatusError{Code: http.StatusInternalServerError,
+			Err: errors.New(http.StatusText(http.StatusInternalServerError))}
 	}
 	if exists {
 		return handler.StatusError{Err: errors.New("Username already exist"), Code: http.StatusConflict}
@@ -60,7 +61,7 @@ func validateUser(db *sqlx.DB, userData *request.CreateUserRequest) error {
 		return handler.StatusError{Err: errors.New("Email already exist"), Code: http.StatusConflict}
 	}
 
-	return handler.StatusError{Code: http.StatusOK}
+	return nil
 }
 
 func validPassword(password string) bool {

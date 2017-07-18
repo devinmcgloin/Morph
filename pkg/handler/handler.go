@@ -51,7 +51,11 @@ func (rsp Response) Format() []byte {
 	b = bytes.Replace(b, []byte("\\u003e"), []byte(">"), -1)
 	b = bytes.Replace(b, []byte("\\u0026"), []byte("&"), -1)
 
-	return b
+	if b != nil {
+		return b
+	} else {
+		return []byte("")
+	}
 }
 
 // A (simple) example of our application-wide configuration.

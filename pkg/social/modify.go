@@ -25,7 +25,7 @@ func UnFavorite(db *sqlx.DB, uID, iID int64) error {
 }
 
 func Follow(db *sqlx.DB, idA, idB int64) error {
-	stmt, err := db.Preparex("INSERT INTO content.user_follows (user_id, user_follows) VALUES ($1, $2)")
+	stmt, err := db.Preparex("INSERT INTO content.user_follows (user_id, followed_id) VALUES ($1, $2)")
 	if err != nil {
 		log.Println(err)
 		return err
@@ -34,7 +34,7 @@ func Follow(db *sqlx.DB, idA, idB int64) error {
 }
 
 func UnFollow(db *sqlx.DB, idA, idB int64) error {
-	stmt, err := db.Preparex("DELETE FROM content.user_follows WHERE user_id = $1 AND user_follows = $2)")
+	stmt, err := db.Preparex("DELETE FROM content.user_follows WHERE user_id = $1 AND followed_id = $2)")
 	if err != nil {
 		log.Println(err)
 		return err

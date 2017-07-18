@@ -13,4 +13,6 @@ func RegisterAuthRoutes(state *handler.State, api *mux.Router, chain alice.Chain
 
 	get := api.Methods("GET").Subrouter()
 	get.Handle("/auth/certs", chain.Then(handler.Handler{State: state, H: security.PublicKeyHandler}))
+	get.Handle("/auth/refresh", chain.Then(handler.Handler{State: state, H: security.RefreshHandler}))
+
 }
