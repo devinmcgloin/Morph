@@ -24,7 +24,7 @@ func (r Ref) ToURL(port int, local bool) string {
 	if local {
 		host = fmt.Sprintf("http://localhost:%d/v0", port)
 	} else {
-		host = "https://api.sprioc.xyz"
+		host = "https://api.sprioc.xyz/v0"
 	}
 	switch r.Collection {
 	case Users:
