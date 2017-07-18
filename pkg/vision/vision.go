@@ -26,13 +26,14 @@ type ImageResponse struct {
 	Landmark        []model.Landmark
 }
 
-func AnnotateImage(db *sqlx.DB, visionService *vision.Service, img image.Image) (ImageResponse, error) {
+func AnnotateImage(errChan chan error, annotations chan ImageResponse, db *sqlx.DB, visionService *vision.Service, img image.Image) {
 
 	m := resize.Resize(300, 0, img, resize.Bilinear)
 	buf := new(bytes.Buffer)
 	err := jpeg.Encode(buf, m, nil)
 	if err != nil {
-		return ImageResponse{}, err
+		errChan <- err
+		return
 	}
 	// Construct a text request, encoding the image in base64.
 
@@ -57,7 +58,8 @@ func AnnotateImage(db *sqlx.DB, visionService *vision.Service, img image.Image) 
 	res, err := visionService.Images.Annotate(batch).Do()
 	if err != nil {
 		log.Println(err)
-		return ImageResponse{}, err
+		errChan <- err
+		return
 	}
 
 	r := res.Responses[0]
@@ -118,6 +120,7 @@ func AnnotateImage(db *sqlx.DB, visionService *vision.Service, img image.Image) 
 			},
 		})
 	}
-
-	return rsp, nil
+	errChan <- nil
+	annotations <- rsp
+	return
 }

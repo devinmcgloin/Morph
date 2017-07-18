@@ -6,8 +6,6 @@ import (
 
 	"errors"
 
-	"log"
-
 	"io/ioutil"
 
 	"bytes"
@@ -100,24 +98,30 @@ func ImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) 
 			Code: http.StatusBadRequest}
 	}
 
-	err = upload.ProccessImage(uploadedImage, format, img.Shortcode, "content")
-	if err != nil {
-		return handler.Response{}, handler.StatusError{Err: err, Code: http.StatusBadRequest}
+	errChan := make(chan error, 3)
+	metadataChan := make(chan model.ImageMetadata, 1)
+	annotationsChan := make(chan vision.ImageResponse, 1)
+
+	go upload.ProccessImage(errChan, uploadedImage, format, img.Shortcode, "content")
+
+	go metadata.GetMetadata(errChan, metadataChan, bytes.NewBuffer(file))
+
+	go vision.AnnotateImage(errChan, annotationsChan, store.DB, store.Vision, uploadedImage)
+
+	for i := 0; i < 3; i++ {
+		select {
+		case err := <-errChan:
+			if err != nil {
+				return handler.Response{}, err
+			}
+		}
 	}
 
-	img.Metadata, err = metadata.GetMetadata(bytes.NewBuffer(file))
-	if err != nil {
-		return handler.Response{}, handler.StatusError{Err: err, Code: http.StatusBadRequest}
-	}
-
-	annotations, err := vision.AnnotateImage(store.DB, store.Vision, uploadedImage)
-	if err != nil {
-		log.Println(err)
-	} else {
-		img.Labels = annotations.Labels
-		img.Landmarks = annotations.Landmark
-		img.Colors = annotations.ColorProperties
-	}
+	img.Metadata = <-metadataChan
+	annotations := <-annotationsChan
+	img.Labels = annotations.Labels
+	img.Landmarks = annotations.Landmark
+	img.Colors = annotations.ColorProperties
 
 	err = commitImage(store.DB, img)
 	if err != nil {
@@ -156,9 +160,14 @@ func AvatarHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 			Code: http.StatusBadRequest}
 	}
 
-	err = upload.ProccessImage(uploadedImage, format, user.Shortcode, "avatar")
-	if err != nil {
-		return handler.Response{}, handler.StatusError{Err: err, Code: http.StatusBadRequest}
+	errChan := make(chan error, 1)
+
+	go upload.ProccessImage(errChan, uploadedImage, format, user.Shortcode, "avatar")
+	select {
+	case err := <-errChan:
+		if err != nil {
+			return handler.Response{}, err
+		}
 	}
 
 	return handler.Response{

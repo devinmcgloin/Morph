@@ -22,34 +22,36 @@ func GetExif(img io.Reader) (*exif.Exif, error) {
 	return exifDat, nil
 }
 
-func GetMetadata(img io.Reader) (metadata model.ImageMetadata, err error) {
+func GetMetadata(errChan chan error, metaChan chan model.ImageMetadata, img io.Reader) {
+	meta := model.ImageMetadata{}
 	x, err := GetExif(img)
 	if err != nil {
+		errChan <- err
 		return
 	}
 
 	lat, lon, err := x.LatLong()
 	if err != nil {
-		metadata.Location = nil
+		meta.Location = nil
 	} else {
 		point := &postgis.PointS{SRID: 4326,
 			X: lon,
 			Y: lat}
 
-		metadata.Location = point
+		meta.Location = point
 	}
 
 	dirTag, err := x.Get(exif.GPSImgDirection)
 	if err == nil {
 		dir, err := dirTag.Float(0)
 		if err == nil {
-			metadata.ImageDirection = &dir
+			meta.ImageDirection = &dir
 		}
 	}
 
 	captureTime, err := x.DateTime()
 	if err == nil {
-		metadata.CaptureTime = &captureTime
+		meta.CaptureTime = &captureTime
 	}
 
 	//	Classic stats
@@ -59,7 +61,7 @@ func GetMetadata(img io.Reader) (metadata model.ImageMetadata, err error) {
 
 		if err == nil {
 			et := strconv.FormatInt(num, 10) + "/" + strconv.FormatInt(den, 10)
-			metadata.ExposureTime = &et
+			meta.ExposureTime = &et
 		} else {
 			log.Println(err)
 		}
@@ -70,7 +72,7 @@ func GetMetadata(img io.Reader) (metadata model.ImageMetadata, err error) {
 		num, den, err := Aperture.Rat2(0)
 		if err == nil {
 			a := strconv.FormatFloat(float64(num)/float64(den), 'f', 1, 64)
-			metadata.Aperture = &a
+			meta.Aperture = &a
 		}
 	}
 
@@ -79,7 +81,7 @@ func GetMetadata(img io.Reader) (metadata model.ImageMetadata, err error) {
 		num, den, err := FocalLength.Rat2(0)
 		if err == nil {
 			fl := strconv.FormatInt(num/den, 10)
-			metadata.FocalLength = &fl
+			meta.FocalLength = &fl
 		}
 	}
 
@@ -87,7 +89,7 @@ func GetMetadata(img io.Reader) (metadata model.ImageMetadata, err error) {
 	if err == nil {
 		short, err := ISO.Int(0)
 		if err == nil {
-			metadata.ISO = &short
+			meta.ISO = &short
 		}
 	}
 
@@ -97,7 +99,7 @@ func GetMetadata(img io.Reader) (metadata model.ImageMetadata, err error) {
 		str, err := Make.StringVal()
 		str = strings.TrimSpace(str)
 		if err == nil {
-			metadata.Make = &str
+			meta.Make = &str
 		}
 	}
 
@@ -106,7 +108,7 @@ func GetMetadata(img io.Reader) (metadata model.ImageMetadata, err error) {
 		str, err := Model.StringVal()
 		str = strings.TrimSpace(str)
 		if err == nil {
-			metadata.Model = &str
+			meta.Model = &str
 		}
 	}
 
@@ -115,7 +117,7 @@ func GetMetadata(img io.Reader) (metadata model.ImageMetadata, err error) {
 		str, err := LensMake.StringVal()
 		str = strings.TrimSpace(str)
 		if err == nil {
-			metadata.LensMake = &str
+			meta.LensMake = &str
 		}
 	}
 
@@ -124,7 +126,7 @@ func GetMetadata(img io.Reader) (metadata model.ImageMetadata, err error) {
 		str, err := LensModel.StringVal()
 		str = strings.TrimSpace(str)
 		if err == nil {
-			metadata.LensModel = &str
+			meta.LensModel = &str
 		}
 	}
 
@@ -134,7 +136,7 @@ func GetMetadata(img io.Reader) (metadata model.ImageMetadata, err error) {
 	if err == nil {
 		n, err := PixelXDimension.Int64(0)
 		if err == nil {
-			metadata.PixelXDimension = &n
+			meta.PixelXDimension = &n
 		}
 	}
 
@@ -142,9 +144,11 @@ func GetMetadata(img io.Reader) (metadata model.ImageMetadata, err error) {
 	if err == nil {
 		n, err := PixelYDimension.Int64(0)
 		if err == nil {
-			metadata.PixelYDimension = &n
+			meta.PixelYDimension = &n
 		}
 	}
 
-	return metadata, nil
+	metaChan <- meta
+	errChan <- nil
+	return
 }

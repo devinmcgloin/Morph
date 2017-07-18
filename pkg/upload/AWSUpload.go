@@ -12,7 +12,7 @@ import (
 var mediaTypeOptions = []string{"jp2", "jpeg", "png", "tiff", "bmp"}
 
 // ProccessImage manages uploading the original file to aws.
-func ProccessImage(img image.Image, format string, shortcode string, kind string) error {
+func ProccessImage(errChan chan error, img image.Image, format string, shortcode string, kind string) {
 
 	var err error
 
@@ -20,20 +20,24 @@ func ProccessImage(img image.Image, format string, shortcode string, kind string
 	in := in(format, mediaTypeOptions)
 	if !in {
 		log.Println(format)
-		return errors.New("Unsupported Media Type")
+		errChan <- errors.New("Unsupported Media Type")
+		return
 	}
 
 	path := strings.Join([]string{kind, shortcode}, "/")
 	buf := new(bytes.Buffer)
 	err = jpeg.Encode(buf, img, nil)
 	if err != nil {
-		return err
+		errChan <- err
+		return
 	}
 	err = UploadImageAWS(buf, format, path, "images.sprioc.xyz", "us-east-1")
 	if err != nil {
-		return errors.New("Error while uploading image")
+		errChan <- errors.New("Error while uploading image")
+		return
 	}
-	return nil
+	errChan <- nil
+	return
 }
 
 func in(contentType string, opts []string) bool {
