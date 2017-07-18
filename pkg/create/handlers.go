@@ -1,14 +1,16 @@
 package create
 
 import (
+	"image"
 	"net/http"
-
-	"io/ioutil"
 
 	"errors"
 
-	"bytes"
 	"log"
+
+	"io/ioutil"
+
+	"bytes"
 
 	"github.com/devinmcgloin/fokal/pkg/handler"
 	"github.com/devinmcgloin/fokal/pkg/metadata"
@@ -73,6 +75,13 @@ func ImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) 
 			Code: http.StatusBadRequest}
 	}
 
+	uploadedImage, format, err := image.Decode(bytes.NewBuffer(file))
+	if err != nil {
+		return handler.Response{}, handler.StatusError{
+			Err:  errors.New("Unable to read image body."),
+			Code: http.StatusBadRequest}
+	}
+
 	sc, err := retrieval.GenerateSC(store.DB, model.Images)
 	if err != nil {
 		return handler.Response{}, handler.StatusError{
@@ -85,27 +94,23 @@ func ImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) 
 		UserId:    user.Id,
 	}
 
-	n := len(file)
-
-	if n == 0 {
+	if uploadedImage.Bounds().Dx() == 0 {
 		return handler.Response{}, handler.StatusError{
 			Err:  errors.New("Cannot upload file with 0 bytes."),
 			Code: http.StatusBadRequest}
 	}
 
-	err = upload.ProccessImage(file, n, img.Shortcode, "content")
+	err = upload.ProccessImage(uploadedImage, format, img.Shortcode, "content")
 	if err != nil {
 		return handler.Response{}, handler.StatusError{Err: err, Code: http.StatusBadRequest}
 	}
 
-	buf := bytes.NewBuffer(file)
-
-	img.Metadata, err = metadata.GetMetadata(buf)
+	img.Metadata, err = metadata.GetMetadata(bytes.NewBuffer(file))
 	if err != nil {
 		return handler.Response{}, handler.StatusError{Err: err, Code: http.StatusBadRequest}
 	}
 
-	annotations, err := vision.AnnotateImage(store.DB, store.Vision, file)
+	annotations, err := vision.AnnotateImage(store.DB, store.Vision, uploadedImage)
 	if err != nil {
 		log.Println(err)
 	} else {
@@ -138,21 +143,20 @@ func AvatarHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 		return handler.Response{}, handler.StatusError{Code: http.StatusUnauthorized}
 	}
 
-	file, err := ioutil.ReadAll(r.Body)
+	uploadedImage, format, err := image.Decode(r.Body)
 	if err != nil {
-		return handler.Response{}, handler.StatusError{Err: errors.New("Unable to read image body."),
+		return handler.Response{}, handler.StatusError{
+			Err:  errors.New("Unable to read image body."),
 			Code: http.StatusBadRequest}
 	}
 
-	n := len(file)
-
-	if n == 0 {
+	if uploadedImage.Bounds().Dx() == 0 {
 		return handler.Response{}, handler.StatusError{
 			Err:  errors.New("Cannot upload file with 0 bytes."),
 			Code: http.StatusBadRequest}
 	}
 
-	err = upload.ProccessImage(file, n, user.Shortcode, "avatar")
+	err = upload.ProccessImage(uploadedImage, format, user.Shortcode, "avatar")
 	if err != nil {
 		return handler.Response{}, handler.StatusError{Err: err, Code: http.StatusBadRequest}
 	}

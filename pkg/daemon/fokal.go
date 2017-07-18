@@ -6,10 +6,18 @@ import (
 	"os"
 	"strconv"
 
+	"crypto/rsa"
+	"encoding/json"
+	"io/ioutil"
+
+	"time"
+
 	"github.com/devinmcgloin/fokal/pkg/conn"
 	"github.com/devinmcgloin/fokal/pkg/handler"
 	"github.com/devinmcgloin/fokal/pkg/logging"
 	"github.com/devinmcgloin/fokal/pkg/routes"
+	"github.com/devinmcgloin/fokal/pkg/security"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/context"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -49,6 +57,10 @@ func Run(cfg *Config) {
 	AppState.Local = cfg.Local
 	AppState.Port = cfg.Port
 
+	// RSA Keys
+	AppState.PrivateKey, AppState.PublicKeys = ParseKeys()
+	AppState.SessionLifetime = time.Minute * 20
+
 	var secureMiddleware = secure.New(secure.Options{
 		AllowedHosts:          []string{"api.sprioc.xyz"},
 		HostsProxyHeaders:     []string{"X-Forwarded-Host"},
@@ -82,7 +94,50 @@ func Run(cfg *Config) {
 	routes.RegisterSocialRoutes(&AppState, api, base)
 	routes.RegisterSearchRoutes(&AppState, api, base)
 	routes.RegisterRandomRoutes(&AppState, api, base)
+	routes.RegisterAuthRoutes(&AppState, api, base)
 
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(cfg.Port),
 		handlers.LoggingHandler(os.Stdout, router)))
+}
+
+func ParseKeys() (*rsa.PrivateKey, map[string]*rsa.PublicKey) {
+	resp, err := http.Get("https://www.googleapis.com/oauth2/v1/certs")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	keys := make(map[string]string)
+	err = json.Unmarshal(body, &keys)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	parsedKeys := make(map[string]*rsa.PublicKey)
+
+	for kid, pem := range keys {
+		publicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(pem))
+		if err != nil {
+			log.Fatal(err)
+		}
+		parsedKeys[kid] = publicKey
+	}
+	publicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(security.PublicKey))
+	if err != nil {
+		log.Fatal(err)
+	}
+	parsedKeys["554b5db484856bfa16e7da70a427dc4d9989678a"] = publicKey
+
+	privateStr := os.Getenv("PRIVATE_KEY")
+	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(privateStr))
+	if err != nil {
+		log.Fatal(err)
+	}
+	return privateKey, parsedKeys
+
 }

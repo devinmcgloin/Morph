@@ -3,37 +3,33 @@ package upload
 import (
 	"bytes"
 	"errors"
+	"image"
+	"image/jpeg"
 	"log"
-	"math"
-	"net/http"
 	"strings"
 )
 
-var mediaTypeOptions = []string{"image/jp2", "image/jpeg", "image/png", "image/tiff", "image/bmp"}
+var mediaTypeOptions = []string{"jp2", "jpeg", "png", "tiff", "bmp"}
 
 // ProccessImage manages uploading the original file to aws.
-func ProccessImage(infile []byte, size int, shortcode string, kind string) error {
+func ProccessImage(img image.Image, format string, shortcode string, kind string) error {
 
 	var err error
 
-	buf := bytes.NewBuffer(infile)
-
 	// TODO this does not match properly to the mediaTypeOptions
-	contentType := http.DetectContentType(infile)
-	in := in(contentType, mediaTypeOptions)
+	in := in(format, mediaTypeOptions)
 	if !in {
-		log.Println(contentType)
+		log.Println(format)
 		return errors.New("Unsupported Media Type")
 	}
 
-	// Check if image is smaller than 18 MB.
-	if len(infile) > int(math.Exp2(20)*18) {
-		return errors.New("Payload Too Large")
-	}
-
 	path := strings.Join([]string{kind, shortcode}, "/")
-
-	err = UploadImageAWS(buf.Bytes(), int64(size), path, "images.sprioc.xyz", "us-east-1")
+	buf := new(bytes.Buffer)
+	err = jpeg.Encode(buf, img, nil)
+	if err != nil {
+		return err
+	}
+	err = UploadImageAWS(buf, format, path, "images.sprioc.xyz", "us-east-1")
 	if err != nil {
 		return errors.New("Error while uploading image")
 	}

@@ -2,18 +2,19 @@ package metadata
 
 import (
 	"errors"
-	"io"
 	"log"
 	"strconv"
 	"strings"
+
+	"io"
 
 	"github.com/cridenour/go-postgis"
 	"github.com/devinmcgloin/fokal/pkg/model"
 	"github.com/rwcarlsen/goexif/exif"
 )
 
-func GetExif(image io.Reader) (*exif.Exif, error) {
-	exifDat, err := exif.Decode(image)
+func GetExif(img io.Reader) (*exif.Exif, error) {
+	exifDat, err := exif.Decode(img)
 	if err != nil {
 		return &exif.Exif{}, errors.New("Unable to parse exif")
 	}
@@ -21,8 +22,8 @@ func GetExif(image io.Reader) (*exif.Exif, error) {
 	return exifDat, nil
 }
 
-func GetMetadata(file io.Reader) (metadata model.ImageMetadata, err error) {
-	x, err := GetExif(file)
+func GetMetadata(img io.Reader) (metadata model.ImageMetadata, err error) {
+	x, err := GetExif(img)
 	if err != nil {
 		return
 	}

@@ -11,7 +11,7 @@ import (
 
 func Authenticate(state *handler.State, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		user, err := CheckUser(state.DB, r)
+		user, err := verifyJWT(state, r)
 		if err != nil {
 			switch e := err.(type) {
 			case handler.Error:
@@ -35,7 +35,7 @@ func Authenticate(state *handler.State, next http.Handler) http.Handler {
 
 func SetAuthenticatedUser(state *handler.State, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		user, err := CheckUser(state.DB, r)
+		user, err := verifyJWT(state, r)
 		if err != nil {
 			switch e := err.(type) {
 			case handler.Error:

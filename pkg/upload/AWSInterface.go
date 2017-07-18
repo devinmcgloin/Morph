@@ -3,17 +3,17 @@ package upload
 import (
 	"bytes"
 	"log"
-	"net/http"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-func UploadImageAWS(file []byte, size int64, filename string, bucketURI string, region string) error {
+func UploadImageAWS(img *bytes.Buffer, format string, filename string, bucketURI string, region string) error {
 
 	svc := s3.New(session.New(&aws.Config{Region: aws.String(region)}))
-	params, err := formatParams(file, size, bucketURI, filename)
+
+	params, err := formatParams(img, int64(img.Len()), format, bucketURI, filename)
 
 	if err != nil {
 		log.Printf("Error while creating AWS params %s", err)
@@ -29,21 +29,19 @@ func UploadImageAWS(file []byte, size int64, filename string, bucketURI string, 
 	return nil
 }
 
-func formatParams(buffer []byte, size int64, bucketName string, path string) (*s3.PutObjectInput, error) {
+func formatParams(buffer *bytes.Buffer, size int64, filetype string, bucketName string, path string) (*s3.PutObjectInput, error) {
 
-	fileBytes := bytes.NewReader(buffer)
+	fileBytes := bytes.NewReader(buffer.Bytes())
 
-	fileType := http.DetectContentType(buffer)
-
-	log.Printf("Uploading %s to %s with size %d and type %s", path, bucketName, size, fileType)
+	log.Printf("Uploading %s to %s with size %d and type %s", path, bucketName, size, filetype)
 
 	params := &s3.PutObjectInput{
 		Bucket:        aws.String(bucketName),
 		Key:           aws.String(path),
 		Body:          fileBytes,
 		ContentLength: aws.Int64(size),
-		ContentType:   aws.String(fileType),
+		ContentType:   aws.String("image/" + filetype),
 	}
-	return params, nil
 
+	return params, nil
 }

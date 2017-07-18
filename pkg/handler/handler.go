@@ -7,6 +7,9 @@ import (
 	"bytes"
 	"encoding/json"
 
+	"crypto/rsa"
+	"time"
+
 	"github.com/garyburd/redigo/redis"
 	"github.com/jmoiron/sqlx"
 	vision "google.golang.org/api/vision/v1"
@@ -60,6 +63,11 @@ type State struct {
 	Port   int
 	Vision *vision.Service
 	Maps   *maps.Client
+
+	SessionLifetime time.Duration
+	RefreshAt       time.Duration
+	PrivateKey      *rsa.PrivateKey
+	PublicKeys      map[string]*rsa.PublicKey
 }
 
 // Handler struct that takes a configured Env and a function matching

@@ -10,6 +10,12 @@ import (
 	"github.com/devinmcgloin/fokal/pkg/model"
 	"github.com/jmoiron/sqlx"
 
+	"image"
+
+	"bytes"
+	"image/jpeg"
+
+	"github.com/nfnt/resize"
 	"google.golang.org/api/vision/v1"
 )
 
@@ -20,20 +26,20 @@ type ImageResponse struct {
 	Landmark        []model.Landmark
 }
 
-func AnnotateImage(db *sqlx.DB, visionService *vision.Service, b []byte) (ImageResponse, error) {
-	//var b []byte
-	//_, err := file.Read(b)
-	//if err != nil {
-	//	log.Println(err)
-	//	return ImageResponse{}, err
-	//}
+func AnnotateImage(db *sqlx.DB, visionService *vision.Service, img image.Image) (ImageResponse, error) {
 
+	m := resize.Resize(300, 0, img, resize.Bilinear)
+	buf := new(bytes.Buffer)
+	err := jpeg.Encode(buf, m, nil)
+	if err != nil {
+		return ImageResponse{}, err
+	}
 	// Construct a text request, encoding the image in base64.
 
 	req := &vision.AnnotateImageRequest{
 		// Apply image which is encoded by base64
 		Image: &vision.Image{
-			Content: base64.StdEncoding.EncodeToString(b),
+			Content: base64.StdEncoding.EncodeToString(buf.Bytes()),
 		},
 		// Apply features to indicate what type of image detection
 		Features: []*vision.Feature{
