@@ -7,6 +7,8 @@ import (
 
 	"net/url"
 
+	"strings"
+
 	"github.com/cridenour/go-postgis"
 	"github.com/devinmcgloin/clr/clr"
 	"github.com/devinmcgloin/fokal/pkg/handler"
@@ -42,6 +44,35 @@ func parsePaginationParams(params url.Values) (limit int, offset int, err error)
 
 	return
 
+}
+
+func TextHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
+	var rsp handler.Response
+
+	params := r.URL.Query()
+
+	limit, offset, err := parsePaginationParams(params)
+	if err != nil {
+		return rsp, err
+	}
+
+	q, ok := params["q"]
+	if !ok {
+		return rsp, handler.StatusError{Code: http.StatusBadRequest, Err: errors.New("Missing hex url parameter.")}
+	}
+
+	query := strings.Join(q, " | ")
+
+	log.Printf("%d %d %+v %d %s\n", limit, offset, q, len(q), query)
+	images, err := Text(store, query, limit, offset)
+	if err != nil {
+		return rsp, err
+	}
+
+	return handler.Response{
+		Code: http.StatusOK,
+		Data: images,
+	}, nil
 }
 
 func ColorHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {

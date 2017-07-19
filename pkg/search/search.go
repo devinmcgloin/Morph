@@ -48,7 +48,36 @@ func Text(state *handler.State, query string, limit, offset int) ([]model.Image,
 	//}{}
 
 	err := state.DB.Select(&ids, `
-			select text_search($1, $2, $3)`, query, offset, limit)
+SELECT
+    scores.image_id,
+    sum(scores.rank) AS rank
+ FROM (SELECT
+          bridge.image_id,
+          ts_rank_cd(to_tsvector(landmark.description), to_tsquery($1)) AS rank
+        FROM content.landmarks AS landmark
+          JOIN content.image_landmark_bridge AS bridge ON landmark.id = bridge.landmark_id
+        WHERE to_tsvector(landmark.description) @@ to_tsquery($1)
+        UNION ALL
+        SELECT
+          bridge.image_id,
+          ts_rank_cd(to_tsvector(labels.description), to_tsquery($1)) AS rank
+        FROM content.labels AS labels
+          JOIN content.image_label_bridge AS bridge ON labels.id = bridge.label_id
+        WHERE to_tsvector(labels.description) @@ to_tsquery($1)
+        UNION ALL
+        SELECT
+          bridge.image_id,
+          ts_rank_cd(to_tsvector(tags.description), to_tsquery($1)) AS rank
+        FROM content.image_tags AS tags
+          JOIN content.image_tag_bridge AS bridge ON tags.id = bridge.tag_id
+        WHERE to_tsvector(tags.description) @@ to_tsquery($1)) AS scores
+  GROUP BY scores.image_id
+  ORDER BY rank DESC
+  OFFSET $2
+  LIMIT $3;
+
+
+	`, query, offset, limit)
 	if err != nil {
 		return []model.Image{}, err
 	}
