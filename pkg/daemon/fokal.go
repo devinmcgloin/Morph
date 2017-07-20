@@ -56,6 +56,7 @@ func Run(cfg *Config) {
 	AppState.RD = conn.DialRedis(cfg.RedisURL, cfg.RedisPass)
 	AppState.Local = cfg.Local
 	AppState.Port = cfg.Port
+	AppState.DB.SetMaxOpenConns(20)
 
 	// RSA Keys
 	AppState.PrivateKey, AppState.PublicKeys = ParseKeys()

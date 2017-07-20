@@ -74,7 +74,6 @@ func AnnotateImage(errChan chan error, annotations chan ImageResponse, db *sqlx.
 			G: uint8(col.Color.Green),
 			B: uint8(col.Color.Blue)}
 
-		log.Printf("col.Color = %+v sRGB = %+v\n", col.Color, sRGB)
 		h, s, v := sRGB.HSV()
 		rsp.ColorProperties = append(rsp.ColorProperties, model.Color{
 			SRGB:          sRGB,
