@@ -85,3 +85,18 @@ func ImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) 
 		Data: img,
 	}, nil
 }
+
+func TagHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
+	var rsp handler.Response
+
+	id := mux.Vars(r)["ID"]
+	images, err := TaggedImages(store, id)
+	if err != nil {
+		return rsp, err
+	}
+
+	return handler.Response{
+		Code: http.StatusOK,
+		Data: images,
+	}, nil
+}

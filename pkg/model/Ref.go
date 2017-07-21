@@ -5,17 +5,20 @@ import (
 	"log"
 )
 
+type ReferenceType uint32
+
 const (
-	Images uint32 = iota
+	Images ReferenceType = iota
 	Users
 	Tags
 	Labels
 	Landmarks
+	Collections
 )
 
 type Ref struct {
 	Id         int64
-	Collection uint32
+	Collection ReferenceType
 	Shortcode  string
 }
 
@@ -31,6 +34,8 @@ func (r Ref) ToURL(port int, local bool) string {
 		return fmt.Sprintf("%s/u/%s", host, r.Shortcode)
 	case Images:
 		return fmt.Sprintf("%s/i/%s", host, r.Shortcode)
+	case Tags:
+		return fmt.Sprintf("%s/t/%s", host, r.Shortcode)
 	default:
 		log.Panic("Invalid Collection Type")
 	}

@@ -7,6 +7,7 @@ import (
 	"github.com/devinmcgloin/fokal/pkg/model"
 	"github.com/devinmcgloin/fokal/pkg/stats"
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 )
 
 // GetUser returns the fields of a user row into a User struct, including image references.
@@ -303,4 +304,24 @@ func GetUserRef(db *sqlx.DB, u string) (model.Ref, error) {
 		return model.Ref{}, err
 	}
 	return ref, nil
+}
+
+func TaggedImages(state *handler.State, tagText string) ([]model.Image, error) {
+	ids := []int64{}
+
+	err := state.DB.Select(&ids, `
+		SELECT images.id
+		FROM content.image_tag_bridge AS bridge
+		  JOIN content.image_tags AS tags ON bridge.tag_id = tags.id
+		  JOIN content.images AS images ON bridge.image_id = images.id
+		WHERE UPPER(tags.description) = UPPER($1)
+		ORDER BY ranking(1, views + favorites, featured :: INT + 3) DESC;
+	`, tagText)
+	if err != nil {
+		if err, ok := err.(*pq.Error); ok {
+			log.Printf("%+v", err)
+		}
+		return []model.Image{}, err
+	}
+	return GetImages(state, ids)
 }

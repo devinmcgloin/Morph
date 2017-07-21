@@ -57,6 +57,7 @@ func Run(cfg *Config) {
 	AppState.Local = cfg.Local
 	AppState.Port = cfg.Port
 	AppState.DB.SetMaxOpenConns(20)
+	AppState.DB.SetMaxIdleConns(50)
 
 	// RSA Keys
 	AppState.PrivateKey, AppState.PublicKeys = ParseKeys()

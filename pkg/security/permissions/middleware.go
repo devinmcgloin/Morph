@@ -15,15 +15,15 @@ import (
 type Middleware struct {
 	*handler.State
 	T          Permission
-	TargetType uint32
-	M          func(state *handler.State, p Permission, TargetType uint32, next http.Handler) http.Handler
+	TargetType model.ReferenceType
+	M          func(state *handler.State, p Permission, TargetType model.ReferenceType, next http.Handler) http.Handler
 }
 
 func (m Middleware) Handler(next http.Handler) http.Handler {
 	return m.M(m.State, m.T, m.TargetType, next)
 }
 
-func PermissionMiddle(state *handler.State, p Permission, TargetType uint32, next http.Handler) http.Handler {
+func PermissionMiddle(state *handler.State, p Permission, TargetType model.ReferenceType, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var usr interface{}
 		usr = model.Ref{}

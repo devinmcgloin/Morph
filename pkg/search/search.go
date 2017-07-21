@@ -75,8 +75,6 @@ SELECT
   ORDER BY rank DESC
   OFFSET $2
   LIMIT $3;
-
-
 	`, query, offset, limit)
 	if err != nil {
 		return []model.Image{}, err

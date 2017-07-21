@@ -33,6 +33,8 @@ func RegisterRetrievalRoutes(state *handler.State, api *mux.Router, chain alice.
 
 	get.Handle("/u/{ID}", chain.Then(handler.Handler{State: state, H: retrieval.UserHandler}))
 
+	get.Handle("/t/{ID}", chain.Then(handler.Handler{State: state, H: retrieval.TagHandler}))
+
 	//TODO user images leaks hidden images.
 	get.Handle("/u/{ID}/images", chain.Then(handler.Handler{State: state, H: retrieval.UserImagesHandler}))
 
