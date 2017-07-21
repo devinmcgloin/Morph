@@ -45,17 +45,17 @@ type Response struct {
 }
 
 func (rsp Response) Format() []byte {
+	if rsp.Data == nil {
+		return []byte("")
+	}
 	b, _ := json.MarshalIndent(rsp.Data, "", "    ")
 
 	b = bytes.Replace(b, []byte("\\u003c"), []byte("<"), -1)
 	b = bytes.Replace(b, []byte("\\u003e"), []byte(">"), -1)
 	b = bytes.Replace(b, []byte("\\u0026"), []byte("&"), -1)
 
-	if b != nil {
-		return b
-	} else {
-		return []byte("")
-	}
+	return b
+
 }
 
 // A (simple) example of our application-wide configuration.

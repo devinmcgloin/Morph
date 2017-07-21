@@ -29,6 +29,7 @@ func UserHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (
 
 func UserImagesHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
 	var rsp handler.Response
+	var err error
 	username := mux.Vars(r)["ID"]
 
 	ref, err := GetUserRef(store.DB, username)
@@ -36,7 +37,15 @@ func UserImagesHandler(store *handler.State, w http.ResponseWriter, r *http.Requ
 		return rsp, err
 	}
 
-	images, err := GetUserImages(store, ref.Id)
+	var images []model.Image
+	val, ok := context.GetOk(r, "auth")
+	if !ok {
+		images, err = GetUserImages(store, ref.Id, -1)
+	} else {
+		usrRef := val.(model.Ref)
+		images, err = GetUserImages(store, ref.Id, usrRef.Id)
+	}
+
 	return handler.Response{
 		Code: http.StatusOK,
 		Data: images,

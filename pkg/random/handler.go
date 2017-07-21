@@ -13,14 +13,14 @@ func ImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) 
 	if ok {
 		ref, err := retrieval.GetUserRef(store.DB, username[0])
 		if err != nil {
-			return handler.Response{}, handler.StatusError{Code: http.StatusInternalServerError}
+			return handler.Response{}, err
 		}
 		userID = &ref.Id
 	}
 
 	image, err := Image(store, userID)
 	if err != nil {
-		return handler.Response{}, handler.StatusError{Code: http.StatusInternalServerError}
+		return handler.Response{}, nil
 	}
 
 	return handler.Response{Code: http.StatusOK, Data: image}, nil
