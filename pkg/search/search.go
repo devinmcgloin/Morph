@@ -138,8 +138,7 @@ func FeaturedImages(state *handler.State, userId int64, limit, offset int) ([]mo
 		INNER JOIN permissions.can_view AS view ON view.o_id = images.id
 		WHERE (view.user_id = -1 OR view.user_id = $1) AND images.featured = TRUE
 		ORDER BY publish_time DESC
-		OFFSET $2 ROWS
-		FETCH NEXT $3 ROWS ONLY
+		OFFSET $2 LIMIT $3 
 		`)
 	} else {
 		stmt, err = state.DB.Preparex(`

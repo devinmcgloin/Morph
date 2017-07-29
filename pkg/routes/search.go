@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"github.com/devinmcgloin/fokal/pkg/cache"
 	"github.com/devinmcgloin/fokal/pkg/handler"
 	"github.com/devinmcgloin/fokal/pkg/search"
 	"github.com/devinmcgloin/fokal/pkg/security"
@@ -10,6 +11,7 @@ import (
 
 func RegisterSearchRoutes(state *handler.State, api *mux.Router, chain alice.Chain) {
 	get := api.Methods("GET").Subrouter()
+	chain = chain.Append(alice.Constructor(handler.Middleware{State: state, M: cache.Handler}.Handler))
 
 	get.Handle("/i/featured",
 		chain.Append(

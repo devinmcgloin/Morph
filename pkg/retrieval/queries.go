@@ -279,13 +279,13 @@ func GetUserImages(state *handler.State, userId, viewingUser int64) ([]model.Ima
 			SELECT images.id
 			FROM content.images AS images
 			INNER JOIN permissions.can_view AS view ON view.o_id = images.id
-				WHERE (view.user_id = -1 OR view.user_id = $2) AND user_id = $1`, userId, viewingUser)
+				WHERE (view.user_id = -1 OR view.user_id = $2) AND images.user_id = $1`, userId, viewingUser)
 	} else {
 		err = state.DB.Select(&images, `
 			SELECT images.id
 			FROM content.images AS images
 			INNER JOIN permissions.can_view AS view ON view.o_id = images.id
-				WHERE view.user_id = -1 AND user_id = $1`, userId)
+				WHERE view.user_id = -1 AND images.user_id = $1`, userId)
 	}
 	if err != nil {
 		log.Println(err)
