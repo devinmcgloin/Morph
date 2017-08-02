@@ -93,11 +93,11 @@ func ColorHandler(store *handler.State, w http.ResponseWriter, r *http.Request) 
 	var pixelFraction float64
 	pixel, ok := params["pixelfraction"]
 	if !ok {
-		pixelFraction = .25
+		pixelFraction = .005
 	} else {
 		pixelFraction, err = strconv.ParseFloat(pixel[0], 64)
 		if err != nil {
-			pixelFraction = .25
+			pixelFraction = .005
 		}
 	}
 

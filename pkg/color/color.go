@@ -103,7 +103,7 @@ func AddColors(db *sqlx.DB, colors map[string]string, t string) error {
 }
 
 func GetColors(db *sqlx.DB, t string) (map[string]string, error) {
-	var clrs map[string]string
+	var clrs = make(map[string]string)
 	var hex []struct {
 		Name string
 		Hex  string

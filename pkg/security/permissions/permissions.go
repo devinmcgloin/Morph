@@ -3,12 +3,6 @@ package permissions
 import (
 	"log"
 
-	"net/http"
-
-	"errors"
-
-	"github.com/devinmcgloin/fokal/pkg/handler"
-	"github.com/devinmcgloin/fokal/pkg/model"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -19,30 +13,6 @@ const (
 	CanDelete = Permission("can_delete")
 	CanView   = Permission("can_view")
 )
-
-func permission(db *sqlx.DB, user model.Ref, kind Permission, target model.Ref) error {
-
-	// checking if the user has permission to modify the item
-	valid, err := Valid(db, user.Id, kind, target.Id)
-	if err != nil {
-		return handler.StatusError{
-			Code: http.StatusInternalServerError,
-			Err:  errors.New("Unable to retrieve user permissions.")}
-	}
-	if !valid && kind != CanView {
-		return handler.StatusError{
-			Code: http.StatusNotFound,
-			Err:  errors.New("Target object not found")}
-	}
-	if !valid {
-		return handler.StatusError{
-			Code: http.StatusForbidden,
-			Err:  errors.New("User does not have permission to edit item.")}
-	}
-
-	// checking if modification is valid.
-	return nil
-}
 
 func Valid(db *sqlx.DB, userRef int64, permission Permission, item int64) (bool, error) {
 	var valid int

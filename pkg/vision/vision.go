@@ -103,11 +103,16 @@ func AnnotateImage(errChan chan error, annotations chan ImageResponse, db *sqlx.
 		}
 	}
 
+	unique := make(map[string]bool, len(rsp.Labels))
+
 	for _, label := range r.LabelAnnotations {
-		rsp.Labels = append(rsp.Labels, model.Label{
-			Description: label.Description,
-			Score:       label.Score,
-		})
+		if _, ok := unique[label.Description]; !ok {
+			rsp.Labels = append(rsp.Labels, model.Label{
+				Description: label.Description,
+				Score:       label.Score,
+			})
+			unique[label.Description] = true
+		}
 	}
 
 	for _, landmark := range r.LandmarkAnnotations {

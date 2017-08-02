@@ -29,7 +29,8 @@ func PermissionMiddle(state *handler.State, p Permission, TargetType model.Refer
 		usr = model.Ref{}
 		id, _ := mux.Vars(r)["ID"]
 		if p != CanView {
-			usr, ok := context.GetOk(r, "auth")
+			var ok bool
+			usr, ok = context.GetOk(r, "auth")
 			if !ok {
 				w.WriteHeader(http.StatusInternalServerError)
 				log.Println("Auth params not set")
@@ -41,6 +42,9 @@ func PermissionMiddle(state *handler.State, p Permission, TargetType model.Refer
 				return
 			}
 		}
+
+		user := usr.(model.Ref)
+		log.Println(user)
 
 		var tarRef model.Ref
 		var err error
@@ -57,7 +61,6 @@ func PermissionMiddle(state *handler.State, p Permission, TargetType model.Refer
 			return
 		}
 
-		user := usr.(model.Ref)
 		valid, err := Valid(state.DB, user.Id, p, tarRef.Id)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
