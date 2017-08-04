@@ -80,7 +80,7 @@ func Run(cfg *Config) {
 	})
 
 	var crs = cors.New(cors.Options{
-		AllowedOrigins:   []string{"https://sprioc.xyz", "http://localhost:3000"},
+		AllowedOrigins:   []string{"https://sprioc.xyz", "https://dev.sprioc.xyz", "http://localhost:3000"},
 		AllowCredentials: true,
 	})
 
