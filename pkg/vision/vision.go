@@ -121,8 +121,8 @@ func AnnotateImage(errChan chan error, annotations chan ImageResponse, db *sqlx.
 			Score:       landmark.Score,
 			Location: postgis.PointS{
 				SRID: 4326,
-				X:    landmark.Locations[0].LatLng.Latitude,
-				Y:    landmark.Locations[0].LatLng.Longitude,
+				X:    landmark.Locations[0].LatLng.Longitude,
+				Y:    landmark.Locations[0].LatLng.Latitude,
 			},
 		})
 	}

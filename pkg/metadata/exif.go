@@ -67,7 +67,7 @@ func GetMetadata(errChan chan error, metaChan chan model.ImageMetadata, img io.R
 		}
 	}
 
-	Aperture, err := x.Get(exif.ApertureValue)
+	Aperture, err := x.Get(exif.FNumber)
 	if err == nil {
 		num, den, err := Aperture.Rat2(0)
 		if err == nil {
