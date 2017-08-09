@@ -22,14 +22,22 @@ func Color(state *handler.State, color clr.Color, pixelFraction float64, limit, 
 
 	log.Println(cube)
 	err := state.DB.Select(&ids, `
-			SELECT bridge.image_id
-			FROM content.colors AS colors
-  				INNER JOIN content.image_color_bridge AS bridge ON colors.id = bridge.color_id
-  				INNER JOIN permissions.can_view AS view ON view.o_id = bridge.image_id
-  				WHERE view.user_id = -1 AND bridge.pixel_fraction >= $4
-				AND ($1::cube <-> cielab) < 50
-			ORDER BY $1::cube <-> cielab
-			OFFSET $2 LIMIT $3;`, cube, offset, limit, pixelFraction)
+	SELECT
+	  id
+	FROM (SELECT
+			bridge.image_id                                         AS id,
+			$1 :: CUBE <-> cielab AS score
+		  FROM content.colors AS COLORS
+			INNER JOIN content.image_color_bridge AS bridge ON COLORS.id = bridge.color_id
+			INNER JOIN permissions.can_view AS view ON view.o_id = bridge.image_id
+		  WHERE view.user_id = -1 AND bridge.pixel_fraction >= $4
+		  ORDER BY score
+		  OFFSET $2
+		  LIMIT $3) AS scores
+	WHERE score < 50
+	GROUP BY id
+	ORDER BY min(score);
+	`, cube, offset, limit, pixelFraction)
 	if err != nil {
 		return []model.Image{}, err
 	}
