@@ -41,15 +41,9 @@ func SetAuthenticatedUser(state *handler.State, next http.Handler) http.Handler 
 			case handler.Error:
 				// We can retrieve the status here and write out a specific
 				// HTTP status code.
-				if e.Status() != http.StatusUnauthorized {
-					log.Printf("HTTP %d - %s", e.Status(), e.Error())
-					http.Error(w, e.Error(), e.Status())
-				}
+				log.Printf("HTTP %d - %s", e.Status(), e.Error())
 			default:
-				// Any error types we don't specifically look out for default
-				// to serving a HTTP 500
-				http.Error(w, http.StatusText(http.StatusInternalServerError),
-					http.StatusInternalServerError)
+				log.Printf("HTTP %s", e)
 			}
 			next.ServeHTTP(w, r)
 		} else {

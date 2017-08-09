@@ -311,7 +311,17 @@ func GetUserRef(db *sqlx.DB, u string) (model.Ref, error) {
 	ref := model.Ref{Collection: model.Users, Shortcode: u}
 	err := db.Get(&ref.Id, "SELECT id FROM content.users WHERE username = $1", u)
 	if err != nil {
-		log.Printf("Error Retrieving: %v %v\n", ref, err)
+		log.Printf("Error Retrieving: %v %v %v\n", u, ref, err)
+		return model.Ref{}, err
+	}
+	return ref, nil
+}
+
+func GetUserRefByEmail(db *sqlx.DB, email string) (model.Ref, error) {
+	ref := model.Ref{Collection: model.Users}
+	err := db.Get(&ref, "SELECT id, username AS shortcode FROM content.users WHERE email = $1", email)
+	if err != nil {
+		log.Printf("Error Retrieving: %v %v %v\n", email, ref, err)
 		return model.Ref{}, err
 	}
 	return ref, nil

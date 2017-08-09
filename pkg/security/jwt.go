@@ -26,6 +26,8 @@ tKRtL24z48ya+ntjbwbE3A5pEswm/Vm19wd77qbY5UILLmNf0xMQfwrkT/IcnBoD
 pQIDAQAB
 -----END PUBLIC KEY-----`
 
+const keyHash = "554b5db484856bfa16e7da70a427dc4d9989678a"
+
 func createJWT(state *handler.State, u model.Ref) (string, error) {
 
 	claims := &jwt.StandardClaims{
@@ -36,7 +38,7 @@ func createJWT(state *handler.State, u model.Ref) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
-	token.Header["kid"] = "554b5db484856bfa16e7da70a427dc4d9989678a"
+	token.Header["kid"] = keyHash
 	ss, err := token.SignedString(state.PrivateKey)
 	if err != nil {
 		log.Println(err)
@@ -90,17 +92,30 @@ func verifyJWT(state *handler.State, r *http.Request) (model.Ref, error) {
 		return model.Ref{}, handler.StatusError{Err: err, Code: http.StatusBadRequest}
 	}
 
+	isGoogle := token.Header["kid"] != keyHash
+
 	if token.Valid {
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if token.Valid && ok {
-			shortcode := claims["sub"].(string)
-			id, err := retrieval.GetUserRef(state.DB, shortcode)
-			if err != nil {
-				return model.Ref{}, handler.StatusError{
-					Code: http.StatusBadRequest,
-					Err:  errors.New("Token is malformed")}
+			if isGoogle {
+				email := claims["email"].(string)
+				id, err := retrieval.GetUserRefByEmail(state.DB, email)
+				if err != nil {
+					return model.Ref{}, handler.StatusError{
+						Code: http.StatusBadRequest,
+						Err:  errors.New("Token is malformed")}
+				}
+				return id, nil
+			} else {
+				shortcode := claims["sub"].(string)
+				id, err := retrieval.GetUserRef(state.DB, shortcode)
+				if err != nil {
+					return model.Ref{}, handler.StatusError{
+						Code: http.StatusBadRequest,
+						Err:  errors.New("Token is malformed")}
+				}
+				return id, nil
 			}
-			return id, nil
 		}
 	} else if err, ok := err.(*jwt.ValidationError); ok {
 		if err.Errors&jwt.ValidationErrorMalformed != 0 {

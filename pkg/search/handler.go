@@ -90,6 +90,11 @@ func ColorHandler(store *handler.State, w http.ResponseWriter, r *http.Request) 
 		return rsp, handler.StatusError{Code: http.StatusBadRequest, Err: errors.New("Missing hex url parameter.")}
 	}
 
+	if len(hex[0]) != 6 {
+		return rsp, handler.StatusError{Code: http.StatusBadRequest, Err: errors.New("Invalid Hex code. Only codes following #000000 are accepted.")}
+
+	}
+
 	var pixelFraction float64
 	pixel, ok := params["pixelfraction"]
 	if !ok {

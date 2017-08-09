@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"github.com/devinmcgloin/fokal/pkg/cache"
 	"github.com/devinmcgloin/fokal/pkg/handler"
 	"github.com/devinmcgloin/fokal/pkg/model"
 	"github.com/devinmcgloin/fokal/pkg/retrieval"
@@ -13,7 +12,7 @@ import (
 
 func RegisterRetrievalRoutes(state *handler.State, api *mux.Router, chain alice.Chain) {
 	get := api.Methods("GET").Subrouter()
-	chain = chain.Append(alice.Constructor(handler.Middleware{State: state, M: cache.Handler}.Handler))
+	//cache = chain.Append(alice.Constructor(handler.Middleware{State: state, M: cache.Handler}.Handler))
 
 	get.Handle("/i/{ID:[a-zA-Z]{12}}",
 		chain.Append(

@@ -55,7 +55,6 @@ func (rsp Response) Format() []byte {
 	b = bytes.Replace(b, []byte("\\u0026"), []byte("&"), -1)
 
 	return b
-
 }
 
 // A (simple) example of our application-wide configuration.

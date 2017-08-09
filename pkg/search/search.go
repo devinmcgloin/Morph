@@ -15,43 +15,26 @@ import (
 )
 
 func Color(state *handler.State, color clr.Color, pixelFraction float64, limit, offset int) ([]model.Image, error) {
-	ids := []struct {
-		Id    int64
-		Score float64 `db:"best_score"`
-	}{}
+	ids := []int64{}
 
 	l, a, b := color.CIELAB()
 	cube := fmt.Sprintf("(%f, %f, %f)", l, a, b)
 
 	log.Println(cube)
 	err := state.DB.Select(&ids, `
-		SELECT
-		  id,
-		  min(score) AS best_score
-		FROM (SELECT
-				bridge.image_id       AS id,
-				$1 :: CUBE <-> cielab AS score
-			  FROM content.colors AS COLORS
-				INNER JOIN content.image_color_bridge AS bridge ON COLORS.id = bridge.color_id
-				INNER JOIN permissions.can_view AS view ON view.o_id = bridge.image_id
-			  WHERE view.user_id = -1 AND bridge.pixel_fraction >= $4
-			  ORDER BY score
-			  OFFSET $2
-			  LIMIT $3) AS scores
-		WHERE score < 35
-		GROUP BY id
-		ORDER BY best_score;`, cube, offset, limit, pixelFraction)
+			SELECT bridge.image_id
+			FROM content.colors AS colors
+  				INNER JOIN content.image_color_bridge AS bridge ON colors.id = bridge.color_id
+  				INNER JOIN permissions.can_view AS view ON view.o_id = bridge.image_id
+  				WHERE view.user_id = -1 AND bridge.pixel_fraction >= $4
+				AND ($1::cube <-> cielab) < 50
+			ORDER BY $1::cube <-> cielab
+			OFFSET $2 LIMIT $3;`, cube, offset, limit, pixelFraction)
 	if err != nil {
 		return []model.Image{}, err
 	}
 
-	imageIds := make([]int64, len(ids))
-
-	for i, v := range ids {
-		imageIds[i] = v.Id
-	}
-
-	return retrieval.GetImages(state, imageIds)
+	return retrieval.GetImages(state, ids)
 }
 
 func Text(state *handler.State, query string, limit, offset int) ([]model.Image, error) {
