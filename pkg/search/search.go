@@ -105,16 +105,18 @@ func GeoRadius(state *handler.State, point postgis.PointS, radius float64, limit
 	err := state.DB.Select(&ids, `
 	SELECT geo.image_id
 	FROM content.image_geo AS geo
-	WHERE ST_Distance($1, geo.loc) < $2
-	ORDER BY $1 <-> geo.loc
-	OFFSET $3 LIMIT $4
-	`, point, radius, offset, limit)
+	WHERE ST_Distance(GeomFromEWKB($1), geo.loc) < $2
+	ORDER BY GeomFromEWKB($1) <-> geo.loc
+	OFFSET $4 LIMIT $3
+	`, point, radius, limit, offset)
 	if err != nil {
 		if err, ok := err.(*pq.Error); ok {
 			log.Printf("%+v", err)
 		}
 		return []model.Image{}, err
 	}
+
+	log.Println(ids)
 	return retrieval.GetImages(state, ids)
 }
 

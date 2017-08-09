@@ -237,8 +237,8 @@ func GeoDistanceHandler(store *handler.State, w http.ResponseWriter, r *http.Req
 		}
 	}
 
-	log.Printf("%d %d\n", limit, offset)
-	images, err := GeoRadius(store, postgis.PointS{SRID: 4326, X: lat, Y: lng}, radius, limit, offset)
+	log.Printf("%+v %f %d %d\n", postgis.PointS{SRID: 4326, X: lng, Y: lat}, radius, limit, offset)
+	images, err := GeoRadius(store, postgis.PointS{SRID: 4326, X: lng, Y: lat}, radius, limit, offset)
 	if err != nil {
 		return rsp, err
 	}

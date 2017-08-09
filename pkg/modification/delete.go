@@ -29,6 +29,7 @@ func deleteUser(db *sqlx.DB, id int64) error {
 		tx.Exec("DELETE FROM content.user_favorites WHERE image_id = $1", id)
 		tx.Exec("DELETE FROM content.image_color_bridge WHERE image_id = $1", id)
 		tx.Exec("DELETE FROM content.image_landmark_bridge WHERE image_id = $1", id)
+		tx.Exec("DELETE FROM content.image_geo WHERE image_id = $1", id)
 		tx.Exec("DELETE FROM content.images WHERE id = $1", id)
 	}
 	return tx.Commit()
@@ -50,6 +51,7 @@ func deleteImage(db *sqlx.DB, id int64) error {
 	tx.Exec("DELETE FROM content.user_favorites WHERE image_id = $1", id)
 	tx.Exec("DELETE FROM content.image_color_bridge WHERE image_id = $1", id)
 	tx.Exec("DELETE FROM content.image_landmark_bridge WHERE image_id = $1", id)
+	tx.Exec("DELETE FROM content.image_geo WHERE image_id = $1", id)
 	tx.Exec("DELETE FROM content.images WHERE id = $1", id)
 	err = tx.Commit()
 	return err

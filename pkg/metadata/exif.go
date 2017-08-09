@@ -30,12 +30,12 @@ func GetMetadata(errChan chan error, metaChan chan model.ImageMetadata, img io.R
 		return
 	}
 
-	lat, lon, err := x.LatLong()
+	lat, lng, err := x.LatLong()
 	if err != nil {
 		meta.Location = nil
 	} else {
 		point := &postgis.PointS{SRID: 4326,
-			X: lon,
+			X: lng,
 			Y: lat}
 
 		meta.Location = point
