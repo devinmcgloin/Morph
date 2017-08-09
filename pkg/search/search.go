@@ -14,7 +14,7 @@ import (
 	"github.com/lib/pq"
 )
 
-func Color(state *handler.State, color clr.Color, pixelFraction float64, limit, offset int) ([]model.Image, error) {
+func Color(state *handler.State, color clr.Color, pixelFraction float64, limit int) ([]model.Image, error) {
 	ids := []int64{}
 
 	l, a, b := color.CIELAB()
@@ -32,12 +32,11 @@ func Color(state *handler.State, color clr.Color, pixelFraction float64, limit, 
 			INNER JOIN permissions.can_view AS view ON view.o_id = bridge.image_id
 		  WHERE view.user_id = -1 AND bridge.pixel_fraction >= $4
 		  ORDER BY score
-		  OFFSET $2
 		  LIMIT $3) AS scores
 	WHERE score < 50
 	GROUP BY id
 	ORDER BY min(score);
-	`, cube, offset, limit, pixelFraction)
+	`, cube, limit, pixelFraction)
 	if err != nil {
 		return []model.Image{}, err
 	}
@@ -45,7 +44,7 @@ func Color(state *handler.State, color clr.Color, pixelFraction float64, limit, 
 	return retrieval.GetImages(state, ids)
 }
 
-func Text(state *handler.State, query string, limit, offset int) ([]model.Image, error) {
+func Text(state *handler.State, query string, limit int) ([]model.Image, error) {
 	ids := []struct {
 		Id   int64 `db:"image_id"`
 		Rank float64
@@ -82,9 +81,8 @@ SELECT
         WHERE to_tsvector(tags.description) @@ to_tsquery($1)) AS scores
   GROUP BY scores.image_id
   ORDER BY rank DESC
-  OFFSET $2
   LIMIT $3;
-	`, query, offset, limit)
+	`, query, limit)
 	if err != nil {
 		return []model.Image{}, err
 	}
@@ -99,7 +97,7 @@ SELECT
 
 }
 
-func GeoRadius(state *handler.State, point postgis.PointS, radius float64, limit, offset int) ([]model.Image, error) {
+func GeoRadius(state *handler.State, point postgis.PointS, radius float64, limit int) ([]model.Image, error) {
 	ids := []int64{}
 
 	err := state.DB.Select(&ids, `
@@ -107,8 +105,8 @@ func GeoRadius(state *handler.State, point postgis.PointS, radius float64, limit
 	FROM content.image_geo AS geo
 	WHERE ST_Distance(GeomFromEWKB($1), geo.loc) < $2
 	ORDER BY GeomFromEWKB($1) <-> geo.loc
-	OFFSET $4 LIMIT $3
-	`, point, radius, limit, offset)
+	LIMIT $3
+	`, point, radius, limit)
 	if err != nil {
 		if err, ok := err.(*pq.Error); ok {
 			log.Printf("%+v", err)
@@ -120,14 +118,14 @@ func GeoRadius(state *handler.State, point postgis.PointS, radius float64, limit
 	return retrieval.GetImages(state, ids)
 }
 
-func Hot(state *handler.State, limit, offset int) ([]model.Image, error) {
+func Hot(state *handler.State, limit int) ([]model.Image, error) {
 	ids := []int64{}
 
 	err := state.DB.Select(&ids, `
 	SELECT id FROM content.images
 	ORDER BY ranking(id, views + favorites , featured::int + 3) DESC
-	OFFSET $1 LIMIT $2
-	`, offset, limit)
+	LIMIT $2
+	`, limit)
 	if err != nil {
 		if err, ok := err.(*pq.Error); ok {
 			log.Printf("%+v", err)
@@ -138,7 +136,7 @@ func Hot(state *handler.State, limit, offset int) ([]model.Image, error) {
 
 }
 
-func FeaturedImages(state *handler.State, userId int64, limit, offset int) ([]model.Image, error) {
+func FeaturedImages(state *handler.State, userId int64, limit int) ([]model.Image, error) {
 	imgs := []int64{}
 	var stmt *sqlx.Stmt
 	var err error
@@ -149,7 +147,7 @@ func FeaturedImages(state *handler.State, userId int64, limit, offset int) ([]mo
 		INNER JOIN permissions.can_view AS view ON view.o_id = images.id
 		WHERE (view.user_id = -1 OR view.user_id = $1) AND images.featured = TRUE
 		ORDER BY publish_time DESC
-		OFFSET $2 LIMIT $3 
+		LIMIT $2
 		`)
 	} else {
 		stmt, err = state.DB.Preparex(`
@@ -158,7 +156,7 @@ func FeaturedImages(state *handler.State, userId int64, limit, offset int) ([]mo
 		INNER JOIN permissions.can_view AS view ON view.o_id = images.id
 		WHERE view.user_id = -1 AND images.featured = TRUE
 		ORDER BY publish_time DESC
-		OFFSET $2 LIMIT $3
+		LIMIT $2
 		`)
 	}
 	if err != nil {
@@ -168,7 +166,7 @@ func FeaturedImages(state *handler.State, userId int64, limit, offset int) ([]mo
 		return []model.Image{}, err
 	}
 	err = stmt.Select(&imgs,
-		userId, offset, limit)
+		userId, limit)
 	if err != nil {
 		if err, ok := err.(*pq.Error); ok {
 			log.Printf("%+v", err)
@@ -178,7 +176,7 @@ func FeaturedImages(state *handler.State, userId int64, limit, offset int) ([]mo
 	return retrieval.GetImages(state, imgs)
 }
 
-func RecentImages(state *handler.State, userId int64, limit, offset int) ([]model.Image, error) {
+func RecentImages(state *handler.State, userId int64, limit int) ([]model.Image, error) {
 	imageIds := []int64{}
 	var stmt *sqlx.Stmt
 	var err error
@@ -189,7 +187,7 @@ func RecentImages(state *handler.State, userId int64, limit, offset int) ([]mode
 		INNER JOIN permissions.can_view AS view ON view.o_id = images.id
 		WHERE view.user_id = -1 OR view.user_id = $1
 		ORDER BY publish_time DESC
-		OFFSET $2 LIMIT $3
+		LIMIT $2
 		`)
 	} else {
 		stmt, err = state.DB.Preparex(`
@@ -198,24 +196,24 @@ func RecentImages(state *handler.State, userId int64, limit, offset int) ([]mode
 		INNER JOIN permissions.can_view AS view ON view.o_id = images.id
 		WHERE (view.user_id = -1 OR view.user_id = $1) AND images.user_id = $1
 		ORDER BY publish_time DESC
-		OFFSET $2 LIMIT $3
+		LIMIT $2
 		`)
 	}
 	if err != nil {
 		if err, ok := err.(*pq.Error); ok {
-			log.Printf("GetRecentImages userId: %d limit: %d offset: %d %+v", userId, limit, offset, err)
+			log.Printf("GetRecentImages userId: %d limit: %d %+v", userId, limit, err)
 		}
 		return []model.Image{}, err
 	}
 	err = stmt.Select(&imageIds,
-		userId, offset, limit)
+		userId, limit)
 	if err != nil {
 		if err, ok := err.(*pq.Error); ok {
-			log.Printf("GetRecentImages userId: %d limit: %d offset: %d %+v", userId, limit, offset, err)
+			log.Printf("GetRecentImages userId: %d limit: %d  %+v", userId, limit, err)
 		}
 		return []model.Image{}, err
 	}
-	log.Printf("GetRecentImages userId: %d limit: %d offset: %d %+v", userId, limit, offset, imageIds)
+	log.Printf("GetRecentImages userId: %d limit: %d %+v", userId, limit, imageIds)
 
 	return retrieval.GetImages(state, imageIds)
 }

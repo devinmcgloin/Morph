@@ -17,29 +17,20 @@ import (
 	"github.com/pkg/errors"
 )
 
-func parsePaginationParams(params url.Values) (limit int, offset int, err error) {
+func parsePaginationParams(params url.Values) (limit int) {
+	var err error
 	l, ok := params["limit"]
 	if ok {
 		if len(l) == 1 {
 			limit, err = strconv.Atoi(l[0])
 			if err != nil {
-				limit = 25
+				limit = 500
 			}
 		}
 	}
 
 	if limit == 0 {
-		limit = 25
-	}
-
-	l, ok = params["offset"]
-	if ok {
-		if len(l) == 1 {
-			offset, err = strconv.Atoi(l[0])
-			if err != nil {
-				offset = 0
-			}
-		}
+		limit = 500
 	}
 
 	return
@@ -51,10 +42,7 @@ func TextHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (
 
 	params := r.URL.Query()
 
-	limit, offset, err := parsePaginationParams(params)
-	if err != nil {
-		return rsp, err
-	}
+	limit := parsePaginationParams(params)
 
 	q, ok := params["q"]
 	if !ok {
@@ -63,8 +51,8 @@ func TextHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (
 
 	query := strings.Join(q, " | ")
 
-	log.Printf("%d %d %+v %d %s\n", limit, offset, q, len(q), query)
-	images, err := Text(store, query, limit, offset)
+	log.Printf("%d %+v %d %s\n", limit, q, len(q), query)
+	images, err := Text(store, query, limit)
 	if err != nil {
 		return rsp, err
 	}
@@ -77,13 +65,10 @@ func TextHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (
 
 func ColorHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
 	var rsp handler.Response
-
+	var err error
 	params := r.URL.Query()
 
-	limit, offset, err := parsePaginationParams(params)
-	if err != nil {
-		return rsp, err
-	}
+	limit := parsePaginationParams(params)
 
 	hex, ok := params["hex"]
 	if !ok {
@@ -106,8 +91,8 @@ func ColorHandler(store *handler.State, w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	log.Printf("%d %d %s\n", limit, offset, hex[0])
-	images, err := Color(store, clr.Hex{Code: hex[0]}, pixelFraction, limit, offset)
+	log.Printf("%d %s\n", limit, hex[0])
+	images, err := Color(store, clr.Hex{Code: hex[0]}, pixelFraction, limit)
 	if err != nil {
 		return rsp, err
 	}
@@ -128,14 +113,10 @@ func RecentImageHandler(store *handler.State, w http.ResponseWriter, r *http.Req
 	}
 
 	params := r.URL.Query()
-	limit, offset, err := parsePaginationParams(params)
-	if err != nil {
-		return rsp, err
+	limit := parsePaginationParams(params)
 
-	}
-
-	log.Printf("%d %d\n", limit, offset)
-	images, err := RecentImages(store, usr, limit, offset)
+	log.Printf("%d\n", limit)
+	images, err := RecentImages(store, usr, limit)
 	if err != nil {
 		return rsp, err
 	}
@@ -150,11 +131,7 @@ func FeaturedImageHandler(store *handler.State, w http.ResponseWriter, r *http.R
 	var rsp handler.Response
 
 	params := r.URL.Query()
-	limit, offset, err := parsePaginationParams(params)
-	if err != nil {
-		return rsp, err
-
-	}
+	limit := parsePaginationParams(params)
 
 	userRef, ok := context.GetOk(r, "auth")
 	var usr int64
@@ -162,7 +139,7 @@ func FeaturedImageHandler(store *handler.State, w http.ResponseWriter, r *http.R
 		usr = userRef.(model.Ref).Id
 	}
 
-	images, err := FeaturedImages(store, usr, limit, offset)
+	images, err := FeaturedImages(store, usr, limit)
 	if err != nil {
 		return rsp, err
 	}
@@ -177,13 +154,9 @@ func HotImagesHander(store *handler.State, w http.ResponseWriter, r *http.Reques
 	var rsp handler.Response
 
 	params := r.URL.Query()
-	limit, offset, err := parsePaginationParams(params)
-	if err != nil {
-		return rsp, err
+	limit := parsePaginationParams(params)
 
-	}
-
-	images, err := Hot(store, limit, offset)
+	images, err := Hot(store, limit)
 	if err != nil {
 		return rsp, err
 	}
@@ -196,13 +169,10 @@ func HotImagesHander(store *handler.State, w http.ResponseWriter, r *http.Reques
 
 func GeoDistanceHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
 	var rsp handler.Response
-
+	var err error
 	params := r.URL.Query()
 
-	limit, offset, err := parsePaginationParams(params)
-	if err != nil {
-		return rsp, err
-	}
+	limit := parsePaginationParams(params)
 
 	var lat float64
 	l, ok := params["lat"]
@@ -229,16 +199,16 @@ func GeoDistanceHandler(store *handler.State, w http.ResponseWriter, r *http.Req
 	var radius float64
 	rad, ok := params["radius"]
 	if !ok {
-		radius = .25
+		radius = 1000
 	} else {
 		radius, err = strconv.ParseFloat(rad[0], 64)
 		if err != nil {
-			radius = .25
+			radius = 1000
 		}
 	}
 
-	log.Printf("%+v %f %d %d\n", postgis.PointS{SRID: 4326, X: lng, Y: lat}, radius, limit, offset)
-	images, err := GeoRadius(store, postgis.PointS{SRID: 4326, X: lng, Y: lat}, radius, limit, offset)
+	log.Printf("%+v %f %d %d\n", postgis.PointS{SRID: 4326, X: lng, Y: lat}, radius, limit)
+	images, err := GeoRadius(store, postgis.PointS{SRID: 4326, X: lng, Y: lat}, radius, limit)
 	if err != nil {
 		return rsp, err
 	}
