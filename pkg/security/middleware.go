@@ -36,20 +36,10 @@ func Authenticate(state *handler.State, next http.Handler) http.Handler {
 func SetAuthenticatedUser(state *handler.State, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user, err := verifyJWT(state, r)
-		if err != nil {
-			switch e := err.(type) {
-			case handler.Error:
-				// We can retrieve the status here and write out a specific
-				// HTTP status code.
-				log.Printf("HTTP %d - %s", e.Status(), e.Error())
-			default:
-				log.Printf("HTTP %s", e)
-			}
-			next.ServeHTTP(w, r)
-		} else {
+		if err == nil {
 			context.Set(r, "auth", user)
-			next.ServeHTTP(w, r)
 		}
+		next.ServeHTTP(w, r)
 
 	})
 }

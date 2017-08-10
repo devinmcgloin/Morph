@@ -146,7 +146,7 @@ func FeaturedImages(state *handler.State, limit int) ([]model.Image, error) {
 		INNER JOIN permissions.can_view AS view ON view.o_id = images.id
 		WHERE view.user_id = -1 AND images.featured = TRUE
 		ORDER BY publish_time DESC
-		LIMIT $2
+		LIMIT $1
 		`)
 
 	if err != nil {

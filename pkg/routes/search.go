@@ -12,10 +12,10 @@ import (
 func RegisterSearchRoutes(state *handler.State, api *mux.Router, chain alice.Chain) {
 	get := api.Methods("GET").Subrouter()
 	opts := api.Methods("OPTIONS").Subrouter()
-	chain = chain.Append(alice.Constructor(handler.Middleware{State: state, M: cache.Handler}.Handler))
+	cache := chain.Append(alice.Constructor(handler.Middleware{State: state, M: cache.Handler}.Handler))
 
 	get.Handle("/i/featured",
-		chain.Append(
+		cache.Append(
 			handler.Middleware{
 				State: state,
 				M:     security.SetAuthenticatedUser,
@@ -23,7 +23,7 @@ func RegisterSearchRoutes(state *handler.State, api *mux.Router, chain alice.Cha
 	opts.Handle("/i/featured", chain.Then(handler.Options("GET")))
 
 	get.Handle("/i/recent",
-		chain.Append(
+		cache.Append(
 			handler.Middleware{
 				State: state,
 				M:     security.SetAuthenticatedUser,
@@ -31,7 +31,7 @@ func RegisterSearchRoutes(state *handler.State, api *mux.Router, chain alice.Cha
 	opts.Handle("/i/recent", chain.Then(handler.Options("GET")))
 
 	get.Handle("/i/color",
-		chain.Append(
+		cache.Append(
 			handler.Middleware{
 				State: state,
 				M:     security.SetAuthenticatedUser,
@@ -39,7 +39,7 @@ func RegisterSearchRoutes(state *handler.State, api *mux.Router, chain alice.Cha
 	opts.Handle("/i/color", chain.Then(handler.Options("GET")))
 
 	get.Handle("/i/geo",
-		chain.Append(
+		cache.Append(
 			handler.Middleware{
 				State: state,
 				M:     security.SetAuthenticatedUser,
@@ -47,7 +47,7 @@ func RegisterSearchRoutes(state *handler.State, api *mux.Router, chain alice.Cha
 	opts.Handle("/i/geo", chain.Then(handler.Options("GET")))
 
 	get.Handle("/i/hot",
-		chain.Append(
+		cache.Append(
 			handler.Middleware{
 				State: state,
 				M:     security.SetAuthenticatedUser,
@@ -55,7 +55,7 @@ func RegisterSearchRoutes(state *handler.State, api *mux.Router, chain alice.Cha
 	opts.Handle("/i/hot", chain.Then(handler.Options("GET")))
 
 	get.Handle("/i/text",
-		chain.Append(
+		cache.Append(
 			handler.Middleware{
 				State: state,
 				M:     security.SetAuthenticatedUser,
