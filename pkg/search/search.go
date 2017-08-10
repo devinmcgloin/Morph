@@ -30,9 +30,9 @@ func Color(state *handler.State, color clr.Color, pixelFraction float64, limit i
 		  FROM content.colors AS COLORS
 			INNER JOIN content.image_color_bridge AS bridge ON COLORS.id = bridge.color_id
 			INNER JOIN permissions.can_view AS view ON view.o_id = bridge.image_id
-		  WHERE view.user_id = -1 AND bridge.pixel_fraction >= $4
+		  WHERE view.user_id = -1 AND bridge.pixel_fraction >= $3
 		  ORDER BY score
-		  LIMIT $3) AS scores
+		  LIMIT $2) AS scores
 	WHERE score < 50
 	GROUP BY id
 	ORDER BY min(score);
@@ -124,7 +124,7 @@ func Hot(state *handler.State, limit int) ([]model.Image, error) {
 	err := state.DB.Select(&ids, `
 	SELECT id FROM content.images
 	ORDER BY ranking(id, views + favorites , featured::int + 3) DESC
-	LIMIT $2
+	LIMIT $1
 	`, limit)
 	if err != nil {
 		if err, ok := err.(*pq.Error); ok {
@@ -136,21 +136,11 @@ func Hot(state *handler.State, limit int) ([]model.Image, error) {
 
 }
 
-func FeaturedImages(state *handler.State, userId int64, limit int) ([]model.Image, error) {
+func FeaturedImages(state *handler.State, limit int) ([]model.Image, error) {
 	imgs := []int64{}
 	var stmt *sqlx.Stmt
 	var err error
-	if userId == 0 {
-		stmt, err = state.DB.Preparex(`
-		SELECT images.id
-		FROM content.images AS images
-		INNER JOIN permissions.can_view AS view ON view.o_id = images.id
-		WHERE (view.user_id = -1 OR view.user_id = $1) AND images.featured = TRUE
-		ORDER BY publish_time DESC
-		LIMIT $2
-		`)
-	} else {
-		stmt, err = state.DB.Preparex(`
+	stmt, err = state.DB.Preparex(`
 		SELECT images.id
 		FROM content.images AS images
 		INNER JOIN permissions.can_view AS view ON view.o_id = images.id
@@ -158,7 +148,7 @@ func FeaturedImages(state *handler.State, userId int64, limit int) ([]model.Imag
 		ORDER BY publish_time DESC
 		LIMIT $2
 		`)
-	}
+
 	if err != nil {
 		if err, ok := err.(*pq.Error); ok {
 			log.Printf("%+v", err)
@@ -166,7 +156,7 @@ func FeaturedImages(state *handler.State, userId int64, limit int) ([]model.Imag
 		return []model.Image{}, err
 	}
 	err = stmt.Select(&imgs,
-		userId, limit)
+		limit)
 	if err != nil {
 		if err, ok := err.(*pq.Error); ok {
 			log.Printf("%+v", err)

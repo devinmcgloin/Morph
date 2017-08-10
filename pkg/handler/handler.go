@@ -10,6 +10,8 @@ import (
 	"crypto/rsa"
 	"time"
 
+	"strings"
+
 	"github.com/garyburd/redigo/redis"
 	"github.com/jmoiron/sqlx"
 	vision "google.golang.org/api/vision/v1"
@@ -102,4 +104,12 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Write(res.Format())
 	}
 
+}
+
+func Options(opts ...string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println("Inside Options")
+		w.Header().Set("Allow", strings.Join(opts, ", "))
+		w.WriteHeader(http.StatusOK)
+	})
 }

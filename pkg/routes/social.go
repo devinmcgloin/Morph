@@ -13,6 +13,7 @@ import (
 func RegisterSocialRoutes(state *handler.State, api *mux.Router, chain alice.Chain) {
 	put := api.Methods("PUT").Subrouter()
 	del := api.Methods("DELETE").Subrouter()
+	opts := api.Methods("OPTIONS").Subrouter()
 
 	put.Handle("/i/{ID:[a-zA-Z]{12}}/favorite",
 		chain.Append(
@@ -22,7 +23,6 @@ func RegisterSocialRoutes(state *handler.State, api *mux.Router, chain alice.Cha
 				TargetType: model.Images,
 				M:          permissions.PermissionMiddle}.Handler).
 			Then(handler.Handler{State: state, H: social.FavoriteHandler}))
-
 	del.Handle("/i/{ID:[a-zA-Z]{12}}/favorite",
 		chain.Append(
 			handler.Middleware{State: state, M: security.Authenticate}.Handler,
@@ -31,6 +31,7 @@ func RegisterSocialRoutes(state *handler.State, api *mux.Router, chain alice.Cha
 				TargetType: model.Images,
 				M:          permissions.PermissionMiddle}.Handler).
 			Then(handler.Handler{State: state, H: social.UnFavoriteHandler}))
+	opts.Handle("/i/{ID:[a-zA-Z]{12}}/favorite", chain.Then(handler.Options("PUT", "DELETE")))
 
 	put.Handle("/u/{ID}/follow", chain.Append(
 		handler.Middleware{State: state, M: security.Authenticate}.Handler,
@@ -52,4 +53,6 @@ func RegisterSocialRoutes(state *handler.State, api *mux.Router, chain alice.Cha
 			State: state,
 			H:     social.UnFollowHandler,
 		}))
+	opts.Handle("/u/{ID}/follow", chain.Then(handler.Options("PUT", "DELETE")))
+
 }

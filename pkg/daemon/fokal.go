@@ -80,13 +80,18 @@ func Run(cfg *Config) {
 	})
 
 	var crs = cors.New(cors.Options{
-		AllowedOrigins:   []string{"https://sprioc.xyz", "https://dev.sprioc.xyz", "http://localhost:3000"},
-		AllowCredentials: true,
+		AllowedOrigins:     []string{"https://sprioc.xyz", "https://dev.sprioc.xyz", "http://localhost:3000"},
+		AllowCredentials:   true,
+		OptionsPassthrough: true,
+		AllowedHeaders:     []string{"Authorization"},
+		AllowedMethods:     []string{"GET", "PUT", "OPTIONS", "PATCH", "POST"},
+		Debug:              true,
 	})
 
 	var base = alice.New(
+		crs.Handler,
 		handler.Timeout,
-		logging.IP, logging.UUID, secureMiddleware.Handler, crs.Handler,
+		logging.IP, logging.UUID, secureMiddleware.Handler,
 		context.ClearHandler, handlers.CompressHandler, logging.ContentTypeJSON)
 
 	//  ROUTES

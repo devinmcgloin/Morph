@@ -133,13 +133,7 @@ func FeaturedImageHandler(store *handler.State, w http.ResponseWriter, r *http.R
 	params := r.URL.Query()
 	limit := parsePaginationParams(params)
 
-	userRef, ok := context.GetOk(r, "auth")
-	var usr int64
-	if ok {
-		usr = userRef.(model.Ref).Id
-	}
-
-	images, err := FeaturedImages(store, usr, limit)
+	images, err := FeaturedImages(store, limit)
 	if err != nil {
 		return rsp, err
 	}
@@ -207,7 +201,7 @@ func GeoDistanceHandler(store *handler.State, w http.ResponseWriter, r *http.Req
 		}
 	}
 
-	log.Printf("%+v %f %d %d\n", postgis.PointS{SRID: 4326, X: lng, Y: lat}, radius, limit)
+	log.Printf("%+v %f %d\n", postgis.PointS{SRID: 4326, X: lng, Y: lat}, radius, limit)
 	images, err := GeoRadius(store, postgis.PointS{SRID: 4326, X: lng, Y: lat}, radius, limit)
 	if err != nil {
 		return rsp, err

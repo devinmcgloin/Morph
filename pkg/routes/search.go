@@ -11,6 +11,7 @@ import (
 
 func RegisterSearchRoutes(state *handler.State, api *mux.Router, chain alice.Chain) {
 	get := api.Methods("GET").Subrouter()
+	opts := api.Methods("OPTIONS").Subrouter()
 	chain = chain.Append(alice.Constructor(handler.Middleware{State: state, M: cache.Handler}.Handler))
 
 	get.Handle("/i/featured",
@@ -19,6 +20,7 @@ func RegisterSearchRoutes(state *handler.State, api *mux.Router, chain alice.Cha
 				State: state,
 				M:     security.SetAuthenticatedUser,
 			}.Handler).Then(handler.Handler{State: state, H: search.FeaturedImageHandler}))
+	opts.Handle("/i/featured", chain.Then(handler.Options("GET")))
 
 	get.Handle("/i/recent",
 		chain.Append(
@@ -26,6 +28,7 @@ func RegisterSearchRoutes(state *handler.State, api *mux.Router, chain alice.Cha
 				State: state,
 				M:     security.SetAuthenticatedUser,
 			}.Handler).Then(handler.Handler{State: state, H: search.RecentImageHandler}))
+	opts.Handle("/i/recent", chain.Then(handler.Options("GET")))
 
 	get.Handle("/i/color",
 		chain.Append(
@@ -33,6 +36,7 @@ func RegisterSearchRoutes(state *handler.State, api *mux.Router, chain alice.Cha
 				State: state,
 				M:     security.SetAuthenticatedUser,
 			}.Handler).Then(handler.Handler{State: state, H: search.ColorHandler}))
+	opts.Handle("/i/color", chain.Then(handler.Options("GET")))
 
 	get.Handle("/i/geo",
 		chain.Append(
@@ -40,6 +44,7 @@ func RegisterSearchRoutes(state *handler.State, api *mux.Router, chain alice.Cha
 				State: state,
 				M:     security.SetAuthenticatedUser,
 			}.Handler).Then(handler.Handler{State: state, H: search.GeoDistanceHandler}))
+	opts.Handle("/i/geo", chain.Then(handler.Options("GET")))
 
 	get.Handle("/i/hot",
 		chain.Append(
@@ -47,6 +52,7 @@ func RegisterSearchRoutes(state *handler.State, api *mux.Router, chain alice.Cha
 				State: state,
 				M:     security.SetAuthenticatedUser,
 			}.Handler).Then(handler.Handler{State: state, H: search.HotImagesHander}))
+	opts.Handle("/i/hot", chain.Then(handler.Options("GET")))
 
 	get.Handle("/i/text",
 		chain.Append(
@@ -54,5 +60,6 @@ func RegisterSearchRoutes(state *handler.State, api *mux.Router, chain alice.Cha
 				State: state,
 				M:     security.SetAuthenticatedUser,
 			}.Handler).Then(handler.Handler{State: state, H: search.TextHandler}))
+	opts.Handle("/i/text", chain.Then(handler.Options("GET")))
 
 }

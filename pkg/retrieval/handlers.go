@@ -5,6 +5,8 @@ import (
 
 	"errors"
 
+	"strconv"
+
 	"github.com/devinmcgloin/fokal/pkg/handler"
 	"github.com/devinmcgloin/fokal/pkg/model"
 	"github.com/gorilla/context"
@@ -97,8 +99,25 @@ func ImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) 
 
 func TagHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
 	var rsp handler.Response
-
+	var err error
+	var limit int
 	id := mux.Vars(r)["ID"]
+
+	params := r.URL.Query()
+	l, ok := params["limit"]
+	if ok {
+		if len(l) == 1 {
+			limit, err = strconv.Atoi(l[0])
+			if err != nil {
+				limit = 500
+			}
+		}
+	}
+
+	if limit == 0 {
+		limit = 500
+	}
+
 	images, err := TaggedImages(store, id)
 	if err != nil {
 		return rsp, err
