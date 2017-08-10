@@ -81,7 +81,7 @@ SELECT
         WHERE to_tsvector(tags.description) @@ to_tsquery($1)) AS scores
   GROUP BY scores.image_id
   ORDER BY rank DESC
-  LIMIT $3;
+  LIMIT $2;
 	`, query, limit)
 	if err != nil {
 		return []model.Image{}, err

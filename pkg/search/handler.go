@@ -46,8 +46,10 @@ func TextHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (
 
 	q, ok := params["q"]
 	if !ok {
-		return rsp, handler.StatusError{Code: http.StatusBadRequest, Err: errors.New("Missing hex url parameter.")}
+		return rsp, handler.StatusError{Code: http.StatusBadRequest, Err: errors.New("Missing q url parameter.")}
 	}
+
+	q = strings.Split(q[0], " ")
 
 	query := strings.Join(q, " | ")
 
