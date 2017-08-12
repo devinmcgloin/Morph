@@ -19,20 +19,18 @@ func GetUser(state *handler.State, u int64) (model.User, error) {
 		return model.User{}, err
 	}
 
-	images := []int64{}
-	err = state.DB.Select(&images, `SELECT id FROM content.images WHERE user_id = $1`, u)
+	images := []string{}
+	err = state.DB.Select(&images, `SELECT shortcode FROM content.images WHERE user_id = $1`, u)
 	if err != nil {
 		log.Println(err)
 		return model.User{}, err
 	}
 
-	imgs, err := GetImages(state, images)
-	if err != nil {
-		log.Println(err)
-		return model.User{}, err
+	imageLinks := make([]string, len(images))
+	for i, v := range images {
+		imageLinks[i] = model.Ref{Collection: model.Images, Shortcode: v}.ToURL(state.Port, state.Local)
 	}
-
-	user.Images = &imgs
+	user.ImageLinks = &imageLinks
 
 	favorites := []string{}
 	err = state.DB.Select(&favorites, `
@@ -272,24 +270,16 @@ func imageMetadata(db *sqlx.DB, imageId int64) (model.ImageMetadata, error) {
 	return meta, nil
 }
 
-func GetUserImages(state *handler.State, userId, viewingUser int64) ([]model.Image, error) {
+func GetUserImages(state *handler.State, userId int64) ([]model.Image, error) {
 	images := []int64{}
-	var err error
-	if viewingUser != -1 {
-		err = state.DB.Select(&images, `
-			SELECT images.id
-			FROM content.images AS images
-			INNER JOIN permissions.can_view AS view ON view.o_id = images.id
-				WHERE (view.user_id = -1 OR view.user_id = $2) AND images.user_id = $1
-			ORDER BY images.publish_time DESC`, userId, viewingUser)
-	} else {
-		err = state.DB.Select(&images, `
+
+	err := state.DB.Select(&images, `
 			SELECT images.id
 			FROM content.images AS images
 			INNER JOIN permissions.can_view AS view ON view.o_id = images.id
 				WHERE view.user_id = -1 AND images.user_id = $1
 			ORDER BY images.publish_time DESC`, userId)
-	}
+
 	if err != nil {
 		log.Println(err)
 		return []model.Image{}, err
