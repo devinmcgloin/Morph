@@ -72,6 +72,7 @@ tags
 # content for testing without internet access
 content
 priv
+env.zsh
 
 # Created by https://www.gitignore.io/api/node
 
@@ -114,5 +115,3 @@ jspm_packages
 # Optional REPL history
 .node_repl_history
 .idea
- 
- env.zsh
