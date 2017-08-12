@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"github.com/devinmcgloin/fokal/pkg/cache"
 	"github.com/devinmcgloin/fokal/pkg/handler"
 	"github.com/devinmcgloin/fokal/pkg/model"
 	"github.com/devinmcgloin/fokal/pkg/retrieval"
@@ -14,10 +15,9 @@ func RegisterRetrievalRoutes(state *handler.State, api *mux.Router, chain alice.
 	get := api.Methods("GET").Subrouter()
 	opts := api.Methods("OPTIONS").Subrouter()
 
-	//cache = chain.Append(alice.Constructor(handler.Middleware{State: state, M: cache.Handler}.Handler))
-
+	cache := chain.Append(alice.Constructor(handler.Middleware{State: state, M: cache.Handler}.Handler))
 	get.Handle("/i/{ID:[a-zA-Z]{12}}",
-		chain.Append(
+		cache.Append(
 			handler.Middleware{
 				State: state,
 				M:     security.SetAuthenticatedUser,
@@ -29,19 +29,19 @@ func RegisterRetrievalRoutes(state *handler.State, api *mux.Router, chain alice.
 			}.Handler).Then(handler.Handler{State: state, H: retrieval.ImageHandler}))
 	opts.Handle("/i/{ID:[a-zA-Z]{12}}", chain.Then(handler.Options("GET")))
 
-	get.Handle("/u/me", chain.Append(
+	get.Handle("/u/me", cache.Append(
 		handler.Middleware{
 			State: state,
 			M:     security.Authenticate,
 		}.Handler).Then(handler.Handler{State: state, H: retrieval.LoggedInUserHandler}))
 	opts.Handle("/u/me", chain.Then(handler.Options("GET")))
 
-	get.Handle("/u/{ID}", chain.Then(handler.Handler{State: state, H: retrieval.UserHandler}))
+	get.Handle("/u/{ID}", cache.Then(handler.Handler{State: state, H: retrieval.UserHandler}))
 	opts.Handle("/u/{ID}", chain.Then(handler.Options("GET")))
 
-	get.Handle("/t/{ID}", chain.Then(handler.Handler{State: state, H: retrieval.TagHandler}))
+	get.Handle("/t/{ID}", cache.Then(handler.Handler{State: state, H: retrieval.TagHandler}))
 	opts.Handle("/t/{ID}", chain.Then(handler.Options("GET")))
 
-	get.Handle("/u/{ID}/images", chain.Then(handler.Handler{State: state, H: retrieval.UserImagesHandler}))
+	get.Handle("/u/{ID}/images", cache.Then(handler.Handler{State: state, H: retrieval.UserImagesHandler}))
 	opts.Handle("/u/{ID}/images", chain.Then(handler.Options("GET")))
 }
