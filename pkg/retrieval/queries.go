@@ -209,7 +209,7 @@ func imageStats(db *sqlx.DB, imageId int64) (model.ImageStats, error) {
 	}
 
 	err = db.Get(&stats.Views, `
-	SELECT count(*) FROM content.image_stats
+	SELECT sum(total) FROM content.image_stats
 	WHERE image_id = $1 AND stat_type = 'view'`, imageId)
 	if err != nil {
 		log.Println(err)
@@ -217,7 +217,7 @@ func imageStats(db *sqlx.DB, imageId int64) (model.ImageStats, error) {
 	}
 
 	err = db.Get(&stats.Downloads, `
-	SELECT count(*) FROM content.image_stats
+	SELECT sum(total) FROM content.image_stats
 	WHERE image_id = $1 AND stat_type = 'download'`, imageId)
 	if err != nil {
 		log.Println(err)
