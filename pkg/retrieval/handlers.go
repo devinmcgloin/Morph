@@ -29,31 +29,6 @@ func UserHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (
 	}, nil
 }
 
-func UserImagesHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
-	var rsp handler.Response
-	var err error
-	username := mux.Vars(r)["ID"]
-
-	ref, err := GetUserRef(store.DB, username)
-	if err != nil {
-		return rsp, err
-	}
-
-	var images []model.Image
-	val, ok := context.GetOk(r, "auth")
-	if !ok {
-		images, err = GetUserImages(store, ref.Id, -1)
-	} else {
-		usrRef := val.(model.Ref)
-		images, err = GetUserImages(store, ref.Id, usrRef.Id)
-	}
-
-	return handler.Response{
-		Code: http.StatusOK,
-		Data: images,
-	}, nil
-}
-
 func LoggedInUserHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
 	var rsp handler.Response
 

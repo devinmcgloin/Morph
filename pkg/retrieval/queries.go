@@ -19,19 +19,20 @@ func GetUser(state *handler.State, u int64) (model.User, error) {
 		return model.User{}, err
 	}
 
-	images := []string{}
-	err = state.DB.Select(&images, `SELECT shortcode FROM content.images WHERE user_id = $1`, u)
+	images := []int64{}
+	err = state.DB.Select(&images, `SELECT id FROM content.images WHERE user_id = $1`, u)
 	if err != nil {
 		log.Println(err)
 		return model.User{}, err
 	}
 
-	imageLinks := make([]string, len(images))
-	for i, v := range images {
-		imageLinks[i] = model.Ref{Collection: model.Images, Shortcode: v}.ToURL(state.Port, state.Local)
+	imgs, err := GetImages(state, images)
+	if err != nil {
+		log.Println(err)
+		return model.User{}, err
 	}
 
-	user.ImageLinks = &imageLinks
+	user.Images = &imgs
 
 	favorites := []string{}
 	err = state.DB.Select(&favorites, `
