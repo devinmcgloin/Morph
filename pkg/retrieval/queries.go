@@ -50,7 +50,7 @@ func GetUser(state *handler.State, u int64) (model.User, error) {
 
 	user.FavoriteLinks = &favoriteLinks
 
-	user.Username = model.Ref{Collection: model.Users, Shortcode: user.Username}.ToURL(state.Port, state.Local)
+	user.Permalink = model.Ref{Collection: model.Users, Shortcode: user.Username}.ToURL(state.Port, state.Local)
 
 	return user, nil
 }
@@ -129,7 +129,7 @@ func GetImage(state *handler.State, i int64) (model.Image, error) {
 	img.User = &usr
 	img.Source = imageSources(img.Shortcode, "content")
 
-	img.Shortcode = model.Ref{Collection: model.Images, Shortcode: img.Shortcode}.ToURL(state.Port, state.Local)
+	img.Permalink = model.Ref{Collection: model.Images, Shortcode: img.Shortcode}.ToURL(state.Port, state.Local)
 	stats.AddStat(state.DB, i, "view")
 	return img, nil
 }

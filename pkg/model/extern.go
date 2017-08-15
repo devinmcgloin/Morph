@@ -8,8 +8,10 @@ import (
 )
 
 type User struct {
-	Id       int64           `json:"-"`
-	Username string          `json:"permalink"`
+	Id        int64  `json:"-"`
+	Username  string `json:"id"`
+	Permalink string `json:"permalink"`
+
 	Email    string          `json:"email"`
 	Name     *string         `json:"name,omitempty"`
 	Bio      *string         `json:"bio,omitempty"`
@@ -30,7 +32,8 @@ type User struct {
 
 type Image struct {
 	Id        int64  `json:"-"`
-	Shortcode string `json:"permalink"`
+	Shortcode string `json:"id"`
+	Permalink string `json:"permalink"`
 
 	PublishTime  time.Time  `db:"publish_time" json:"publish_time"`
 	LastModified time.Time  `db:"last_modified" json:"last_modified"`
