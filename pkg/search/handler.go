@@ -9,15 +9,15 @@ import (
 
 	"strings"
 
+	"sort"
+
 	"github.com/cridenour/go-postgis"
 	"github.com/devinmcgloin/clr/clr"
 	"github.com/devinmcgloin/fokal/pkg/handler"
-	"github.com/devinmcgloin/fokal/pkg/model"
-	"github.com/gorilla/context"
-	"github.com/pkg/errors"
+	"github.com/devinmcgloin/fokal/pkg/retrieval"
 )
 
-func parsePaginationParams(params url.Values) (limit int) {
+func limitParam(params url.Values) (limit int) {
 	var err error
 	l, ok := params["limit"]
 	if ok {
@@ -37,88 +37,180 @@ func parsePaginationParams(params url.Values) (limit int) {
 
 }
 
-func TextHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
-	var rsp handler.Response
-
-	params := r.URL.Query()
-
-	limit := parsePaginationParams(params)
-
-	q, ok := params["q"]
+func geoDistanceParams(params url.Values) bool {
+	_, ok := params["lat"]
 	if !ok {
-		return rsp, handler.StatusError{Code: http.StatusBadRequest, Err: errors.New("Missing q url parameter.")}
+		return false
 	}
 
-	q = strings.Split(q[0], " ")
-
-	query := strings.Join(q, " | ")
-
-	log.Printf("%d %+v %d %s\n", limit, q, len(q), query)
-	images, err := Text(store, query, limit)
-	if err != nil {
-		return rsp, err
+	_, ok = params["lng"]
+	if !ok {
+		return false
 	}
 
-	return handler.Response{
-		Code: http.StatusOK,
-		Data: images,
-	}, nil
+	_, ok = params["radius"]
+	if !ok {
+		return false
+	}
+
+	return true
+
+	//log.Printf("%+v %f %d\n", postgis.PointS{SRID: 4326, X: lng, Y: lat}, radius, limit)
+	//images, err := GeoRadius(store, postgis.PointS{SRID: 4326, X: lng, Y: lat}, radius, limit)
+	//if err != nil {
+	//	return rsp, err
+	//}
+	//
+	//return handler.Response{
+	//	Code: http.StatusOK,
+	//	Data: images,
+	//}, nil
 }
 
-func ColorHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
-	var rsp handler.Response
-	var err error
-	params := r.URL.Query()
+func textParams(params url.Values) bool {
+	_, ok := params["q"]
+	if !ok {
+		return false
+	}
 
-	limit := parsePaginationParams(params)
+	return true
+
+	//q = strings.Split(q[0], " ")
+	//
+	//query := strings.Join(q, " | ")
+	//
+	//log.Printf("%d %+v %d %s\n", limit, q, len(q), query)
+	//images, err := Text(store, query, limit)
+	//if err != nil {
+	//	return rsp, err
+	//}
+	//
+	//return handler.Response{
+	//	Code: http.StatusOK,
+	//	Data: images,
+	//}, nil
+}
+
+func colorParams(params url.Values) bool {
 
 	hex, ok := params["hex"]
 	if !ok {
-		return rsp, handler.StatusError{Code: http.StatusBadRequest, Err: errors.New("Missing hex url parameter.")}
+		return false
 	}
 
 	if len(hex[0]) != 6 {
-		return rsp, handler.StatusError{Code: http.StatusBadRequest, Err: errors.New("Invalid Hex code. Only codes following #000000 are accepted.")}
-
+		return false
 	}
 
-	var pixelFraction float64
-	pixel, ok := params["pixelfraction"]
-	if !ok {
-		pixelFraction = .005
-	} else {
-		pixelFraction, err = strconv.ParseFloat(pixel[0], 64)
+	return true
+}
+
+func SearchHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
+	var rsp handler.Response
+	params := r.URL.Query()
+	ranking := []Score{}
+	limit := limitParam(params)
+
+	if textParams(params) {
+		q := params.Get("q")
+		terms := strings.Split(q, " ")
+
+		query := strings.Join(terms, " | ")
+
+		r, err := text(store, query, limit)
 		if err != nil {
-			pixelFraction = .005
+			return rsp, err
+		}
+
+		ranking = append(ranking, r...)
+	}
+
+	if colorParams(params) {
+		hex := params.Get("hex")
+		pixelFraction := params.Get("pixel_fraction")
+		pxl, err := strconv.ParseFloat(pixelFraction, 64)
+		if pixelFraction == "" || err != nil {
+			pxl = .005
+		}
+
+		r, err := color(store, clr.Hex{Code: hex}, pxl, limit)
+		if err != nil {
+			return rsp, err
+		}
+		ranking = append(ranking, r...)
+	}
+
+	if geoDistanceParams(params) {
+		lat, err := strconv.ParseFloat(params.Get("lat"), 64)
+		if err != nil {
+			return rsp, err
+		}
+		lng, err := strconv.ParseFloat(params.Get("lng"), 64)
+		if err != nil {
+			return rsp, err
+		}
+		radius, err := strconv.ParseFloat(params.Get("radius"), 64)
+		if err != nil {
+			return rsp, err
+		}
+
+		p := postgis.PointS{SRID: 4326, X: lng, Y: lat}
+
+		r, err := geoRadius(store, p, radius, limit)
+		if err != nil {
+			return rsp, err
+		}
+		ranking = append(ranking, r...)
+	}
+
+	m := make(map[int64]float64)
+	for _, s := range ranking {
+		score, ok := m[s.ID]
+		if ok {
+			m[s.ID] = score + s.Score
+		} else {
+			m[s.ID] = s.Score
 		}
 	}
 
-	log.Printf("%d %s\n", limit, hex[0])
-	images, err := Color(store, clr.Hex{Code: hex[0]}, pixelFraction, limit)
+	ranking = []Score{}
+
+	for k, v := range m {
+		ranking = append(ranking, Score{ID: k, Score: v})
+	}
+
+	sort.Sort(Scores(ranking))
+	imgs, err := retrieval.GetImages(store, restrict(ranking, limit))
 	if err != nil {
 		return rsp, err
 	}
-
 	return handler.Response{
 		Code: http.StatusOK,
-		Data: images,
+		Data: imgs,
 	}, nil
+
+}
+
+func restrict(s []Score, limit int) []int64 {
+	var l []int64
+	for i, score := range s {
+		if i > limit {
+			break
+		} else {
+			l = append(l, score.ID)
+		}
+	}
+	return l
 }
 
 func RecentImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
 	var rsp handler.Response
 
-	userRef, ok := context.GetOk(r, "auth")
-	var usr int64
-	if ok {
-		usr = userRef.(model.Ref).Id
-	}
-
 	params := r.URL.Query()
-	limit := parsePaginationParams(params)
+	limit := limitParam(params)
 
 	log.Printf("%d\n", limit)
-	images, err := RecentImages(store, usr, limit)
+	images, err := RecentImages(store, limit)
 	if err != nil {
 		return rsp, err
 	}
@@ -133,7 +225,7 @@ func FeaturedImageHandler(store *handler.State, w http.ResponseWriter, r *http.R
 	var rsp handler.Response
 
 	params := r.URL.Query()
-	limit := parsePaginationParams(params)
+	limit := limitParam(params)
 
 	images, err := FeaturedImages(store, limit)
 	if err != nil {
@@ -150,61 +242,9 @@ func HotImagesHander(store *handler.State, w http.ResponseWriter, r *http.Reques
 	var rsp handler.Response
 
 	params := r.URL.Query()
-	limit := parsePaginationParams(params)
+	limit := limitParam(params)
 
 	images, err := Hot(store, limit)
-	if err != nil {
-		return rsp, err
-	}
-
-	return handler.Response{
-		Code: http.StatusOK,
-		Data: images,
-	}, nil
-}
-
-func GeoDistanceHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
-	var rsp handler.Response
-	var err error
-	params := r.URL.Query()
-
-	limit := parsePaginationParams(params)
-
-	var lat float64
-	l, ok := params["lat"]
-	if !ok {
-		return rsp, handler.StatusError{Code: http.StatusBadRequest}
-	} else {
-		lat, err = strconv.ParseFloat(l[0], 64)
-		if err != nil {
-			return rsp, handler.StatusError{Code: http.StatusBadRequest}
-		}
-	}
-
-	var lng float64
-	l, ok = params["lng"]
-	if !ok {
-		return rsp, handler.StatusError{Code: http.StatusBadRequest}
-	} else {
-		lng, err = strconv.ParseFloat(l[0], 64)
-		if err != nil {
-			return rsp, handler.StatusError{Code: http.StatusBadRequest}
-		}
-	}
-
-	var radius float64
-	rad, ok := params["radius"]
-	if !ok {
-		radius = 1000
-	} else {
-		radius, err = strconv.ParseFloat(rad[0], 64)
-		if err != nil {
-			radius = 1000
-		}
-	}
-
-	log.Printf("%+v %f %d\n", postgis.PointS{SRID: 4326, X: lng, Y: lat}, radius, limit)
-	images, err := GeoRadius(store, postgis.PointS{SRID: 4326, X: lng, Y: lat}, radius, limit)
 	if err != nil {
 		return rsp, err
 	}

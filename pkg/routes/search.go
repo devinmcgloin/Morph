@@ -30,22 +30,6 @@ func RegisterSearchRoutes(state *handler.State, api *mux.Router, chain alice.Cha
 			}.Handler).Then(handler.Handler{State: state, H: search.RecentImageHandler}))
 	opts.Handle("/i/recent", chain.Then(handler.Options("GET")))
 
-	get.Handle("/i/color",
-		cache.Append(
-			handler.Middleware{
-				State: state,
-				M:     security.SetAuthenticatedUser,
-			}.Handler).Then(handler.Handler{State: state, H: search.ColorHandler}))
-	opts.Handle("/i/color", chain.Then(handler.Options("GET")))
-
-	get.Handle("/i/geo",
-		cache.Append(
-			handler.Middleware{
-				State: state,
-				M:     security.SetAuthenticatedUser,
-			}.Handler).Then(handler.Handler{State: state, H: search.GeoDistanceHandler}))
-	opts.Handle("/i/geo", chain.Then(handler.Options("GET")))
-
 	get.Handle("/i/hot",
 		cache.Append(
 			handler.Middleware{
@@ -54,12 +38,12 @@ func RegisterSearchRoutes(state *handler.State, api *mux.Router, chain alice.Cha
 			}.Handler).Then(handler.Handler{State: state, H: search.HotImagesHander}))
 	opts.Handle("/i/hot", chain.Then(handler.Options("GET")))
 
-	get.Handle("/i/text",
+	get.Handle("/i/search",
 		cache.Append(
 			handler.Middleware{
 				State: state,
 				M:     security.SetAuthenticatedUser,
-			}.Handler).Then(handler.Handler{State: state, H: search.TextHandler}))
-	opts.Handle("/i/text", chain.Then(handler.Options("GET")))
+			}.Handler).Then(handler.Handler{State: state, H: search.SearchHandler}))
+	opts.Handle("/i/search", chain.Then(handler.Options("GET")))
 
 }
