@@ -1,20 +1,23 @@
 package search
 
+import "github.com/devinmcgloin/fokal/pkg/model"
+
 type Score struct {
-	ID    int64
+	ID    int64 `json:"-"`
 	Score float64
+	Image model.Image
 }
 
-type Scores []Score
+type ByScores []Score
 
-func (s Scores) Len() int {
+func (s ByScores) Len() int {
 	return len(s)
 }
 
-func (s Scores) Swap(i, j int) {
+func (s ByScores) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
 
-func (s Scores) Less(i, j int) bool {
-	return s[i].Score < s[i].Score
+func (s ByScores) Less(i, j int) bool {
+	return s[i].Score < s[j].Score
 }

@@ -15,6 +15,7 @@ import (
 	"github.com/devinmcgloin/clr/clr"
 	"github.com/devinmcgloin/fokal/pkg/handler"
 	"github.com/devinmcgloin/fokal/pkg/retrieval"
+	"github.com/pkg/errors"
 )
 
 func limitParam(params url.Values) (limit int) {
@@ -107,6 +108,7 @@ func colorParams(params url.Values) bool {
 
 func SearchHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
 	var rsp handler.Response
+	var err error
 	params := r.URL.Query()
 	ranking := []Score{}
 	limit := limitParam(params)
@@ -131,6 +133,10 @@ func SearchHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 		pxl, err := strconv.ParseFloat(pixelFraction, 64)
 		if pixelFraction == "" || err != nil {
 			pxl = .005
+		}
+
+		if hex == "" {
+			return rsp, handler.StatusError{Code: http.StatusBadRequest, Err: errors.New("hex paramter must have value")}
 		}
 
 		r, err := color(store, clr.Hex{Code: hex}, pxl, limit)
@@ -179,28 +185,22 @@ func SearchHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 		ranking = append(ranking, Score{ID: k, Score: v})
 	}
 
-	sort.Sort(Scores(ranking))
-	imgs, err := retrieval.GetImages(store, restrict(ranking, limit))
-	if err != nil {
-		return rsp, err
+	sort.Sort(sort.Reverse(ByScores(ranking)))
+	if len(ranking) > limit {
+		ranking = ranking[:limit]
 	}
-	return handler.Response{
-		Code: http.StatusOK,
-		Data: imgs,
-	}, nil
-
-}
-
-func restrict(s []Score, limit int) []int64 {
-	var l []int64
-	for i, score := range s {
-		if i > limit {
-			break
-		} else {
-			l = append(l, score.ID)
+	for i, r := range ranking {
+		ranking[i].Image, err = retrieval.GetImage(store, r.ID)
+		if err != nil {
+			return rsp, err
 		}
 	}
-	return l
+
+	return handler.Response{
+		Code: http.StatusOK,
+		Data: ranking,
+	}, nil
+
 }
 
 func RecentImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {

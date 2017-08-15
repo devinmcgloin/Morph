@@ -24,7 +24,7 @@ func color(state *handler.State, color clr.Color, pixelFraction float64, limit i
 	err := state.DB.Select(&ids, `
 	SELECT
 	  id,
-	  score
+	  score / 50 AS score
 	FROM (SELECT
 			bridge.image_id                                         AS id,
 			$1 :: CUBE <-> cielab AS score
@@ -54,21 +54,21 @@ SELECT
     sum(scores.rank) AS score
  FROM (SELECT
           bridge.image_id,
-          ts_rank_cd(to_tsvector(landmark.description), to_tsquery($1)) AS rank
+          ts_rank_cd(to_tsvector(landmark.description), to_tsquery($1),32 /* rank/(rank+1) */) AS rank
         FROM content.landmarks AS landmark
           JOIN content.image_landmark_bridge AS bridge ON landmark.id = bridge.landmark_id
         WHERE to_tsvector(landmark.description) @@ to_tsquery($1)
         UNION ALL
         SELECT
           bridge.image_id,
-          ts_rank_cd(to_tsvector(labels.description), to_tsquery($1)) AS rank
+          ts_rank_cd(to_tsvector(labels.description), to_tsquery($1),32 /* rank/(rank+1) */) AS rank
         FROM content.labels AS labels
           JOIN content.image_label_bridge AS bridge ON labels.id = bridge.label_id
         WHERE to_tsvector(labels.description) @@ to_tsquery($1)
         UNION ALL
         SELECT
           bridge.image_id,
-          ts_rank_cd(to_tsvector(tags.description), to_tsquery($1)) AS rank
+          ts_rank_cd(to_tsvector(tags.description), to_tsquery($1),32 /* rank/(rank+1) */) AS rank
         FROM content.image_tags AS tags
           JOIN content.image_tag_bridge AS bridge ON tags.id = bridge.tag_id
         WHERE to_tsvector(tags.description) @@ to_tsquery($1)) AS scores
