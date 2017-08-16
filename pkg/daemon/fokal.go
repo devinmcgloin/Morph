@@ -83,7 +83,7 @@ func Run(cfg *Config) {
 		AllowedOrigins:     []string{"https://sprioc.xyz", "https://dev.sprioc.xyz", "http://localhost:3000"},
 		AllowCredentials:   true,
 		OptionsPassthrough: true,
-		AllowedHeaders:     []string{"Authorization"},
+		AllowedHeaders:     []string{"Authorization", "Content-Type"},
 		AllowedMethods:     []string{"GET", "PUT", "OPTIONS", "PATCH", "POST"},
 	})
 

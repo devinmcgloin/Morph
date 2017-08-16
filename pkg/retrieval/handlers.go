@@ -67,6 +67,28 @@ func LoggedInUserHandler(store *handler.State, w http.ResponseWriter, r *http.Re
 	}, nil
 }
 
+func LoggedInUserImagesHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
+	var rsp handler.Response
+
+	val, ok := context.GetOk(r, "auth")
+	if !ok {
+		return rsp, handler.StatusError{
+			Code: http.StatusUnauthorized,
+			Err:  errors.New("Must be logged in to use this endpoint")}
+	}
+
+	usrRef := val.(model.Ref)
+	images, err := GetUserImages(store, usrRef.Id)
+	if err != nil {
+		return rsp, err
+	}
+
+	return handler.Response{
+		Code: http.StatusOK,
+		Data: images,
+	}, nil
+}
+
 func ImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
 	var rsp handler.Response
 
