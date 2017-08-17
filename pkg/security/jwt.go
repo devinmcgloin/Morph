@@ -52,6 +52,8 @@ func verifyJWT(state *handler.State, r *http.Request) (model.Ref, error) {
 	var userRef model.Ref
 	tokenStrings, err := jwtreq.HeaderExtractor{"Authorization"}.ExtractToken(r)
 
+	log.Println(tokenStrings)
+
 	if err != nil {
 		return userRef, handler.StatusError{Err: errors.New("Bearer Header not present"), Code: http.StatusUnauthorized}
 	}

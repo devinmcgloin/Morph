@@ -29,14 +29,14 @@ func RegisterRetrievalRoutes(state *handler.State, api *mux.Router, chain alice.
 			}.Handler).Then(handler.Handler{State: state, H: retrieval.ImageHandler}))
 	opts.Handle("/i/{ID:[a-zA-Z]{12}}", chain.Then(handler.Options("GET")))
 
-	get.Handle("/u/me", cache.Append(
+	get.Handle("/u/me", chain.Append(
 		handler.Middleware{
 			State: state,
 			M:     security.Authenticate,
 		}.Handler).Then(handler.Handler{State: state, H: retrieval.LoggedInUserHandler}))
 	opts.Handle("/u/me", chain.Then(handler.Options("GET")))
 
-	get.Handle("/u/me/images", cache.Append(
+	get.Handle("/u/me/images", chain.Append(
 		handler.Middleware{
 			State: state,
 			M:     security.Authenticate,

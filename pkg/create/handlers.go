@@ -133,7 +133,7 @@ func ImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) 
 	ref := model.Ref{Collection: model.Images, Shortcode: img.Shortcode}
 	return handler.Response{
 		Code: http.StatusAccepted,
-		Data: map[string]string{"link": ref.ToURL(store.Port, store.Local)},
+		Data: map[string]string{"link": ref.ToURL(store.Port, store.Local), "id": ref.Shortcode},
 	}, nil
 
 }
