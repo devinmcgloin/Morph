@@ -88,7 +88,7 @@ func geoRadius(state *handler.State, point postgis.PointS, radius float64, limit
 	ids := []Score{}
 
 	err := state.DB.Select(&ids, `
-	SELECT geo.image_id, ST_Distance(GeomFromEWKB($1), geo.loc) / $2 AS score
+	SELECT geo.image_id AS id, ST_Distance(GeomFromEWKB($1), geo.loc) / $2 AS score
 	FROM content.image_geo AS geo
 	WHERE ST_Distance(GeomFromEWKB($1), geo.loc) < $2
 	ORDER BY GeomFromEWKB($1) <-> geo.loc

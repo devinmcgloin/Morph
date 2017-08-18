@@ -3,9 +3,9 @@ package search
 import "github.com/devinmcgloin/fokal/pkg/model"
 
 type Score struct {
-	ID    int64 `json:"-"`
-	Score float64
-	Image model.Image
+	ID    int64       `json:"-"`
+	Score float64     `json:"score"`
+	Image model.Image `json:"image"`
 }
 
 type ByScores []Score
