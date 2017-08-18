@@ -100,8 +100,6 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				http.StatusInternalServerError)
 		}
 	} else {
-		log.Printf("%+v\n", res.Data)
-
 		w.WriteHeader(res.Code)
 		w.Write(res.Format())
 	}
