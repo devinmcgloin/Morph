@@ -31,7 +31,7 @@ func commitImagePatch(db *sqlx.DB, image model.Ref, req map[string]interface{}) 
 				if err != nil {
 					log.Printf("CREATE NEW TAG: %s\n", tag)
 					rows, err := tx.Query(`INSERT INTO content.image_tags (description)
-											VALUES ($1) RETURNING id;`, tag)
+											VALUES (LOWER($1)) RETURNING id;`, tag)
 					if err != nil {
 						log.Println(err)
 						return err

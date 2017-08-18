@@ -196,6 +196,8 @@ func SearchHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 		}
 	}
 
+	log.Printf("%+v\n", ranking)
+
 	return handler.Response{
 		Code: http.StatusOK,
 		Data: ranking,
