@@ -133,7 +133,7 @@
 		},
 		{
 			"ImportPath": "github.com/devinmcgloin/clr/clr",
-			"Rev": "3fefc2ffc3e7dcf02d210a7643b7d689b1e659a3"
+			"Rev": "0b88b1734f38e1e7d0e5a6b8c139465bbd9a588c"
 		},
 		{
 			"ImportPath": "github.com/dgrijalva/jwt-go",
@@ -187,13 +187,13 @@
 		},
 		{
 			"ImportPath": "github.com/jmoiron/sqlx",
-			"Comment": "sqlx-v1.1-121-g3564e3a",
-			"Rev": "3564e3a314b957a161fefa0e7aea85b4d741c94e"
+			"Comment": "sqlx-v1.1-123-gd9bd385",
+			"Rev": "d9bd385d68c068f1fabb5057e3dedcbcbb039d0f"
 		},
 		{
 			"ImportPath": "github.com/jmoiron/sqlx/reflectx",
-			"Comment": "sqlx-v1.1-121-g3564e3a",
-			"Rev": "3564e3a314b957a161fefa0e7aea85b4d741c94e"
+			"Comment": "sqlx-v1.1-123-gd9bd385",
+			"Rev": "d9bd385d68c068f1fabb5057e3dedcbcbb039d0f"
 		},
 		{
 			"ImportPath": "github.com/justinas/alice",
@@ -202,13 +202,13 @@
 		},
 		{
 			"ImportPath": "github.com/lib/pq",
-			"Comment": "go1.0-cutoff-166-g2704adc",
-			"Rev": "2704adc878c21e1329f46f6e56a1c387d788ff94"
+			"Comment": "go1.0-cutoff-175-ge422674",
+			"Rev": "e42267488fe361b9dc034be7a6bffef5b195bceb"
 		},
 		{
 			"ImportPath": "github.com/lib/pq/oid",
-			"Comment": "go1.0-cutoff-166-g2704adc",
-			"Rev": "2704adc878c21e1329f46f6e56a1c387d788ff94"
+			"Comment": "go1.0-cutoff-175-ge422674",
+			"Rev": "e42267488fe361b9dc034be7a6bffef5b195bceb"
 		},
 		{
 			"ImportPath": "github.com/mholt/binding",
@@ -226,8 +226,8 @@
 		},
 		{
 			"ImportPath": "github.com/rs/cors",
-			"Comment": "v.1.1",
-			"Rev": "8dd4211afb5d08dbb39a533b9bb9e4b486351df6"
+			"Comment": "v1.2-1-geabcc6a",
+			"Rev": "eabcc6af4bbe5ad3a949d36450326a2b0b9894b8"
 		},
 		{
 			"ImportPath": "github.com/rwcarlsen/goexif/exif",
@@ -243,12 +243,8 @@
 			"Rev": "5bf94b69c6b68ee1b541973bb8e1144db23a194b"
 		},
 		{
-			"ImportPath": "github.com/sprioc/geojson",
-			"Rev": "748fac79e3b76d72c81b101dd7ecb051e5482882"
-		},
-		{
 			"ImportPath": "github.com/unrolled/secure",
-			"Rev": "179957f53e4db0bcd04dd42c95b07b1d12c34f5e"
+			"Rev": "a80c09da9c7bd84aaf622507fd339a9281b8acd1"
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",

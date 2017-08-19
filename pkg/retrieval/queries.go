@@ -3,11 +3,17 @@ package retrieval
 import (
 	"log"
 
+	"fmt"
+
+	"database/sql"
+	"errors"
+	"net/http"
+
 	"github.com/devinmcgloin/fokal/pkg/handler"
 	"github.com/devinmcgloin/fokal/pkg/model"
 	"github.com/devinmcgloin/fokal/pkg/stats"
 	"github.com/jmoiron/sqlx"
-	"github.com/lib/pq"
+	_ "github.com/lib/pq"
 )
 
 // GetUser returns the fields of a user row into a User struct, including image references.
@@ -86,39 +92,109 @@ func GetImages(state *handler.State, imageIDS []int64) ([]model.Image, error) {
 // and user data.
 func GetImage(state *handler.State, i int64) (model.Image, error) {
 	img := model.Image{}
-	err := state.DB.Get(&img, `
+	q := `
 	SELECT id, shortcode, publish_time, last_modified, user_id, featured FROM content.images AS images
-	WHERE images.id = $1`, i)
+	WHERE images.id = %[1]d;
+
+	-- metadata
+
+	SELECT aperture, exposure_time, focal_length, iso, make, model,
+	lens_make, lens_model, pixel_yd, pixel_xd, capture_time, loc, dir
+	FROM content.image_metadata AS meta
+	JOIN content.image_geo AS geo ON geo.image_id = meta.image_id
+	WHERE meta.image_id = %[1]d;
+
+	--landmarks
+
+
+	SELECT landmark.description, landmark.location, bridge.score FROM content.image_landmark_bridge AS bridge
+	JOIN content.landmarks AS landmark ON bridge.landmark_id = landmark.id
+	WHERE bridge.image_id = %[1]d;
+
+	--labels
+
+	SELECT description, score FROM content.image_label_bridge
+	JOIN content.labels ON content.image_label_bridge.label_id = content.labels.id
+	WHERE content.image_label_bridge.image_id = %[1]d;
+
+	--tags
+
+	SELECT description FROM content.image_tags AS tags
+	JOIN content.image_tag_bridge AS bridge ON tags.id = bridge.tag_id
+	WHERE bridge.image_id = %[1]d;
+
+	--colors
+
+	SELECT red,green,blue, hue,saturation,val, shade, color, pixel_fraction, score FROM content.colors AS colors
+	JOIN content.image_color_bridge AS bridge ON colors.id = bridge.color_id
+	WHERE bridge.image_id = %[1]d;
+
+	--stats
+	SELECT count(*) FROM content.user_favorites
+	WHERE image_id = %[1]d;
+
+	SELECT COALESCE(sum(total),0) FROM content.image_stats
+	WHERE image_id = %[1]d AND stat_type = 'view';
+
+	SELECT COALESCE(sum(total),0) FROM content.image_stats
+	WHERE image_id = %[1]d AND stat_type = 'download';
+	`
+
+	rows, err := state.DB.Queryx(fmt.Sprintf(q, i))
+	if err != nil {
+		log.Println(err)
+		return model.Image{}, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&img.Id, &img.Shortcode, &img.PublishTime, &img.LastModified, &img.UserId,
+			&img.Featured)
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				return img, handler.StatusError{Code: http.StatusNotFound, Err: errors.New("Image not found.")}
+			default:
+				return img, err
+			}
+		}
+	}
+
+	img.Metadata, err = imageMetadata(rows)
 	if err != nil {
 		log.Println(err)
 		return model.Image{}, err
 	}
 
-	img.Metadata, err = imageMetadata(state.DB, i)
+	img.Landmarks, err = imageLandmarks(rows)
 	if err != nil {
+		log.Println(err)
+
 		return model.Image{}, err
 	}
 
-	img.Landmarks, err = imageLandmarks(state.DB, i)
+	img.Labels, err = imageLabels(rows)
 	if err != nil {
+		log.Println(err)
+		return model.Image{}, err
+	}
+	img.Tags, err = imageTags(rows)
+	if err != nil {
+		log.Println(err)
+
+		return model.Image{}, err
+	}
+	img.Colors, err = imageColors(rows)
+	if err != nil {
+		log.Println(err)
+
 		return model.Image{}, err
 	}
 
-	img.Labels, err = imageLabels(state.DB, i)
+	img.Stats, err = imageStats(rows)
 	if err != nil {
-		return model.Image{}, err
-	}
-	img.Tags, err = imageTags(state.DB, i)
-	if err != nil {
-		return model.Image{}, err
-	}
-	img.Colors, err = imageColors(state.DB, i)
-	if err != nil {
-		return model.Image{}, err
-	}
+		log.Println(err)
 
-	img.Stats, err = imageStats(state.DB, i)
-	if err != nil {
 		return model.Image{}, err
 	}
 
@@ -134,17 +210,13 @@ func GetImage(state *handler.State, i int64) (model.Image, error) {
 	return img, nil
 }
 
-func imageLandmarks(db *sqlx.DB, imageId int64) ([]model.Landmark, error) {
+func imageLandmarks(rows *sqlx.Rows) ([]model.Landmark, error) {
 	landmarks := []model.Landmark{}
-	rows, err := db.Query(`
-	SELECT landmark.description, landmark.location, bridge.score FROM content.image_landmark_bridge AS bridge
-	JOIN content.landmarks AS landmark ON bridge.landmark_id = landmark.id
-	WHERE bridge.image_id = $1`, imageId)
-	if err != nil {
-		log.Println(err)
-		return landmarks, err
+	var err error
+	if !rows.NextResultSet() {
+		log.Println(rows.Err())
+		return landmarks, rows.Err()
 	}
-	defer rows.Close()
 	for rows.Next() {
 		landmark := model.Landmark{}
 		err = rows.Scan(&landmark.Description, &landmark.Location, &landmark.Score)
@@ -169,77 +241,86 @@ func imageSources(shortcode, location string) model.ImageSource {
 	}
 }
 
-func imageLabels(db *sqlx.DB, imageId int64) ([]model.Label, error) {
+func imageLabels(rows *sqlx.Rows) ([]model.Label, error) {
 	labels := []model.Label{}
-	err := db.Select(&labels, `
-	SELECT description, score FROM content.image_label_bridge
-	JOIN content.labels ON content.image_label_bridge.label_id = content.labels.id
-	WHERE content.image_label_bridge.image_id = $1`,
-		imageId)
-	if err != nil {
-		log.Println(err)
-		return labels, err
+	var err error
+	if !rows.NextResultSet() {
+		return labels, rows.Err()
 	}
+
+	for rows.Next() {
+		label := model.Label{}
+		err = rows.Scan(&label.Description, &label.Score)
+		if err != nil {
+			return labels, err
+		}
+		labels = append(labels, label)
+	}
+
 	return labels, nil
 }
 
-func imageTags(db *sqlx.DB, imageId int64) ([]string, error) {
+func imageTags(rows *sqlx.Rows) ([]string, error) {
 	tags := []string{}
-	err := db.Select(&tags, `
-	SELECT description FROM content.image_tags AS tags
-	JOIN content.image_tag_bridge AS bridge ON tags.id = bridge.tag_id
-	WHERE bridge.image_id = $1`,
-		imageId)
-	if err != nil {
-		log.Println(err)
-		return tags, err
+	var err error
+	if !rows.NextResultSet() {
+		return tags, rows.Err()
+	}
+
+	for rows.Next() {
+		tag := ""
+		err = rows.Scan(&tag)
+		if err != nil {
+			return tags, err
+		}
+		tags = append(tags, tag)
 	}
 	return tags, nil
 }
 
-func imageStats(db *sqlx.DB, imageId int64) (model.ImageStats, error) {
+func imageStats(rows *sqlx.Rows) (model.ImageStats, error) {
 	stat := model.ImageStats{}
-
-	err := db.Get(&stat.Favorites, `
-	SELECT count(*) FROM content.user_favorites
-	WHERE image_id = $1`, imageId)
-	if err != nil {
-		log.Println(err)
-		return stat, err
+	var err error
+	if !rows.NextResultSet() {
+		return stat, rows.Err()
 	}
 
-	err = db.Get(&stat.Views, `
-	SELECT COALESCE(sum(total),0) FROM content.image_stats
-	WHERE image_id = $1 AND stat_type = 'view'`, imageId)
-	if err != nil {
-		log.Println(err)
-		return stat, err
+	for rows.Next() {
+		err = rows.Scan(&stat.Favorites)
+		if err != nil {
+			return stat, err
+		}
+	}
+	if !rows.NextResultSet() {
+		return stat, rows.Err()
 	}
 
-	err = db.Get(&stat.Downloads, `
-	SELECT COALESCE(sum(total),0) FROM content.image_stats
-	WHERE image_id = $1 AND stat_type = 'download'`, imageId)
-	if err != nil {
-		log.Println(err)
-		return stat, err
+	for rows.Next() {
+		err = rows.Scan(&stat.Views)
+		if err != nil {
+			return stat, err
+		}
+	}
+	if !rows.NextResultSet() {
+		return stat, rows.Err()
+	}
+
+	for rows.Next() {
+		err = rows.Scan(&stat.Downloads)
+		if err != nil {
+			return stat, err
+		}
 	}
 	return stat, nil
 }
 
-func imageColors(db *sqlx.DB, imageId int64) ([]model.Color, error) {
+func imageColors(rows *sqlx.Rows) ([]model.Color, error) {
 	colors := []model.Color{}
-
-	rows, err := db.Query(`
-	SELECT red,green,blue, hue,saturation,val, shade, color, pixel_fraction, score FROM content.colors AS colors
-	JOIN content.image_color_bridge AS bridge ON colors.id = bridge.color_id
-	WHERE bridge.image_id = $1
-	`, imageId)
-	if err != nil {
-		log.Println(err)
-		return colors, err
+	var err error
+	if !rows.NextResultSet() {
+		return colors, rows.Err()
 	}
 
-	defer rows.Close()
 	for rows.Next() {
 		color := model.Color{}
 		err = rows.Scan(&color.SRGB.R, &color.SRGB.G, &color.SRGB.B,
@@ -255,17 +336,18 @@ func imageColors(db *sqlx.DB, imageId int64) ([]model.Color, error) {
 	return colors, nil
 }
 
-func imageMetadata(db *sqlx.DB, imageId int64) (model.ImageMetadata, error) {
+func imageMetadata(rows *sqlx.Rows) (model.ImageMetadata, error) {
 	meta := model.ImageMetadata{}
-	err := db.Get(&meta, `
-	SELECT aperture, exposure_time, focal_length, iso, make, model,
-	lens_make, lens_model, pixel_yd, pixel_xd, capture_time, loc, dir
-	FROM content.image_metadata AS meta
-	JOIN content.image_geo AS geo ON geo.image_id = meta.image_id
-	WHERE meta.image_id = $1`, imageId)
-	if err != nil {
-		log.Println(err)
-		return meta, err
+	if !rows.NextResultSet() {
+		return meta, rows.Err()
+	}
+
+	for rows.Next() {
+		err := rows.Scan(&meta.Aperture, &meta.ExposureTime, &meta.FocalLength, &meta.ISO, &meta.Make, &meta.Model,
+			&meta.LensMake, &meta.LensModel, &meta.PixelYDimension, &meta.PixelXDimension, &meta.CaptureTime, &meta.Location, &meta.ImageDirection)
+		if err != nil {
+			return meta, err
+		}
 	}
 	return meta, nil
 }
@@ -330,9 +412,6 @@ func TaggedImages(state *handler.State, tagText string) ([]model.Image, error) {
 		ORDER BY ranking(1, views + favorites, featured :: INT + 3) DESC;
 	`, tagText)
 	if err != nil {
-		if err, ok := err.(*pq.Error); ok {
-			log.Printf("%+v", err)
-		}
 		return []model.Image{}, err
 	}
 	return GetImages(state, ids)
