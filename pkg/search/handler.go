@@ -240,13 +240,13 @@ func FeaturedImageHandler(store *handler.State, w http.ResponseWriter, r *http.R
 	}, nil
 }
 
-func HotImagesHander(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
+func TrendingImagesHander(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
 	var rsp handler.Response
 
 	params := r.URL.Query()
 	limit := limitParam(params)
 
-	images, err := Hot(store, limit)
+	images, err := Trending(store, limit)
 	if err != nil {
 		return rsp, err
 	}

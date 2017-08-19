@@ -105,7 +105,7 @@ func geoRadius(state *handler.State, point postgis.PointS, radius float64, limit
 	return ids, nil
 }
 
-func Hot(state *handler.State, limit int) ([]model.Image, error) {
+func Trending(state *handler.State, limit int) ([]model.Image, error) {
 	ids := []int64{}
 
 	err := state.DB.Select(&ids, `

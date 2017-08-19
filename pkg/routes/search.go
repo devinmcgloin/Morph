@@ -30,13 +30,13 @@ func RegisterSearchRoutes(state *handler.State, api *mux.Router, chain alice.Cha
 			}.Handler).Then(handler.Handler{State: state, H: search.RecentImageHandler}))
 	opts.Handle("/i/recent", chain.Then(handler.Options("GET")))
 
-	get.Handle("/i/hot",
+	get.Handle("/i/trending",
 		cache.Append(
 			handler.Middleware{
 				State: state,
 				M:     security.SetAuthenticatedUser,
-			}.Handler).Then(handler.Handler{State: state, H: search.HotImagesHander}))
-	opts.Handle("/i/hot", chain.Then(handler.Options("GET")))
+			}.Handler).Then(handler.Handler{State: state, H: search.TrendingImagesHander}))
+	opts.Handle("/i/trending", chain.Then(handler.Options("GET")))
 
 	get.Handle("/i/search",
 		cache.Append(

@@ -198,32 +198,32 @@ func imageTags(db *sqlx.DB, imageId int64) ([]string, error) {
 }
 
 func imageStats(db *sqlx.DB, imageId int64) (model.ImageStats, error) {
-	stats := model.ImageStats{}
+	stat := model.ImageStats{}
 
-	err := db.Get(&stats.Favorites, `
+	err := db.Get(&stat.Favorites, `
 	SELECT count(*) FROM content.user_favorites
 	WHERE image_id = $1`, imageId)
 	if err != nil {
 		log.Println(err)
-		return stats, err
+		return stat, err
 	}
 
-	err = db.Get(&stats.Views, `
+	err = db.Get(&stat.Views, `
 	SELECT COALESCE(sum(total),0) FROM content.image_stats
 	WHERE image_id = $1 AND stat_type = 'view'`, imageId)
 	if err != nil {
 		log.Println(err)
-		return stats, err
+		return stat, err
 	}
 
-	err = db.Get(&stats.Downloads, `
+	err = db.Get(&stat.Downloads, `
 	SELECT COALESCE(sum(total),0) FROM content.image_stats
 	WHERE image_id = $1 AND stat_type = 'download'`, imageId)
 	if err != nil {
 		log.Println(err)
-		return stats, err
+		return stat, err
 	}
-	return stats, nil
+	return stat, nil
 }
 
 func imageColors(db *sqlx.DB, imageId int64) ([]model.Color, error) {
