@@ -17,6 +17,7 @@ type User struct {
 	Bio      *string         `json:"bio,omitempty"`
 	URL      *string         `json:"url,omitempty"`
 	Location *postgis.PointS `json:"location,omitempty"`
+	Avatars  ImageSource     `json:"avatar_links"`
 
 	ImageLinks    *[]string `json:"images_links,omitempty"`
 	FavoriteLinks *[]string `json:"favorite_links,omitempty"`
@@ -47,7 +48,7 @@ type Image struct {
 	Featured bool  `json:"featured"`
 
 	Stats    ImageStats    `json:"stats"`
-	Source   ImageSource   `json:"src_url"`
+	Source   ImageSource   `json:"src_links"`
 	Metadata ImageMetadata `json:"metadata"`
 }
 

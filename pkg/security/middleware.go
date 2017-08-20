@@ -40,6 +40,5 @@ func SetAuthenticatedUser(state *handler.State, next http.Handler) http.Handler 
 			context.Set(r, "auth", user)
 		}
 		next.ServeHTTP(w, r)
-
 	})
 }

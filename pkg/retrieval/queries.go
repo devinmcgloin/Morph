@@ -55,6 +55,7 @@ func GetUser(state *handler.State, u int64) (model.User, error) {
 	}
 
 	user.FavoriteLinks = &favoriteLinks
+	user.Avatars = imageSources(user.Username, "avatar")
 
 	user.Permalink = model.Ref{Collection: model.Users, Shortcode: user.Username}.ToURL(state.Port, state.Local)
 
