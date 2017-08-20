@@ -353,6 +353,24 @@ func imageMetadata(rows *sqlx.Rows) (model.ImageMetadata, error) {
 	return meta, nil
 }
 
+func GetUserFavorites(state *handler.State, userId int64) ([]model.Image, error) {
+	images := []int64{}
+
+	err := state.DB.Select(&images, `
+			SELECT favs.image_id
+			FROM content.user_favorites AS favs
+			INNER JOIN permissions.can_view AS view ON view.o_id = favs.image_id
+				WHERE view.user_id = -1 AND favs.user_id = $1
+			ORDER BY favs.created_at DESC`, userId)
+
+	if err != nil {
+		log.Println(err)
+		return []model.Image{}, err
+	}
+
+	return GetImages(state, images)
+}
+
 func GetUserImages(state *handler.State, userId int64) ([]model.Image, error) {
 	images := []int64{}
 

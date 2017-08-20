@@ -45,6 +45,22 @@ func UserImagesHandler(store *handler.State, w http.ResponseWriter, r *http.Requ
 	}, nil
 }
 
+func UserFavoritesHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
+	var rsp handler.Response
+	username := mux.Vars(r)["ID"]
+
+	ref, err := GetUserRef(store.DB, username)
+	if err != nil {
+		return rsp, err
+	}
+
+	user, err := GetUserFavorites(store, ref.Id)
+	return handler.Response{
+		Code: http.StatusOK,
+		Data: user,
+	}, nil
+}
+
 func LoggedInUserHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
 	var rsp handler.Response
 
