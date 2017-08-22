@@ -12,11 +12,11 @@ import (
 
 	"time"
 
-	"github.com/devinmcgloin/fokal/pkg/conn"
-	"github.com/devinmcgloin/fokal/pkg/handler"
-	"github.com/devinmcgloin/fokal/pkg/logging"
-	"github.com/devinmcgloin/fokal/pkg/routes"
-	"github.com/devinmcgloin/fokal/pkg/security"
+	"github.com/fokal/fokal/pkg/conn"
+	"github.com/fokal/fokal/pkg/handler"
+	"github.com/fokal/fokal/pkg/logging"
+	"github.com/fokal/fokal/pkg/routes"
+	"github.com/fokal/fokal/pkg/security"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/context"
 	"github.com/gorilla/handlers"

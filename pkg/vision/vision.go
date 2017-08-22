@@ -6,8 +6,8 @@ import (
 
 	"github.com/cridenour/go-postgis"
 	"github.com/devinmcgloin/clr/clr"
-	"github.com/devinmcgloin/fokal/pkg/color"
-	"github.com/devinmcgloin/fokal/pkg/model"
+	"github.com/fokal/fokal/pkg/color"
+	"github.com/fokal/fokal/pkg/model"
 	"github.com/jmoiron/sqlx"
 
 	"image"

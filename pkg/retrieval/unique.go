@@ -1,8 +1,8 @@
 package retrieval
 
 import (
-	"github.com/devinmcgloin/fokal/pkg/generator"
-	"github.com/devinmcgloin/fokal/pkg/model"
+	"github.com/fokal/fokal/pkg/generator"
+	"github.com/fokal/fokal/pkg/model"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 )

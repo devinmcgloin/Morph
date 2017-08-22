@@ -6,9 +6,9 @@ import (
 
 	"log"
 
-	"github.com/devinmcgloin/fokal/pkg/handler"
-	"github.com/devinmcgloin/fokal/pkg/model"
-	"github.com/devinmcgloin/fokal/pkg/request"
+	"github.com/fokal/fokal/pkg/handler"
+	"github.com/fokal/fokal/pkg/model"
+	"github.com/fokal/fokal/pkg/request"
 	"github.com/mholt/binding"
 )
 

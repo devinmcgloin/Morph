@@ -10,12 +10,12 @@ import (
 
 	"bytes"
 
-	"github.com/devinmcgloin/fokal/pkg/handler"
-	"github.com/devinmcgloin/fokal/pkg/metadata"
-	"github.com/devinmcgloin/fokal/pkg/model"
-	"github.com/devinmcgloin/fokal/pkg/retrieval"
-	"github.com/devinmcgloin/fokal/pkg/upload"
-	"github.com/devinmcgloin/fokal/pkg/vision"
+	"github.com/fokal/fokal/pkg/handler"
+	"github.com/fokal/fokal/pkg/metadata"
+	"github.com/fokal/fokal/pkg/model"
+	"github.com/fokal/fokal/pkg/retrieval"
+	"github.com/fokal/fokal/pkg/upload"
+	"github.com/fokal/fokal/pkg/vision"
 	"github.com/gorilla/context"
 )
 

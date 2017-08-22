@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	"github.com/devinmcgloin/fokal/pkg/handler"
+	"github.com/fokal/fokal/pkg/handler"
 	"github.com/gorilla/context"
 )
 

@@ -1,6 +1,6 @@
 package search
 
-import "github.com/devinmcgloin/fokal/pkg/model"
+import "github.com/fokal/fokal/pkg/model"
 
 type Score struct {
 	ID    int64       `json:"-"`

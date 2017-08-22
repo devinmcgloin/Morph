@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/devinmcgloin/fokal/pkg/model"
+	"github.com/fokal/fokal/pkg/model"
 	"github.com/jmoiron/sqlx"
 )
 

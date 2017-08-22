@@ -5,9 +5,9 @@ import (
 
 	"log"
 
-	"github.com/devinmcgloin/fokal/pkg/handler"
-	"github.com/devinmcgloin/fokal/pkg/request"
-	"github.com/devinmcgloin/fokal/pkg/retrieval"
+	"github.com/fokal/fokal/pkg/handler"
+	"github.com/fokal/fokal/pkg/request"
+	"github.com/fokal/fokal/pkg/retrieval"
 	"github.com/fatih/structs"
 	"github.com/gorilla/mux"
 	"github.com/mholt/binding"

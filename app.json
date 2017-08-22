@@ -8,5 +8,5 @@
   ],
   "image": "heroku/go:1.6",
   "website": "http://sprioc.xyz",
-  "repository": "http://github.com/devinmcgloin/fokal"
+  "repository": "http://github.com/fokal/fokal"
 }

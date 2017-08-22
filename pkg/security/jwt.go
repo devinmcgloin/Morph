@@ -11,10 +11,10 @@ import (
 
 	"database/sql"
 
-	"github.com/devinmcgloin/fokal/pkg/create"
-	"github.com/devinmcgloin/fokal/pkg/handler"
-	"github.com/devinmcgloin/fokal/pkg/model"
-	"github.com/devinmcgloin/fokal/pkg/retrieval"
+	"github.com/fokal/fokal/pkg/create"
+	"github.com/fokal/fokal/pkg/handler"
+	"github.com/fokal/fokal/pkg/model"
+	"github.com/fokal/fokal/pkg/retrieval"
 	"github.com/dgrijalva/jwt-go"
 	jwtreq "github.com/dgrijalva/jwt-go/request"
 )
