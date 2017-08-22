@@ -13,12 +13,12 @@ type ColorCatagory string
 const Shade = "shade"
 const SpecificColor = "specific"
 
-type SpriocColorTable struct {
+type FokalColorTable struct {
 	db   *sqlx.DB
 	Type ColorCatagory
 }
 
-func (spc SpriocColorTable) Iterate() []clr.Color {
+func (spc FokalColorTable) Iterate() []clr.Color {
 	hexColors := []struct{ Hex string }{}
 	err := spc.db.Select(&hexColors, `SELECT hex FROM colors.clr WHERE type = $1`, spc.Type)
 
@@ -35,7 +35,7 @@ func (spc SpriocColorTable) Iterate() []clr.Color {
 	return colors
 }
 
-func (spc SpriocColorTable) Lookup(hex string) clr.ColorSpace {
+func (spc FokalColorTable) Lookup(hex string) clr.ColorSpace {
 	var name string
 	err := spc.db.Get(&name, `SELECT name FROM colors.clr WHERE hex = $1`, hex)
 	if err != nil {
@@ -45,8 +45,8 @@ func (spc SpriocColorTable) Lookup(hex string) clr.ColorSpace {
 	return clr.ColorSpace(name)
 }
 
-func RetrieveColorTable(db *sqlx.DB, t ColorCatagory) SpriocColorTable {
-	return SpriocColorTable{
+func RetrieveColorTable(db *sqlx.DB, t ColorCatagory) FokalColorTable {
+	return FokalColorTable{
 		db:   db,
 		Type: t,
 	}

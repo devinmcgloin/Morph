@@ -7,6 +7,6 @@
     "golang"
   ],
   "image": "heroku/go:1.6",
-  "website": "http://sprioc.xyz",
+  "website": "http://fok.al",
   "repository": "http://github.com/devinmcgloin/fokal"
 }

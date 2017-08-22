@@ -231,7 +231,7 @@ func imageLandmarks(rows *sqlx.Rows) ([]model.Landmark, error) {
 }
 
 func imageSources(shortcode, location string) model.ImageSource {
-	var prefix = "https://images.sprioc.xyz/" + location + "/"
+	var prefix = "https://images.fok.al/" + location + "/"
 	var resourceBaseURL = prefix + shortcode
 	return model.ImageSource{
 		Raw:    resourceBaseURL,

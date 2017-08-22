@@ -64,10 +64,10 @@ func Run(cfg *Config) {
 	AppState.SessionLifetime = time.Hour * 16
 
 	var secureMiddleware = secure.New(secure.Options{
-		AllowedHosts:          []string{"api.sprioc.xyz"},
+		AllowedHosts:          []string{"api.fok.al"},
 		HostsProxyHeaders:     []string{"X-Forwarded-Host"},
 		SSLRedirect:           true,
-		SSLHost:               "api.sprioc.xyz",
+		SSLHost:               "api.fok.al",
 		SSLProxyHeaders:       map[string]string{"X-Forwarded-Proto": "https"},
 		STSSeconds:            315360000,
 		STSIncludeSubdomains:  true,
@@ -80,7 +80,7 @@ func Run(cfg *Config) {
 	})
 
 	var crs = cors.New(cors.Options{
-		AllowedOrigins:     []string{"https://sprioc.xyz", "https://dev.sprioc.xyz", "http://localhost:3000"},
+		AllowedOrigins:     []string{"https://fok.al", "https://dev.fok.al", "http://localhost:3000"},
 		AllowCredentials:   true,
 		OptionsPassthrough: true,
 		AllowedHeaders:     []string{"Authorization", "Content-Type"},

@@ -1,7 +1,7 @@
 # API Overview
 
 ## Patch Requests
-Sprioc works with patch requests as defined in
+Fokal works with patch requests as defined in
 [RFC #7396][https://tools.ietf.org/html/rfc7396]
 
 Consider a user resource as follows:
