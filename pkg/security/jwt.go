@@ -9,6 +9,9 @@ import (
 
 	"strings"
 
+	"database/sql"
+
+	"github.com/devinmcgloin/fokal/pkg/create"
 	"github.com/devinmcgloin/fokal/pkg/handler"
 	"github.com/devinmcgloin/fokal/pkg/model"
 	"github.com/devinmcgloin/fokal/pkg/retrieval"
@@ -102,7 +105,24 @@ func verifyJWT(state *handler.State, r *http.Request) (model.Ref, error) {
 			if isGoogle {
 				email := claims["email"].(string)
 				id, err := retrieval.GetUserRefByEmail(state.DB, email)
-				if err != nil {
+				if err == sql.ErrNoRows {
+					name := claims["name"].(string)
+					var username string
+					username = strings.Split(email, "@")[0]
+					if domain, ok := claims["hd"]; ok {
+						username = username + "." + domain.(string)
+
+					}
+					log.Printf("Createing new user: {Username: %s, Email: %s, Name: %s}", username, email, name)
+					err = create.CommitUser(state.DB, username, email, name)
+					if err != nil {
+						return model.Ref{}, handler.StatusError{
+							Code: http.StatusBadRequest,
+							Err:  errors.New("Token is malformed")}
+					} else {
+						id, err = retrieval.GetUserRefByEmail(state.DB, email)
+					}
+				} else if err != nil {
 					return model.Ref{}, handler.StatusError{
 						Code: http.StatusBadRequest,
 						Err:  errors.New("Token is malformed")}

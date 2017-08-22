@@ -38,7 +38,7 @@ func LoginHandler(state *handler.State, w http.ResponseWriter, r *http.Request) 
 
 func PublicKeyHandler(state *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
 	key := make(map[string]string)
-	key["554b5db484856bfa16e7da70a427dc4d9989678a"] = PublicKey
+	key[keyHash] = PublicKey
 	return handler.Response{Code: http.StatusOK, Data: key}, nil
 }
 
@@ -51,5 +51,5 @@ func RefreshHandler(state *handler.State, w http.ResponseWriter, r *http.Request
 	if err != nil {
 		return handler.Response{}, handler.StatusError{Code: http.StatusBadRequest, Err: err}
 	}
-	return handler.Response{Code: http.StatusOK, Data: map[string]string{"jwt": jwt}}, nil
+	return handler.Response{Code: http.StatusOK, Data: map[string]string{"token": jwt}}, nil
 }

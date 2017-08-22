@@ -260,25 +260,25 @@ func commitImage(db *sqlx.DB, image model.Image) error {
 	return nil
 }
 
-func commitUser(db *sqlx.DB, usr model.User) error {
-
+func CommitUser(db *sqlx.DB, username, email, name string) error {
+	var uID int64
 	tx, err := db.Beginx()
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
-	rows, err := tx.NamedQuery(`
-	INSERT INTO content.users(username, email, password, salt)
-	VALUES(:username, :email, :password, :salt) RETURNING id;`,
-		usr)
+	rows, err := tx.Query(`
+	INSERT INTO content.users(username, email, name)
+	VALUES($1, $2, $3) RETURNING id;`,
+		username, email, name)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
 	for rows.Next() {
-		err = rows.Scan(&usr.Id)
+		err = rows.Scan(&uID)
 		if err != nil {
 			log.Println(err)
 			return err
@@ -286,22 +286,22 @@ func commitUser(db *sqlx.DB, usr model.User) error {
 	}
 	rows.Close()
 
-	_, err = tx.NamedExec(`
-	INSERT INTO permissions.can_edit(user_id, o_id, type) VALUES (:id, :id, 'user');`, usr)
+	_, err = tx.Exec(`
+	INSERT INTO permissions.can_edit(user_id, o_id, type) VALUES ($1, $1, 'user');`, uID)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
-	_, err = tx.NamedExec(`
-	INSERT INTO permissions.can_delete(user_id, o_id, type) VALUES (:id, :id, 'user');`, usr)
+	_, err = tx.Exec(`
+	INSERT INTO permissions.can_delete(user_id, o_id, type) VALUES ($1, $1, 'user');`, uID)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
-	_, err = tx.NamedExec(`
-	INSERT INTO permissions.can_view(user_id, o_id, type) VALUES (-1, :id, 'user');`, usr)
+	_, err = tx.Exec(`
+	INSERT INTO permissions.can_view(user_id, o_id, type) VALUES (-1, $1, 'user');`, uID)
 	if err != nil {
 		log.Println(err)
 		return err
