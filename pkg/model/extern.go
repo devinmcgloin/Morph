@@ -22,8 +22,7 @@ type User struct {
 	ImageLinks    *[]string `json:"images_links,omitempty"`
 	FavoriteLinks *[]string `json:"favorite_links,omitempty"`
 
-	Password string `db:"password" json:"-"`
-	Salt     string `db:"salt" json:"-"`
+	FollowedByUser *bool `json:"followed_by_user,omitempty"`
 
 	Featured     bool      `json:"featured"`
 	Admin        bool      `json:"admin"`
@@ -43,9 +42,10 @@ type Image struct {
 	Tags         []string   `json:"tags"`
 	Labels       []Label    `json:"labels"`
 
-	UserId   int64 `db:"user_id" json:"-"`
-	User     *User `json:"user,omitempty"`
-	Featured bool  `json:"featured"`
+	UserId          int64 `db:"user_id" json:"-"`
+	User            *User `json:"user,omitempty"`
+	Featured        bool  `json:"featured"`
+	FavoritedByUser *bool `json:"favorited_by_user,omitempty"`
 
 	Stats    ImageStats    `json:"stats"`
 	Source   ImageSource   `json:"src_links"`
