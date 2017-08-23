@@ -12,12 +12,11 @@ import (
 
 	"time"
 
-	"github.com/devinmcgloin/fokal/pkg/conn"
-	"github.com/devinmcgloin/fokal/pkg/handler"
-	"github.com/devinmcgloin/fokal/pkg/logging"
-	"github.com/devinmcgloin/fokal/pkg/routes"
-	"github.com/devinmcgloin/fokal/pkg/security"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/fokal/fokal/pkg/conn"
+	"github.com/fokal/fokal/pkg/handler"
+	"github.com/fokal/fokal/pkg/logging"
+	"github.com/fokal/fokal/pkg/routes"
 	"github.com/gorilla/context"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -42,6 +41,16 @@ type Config struct {
 
 var AppState handler.State
 
+const PublicKey = `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsW3uHvJvqaaMIW8wKP2E
+NI3oVRghsNwUV4VN+5UH2oMAEaYaHiUfOvhXXRjPZo3q8f+v3rS4R7gfJXe8efP0
+3x87DRB1uJlNNS777xDISnTLzVAOFFkLOTL9bOTJBlb69yCRhHV1NdUIPCGWntWC
+WdKZBJ2zHOQUQgPpAn31imsYlvmlrLEoGNqKOPUQjwdtxEqEYpZyN84Hj5/NIhTC
+F6rU8FhReQzEL27BHPfbUwTWUApmtfvCtrSc9pVM3MtlsMOf4OfoGg65kF5HJ/S8
+tKRtL24z48ya+ntjbwbE3A5pEswm/Vm19wd77qbY5UILLmNf0xMQfwrkT/IcnBoD
+pQIDAQAB
+-----END PUBLIC KEY-----`
+
 func Run(cfg *Config) {
 	flag := log.LstdFlags | log.Lmicroseconds | log.Lshortfile
 	log.SetFlags(flag)
@@ -58,6 +67,7 @@ func Run(cfg *Config) {
 	AppState.Port = cfg.Port
 	AppState.DB.SetMaxOpenConns(20)
 	AppState.DB.SetMaxIdleConns(50)
+	AppState.KeyHash = "554b5db484856bfa16e7da70a427dc4d9989678a"
 
 	// RSA Keys
 	AppState.PrivateKey, AppState.PublicKeys = ParseKeys()
@@ -133,11 +143,12 @@ func ParseKeys() (*rsa.PrivateKey, map[string]*rsa.PublicKey) {
 		}
 		parsedKeys[kid] = publicKey
 	}
-	publicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(security.PublicKey))
+
+	publicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(PublicKey))
 	if err != nil {
 		log.Fatal(err)
 	}
-	parsedKeys["554b5db484856bfa16e7da70a427dc4d9989678a"] = publicKey
+	parsedKeys[AppState.KeyHash] = publicKey
 
 	privateStr := os.Getenv("PRIVATE_KEY")
 	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(privateStr))

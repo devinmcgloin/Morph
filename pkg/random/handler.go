@@ -3,8 +3,8 @@ package random
 import (
 	"net/http"
 
-	"github.com/devinmcgloin/fokal/pkg/handler"
-	"github.com/devinmcgloin/fokal/pkg/retrieval"
+	"github.com/fokal/fokal/pkg/handler"
+	"github.com/fokal/fokal/pkg/retrieval"
 )
 
 func ImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {

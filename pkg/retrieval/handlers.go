@@ -7,8 +7,8 @@ import (
 
 	"strconv"
 
-	"github.com/devinmcgloin/fokal/pkg/handler"
-	"github.com/devinmcgloin/fokal/pkg/model"
+	"github.com/fokal/fokal/pkg/handler"
+	"github.com/fokal/fokal/pkg/model"
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
 )

@@ -7,9 +7,9 @@ import (
 
 	"github.com/cridenour/go-postgis"
 	"github.com/devinmcgloin/clr/clr"
-	"github.com/devinmcgloin/fokal/pkg/handler"
-	"github.com/devinmcgloin/fokal/pkg/model"
-	"github.com/devinmcgloin/fokal/pkg/retrieval"
+	"github.com/fokal/fokal/pkg/handler"
+	"github.com/fokal/fokal/pkg/model"
+	"github.com/fokal/fokal/pkg/retrieval"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 )

@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/devinmcgloin/fokal",
+	"ImportPath": "github.com/fokal/fokal",
 	"GoVersion": "go1.8",
 	"GodepVersion": "v79",
 	"Packages": [

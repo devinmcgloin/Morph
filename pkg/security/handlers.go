@@ -6,9 +6,14 @@ import (
 
 	"log"
 
-	"github.com/devinmcgloin/fokal/pkg/handler"
-	"github.com/devinmcgloin/fokal/pkg/model"
-	"github.com/devinmcgloin/fokal/pkg/request"
+	"crypto/x509"
+
+	"encoding/pem"
+
+	"github.com/fokal/fokal/pkg/handler"
+	"github.com/fokal/fokal/pkg/model"
+	"github.com/fokal/fokal/pkg/request"
+	"github.com/fokal/fokal/pkg/tokens"
 	"github.com/mholt/binding"
 )
 
@@ -26,7 +31,7 @@ func LoginHandler(state *handler.State, w http.ResponseWriter, r *http.Request) 
 	}
 
 	if valid {
-		jwt, err := createJWT(state, model.Ref{Collection: model.Users, Shortcode: req.Username})
+		jwt, err := tokens.Create(state, model.Ref{Collection: model.Users, Shortcode: req.Username})
 		if err != nil {
 			return handler.Response{}, handler.StatusError{Err: errors.New("Invalid Credentials"), Code: http.StatusUnauthorized}
 		}
@@ -38,18 +43,28 @@ func LoginHandler(state *handler.State, w http.ResponseWriter, r *http.Request) 
 
 func PublicKeyHandler(state *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
 	key := make(map[string]string)
-	key["554b5db484856bfa16e7da70a427dc4d9989678a"] = PublicKey
+	keyBytes, err := x509.MarshalPKIXPublicKey(state.PublicKeys[state.KeyHash])
+	if err != nil {
+		return handler.Response{}, handler.StatusError{Code: http.StatusInternalServerError}
+	}
+
+	pemBytes := pem.EncodeToMemory(&pem.Block{
+		Type:  "RSA PUBLIC KEY",
+		Bytes: keyBytes,
+	})
+
+	key[state.KeyHash] = string(pemBytes)
 	return handler.Response{Code: http.StatusOK, Data: key}, nil
 }
 
 func RefreshHandler(state *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
-	user, err := verifyJWT(state, r)
+	user, err := tokens.Verify(state, r)
 	if err != nil {
 		return handler.Response{}, handler.StatusError{Code: http.StatusBadRequest, Err: err}
 	}
-	jwt, err := createJWT(state, user)
+	jwt, err := tokens.Create(state, user)
 	if err != nil {
 		return handler.Response{}, handler.StatusError{Code: http.StatusBadRequest, Err: err}
 	}
-	return handler.Response{Code: http.StatusOK, Data: map[string]string{"jwt": jwt}}, nil
+	return handler.Response{Code: http.StatusOK, Data: map[string]string{"token": jwt}}, nil
 }
