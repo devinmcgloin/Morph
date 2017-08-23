@@ -29,6 +29,30 @@ func RegisterRetrievalRoutes(state *handler.State, api *mux.Router, chain alice.
 			}.Handler).Then(handler.Handler{State: state, H: retrieval.ImageHandler}))
 	opts.Handle("/images/{ID:[a-zA-Z]{12}}", chain.Then(handler.Options("GET")))
 
+	get.Handle("/images/featured",
+		cache.Append(
+			handler.Middleware{
+				State: state,
+				M:     security.SetAuthenticatedUser,
+			}.Handler).Then(handler.Handler{State: state, H: retrieval.FeaturedImageHandler}))
+	opts.Handle("/images/featured", chain.Then(handler.Options("GET")))
+
+	get.Handle("/images/recent",
+		cache.Append(
+			handler.Middleware{
+				State: state,
+				M:     security.SetAuthenticatedUser,
+			}.Handler).Then(handler.Handler{State: state, H: retrieval.RecentImageHandler}))
+	opts.Handle("/images/recent", chain.Then(handler.Options("GET")))
+
+	get.Handle("/images/trending",
+		cache.Append(
+			handler.Middleware{
+				State: state,
+				M:     security.SetAuthenticatedUser,
+			}.Handler).Then(handler.Handler{State: state, H: retrieval.TrendingImagesHander}))
+	opts.Handle("/images/trending", chain.Then(handler.Options("GET")))
+
 	get.Handle("/users/me", chain.Append(
 		handler.Middleware{
 			State: state,
@@ -46,12 +70,12 @@ func RegisterRetrievalRoutes(state *handler.State, api *mux.Router, chain alice.
 	get.Handle("/users/{ID}", cache.Then(handler.Handler{State: state, H: retrieval.UserHandler}))
 	opts.Handle("/users/{ID}", chain.Then(handler.Options("GET")))
 
-	get.Handle("/tags/{ID}", cache.Then(handler.Handler{State: state, H: retrieval.TagHandler}))
-	opts.Handle("/tags/{ID}", chain.Then(handler.Options("GET")))
-
 	get.Handle("/users/{ID}/images", cache.Then(handler.Handler{State: state, H: retrieval.UserImagesHandler}))
 	opts.Handle("/users/{ID}/images", chain.Then(handler.Options("GET")))
 
 	get.Handle("/users/{ID}/favorites", cache.Then(handler.Handler{State: state, H: retrieval.UserFavoritesHandler}))
 	opts.Handle("/users/{ID}/favorites", chain.Then(handler.Options("GET")))
+
+	get.Handle("/tags/{ID}", cache.Then(handler.Handler{State: state, H: retrieval.TagHandler}))
+	opts.Handle("/tags/{ID}", chain.Then(handler.Options("GET")))
 }

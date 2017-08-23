@@ -13,6 +13,7 @@ import (
 	"github.com/fokal/fokal/pkg/model"
 	"github.com/fokal/fokal/pkg/stats"
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 	_ "github.com/lib/pq"
 )
 
@@ -434,4 +435,73 @@ func TaggedImages(state *handler.State, tagText string) ([]model.Image, error) {
 		return []model.Image{}, err
 	}
 	return GetImages(state, ids)
+}
+
+func Trending(state *handler.State, limit int) ([]model.Image, error) {
+	ids := []int64{}
+
+	err := state.DB.Select(&ids, `
+	SELECT id FROM content.images
+	ORDER BY ranking(id, views + favorites , featured::int + 3) DESC
+	LIMIT $1
+	`, limit)
+	if err != nil {
+		if err, ok := err.(*pq.Error); ok {
+			log.Printf("%+v", err)
+		}
+		return []model.Image{}, err
+	}
+	return GetImages(state, ids)
+
+}
+
+func FeaturedImages(state *handler.State, limit int) ([]model.Image, error) {
+	imgs := []int64{}
+	var stmt *sqlx.Stmt
+	var err error
+	stmt, err = state.DB.Preparex(`
+		SELECT images.id
+		FROM content.images AS images
+		INNER JOIN permissions.can_view AS view ON view.o_id = images.id
+		WHERE view.user_id = -1 AND images.featured = TRUE
+		ORDER BY publish_time DESC
+		LIMIT $1
+		`)
+
+	if err != nil {
+		if err, ok := err.(*pq.Error); ok {
+			log.Printf("%+v", err)
+		}
+		return []model.Image{}, err
+	}
+	err = stmt.Select(&imgs,
+		limit)
+	if err != nil {
+		if err, ok := err.(*pq.Error); ok {
+			log.Printf("%+v", err)
+		}
+		return []model.Image{}, err
+	}
+	return GetImages(state, imgs)
+}
+
+func RecentImages(state *handler.State, limit int) ([]model.Image, error) {
+	imageIds := []int64{}
+	var err error
+	err = state.DB.Select(&imageIds, `
+		SELECT images.id
+		FROM content.images AS images
+		INNER JOIN permissions.can_view AS view ON view.o_id = images.id
+		WHERE view.user_id = -1
+		ORDER BY publish_time DESC
+		LIMIT $1
+		`, limit)
+
+	if err != nil {
+		if err, ok := err.(*pq.Error); ok {
+			log.Printf("GetRecentImages limit: %d %+v", limit, err)
+		}
+		return []model.Image{}, err
+	}
+	return GetImages(state, imageIds)
 }

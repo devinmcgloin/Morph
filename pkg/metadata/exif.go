@@ -71,7 +71,7 @@ func GetMetadata(errChan chan error, metaChan chan model.ImageMetadata, img io.R
 	if err == nil {
 		num, den, err := Aperture.Rat2(0)
 		if err == nil {
-			a := strconv.FormatFloat(float64(num)/float64(den), 'f', 1, 64)
+			a := Round(float64(num)/float64(den), 0.1)
 			meta.Aperture = &a
 		}
 	}
@@ -80,8 +80,8 @@ func GetMetadata(errChan chan error, metaChan chan model.ImageMetadata, img io.R
 	if err == nil {
 		num, den, err := FocalLength.Rat2(0)
 		if err == nil {
-			fl := strconv.FormatInt(num/den, 10)
-			meta.FocalLength = &fl
+			f := int(num / den)
+			meta.FocalLength = &f
 		}
 	}
 
@@ -151,4 +151,8 @@ func GetMetadata(errChan chan error, metaChan chan model.ImageMetadata, img io.R
 	metaChan <- meta
 	errChan <- nil
 	return
+}
+
+func Round(x, unit float64) float64 {
+	return float64(int64(x/unit+0.5)) * unit
 }

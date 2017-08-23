@@ -7,6 +7,8 @@ import (
 
 	"strconv"
 
+	"log"
+
 	"github.com/fokal/fokal/pkg/handler"
 	"github.com/fokal/fokal/pkg/model"
 	"github.com/gorilla/context"
@@ -180,6 +182,99 @@ func TagHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (h
 	}
 
 	images, err := TaggedImages(store, id)
+	if err != nil {
+		return rsp, err
+	}
+
+	return handler.Response{
+		Code: http.StatusOK,
+		Data: images,
+	}, nil
+}
+
+func RecentImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
+	var rsp handler.Response
+	var err error
+
+	params := r.URL.Query()
+
+	var limit int
+	l, ok := params["limit"]
+	if ok {
+		if len(l) == 1 {
+			limit, err = strconv.Atoi(l[0])
+			if err != nil {
+				limit = 500
+			}
+		}
+	}
+
+	if limit == 0 {
+		limit = 500
+	}
+
+	log.Printf("%d\n", limit)
+	images, err := RecentImages(store, limit)
+	if err != nil {
+		return rsp, err
+	}
+
+	return handler.Response{
+		Code: http.StatusOK,
+		Data: images,
+	}, nil
+}
+
+func FeaturedImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
+	var rsp handler.Response
+	var err error
+
+	params := r.URL.Query()
+	var limit int
+	l, ok := params["limit"]
+	if ok {
+		if len(l) == 1 {
+			limit, err = strconv.Atoi(l[0])
+			if err != nil {
+				limit = 500
+			}
+		}
+	}
+
+	if limit == 0 {
+		limit = 500
+	}
+	images, err := FeaturedImages(store, limit)
+	if err != nil {
+		return rsp, err
+	}
+
+	return handler.Response{
+		Code: http.StatusOK,
+		Data: images,
+	}, nil
+}
+
+func TrendingImagesHander(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
+	var rsp handler.Response
+	var err error
+
+	params := r.URL.Query()
+	var limit int
+	l, ok := params["limit"]
+	if ok {
+		if len(l) == 1 {
+			limit, err = strconv.Atoi(l[0])
+			if err != nil {
+				limit = 500
+			}
+		}
+	}
+
+	if limit == 0 {
+		limit = 500
+	}
+	images, err := Trending(store, limit)
 	if err != nil {
 		return rsp, err
 	}

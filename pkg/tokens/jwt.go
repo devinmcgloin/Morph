@@ -39,8 +39,6 @@ func Create(state *handler.State, u model.Ref) (string, error) {
 func Parse(state *handler.State, r *http.Request) (*jwt.Token, error) {
 	tokenStrings, err := jwtreq.HeaderExtractor{"Authorization"}.ExtractToken(r)
 
-	log.Println(tokenStrings, r.Header.Get("Authorization"))
-
 	if err != nil {
 		return nil, handler.StatusError{Err: errors.New("Bearer Header not present"), Code: http.StatusUnauthorized}
 	}

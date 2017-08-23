@@ -67,9 +67,9 @@ type ImageSource struct {
 }
 
 type ImageMetadata struct {
-	Aperture        *string         `db:"aperture" json:"aperture,omitempty"`
+	Aperture        *float64        `db:"aperture" json:"aperture,omitempty"`
 	ExposureTime    *string         `db:"exposure_time" json:"exposure_time,omitempty"`
-	FocalLength     *string         `db:"focal_length" json:"focal_length,omitempty"`
+	FocalLength     *int            `db:"focal_length" json:"focal_length,omitempty"`
 	ISO             *int            `db:"iso" json:"iso,omitempty"`
 	Make            *string         `db:"make" json:"make,omitempty"`
 	Model           *string         `db:"model" json:"model,omitempty"`
