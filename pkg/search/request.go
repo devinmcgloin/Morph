@@ -5,10 +5,10 @@ import (
 )
 
 const (
-	Users       = "user"
-	Images      = "image"
-	Tags        = "tag"
-	Collections = "collections"
+	User       = "user"
+	Image      = "image"
+	Tag        = "tag"
+	Collection = "collections"
 )
 
 type Request struct {
@@ -36,13 +36,13 @@ type ColorParams struct {
 }
 
 type TagResponse struct {
-	Id         string
-	Permalink  string
-	TitleImage model.Image
+	Id         string      `json:"id"`
+	Permalink  string      `json:"permalink"`
+	TitleImage model.Image `json:"image"`
 }
 
 type Response struct {
-	Images []model.Image
-	Users  []model.User
-	Tags   []TagResponse
+	Images []model.Image `json:"images"`
+	Users  []model.User  `json:"users"`
+	Tags   []TagResponse `json:"tags"`
 }

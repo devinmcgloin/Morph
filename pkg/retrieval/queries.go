@@ -410,6 +410,15 @@ func GetUserRef(db *sqlx.DB, u string) (model.Ref, error) {
 	return ref, nil
 }
 
+func GetTagRef(db *sqlx.DB, tid int64) (model.Ref, error) {
+	var desc string
+	err := db.Get(&desc, "SELECT description FROM content.image_tags WHERE id = $1", tid)
+	if err != nil {
+		return model.Ref{}, err
+	}
+	return model.Ref{Id: tid, Collection: model.Tags, Shortcode: desc}, nil
+}
+
 func GetUserRefByEmail(db *sqlx.DB, email string) (model.Ref, error) {
 	ref := model.Ref{Collection: model.Users}
 	err := db.Get(&ref, "SELECT id, username AS shortcode FROM content.users WHERE email = $1", email)
@@ -420,7 +429,7 @@ func GetUserRefByEmail(db *sqlx.DB, email string) (model.Ref, error) {
 	return ref, nil
 }
 
-func TaggedImages(state *handler.State, tagText string) ([]model.Image, error) {
+func TaggedImages(state *handler.State, tID int64, limit int) ([]model.Image, error) {
 	ids := []int64{}
 
 	err := state.DB.Select(&ids, `
@@ -428,9 +437,10 @@ func TaggedImages(state *handler.State, tagText string) ([]model.Image, error) {
 		FROM content.image_tag_bridge AS bridge
 		  JOIN content.image_tags AS tags ON bridge.tag_id = tags.id
 		  JOIN content.images AS images ON bridge.image_id = images.id
-		WHERE UPPER(tags.description) = UPPER($1)
-		ORDER BY ranking(1, views + favorites, featured :: INT + 3) DESC;
-	`, tagText)
+		WHERE tags.id = $1
+		ORDER BY ranking(1, views + favorites, featured :: INT + 3) DESC
+		LIMIT $2;
+	`, tID, limit)
 	if err != nil {
 		return []model.Image{}, err
 	}

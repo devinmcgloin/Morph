@@ -181,7 +181,13 @@ func TagHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (h
 		limit = 500
 	}
 
-	images, err := TaggedImages(store, id)
+	var tid int64
+	err = store.DB.Get(&tid, "SELECT id FROM content.image_tags as t WHERE t = $1;", id)
+	if err != nil {
+		return rsp, err
+	}
+
+	images, err := TaggedImages(store, tid, limit)
 	if err != nil {
 		return rsp, err
 	}
