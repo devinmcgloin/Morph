@@ -12,12 +12,12 @@ func RegisterRandomRoutes(state *handler.State, api *mux.Router, chain alice.Cha
 	get := api.Methods("GET").Subrouter()
 	opts := api.Methods("OPTIONS").Subrouter()
 
-	get.Handle("/i/random",
+	get.Handle("/images/random",
 		chain.Append(
 			handler.Middleware{
 				State: state,
 				M:     security.SetAuthenticatedUser,
 			}.Handler).
 			Then(handler.Handler{State: state, H: random.ImageHandler}))
-	opts.Handle("/i/random", chain.Then(handler.Options("GET")))
+	opts.Handle("/images/random", chain.Then(handler.Options("GET")))
 }

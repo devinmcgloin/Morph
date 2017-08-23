@@ -16,7 +16,7 @@ func RegisterModificationRoutes(state *handler.State, api *mux.Router, chain ali
 	opts := api.Methods("OPTIONS").Subrouter()
 
 	//Image Routes
-	put.Handle("/i/{ID:[a-zA-Z]{12}}/featured",
+	put.Handle("/images/{ID:[a-zA-Z]{12}}/featured",
 		chain.Append(
 			handler.Middleware{State: state, M: security.Authenticate}.Handler,
 			permissions.Middleware{State: state,
@@ -24,7 +24,7 @@ func RegisterModificationRoutes(state *handler.State, api *mux.Router, chain ali
 				TargetType: model.Images,
 				M:          permissions.PermissionMiddle}.Handler).
 			Then(handler.Handler{State: state, H: modification.FeatureImage}))
-	del.Handle("/i/{ID:[a-zA-Z]{12}}/featured",
+	del.Handle("/images/{ID:[a-zA-Z]{12}}/featured",
 		chain.Append(
 			handler.Middleware{State: state, M: security.Authenticate}.Handler,
 			permissions.Middleware{State: state,
@@ -33,9 +33,9 @@ func RegisterModificationRoutes(state *handler.State, api *mux.Router, chain ali
 				M:          permissions.PermissionMiddle}.Handler).
 			Then(handler.Handler{State: state, H: modification.UnFeatureImage}))
 
-	opts.Handle("/i/{ID:[a-zA-Z]{12}}/featured", chain.Then(handler.Options("DELETE", "PUT")))
+	opts.Handle("/images/{ID:[a-zA-Z]{12}}/featured", chain.Then(handler.Options("DELETE", "PUT")))
 
-	del.Handle("/i/{ID:[a-zA-Z]{12}}",
+	del.Handle("/images/{ID:[a-zA-Z]{12}}",
 		chain.Append(
 			handler.Middleware{State: state, M: security.Authenticate}.Handler,
 			permissions.Middleware{State: state,
@@ -45,7 +45,7 @@ func RegisterModificationRoutes(state *handler.State, api *mux.Router, chain ali
 			Then(handler.Handler{State: state, H: modification.DeleteImage}))
 
 	patch := api.Methods("PATCH").Subrouter()
-	patch.Handle("/i/{ID:[a-zA-Z]{12}}",
+	patch.Handle("/images/{ID:[a-zA-Z]{12}}",
 		chain.Append(
 			handler.Middleware{State: state, M: security.Authenticate}.Handler,
 			permissions.Middleware{State: state,
@@ -53,10 +53,10 @@ func RegisterModificationRoutes(state *handler.State, api *mux.Router, chain ali
 				TargetType: model.Images,
 				M:          permissions.PermissionMiddle}.Handler).
 			Then(handler.Handler{State: state, H: modification.PatchImage}))
-	opts.Handle("/i/{ID:[a-zA-Z]{12}}", chain.Then(handler.Options("PATCH", "DELETE")))
+	opts.Handle("/images/{ID:[a-zA-Z]{12}}", chain.Then(handler.Options("PATCH", "DELETE")))
 
 	// User Routes
-	del.Handle("/u/{ID}",
+	del.Handle("/users/{ID}",
 		chain.Append(
 			handler.Middleware{State: state, M: security.Authenticate}.Handler,
 			permissions.Middleware{State: state,
@@ -64,7 +64,7 @@ func RegisterModificationRoutes(state *handler.State, api *mux.Router, chain ali
 				TargetType: model.Users,
 				M:          permissions.PermissionMiddle}.Handler).
 			Then(handler.Handler{State: state, H: modification.DeleteUser}))
-	patch.Handle("/u/{ID}",
+	patch.Handle("/users/{ID}",
 		chain.Append(
 			handler.Middleware{State: state, M: security.Authenticate}.Handler,
 			permissions.Middleware{State: state,
@@ -72,6 +72,6 @@ func RegisterModificationRoutes(state *handler.State, api *mux.Router, chain ali
 				TargetType: model.Users,
 				M:          permissions.PermissionMiddle}.Handler).
 			Then(handler.Handler{State: state, H: modification.PatchUser}))
-	opts.Handle("/u/{ID}", chain.Then(handler.Options("PATCH", "DELETE")))
+	opts.Handle("/users/{ID}", chain.Then(handler.Options("PATCH", "DELETE")))
 
 }

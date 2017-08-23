@@ -12,13 +12,13 @@ func RegisterCreateRoutes(state *handler.State, api *mux.Router, chain alice.Cha
 	post := api.Methods("POST").Subrouter()
 	opts := api.Methods("OPTIONS").Subrouter()
 
-	post.Handle("/i", chain.Append(handler.Middleware{
+	post.Handle("/images", chain.Append(handler.Middleware{
 		State: state,
 		M:     security.Authenticate}.Handler).Then(handler.Handler{State: state, H: create.ImageHandler}))
-	opts.Handle("/i", chain.Then(handler.Options("POST")))
+	opts.Handle("/images", chain.Then(handler.Options("POST")))
 
 	put := api.Methods("PUT").Subrouter()
-	put.Handle("/u/me/avatar", chain.Append(
+	put.Handle("/users/me/avatar", chain.Append(
 		handler.Middleware{
 			State: state,
 			M:     security.Authenticate,
@@ -26,6 +26,6 @@ func RegisterCreateRoutes(state *handler.State, api *mux.Router, chain alice.Cha
 		State: state,
 		H:     create.AvatarHandler,
 	}))
-	opts.Handle("/u/me/avatar", chain.Then(handler.Options("PUT")))
+	opts.Handle("/users/me/avatar", chain.Then(handler.Options("PUT")))
 
 }

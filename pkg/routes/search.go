@@ -14,36 +14,36 @@ func RegisterSearchRoutes(state *handler.State, api *mux.Router, chain alice.Cha
 	opts := api.Methods("OPTIONS").Subrouter()
 	cache := chain.Append(alice.Constructor(handler.Middleware{State: state, M: cache.Handler}.Handler))
 
-	get.Handle("/i/featured",
+	get.Handle("/images/featured",
 		cache.Append(
 			handler.Middleware{
 				State: state,
 				M:     security.SetAuthenticatedUser,
 			}.Handler).Then(handler.Handler{State: state, H: search.FeaturedImageHandler}))
-	opts.Handle("/i/featured", chain.Then(handler.Options("GET")))
+	opts.Handle("/images/featured", chain.Then(handler.Options("GET")))
 
-	get.Handle("/i/recent",
+	get.Handle("/images/recent",
 		cache.Append(
 			handler.Middleware{
 				State: state,
 				M:     security.SetAuthenticatedUser,
 			}.Handler).Then(handler.Handler{State: state, H: search.RecentImageHandler}))
-	opts.Handle("/i/recent", chain.Then(handler.Options("GET")))
+	opts.Handle("/images/recent", chain.Then(handler.Options("GET")))
 
-	get.Handle("/i/trending",
+	get.Handle("/images/trending",
 		cache.Append(
 			handler.Middleware{
 				State: state,
 				M:     security.SetAuthenticatedUser,
 			}.Handler).Then(handler.Handler{State: state, H: search.TrendingImagesHander}))
-	opts.Handle("/i/trending", chain.Then(handler.Options("GET")))
+	opts.Handle("/images/trending", chain.Then(handler.Options("GET")))
 
-	get.Handle("/i/search",
+	get.Handle("/images/search",
 		cache.Append(
 			handler.Middleware{
 				State: state,
 				M:     security.SetAuthenticatedUser,
 			}.Handler).Then(handler.Handler{State: state, H: search.SearchHandler}))
-	opts.Handle("/i/search", chain.Then(handler.Options("GET")))
+	opts.Handle("/images/search", chain.Then(handler.Options("GET")))
 
 }
