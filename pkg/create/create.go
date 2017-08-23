@@ -2,104 +2,12 @@ package create
 
 import (
 	"log"
-	"net/http"
-	"regexp"
-	"strings"
-	"unicode"
-
-	"errors"
 
 	"fmt"
 
-	"github.com/fokal/fokal/pkg/handler"
 	"github.com/fokal/fokal/pkg/model"
-	"github.com/fokal/fokal/pkg/request"
-	"github.com/fokal/fokal/pkg/retrieval"
 	"github.com/jmoiron/sqlx"
 )
-
-var validEmail = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
-
-// Anything but special characters and spaces.
-var validUsername = regexp.MustCompile(`^[^\<\>\!\{\}\[\]\!\@\#\$\%\^\&\*\(\)\.\ ]{3,16}$`)
-
-var letters = regexp.MustCompile("^[a-zA-Z]+$")
-
-func validateUser(db *sqlx.DB, userData *request.CreateUserRequest) error {
-	userData.Username = strings.ToLower(userData.Username)
-
-	if !validUsername.MatchString(userData.Username) {
-		return handler.StatusError{Err: errors.New("Invalid username"), Code: http.StatusBadRequest}
-	}
-
-	userData.Email = strings.Trim(strings.ToLower(userData.Email), " ")
-
-	if !validEmail.MatchString(userData.Email) {
-		return handler.StatusError{Err: errors.New("Invalid email"), Code: http.StatusBadRequest}
-	}
-
-	if !(validPassword(userData.Password) || validPassPhrase(userData.Password)) {
-		return handler.StatusError{Err: errors.New("Invalid password"), Code: http.StatusBadRequest}
-	}
-
-	userRef := model.Ref{Collection: model.Users, Shortcode: userData.Username}
-
-	exists, err := retrieval.ExistsUser(db, userRef.Shortcode)
-	if err != nil {
-		return handler.StatusError{Code: http.StatusInternalServerError,
-			Err: errors.New(http.StatusText(http.StatusInternalServerError))}
-	}
-	if exists {
-		return handler.StatusError{Err: errors.New("Username already exist"), Code: http.StatusConflict}
-	}
-
-	exists, err = retrieval.ExistsEmail(db, userData.Email)
-	if err != nil {
-		return handler.StatusError{Code: http.StatusInternalServerError}
-	}
-	if exists {
-		return handler.StatusError{Err: errors.New("Email already exist"), Code: http.StatusConflict}
-	}
-
-	return nil
-}
-
-func validPassword(password string) bool {
-	var hasUpper bool
-	var hasLower bool
-	var hasSpecial bool
-	var hasNumber bool
-
-	for _, c := range password {
-		switch {
-		case unicode.IsNumber(c):
-			hasNumber = true
-		case unicode.IsUpper(c):
-			hasUpper = true
-		case unicode.IsLower(c):
-			hasLower = true
-		case unicode.IsPunct(c) || unicode.IsSymbol(c):
-			hasSpecial = true
-		default:
-			return false
-		}
-	}
-
-	return hasLower && hasUpper && hasNumber && hasSpecial && len(password) > 8
-}
-
-func validPassPhrase(passphrase string) bool {
-	sections := strings.Split(passphrase, "-")
-
-	for _, sect := range sections {
-		if !letters.MatchString(sect) {
-			return false
-		} else if len(sect) < 5 {
-			return false
-		}
-	}
-	return len(sections) >= 3
-}
 
 // CreateImage stores the image data in the database under the given user.
 // Currently does not set the metadata or db interal state.

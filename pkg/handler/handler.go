@@ -73,6 +73,7 @@ type State struct {
 	RefreshAt       time.Duration
 	PrivateKey      *rsa.PrivateKey
 	PublicKeys      map[string]*rsa.PublicKey
+	KeyHash         string
 }
 
 // Handler struct that takes a configured Env and a function matching

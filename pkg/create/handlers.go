@@ -10,14 +10,49 @@ import (
 
 	"bytes"
 
+	"log"
+	"strings"
+
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/fokal/fokal/pkg/handler"
 	"github.com/fokal/fokal/pkg/metadata"
 	"github.com/fokal/fokal/pkg/model"
 	"github.com/fokal/fokal/pkg/retrieval"
+	"github.com/fokal/fokal/pkg/tokens"
 	"github.com/fokal/fokal/pkg/upload"
 	"github.com/fokal/fokal/pkg/vision"
 	"github.com/gorilla/context"
 )
+
+func UserHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
+	token, err := tokens.Parse(store, r)
+	if token.Valid {
+		email := token.Header["email"].(string)
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
+			return handler.Response{}, handler.StatusError{Code: http.StatusBadRequest, Err: errors.New(http.StatusText(http.StatusBadRequest))}
+		}
+
+		name := claims["name"].(string)
+		var username string
+		username = strings.Split(email, "@")[0]
+		if domain, ok := claims["hd"]; ok {
+			username = username + "." + domain.(string)
+		}
+
+		log.Printf("Creating new user: {Username: %s, Email: %s, Name: %s}", username, email, name)
+		err = CommitUser(store.DB, username, email, name)
+		if err != nil {
+			return handler.Response{}, handler.StatusError{
+				Code: http.StatusBadRequest,
+				Err:  errors.New("Token is malformed")}
+		} else {
+			return handler.Response{Code: http.StatusOK}, nil
+		}
+	} else {
+		return handler.Response{}, handler.StatusError{Code: http.StatusBadRequest, Err: errors.New("Token is invalid.")}
+	}
+}
 
 func ImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
 	var user model.Ref
