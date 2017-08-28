@@ -116,6 +116,12 @@ func ImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) 
 
 	img.Metadata = <-metadataChan
 	annotations := <-annotationsChan
+
+	if !annotations.Safe {
+		return handler.Response{}, handler.StatusError{
+			Err:  errors.New("Image contains violent, medical or adult imagery."),
+			Code: http.StatusBadRequest}
+	}
 	img.Labels = annotations.Labels
 	img.Landmarks = annotations.Landmark
 	img.Colors = annotations.ColorProperties
