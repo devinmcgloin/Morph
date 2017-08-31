@@ -38,14 +38,14 @@ func GetMetadata(errChan chan error, metaChan chan model.ImageMetadata, img io.R
 			X: lng,
 			Y: lat}
 
-		meta.Location = point
+		meta.Location.Point = point
 	}
 
 	dirTag, err := x.Get(exif.GPSImgDirection)
 	if err == nil {
 		dir, err := dirTag.Float(0)
 		if err == nil {
-			meta.ImageDirection = &dir
+			meta.Location.ImageDirection = &dir
 		}
 	}
 

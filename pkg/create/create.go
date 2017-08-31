@@ -49,9 +49,9 @@ func commitImage(db *sqlx.DB, image model.Image) error {
 	}
 
 	_, err = tx.Exec(`
-	INSERT INTO content.image_geo (image_id, loc, dir)
-	VALUES ($1, GeomFromEWKB($2), $3);
-	`, image.Id, image.Metadata.Location, image.Metadata.ImageDirection)
+	INSERT INTO content.image_geo (image_id, loc, dir, description)
+	VALUES ($1, GeomFromEWKB($2), $3, $4);
+	`, image.Id, image.Metadata.Location.Point, image.Metadata.Location.ImageDirection, image.Metadata.Location.Description)
 	if err != nil {
 		log.Println(err)
 		return err
