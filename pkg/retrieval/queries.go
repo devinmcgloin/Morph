@@ -339,7 +339,7 @@ func imageColors(rows *sqlx.Rows) ([]model.Color, error) {
 }
 
 func imageMetadata(rows *sqlx.Rows) (model.ImageMetadata, error) {
-	meta := model.ImageMetadata{}
+	meta := model.ImageMetadata{Location: &model.Location{}}
 	if !rows.NextResultSet() {
 		return meta, rows.Err()
 	}
