@@ -42,6 +42,9 @@ type Image struct {
 	Tags         []string   `json:"tags"`
 	Labels       []Label    `json:"labels"`
 
+	Title       *string `db:"title" json:"title"`
+	Description *string `db:"description" json:"description"`
+
 	UserId          int64 `db:"user_id" json:"-"`
 	User            *User `json:"user,omitempty"`
 	Featured        bool  `json:"featured"`

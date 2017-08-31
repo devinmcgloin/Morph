@@ -95,7 +95,7 @@ func GetImages(state *handler.State, imageIDS []int64) ([]model.Image, error) {
 func GetImage(state *handler.State, i int64) (model.Image, error) {
 	img := model.Image{}
 	q := `
-	SELECT id, shortcode, publish_time, last_modified, user_id, featured FROM content.images AS images
+	SELECT id, shortcode, publish_time, last_modified, user_id, featured, title, description FROM content.images AS images
 	WHERE images.id = %[1]d;
 
 	-- metadata
@@ -151,7 +151,7 @@ func GetImage(state *handler.State, i int64) (model.Image, error) {
 
 	for rows.Next() {
 		err = rows.Scan(&img.Id, &img.Shortcode, &img.PublishTime, &img.LastModified, &img.UserId,
-			&img.Featured)
+			&img.Featured, &img.Title, &img.Description)
 		if err != nil {
 			switch err {
 			case sql.ErrNoRows:
@@ -442,6 +442,7 @@ func TaggedImages(state *handler.State, tID int64, limit int) ([]model.Image, er
 		LIMIT $2;
 	`, tID, limit)
 	if err != nil {
+		log.Println(err)
 		return []model.Image{}, err
 	}
 	return GetImages(state, ids)

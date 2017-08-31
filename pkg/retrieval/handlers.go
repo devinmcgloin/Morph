@@ -182,7 +182,7 @@ func TagHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (h
 	}
 
 	var tid int64
-	err = store.DB.Get(&tid, "SELECT id FROM content.image_tags as t WHERE t = $1;", id)
+	err = store.DB.Get(&tid, "SELECT id FROM content.image_tags as t WHERE t.description = $1;", id)
 	if err != nil {
 		return rsp, err
 	}
