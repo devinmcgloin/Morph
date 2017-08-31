@@ -70,19 +70,24 @@ type ImageSource struct {
 }
 
 type ImageMetadata struct {
-	Aperture        *float64        `db:"aperture" json:"aperture,omitempty"`
-	ExposureTime    *string         `db:"exposure_time" json:"exposure_time,omitempty"`
-	FocalLength     *int            `db:"focal_length" json:"focal_length,omitempty"`
-	ISO             *int            `db:"iso" json:"iso,omitempty"`
-	Make            *string         `db:"make" json:"make,omitempty"`
-	Model           *string         `db:"model" json:"model,omitempty"`
-	LensMake        *string         `db:"lens_make" json:"lens_make,omitempty"`
-	LensModel       *string         `db:"lens_model" json:"lens_model,omitempty"`
-	PixelXDimension *int64          `db:"pixel_xd" json:"pixel_xd,omitempty"`
-	PixelYDimension *int64          `db:"pixel_yd" json:"pixel_yd,omitempty"`
-	CaptureTime     *time.Time      `db:"capture_time" json:"capture_time,omitempty"`
-	ImageDirection  *float64        `db:"dir" json:"direction,omitempty"`
-	Location        *postgis.PointS `db:"loc" json:"location,omitempty"`
+	Aperture        *float64   `db:"aperture" json:"aperture,omitempty"`
+	ExposureTime    *string    `db:"exposure_time" json:"exposure_time,omitempty"`
+	FocalLength     *int       `db:"focal_length" json:"focal_length,omitempty"`
+	ISO             *int       `db:"iso" json:"iso,omitempty"`
+	Make            *string    `db:"make" json:"make,omitempty"`
+	Model           *string    `db:"model" json:"model,omitempty"`
+	LensMake        *string    `db:"lens_make" json:"lens_make,omitempty"`
+	LensModel       *string    `db:"lens_model" json:"lens_model,omitempty"`
+	PixelXDimension *int64     `db:"pixel_xd" json:"pixel_xd,omitempty"`
+	PixelYDimension *int64     `db:"pixel_yd" json:"pixel_yd,omitempty"`
+	CaptureTime     *time.Time `db:"capture_time" json:"capture_time,omitempty"`
+	Location        *Location  `db:"location" json:"location,omitempty"`
+}
+
+type Location struct {
+	ImageDirection *float64        `db:"dir" json:"direction,omitempty"`
+	Point          *postgis.PointS `db:"loc" json:"point,omitempty"`
+	Description    *string         `db:"description" json:"description"`
 }
 
 type Color struct {

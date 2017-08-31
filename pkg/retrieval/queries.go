@@ -101,7 +101,7 @@ func GetImage(state *handler.State, i int64) (model.Image, error) {
 	-- metadata
 
 	SELECT aperture, exposure_time, focal_length, iso, make, model,
-	lens_make, lens_model, pixel_yd, pixel_xd, capture_time, loc, dir
+	lens_make, lens_model, pixel_yd, pixel_xd, capture_time, loc, dir, description
 	FROM content.image_metadata AS meta
 	JOIN content.image_geo AS geo ON geo.image_id = meta.image_id
 	WHERE meta.image_id = %[1]d;
@@ -346,7 +346,8 @@ func imageMetadata(rows *sqlx.Rows) (model.ImageMetadata, error) {
 
 	for rows.Next() {
 		err := rows.Scan(&meta.Aperture, &meta.ExposureTime, &meta.FocalLength, &meta.ISO, &meta.Make, &meta.Model,
-			&meta.LensMake, &meta.LensModel, &meta.PixelYDimension, &meta.PixelXDimension, &meta.CaptureTime, &meta.Location, &meta.ImageDirection)
+			&meta.LensMake, &meta.LensModel, &meta.PixelYDimension, &meta.PixelXDimension, &meta.CaptureTime, &meta.Location.Point, &meta.Location.ImageDirection,
+			&meta.Location.Description)
 		if err != nil {
 			return meta, err
 		}
