@@ -49,11 +49,11 @@ func SearchHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 		  LEFT JOIN content.colors AS colors ON bridge.color_id = colors.id
 		WHERE to_tsquery(?) @@ term AND searches.searchable_type IN ( ? )`
 
+	tsQuery := formatQueryString(searchReq.RequiredTerms, searchReq.OptionalTerms, searchReq.ExcludedTerms)
 	var initialArgs []interface{}
-	initialArgs = append(initialArgs,
-		formatQueryString(searchReq.RequiredTerms, searchReq.OptionalTerms, searchReq.ExcludedTerms),
-		formatQueryString(searchReq.RequiredTerms, searchReq.OptionalTerms, searchReq.ExcludedTerms))
-	initialArgs = append(initialArgs, searchReq.Types)
+	initialArgs = append(initialArgs, tsQuery, tsQuery, searchReq.Types)
+
+	log.Printf("TS_QUERY: {%s}\n", tsQuery)
 
 	if searchReq.Geo != nil {
 		query = query + `
@@ -136,20 +136,20 @@ func SearchHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 }
 
 func formatQueryString(req []string, opt []string, exc []string) string {
-	args := make([]string, 3)
+	args := []string{}
 	for i, ex := range exc {
 		exc[i] = "!" + ex
 	}
 	if len(req) != 0 {
-		args[0] = "(" + strings.Join(req, " & ") + ")"
+		args = append(args, "("+strings.Join(req, " & ")+")")
 	}
 
 	if len(opt) != 0 {
-		args[1] = "(" + strings.Join(opt, " | ") + ")"
+		args = append(args, "("+strings.Join(opt, " | ")+")")
 	}
 
 	if len(exc) != 0 {
-		args[2] = strings.Join(exc, " & ")
+		args = append(args, strings.Join(exc, " & "))
 	}
-	return strings.Join(args, " ")
+	return strings.Join(args, " & ")
 }
