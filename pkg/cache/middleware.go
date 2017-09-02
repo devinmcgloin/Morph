@@ -27,13 +27,12 @@ func Handler(state *handler.State, next http.Handler) http.Handler {
 			w.Write(content)
 
 			if c.Code == http.StatusOK {
-				log.Printf("Setting Handler URL: %s\n", url)
-				Set(state.RD, url, content)
-				ExpireAt(state.RD, url, state.RefreshAt)
+				log.Printf("Cache: Setting Handler URL: %s\n", url)
+				Setex(state.RD, url, content, state.RefreshAt)
 			}
 			return
 		} else {
-			log.Printf("Retrieving Handler URL: %s\n", url)
+			log.Printf("Cache: Retrieving Handler URL: %s\n", url)
 			w.Write(b)
 			w.WriteHeader(http.StatusOK)
 			return

@@ -8,7 +8,7 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-const prefix = "cache"
+const prefix = "cache:"
 
 // Get returns the data cached at the key string and throws an error otherwise.
 func Get(pool *redis.Pool, key string) ([]byte, error) {
@@ -53,6 +53,18 @@ func Set(pool *redis.Pool, key string, content []byte) error {
 	defer conn.Close()
 
 	_, err := conn.Do("SET", prefix+key, content)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+}
+
+func Setex(pool *redis.Pool, key string, content []byte, t time.Duration) error {
+	conn := pool.Get()
+	defer conn.Close()
+
+	_, err := conn.Do("SETEX", prefix+key, t.Seconds(), content)
 	if err != nil {
 		log.Println(err)
 		return err

@@ -80,6 +80,8 @@ func Run(cfg *Config) {
 	AppState.PrivateKey, AppState.PublicKeys = ParseKeys()
 	AppState.SessionLifetime = time.Hour * 16
 
+	AppState.RefreshAt = time.Minute * 15
+
 	var secureMiddleware = secure.New(secure.Options{
 		AllowedHosts:          []string{"api.fok.al", "dev.fok.al", "fok.al"},
 		HostsProxyHeaders:     []string{"X-Forwarded-Host"},

@@ -15,9 +15,9 @@ func RegisterRetrievalRoutes(state *handler.State, api *mux.Router, chain alice.
 	get := api.Methods("GET").Subrouter()
 	opts := api.Methods("OPTIONS").Subrouter()
 
-	cache := chain.Append(alice.Constructor(handler.Middleware{State: state, M: cache.Handler}.Handler))
+	c := chain.Append(alice.Constructor(handler.Middleware{State: state, M: cache.Handler}.Handler))
 	get.Handle("/images/{ID:[a-zA-Z]{12}}",
-		cache.Append(
+		c.Append(
 			handler.Middleware{
 				State: state,
 				M:     security.SetAuthenticatedUser,
@@ -30,7 +30,7 @@ func RegisterRetrievalRoutes(state *handler.State, api *mux.Router, chain alice.
 	opts.Handle("/images/{ID:[a-zA-Z]{12}}", chain.Then(handler.Options("GET")))
 
 	get.Handle("/images/featured",
-		cache.Append(
+		c.Append(
 			handler.Middleware{
 				State: state,
 				M:     security.SetAuthenticatedUser,
@@ -38,7 +38,7 @@ func RegisterRetrievalRoutes(state *handler.State, api *mux.Router, chain alice.
 	opts.Handle("/images/featured", chain.Then(handler.Options("GET")))
 
 	get.Handle("/images/recent",
-		cache.Append(
+		c.Append(
 			handler.Middleware{
 				State: state,
 				M:     security.SetAuthenticatedUser,
@@ -46,7 +46,7 @@ func RegisterRetrievalRoutes(state *handler.State, api *mux.Router, chain alice.
 	opts.Handle("/images/recent", chain.Then(handler.Options("GET")))
 
 	get.Handle("/images/trending",
-		cache.Append(
+		c.Append(
 			handler.Middleware{
 				State: state,
 				M:     security.SetAuthenticatedUser,
@@ -67,15 +67,15 @@ func RegisterRetrievalRoutes(state *handler.State, api *mux.Router, chain alice.
 		}.Handler).Then(handler.Handler{State: state, H: retrieval.LoggedInUserImagesHandler}))
 	opts.Handle("/users/me/images", chain.Then(handler.Options("GET")))
 
-	get.Handle("/users/{ID}", cache.Then(handler.Handler{State: state, H: retrieval.UserHandler}))
+	get.Handle("/users/{ID}", c.Then(handler.Handler{State: state, H: retrieval.UserHandler}))
 	opts.Handle("/users/{ID}", chain.Then(handler.Options("GET")))
 
-	get.Handle("/users/{ID}/images", cache.Then(handler.Handler{State: state, H: retrieval.UserImagesHandler}))
+	get.Handle("/users/{ID}/images", c.Then(handler.Handler{State: state, H: retrieval.UserImagesHandler}))
 	opts.Handle("/users/{ID}/images", chain.Then(handler.Options("GET")))
 
-	get.Handle("/users/{ID}/favorites", cache.Then(handler.Handler{State: state, H: retrieval.UserFavoritesHandler}))
+	get.Handle("/users/{ID}/favorites", c.Then(handler.Handler{State: state, H: retrieval.UserFavoritesHandler}))
 	opts.Handle("/users/{ID}/favorites", chain.Then(handler.Options("GET")))
 
-	get.Handle("/tags/{ID}", cache.Then(handler.Handler{State: state, H: retrieval.TagHandler}))
+	get.Handle("/tags/{ID}", c.Then(handler.Handler{State: state, H: retrieval.TagHandler}))
 	opts.Handle("/tags/{ID}", chain.Then(handler.Options("GET")))
 }
