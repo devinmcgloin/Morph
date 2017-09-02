@@ -38,7 +38,25 @@ func SearchHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 	}
 
 	var ids []Rank
-	query := `
+	var query string
+
+	tsQuery := formatQueryString(searchReq.RequiredTerms, searchReq.OptionalTerms, searchReq.ExcludedTerms)
+	var initialArgs []interface{}
+	if tsQuery == "" {
+		query = `
+		SELECT
+		  searches.searchable_id                          AS ID,
+		  0 											  AS rank,
+		  searches.searchable_type                        AS type
+		FROM searches
+		  LEFT JOIN content.image_geo AS geo ON searches.searchable_id = geo.image_id
+		  LEFT JOIN content.image_color_bridge AS bridge ON searches.searchable_id = bridge.image_id
+		  LEFT JOIN content.colors AS colors ON bridge.color_id = colors.id
+		WHERE searches.searchable_type IN ( ? )`
+		initialArgs = append(initialArgs, searchReq.Types)
+
+	} else {
+		query = `
 		SELECT
 		  searches.searchable_id                          AS ID,
 		  ts_rank_cd(term, to_tsquery(?), 32 /* rank/(rank+1) */) AS rank,
@@ -48,10 +66,9 @@ func SearchHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 		  LEFT JOIN content.image_color_bridge AS bridge ON searches.searchable_id = bridge.image_id
 		  LEFT JOIN content.colors AS colors ON bridge.color_id = colors.id
 		WHERE to_tsquery(?) @@ term AND searches.searchable_type IN ( ? )`
+		initialArgs = append(initialArgs, tsQuery, tsQuery, searchReq.Types)
 
-	tsQuery := formatQueryString(searchReq.RequiredTerms, searchReq.OptionalTerms, searchReq.ExcludedTerms)
-	var initialArgs []interface{}
-	initialArgs = append(initialArgs, tsQuery, tsQuery, searchReq.Types)
+	}
 
 	log.Printf("TS_QUERY: {%s}\n", tsQuery)
 

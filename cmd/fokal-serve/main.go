@@ -58,12 +58,18 @@ func main() {
 		log.Fatal("AWS Secret Access Key not set at AWS_SECRET_ACCESS_KEY")
 	}
 
+	SentryURL := os.Getenv("SENTRY_URL")
+	if SentryURL == "" {
+		log.Fatal("Sentry URL not set at SENTRY_URL")
+	}
+
 	cfg.GoogleToken = googleToken
 	cfg.PostgresURL = postgresURL
 	cfg.RedisURL = redisURL
 	cfg.RedisPass = redisPass
 	cfg.AWSAccessKeyId = AWSAccessKey
 	cfg.AWSSecretAccessKey = AWSSecret
+	cfg.SentryURL = SentryURL
 
 	daemon.Run(cfg)
 }

@@ -3,6 +3,8 @@ package handler
 import (
 	"net/http"
 	"time"
+
+	"github.com/getsentry/raven-go"
 )
 
 type Middleware struct {
@@ -16,4 +18,10 @@ func (m Middleware) Handler(next http.Handler) http.Handler {
 
 func Timeout(h http.Handler) http.Handler {
 	return http.TimeoutHandler(h, time.Minute, "Application has timed out.")
+}
+
+func SentryRecovery(h http.Handler) http.Handler {
+	return http.Handler(
+		raven.RecoveryHandler)
+
 }

@@ -17,6 +17,7 @@ import (
 	"github.com/fokal/fokal/pkg/handler"
 	"github.com/fokal/fokal/pkg/logging"
 	"github.com/fokal/fokal/pkg/routes"
+	raven "github.com/getsentry/raven-go"
 	"github.com/gorilla/context"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -37,6 +38,8 @@ type Config struct {
 	GoogleToken        string
 	AWSAccessKeyId     string
 	AWSSecretAccessKey string
+
+	SentryURL string
 }
 
 var AppState handler.State
@@ -59,6 +62,10 @@ func Run(cfg *Config) {
 	api := router.PathPrefix("/v0/").Subrouter()
 
 	log.Printf("Serving at http://%s:%d", cfg.Host, cfg.Port)
+	err := raven.SetDSN(cfg.SentryURL)
+	if err != nil {
+		log.Fatal("Sentry IO not configured")
+	}
 
 	AppState.Vision, AppState.Maps, _ = conn.DialGoogleServices(cfg.GoogleToken)
 	AppState.DB = conn.DialPostgres(cfg.PostgresURL)
@@ -98,6 +105,7 @@ func Run(cfg *Config) {
 	})
 
 	var base = alice.New(
+		handler.SentryRecovery,
 		crs.Handler,
 		handler.Timeout,
 		logging.IP, logging.UUID, secureMiddleware.Handler,
