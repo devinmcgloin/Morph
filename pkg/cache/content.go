@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/garyburd/redigo/redis"
+	"github.com/getsentry/raven-go"
 )
 
 const prefix = "cache"
@@ -18,6 +19,7 @@ func Get(pool *redis.Pool, key string) ([]byte, error) {
 	b, err := redis.Bytes(conn.Do("GET", prefix+key))
 	if err != nil {
 		log.Println(err)
+		raven.CaptureError(err, map[string]string{"type": "redis", "module": "cache"})
 		return []byte{}, err
 	}
 
@@ -31,6 +33,7 @@ func Invalidate(pool *redis.Pool, key string) error {
 	_, err := conn.Do("DEL", prefix+key)
 	if err != nil {
 		log.Println(err)
+		raven.CaptureError(err, map[string]string{"type": "redis", "module": "cache"})
 		return err
 	}
 	return nil
@@ -43,6 +46,7 @@ func ExpireAt(pool *redis.Pool, key string, t time.Duration) error {
 	_, err := conn.Do("EXPIRE", prefix+key, t.Seconds())
 	if err != nil {
 		log.Println(err)
+		raven.CaptureError(err, map[string]string{"type": "redis", "module": "cache"})
 		return err
 	}
 	return nil
@@ -55,6 +59,7 @@ func Set(pool *redis.Pool, key string, content []byte) error {
 	_, err := conn.Do("SET", prefix+key, content)
 	if err != nil {
 		log.Println(err)
+		raven.CaptureError(err, map[string]string{"type": "redis", "module": "cache"})
 		return err
 	}
 	return nil

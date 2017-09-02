@@ -127,6 +127,11 @@
 			"Rev": "4b1578637669ed2a10689caf88cae18dbef08edb"
 		},
 		{
+			"ImportPath": "github.com/certifi/gocertifi",
+			"Comment": "2017.07.27",
+			"Rev": "3fd9e1adb12b72d2f3f82191d49be9b93c69f67c"
+		},
+		{
 			"ImportPath": "github.com/cridenour/go-postgis",
 			"Comment": "v1.0.0",
 			"Rev": "07bea7123e00b49f286932473cbaf79b60d40fa5"
@@ -159,6 +164,10 @@
 			"ImportPath": "github.com/garyburd/redigo/redis",
 			"Comment": "v1.0.0-1-gb8dc900",
 			"Rev": "b8dc90050f24c1a73a52f107f3f575be67b21b7c"
+		},
+		{
+			"ImportPath": "github.com/getsentry/raven-go",
+			"Rev": "d175f85701dfbf44cb0510114c9943e665e60907"
 		},
 		{
 			"ImportPath": "github.com/go-ini/ini",

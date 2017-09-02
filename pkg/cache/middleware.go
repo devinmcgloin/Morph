@@ -5,8 +5,6 @@ import (
 
 	"net/http/httptest"
 
-	"time"
-
 	"log"
 
 	"github.com/fokal/fokal/pkg/handler"
@@ -31,7 +29,7 @@ func Handler(state *handler.State, next http.Handler) http.Handler {
 			if c.Code == http.StatusOK {
 				log.Printf("Setting Handler URL: %s\n", url)
 				Set(state.RD, url, content)
-				ExpireAt(state.RD, url, time.Minute*15)
+				ExpireAt(state.RD, url, state.RefreshAt)
 			}
 			return
 		} else {

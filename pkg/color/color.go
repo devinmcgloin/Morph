@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/devinmcgloin/clr/clr"
+	"github.com/getsentry/raven-go"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 )
@@ -24,6 +25,7 @@ func (spc FokalColorTable) Iterate() []clr.Color {
 
 	if err != nil {
 		log.Println(err)
+		raven.CaptureError(err, map[string]string{"type": "postgresql", "module": "color"})
 		return []clr.Color{}
 	}
 
@@ -40,6 +42,7 @@ func (spc FokalColorTable) Lookup(hex string) clr.ColorSpace {
 	err := spc.db.Get(&name, `SELECT name FROM colors.clr WHERE hex = $1`, hex)
 	if err != nil {
 		log.Println(err)
+		raven.CaptureError(err, map[string]string{"type": "postgresql", "module": "color"})
 		return ""
 	}
 	return clr.ColorSpace(name)
@@ -57,6 +60,7 @@ func AddColor(db *sqlx.DB, name, hex, t string) error {
 		name, hex, t)
 	if err != nil {
 		log.Println(err)
+		raven.CaptureError(err, map[string]string{"type": "postgresql", "module": "color"})
 		return err
 	}
 	return nil
@@ -66,11 +70,13 @@ func AddColors(db *sqlx.DB, colors map[string]string, t string) error {
 	tx, err := db.Begin()
 	if err != nil {
 		log.Println(err)
+		raven.CaptureError(err, map[string]string{"type": "postgresql", "module": "color"})
 		return err
 	}
 	stmt, err := tx.Prepare(pq.CopyInSchema("colors", "clr", "name", "hex", "type"))
 	if err != nil {
 		log.Println(err)
+		raven.CaptureError(err, map[string]string{"type": "postgresql", "module": "color"})
 		return err
 	}
 
@@ -78,6 +84,8 @@ func AddColors(db *sqlx.DB, colors map[string]string, t string) error {
 		_, err = stmt.Exec(name, hex, t)
 		if err != nil {
 			log.Println(err)
+			raven.CaptureError(err, map[string]string{"type": "postgresql", "module": "color"})
+
 			return err
 		}
 	}
@@ -85,18 +93,22 @@ func AddColors(db *sqlx.DB, colors map[string]string, t string) error {
 	_, err = stmt.Exec()
 	if err != nil {
 		log.Println(err)
+		raven.CaptureError(err, map[string]string{"type": "postgresql", "module": "color"})
+
 		return err
 	}
 
 	err = stmt.Close()
 	if err != nil {
 		log.Println(err)
+		raven.CaptureError(err, map[string]string{"type": "postgresql", "module": "color"})
 		return err
 	}
 
 	err = tx.Commit()
 	if err != nil {
 		log.Println(err)
+		raven.CaptureError(err, map[string]string{"type": "postgresql", "module": "color"})
 		return err
 	}
 	return nil
@@ -111,6 +123,7 @@ func GetColors(db *sqlx.DB, t string) (map[string]string, error) {
 	err := db.Select(&hex, "SELECT name, hex FROM colors.clr WHERE type = $1", t)
 	if err != nil {
 		log.Println(err)
+		raven.CaptureError(err, map[string]string{"type": "postgresql", "module": "color"})
 		return clrs, err
 	}
 
