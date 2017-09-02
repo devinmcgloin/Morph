@@ -21,7 +21,9 @@ func Timeout(h http.Handler) http.Handler {
 }
 
 func SentryRecovery(h http.Handler) http.Handler {
-	return http.Handler(
-		raven.RecoveryHandler)
+	return http.HandlerFunc(
+		raven.RecoveryHandler(func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}))
 
 }
