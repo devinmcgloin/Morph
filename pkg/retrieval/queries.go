@@ -339,18 +339,22 @@ func imageColors(rows *sqlx.Rows) ([]model.Color, error) {
 }
 
 func imageMetadata(rows *sqlx.Rows) (model.ImageMetadata, error) {
-	meta := model.ImageMetadata{Location: &model.Location{}}
+	meta := model.ImageMetadata{}
+	loc := model.Location{}
 	if !rows.NextResultSet() {
 		return meta, rows.Err()
 	}
 
 	for rows.Next() {
 		err := rows.Scan(&meta.Aperture, &meta.ExposureTime, &meta.FocalLength, &meta.ISO, &meta.Make, &meta.Model,
-			&meta.LensMake, &meta.LensModel, &meta.PixelYDimension, &meta.PixelXDimension, &meta.CaptureTime, &meta.Location.Point, &meta.Location.ImageDirection,
-			&meta.Location.Description)
+			&meta.LensMake, &meta.LensModel, &meta.PixelYDimension, &meta.PixelXDimension, &meta.CaptureTime, &loc.Point, &loc.ImageDirection,
+			&loc.Description)
 		if err != nil {
 			return meta, err
 		}
+	}
+	if loc.Point != nil {
+		meta.Location = &loc
 	}
 	return meta, nil
 }
