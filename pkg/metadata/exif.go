@@ -23,7 +23,7 @@ func GetExif(img io.Reader) (*exif.Exif, error) {
 }
 
 func GetMetadata(errChan chan error, metaChan chan model.ImageMetadata, img io.Reader) {
-	meta := model.ImageMetadata{}
+	meta := model.ImageMetadata{Location: &model.Location{}}
 	x, err := GetExif(img)
 	if err != nil {
 		errChan <- err
