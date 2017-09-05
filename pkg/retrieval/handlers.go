@@ -7,8 +7,6 @@ import (
 
 	"strconv"
 
-	"log"
-
 	"github.com/fokal/fokal/pkg/handler"
 	"github.com/fokal/fokal/pkg/model"
 	"github.com/gorilla/context"
@@ -219,7 +217,6 @@ func RecentImageHandler(store *handler.State, w http.ResponseWriter, r *http.Req
 		limit = 500
 	}
 
-	log.Printf("%d\n", limit)
 	images, err := RecentImages(store, limit)
 	if err != nil {
 		return rsp, err
