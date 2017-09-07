@@ -1,6 +1,7 @@
 package retrieval
 
 import (
+	"database/sql"
 	"net/http"
 
 	"errors"
@@ -182,6 +183,9 @@ func TagHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (h
 	var tid int64
 	err = store.DB.Get(&tid, "SELECT id FROM content.image_tags as t WHERE t.description = $1;", id)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return rsp, handler.StatusError{Code: http.StatusNotFound, Err: errors.New("No Corrisponding Tag found.")}
+		}
 		return rsp, err
 	}
 
