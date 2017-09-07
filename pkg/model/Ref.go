@@ -31,11 +31,11 @@ func (r Ref) ToURL(port int, local bool) string {
 	}
 	switch r.Collection {
 	case Users:
-		return fmt.Sprintf("%s/u/%s", host, r.Shortcode)
+		return fmt.Sprintf("%s/users/%s", host, r.Shortcode)
 	case Images:
-		return fmt.Sprintf("%s/i/%s", host, r.Shortcode)
+		return fmt.Sprintf("%s/images/%s", host, r.Shortcode)
 	case Tags:
-		return fmt.Sprintf("%s/t/%s", host, r.Shortcode)
+		return fmt.Sprintf("%s/tags/%s", host, r.Shortcode)
 	default:
 		log.Panic("Invalid Collection Type")
 	}
