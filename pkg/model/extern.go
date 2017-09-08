@@ -91,9 +91,9 @@ type Location struct {
 }
 
 type Color struct {
-	SRGB          clr.RGB `json:"sRGB"`
-	Hex           string
-	HSV           clr.HSV
+	SRGB          clr.RGB        `json:"sRGB"`
+	Hex           string         `json:"hex"`
+	HSV           clr.HSV        `json:"hsv"`
 	Shade         clr.ColorSpace `db:"shade" json:"shade"`
 	ColorName     clr.ColorSpace `db:"color" json:"color_name"`
 	PixelFraction float64        `json:"pixel_fraction"`

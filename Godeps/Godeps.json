@@ -1,6 +1,6 @@
 {
 	"ImportPath": "github.com/fokal/fokal",
-	"GoVersion": "go1.8",
+	"GoVersion": "go1.9",
 	"GodepVersion": "v79",
 	"Packages": [
 		"./..."
@@ -138,7 +138,7 @@
 		},
 		{
 			"ImportPath": "github.com/devinmcgloin/clr/clr",
-			"Rev": "0b88b1734f38e1e7d0e5a6b8c139465bbd9a588c"
+			"Rev": "5daac148c23aa068f03bb913a79221d100cd0a7b"
 		},
 		{
 			"ImportPath": "github.com/dgrijalva/jwt-go",
