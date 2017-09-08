@@ -8,6 +8,7 @@ import (
 
 	"github.com/garyburd/redigo/redis"
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 	"google.golang.org/api/googleapi/transport"
 	"google.golang.org/api/vision/v1"
 	"googlemaps.github.io/maps"

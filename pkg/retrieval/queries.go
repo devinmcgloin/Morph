@@ -13,7 +13,6 @@ import (
 	"github.com/fokal/fokal/pkg/model"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
-	_ "github.com/lib/pq"
 )
 
 // GetUser returns the fields of a user row into a User struct, including image references.

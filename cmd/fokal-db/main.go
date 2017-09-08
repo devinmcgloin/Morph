@@ -6,25 +6,19 @@ import (
 	"log"
 	"os"
 
-	_ "github.com/lib/pq"
+	"github.com/fokal/fokal/pkg/conn"
+	"github.com/jmoiron/sqlx"
 )
 
-var db *sql.DB
+var db *sqlx.DB
 
 func init() {
-	var err error
 
 	postgresURL := os.Getenv("DATABASE_URL")
-	db, err = sql.Open("postgres", postgresURL)
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = db.Ping()
-	if err != nil {
-		log.Fatal(err)
-	}
+	db = conn.DialPostgres(postgresURL)
 
 }
+
 func main() {
 	ExampleDB_Query_multipleResultSets()
 

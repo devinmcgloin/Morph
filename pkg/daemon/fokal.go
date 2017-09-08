@@ -67,6 +67,12 @@ func Run(cfg *Config) {
 		log.Fatal("Sentry IO not configured")
 	}
 
+	if cfg.Local {
+		cfg.PostgresURL = cfg.PostgresURL + "?sslmode=disable"
+	}
+
+	log.Println(cfg.PostgresURL)
+
 	AppState.Vision, AppState.Maps, _ = conn.DialGoogleServices(cfg.GoogleToken)
 	AppState.DB = conn.DialPostgres(cfg.PostgresURL)
 	AppState.RD = conn.DialRedis(cfg.RedisURL, cfg.RedisPass)
@@ -81,6 +87,9 @@ func Run(cfg *Config) {
 	AppState.SessionLifetime = time.Hour * 16
 
 	AppState.RefreshAt = time.Minute * 15
+
+	// Refreshing Materialized View
+	refreshMaterializedView()
 
 	var secureMiddleware = secure.New(secure.Options{
 		AllowedHosts:          []string{"api.fok.al", "dev.fok.al", "fok.al"},
@@ -167,4 +176,16 @@ func ParseKeys() (*rsa.PrivateKey, map[string]*rsa.PublicKey) {
 	}
 	return privateKey, parsedKeys
 
+}
+
+func refreshMaterializedView() {
+	tick := time.NewTicker(time.Minute * 15)
+	go func() {
+		for {
+			select {
+			case <-tick.C:
+				AppState.DB.Exec("REFRESH MATERIALIZED VIEW CONCURRENTLY searches;")
+			}
+		}
+	}()
 }
