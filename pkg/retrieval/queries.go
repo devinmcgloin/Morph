@@ -11,7 +11,6 @@ import (
 
 	"github.com/fokal/fokal/pkg/handler"
 	"github.com/fokal/fokal/pkg/model"
-	"github.com/fokal/fokal/pkg/stats"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 	_ "github.com/lib/pq"
@@ -208,7 +207,6 @@ func GetImage(state *handler.State, i int64) (model.Image, error) {
 	img.Source = imageSources(img.Shortcode, "content")
 
 	img.Permalink = model.Ref{Collection: model.Images, Shortcode: img.Shortcode}.ToURL(state.Port, state.Local)
-	stats.AddStat(state.DB, i, "view")
 	return img, nil
 }
 

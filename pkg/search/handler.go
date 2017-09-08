@@ -37,6 +37,12 @@ func SearchHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 			Code: http.StatusBadRequest}
 	}
 
+	if searchReq.Color != nil && (len(searchReq.Color.HexCode) != 7 || searchReq.Color.HexCode[0] != '#') {
+		return handler.Response{}, handler.StatusError{
+			Err:  errors.New("invalid Hex Code"),
+			Code: http.StatusBadRequest}
+	}
+
 	var ids []Rank
 	var query string
 

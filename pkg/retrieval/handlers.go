@@ -10,6 +10,7 @@ import (
 
 	"github.com/fokal/fokal/pkg/handler"
 	"github.com/fokal/fokal/pkg/model"
+	"github.com/fokal/fokal/pkg/stats"
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
 )
@@ -152,6 +153,8 @@ func ImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) 
 			img.FavoritedByUser = &isFavorited
 		}
 	}
+
+	stats.AddStat(store.DB, ref.Id, "view")
 
 	return handler.Response{
 		Code: http.StatusOK,
