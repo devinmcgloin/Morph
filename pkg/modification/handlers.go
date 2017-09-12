@@ -1,14 +1,13 @@
 package modification
 
 import (
+	"log"
 	"net/http"
 
-	"log"
-
+	"github.com/fatih/structs"
 	"github.com/fokal/fokal/pkg/handler"
 	"github.com/fokal/fokal/pkg/request"
 	"github.com/fokal/fokal/pkg/retrieval"
-	"github.com/fatih/structs"
 	"github.com/gorilla/mux"
 	"github.com/mholt/binding"
 )
@@ -55,7 +54,6 @@ func UnFeatureImage(store *handler.State, w http.ResponseWriter, r *http.Request
 
 func PatchImage(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
 	vars := mux.Vars(r)
-	log.Println("Inside PatchImage")
 
 	id := vars["ID"]
 
@@ -68,6 +66,8 @@ func PatchImage(store *handler.State, w http.ResponseWriter, r *http.Request) (h
 	if err := binding.Bind(r, req); err != nil {
 		return handler.Response{}, err
 	}
+
+	log.Printf("%+v\n", req)
 
 	err = commitImagePatch(store.DB, ref, structs.Map(req))
 	if err != nil {

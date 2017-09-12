@@ -92,7 +92,13 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			// We can retrieve the status here and write out a specific
 			// HTTP status code.
 			log.Printf("HTTP %d - %s", e.Status(), e)
-			http.Error(w, e.Error(), e.Status())
+			w.WriteHeader(e.Status())
+			j, _ := json.Marshal(map[string]interface{}{
+				"code": e.Status(),
+				"err":  e.Error(),
+			})
+
+			w.Write(j)
 		default:
 			// Any error types we don't specifically look out for default
 			// to serving a HTTP 500
@@ -113,4 +119,15 @@ func Options(opts ...string) http.Handler {
 		w.Header().Set("Allow", strings.Join(opts, ", "))
 		w.WriteHeader(http.StatusOK)
 	})
+}
+
+func NotFound(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	j, _ := json.Marshal(map[string]interface{}{
+		"code": 404,
+		"err":  "Endpoint does not exist.",
+	})
+
+	w.Write(j)
 }

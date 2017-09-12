@@ -5,6 +5,8 @@ import (
 
 	"log"
 
+	"encoding/json"
+
 	"github.com/fokal/fokal/pkg/handler"
 	"github.com/fokal/fokal/pkg/tokens"
 	"github.com/gorilla/context"
@@ -19,7 +21,12 @@ func Authenticate(state *handler.State, next http.Handler) http.Handler {
 				// We can retrieve the status here and write out a specific
 				// HTTP status code.
 				log.Printf("HTTP %d - %s", e.Status(), e.Error())
-				http.Error(w, e.Error(), e.Status())
+				w.WriteHeader(e.Status())
+				j, _ := json.Marshal(map[string]interface{}{
+					"code": e.Status(),
+					"err":  e.Error(),
+				})
+				w.Write(j)
 			default:
 				// Any error types we don't specifically look out for default
 				// to serving a HTTP 500

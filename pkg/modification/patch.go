@@ -51,6 +51,7 @@ func commitImagePatch(db *sqlx.DB, image model.Ref, req map[string]interface{}) 
 			}
 		} else {
 			_, err = tx.Exec(fmt.Sprintf(`UPDATE content.image_metadata SET %s = $1 WHERE image_id = $2;`, key), val, image.Id)
+			log.Printf("Setting %s to %v\n", key, val)
 			if err != nil {
 				log.Println(err)
 				log.Printf(`UPDATE content.image_metadata SET %s = $1 WHERE image_id = $2;`, key)

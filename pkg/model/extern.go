@@ -12,12 +12,14 @@ type User struct {
 	Username  string `json:"id"`
 	Permalink string `json:"permalink"`
 
-	Email    string      `json:"email"`
-	Name     *string     `json:"name,omitempty"`
-	Bio      *string     `json:"bio,omitempty"`
-	URL      *string     `json:"url,omitempty"`
-	Location *string     `json:"location,omitempty"`
-	Avatars  ImageSource `json:"avatar_links"`
+	Email     string      `json:"email"`
+	Name      *string     `json:"name,omitempty"`
+	Bio       *string     `json:"bio,omitempty"`
+	URL       *string     `json:"url,omitempty"`
+	Instagram *string     `json:"instagram,omitempty"`
+	Twitter   *string     `json:"twitter,omitempty"`
+	Location  *string     `json:"location,omitempty"`
+	Avatars   ImageSource `json:"avatar_links"`
 
 	ImageLinks    *[]string `json:"images_links,omitempty"`
 	FavoriteLinks *[]string `json:"favorite_links,omitempty"`
