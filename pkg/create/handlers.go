@@ -14,6 +14,7 @@ import (
 	"strings"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/fokal/fokal/pkg/geo"
 	"github.com/fokal/fokal/pkg/handler"
 	"github.com/fokal/fokal/pkg/metadata"
 	"github.com/fokal/fokal/pkg/model"
@@ -121,6 +122,14 @@ func ImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) 
 		return handler.Response{}, handler.StatusError{
 			Err:  errors.New("Image contains violent, medical or adult imagery."),
 			Code: http.StatusBadRequest}
+	}
+
+	if img.Metadata.Location != nil {
+		addr, err := geo.ReverseGeocode(store, img.Metadata.Location.Point)
+		if err != nil {
+			log.Println(err)
+		}
+		img.Metadata.Location.Description = &addr
 	}
 	img.Labels = annotations.Labels
 	img.Landmarks = annotations.Landmark
