@@ -37,6 +37,17 @@ func Valid(db *sqlx.DB, userRef int64, permission Permission, item int64) (bool,
 		log.Println(err)
 		return false, err
 	}
+
+	if valid == 0 {
+		admin, err := IsAdmin(db, userRef)
+		if err != nil {
+			log.Println(err)
+			return false, err
+		}
+		if admin {
+			return admin, nil
+		}
+	}
 	log.Printf("valid: %d\n", valid)
 	return valid == 1, nil
 

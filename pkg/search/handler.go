@@ -136,13 +136,13 @@ func SearchHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 			}
 			resp.Users = append(resp.Users, user)
 		case Tag:
-			img, err := retrieval.TaggedImages(store, v.ID, 1)
+			tag, err := retrieval.TaggedImages(store, v.ID, 1)
 			if err != nil {
 				log.Println(err)
 				return handler.Response{}, handler.StatusError{Err: err, Code: http.StatusInternalServerError}
 			}
 
-			if len(img) == 0 {
+			if len(tag.Images) == 0 {
 				continue
 			}
 			ref, err := retrieval.GetTagRef(store.DB, v.ID)
@@ -150,7 +150,13 @@ func SearchHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 				log.Println(err)
 				return handler.Response{}, handler.StatusError{Err: err, Code: http.StatusInternalServerError}
 			}
-			resp.Tags = append(resp.Tags, TagResponse{Id: ref.Shortcode, Permalink: ref.ToURL(store.Port, store.Local), TitleImage: img[0]})
+
+			resp.Tags = append(resp.Tags, TagResponse{
+				Id:         ref.Shortcode,
+				Permalink:  ref.ToURL(store.Port, store.Local),
+				TitleImage: tag.Images[0],
+				Count:      tag.Count,
+			})
 		}
 	}
 

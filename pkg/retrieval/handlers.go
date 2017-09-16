@@ -187,15 +187,18 @@ func TagHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (h
 	err = store.DB.Get(&tid, "SELECT id FROM content.image_tags as t WHERE t.description = $1;", id)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return rsp, handler.StatusError{Code: http.StatusNotFound, Err: errors.New("No Corrisponding Tag found.")}
+			return rsp, handler.StatusError{Code: http.StatusNotFound, Err: errors.New("no corresponding Tag found")}
 		}
 		return rsp, err
 	}
 
+	tag := model.Ref{Collection: model.Tags, Id: tid, Shortcode: id}
 	images, err := TaggedImages(store, tid, limit)
 	if err != nil {
 		return rsp, err
 	}
+
+	images.Permalink = tag.ToURL(store.Port, store.Local)
 
 	return handler.Response{
 		Code: http.StatusOK,

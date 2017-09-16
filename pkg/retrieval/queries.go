@@ -431,8 +431,9 @@ func GetUserRefByEmail(db *sqlx.DB, email string) (model.Ref, error) {
 	return ref, nil
 }
 
-func TaggedImages(state *handler.State, tID int64, limit int) ([]model.Image, error) {
+func TaggedImages(state *handler.State, tID int64, limit int) (model.Tag, error) {
 	ids := []int64{}
+	tag := model.Tag{}
 
 	err := state.DB.Select(&ids, `
 		SELECT images.id
@@ -445,9 +446,27 @@ func TaggedImages(state *handler.State, tID int64, limit int) ([]model.Image, er
 	`, tID, limit)
 	if err != nil {
 		log.Println(err)
-		return []model.Image{}, err
+		return model.Tag{}, err
 	}
-	return GetImages(state, ids)
+	tag.Images, err = GetImages(state, ids)
+	if err != nil {
+		log.Println(err)
+		return tag, err
+	}
+
+	err = state.DB.Get(&tag.ID, "SELECT description FROM content.image_tags WHERE id = $1", tID)
+	if err != nil {
+		log.Println(err)
+		return tag, err
+	}
+
+	err = state.DB.Get(&tag.Count, "SELECT count(*) FROM content.image_tag_bridge WHERE tag_id = $1", tID)
+	if err != nil {
+		log.Println(err)
+		return tag, err
+	}
+
+	return tag, nil
 }
 
 func Trending(state *handler.State, limit int) ([]model.Image, error) {

@@ -90,6 +90,7 @@ func Run(cfg *Config) {
 
 	// Refreshing Materialized View
 	refreshMaterializedView()
+	refreshGoogleOauthKeys()
 
 	var secureMiddleware = secure.New(secure.Options{
 		AllowedHosts:          []string{"api.fok.al", "dev.fok.al", "fok.al"},
@@ -186,6 +187,41 @@ func refreshMaterializedView() {
 			select {
 			case <-tick.C:
 				AppState.DB.Exec("REFRESH MATERIALIZED VIEW CONCURRENTLY searches;")
+			}
+		}
+	}()
+}
+
+func refreshGoogleOauthKeys() {
+	tick := time.NewTicker(time.Minute * 10)
+	go func() {
+		for {
+			select {
+			case <-tick.C:
+				resp, err := http.Get("https://www.googleapis.com/oauth2/v1/certs")
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				defer resp.Body.Close()
+				body, err := ioutil.ReadAll(resp.Body)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				keys := make(map[string]string)
+				err = json.Unmarshal(body, &keys)
+				if err != nil {
+					log.Fatal(err)
+				}
+				for kid, pem := range keys {
+					publicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(pem))
+					if err != nil {
+						log.Fatal(err)
+					}
+					AppState.PublicKeys[kid] = publicKey
+				}
+
 			}
 		}
 	}()

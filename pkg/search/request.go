@@ -39,6 +39,7 @@ type TagResponse struct {
 	Id         string      `json:"id"`
 	Permalink  string      `json:"permalink"`
 	TitleImage model.Image `json:"image"`
+	Count      int         `json:"count"`
 }
 
 type Response struct {
