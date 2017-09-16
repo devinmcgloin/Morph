@@ -16,6 +16,7 @@ import (
 	"github.com/fokal/fokal/pkg/conn"
 	"github.com/fokal/fokal/pkg/handler"
 	"github.com/fokal/fokal/pkg/logging"
+	"github.com/fokal/fokal/pkg/ratelimit"
 	"github.com/fokal/fokal/pkg/routes"
 	raven "github.com/getsentry/raven-go"
 	"github.com/gorilla/context"
@@ -118,6 +119,7 @@ func Run(cfg *Config) {
 
 	var base = alice.New(
 		handler.SentryRecovery,
+		ratelimit.RateLimit,
 		crs.Handler,
 		handler.Timeout,
 		logging.IP, logging.UUID, secureMiddleware.Handler,
