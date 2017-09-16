@@ -8,5 +8,5 @@ import (
 )
 
 func RateLimit(h http.Handler) http.Handler {
-	return tollbooth.LimitHandler(tollbooth.NewLimiter(1, time.Second*30, nil), h)
+	return tollbooth.LimitHandler(tollbooth.NewLimiter(5, time.Second, nil), h)
 }
