@@ -151,6 +151,26 @@
 			"Rev": "01aeca54ebda6e0fbfafd0a524d234159c05ec20"
 		},
 		{
+			"ImportPath": "github.com/didip/tollbooth",
+			"Comment": "v2.2.0",
+			"Rev": "8a5832d289e4375d2fc658ed42ef08975b66dceb"
+		},
+		{
+			"ImportPath": "github.com/didip/tollbooth/errors",
+			"Comment": "v2.2.0",
+			"Rev": "8a5832d289e4375d2fc658ed42ef08975b66dceb"
+		},
+		{
+			"ImportPath": "github.com/didip/tollbooth/libstring",
+			"Comment": "v2.2.0",
+			"Rev": "8a5832d289e4375d2fc658ed42ef08975b66dceb"
+		},
+		{
+			"ImportPath": "github.com/didip/tollbooth/limiter",
+			"Comment": "v2.2.0",
+			"Rev": "8a5832d289e4375d2fc658ed42ef08975b66dceb"
+		},
+		{
 			"ImportPath": "github.com/fatih/structs",
 			"Comment": "v1.0-4-g7e5a8ee",
 			"Rev": "7e5a8eef611ee84dd359503f3969f80df4c50723"
@@ -229,6 +249,11 @@
 			"Rev": "891127d8d1b52734debe1b3c3d7e747502b6c366"
 		},
 		{
+			"ImportPath": "github.com/patrickmn/go-cache",
+			"Comment": "v2.0.0-11-ga3647f8",
+			"Rev": "a3647f8e31d79543b2d0f0ae2fe5c379d72cedc0"
+		},
+		{
 			"ImportPath": "github.com/pkg/errors",
 			"Comment": "v0.8.0-5-gc605e28",
 			"Rev": "c605e284fe17294bda444b34710735b29d1a9d90"
@@ -262,6 +287,10 @@
 		{
 			"ImportPath": "golang.org/x/net/context/ctxhttp",
 			"Rev": "1358eff22f0dd0c54fc521042cc607f6ff4b531a"
+		},
+		{
+			"ImportPath": "golang.org/x/time/rate",
+			"Rev": "8be79e1e0910c292df4e79c241bb7e8f7e725959"
 		},
 		{
 			"ImportPath": "google.golang.org/api/gensupport",
