@@ -200,7 +200,7 @@ func refreshGoogleOauthKeys() {
 		for {
 			select {
 			case <-tick.C:
-				log.Printn("Refreshing Google Auth Keys")
+				log.Println("Refreshing Google Auth Keys")
 				resp, err := http.Get("https://www.googleapis.com/oauth2/v1/certs")
 				if err != nil {
 					log.Fatal(err)
