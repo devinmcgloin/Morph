@@ -1,6 +1,7 @@
 package daemon
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -71,8 +72,6 @@ func Run(cfg *Config) {
 	if cfg.Local {
 		cfg.PostgresURL = cfg.PostgresURL + "?sslmode=disable"
 	}
-
-	log.Println(cfg.PostgresURL)
 
 	AppState.Vision, AppState.Maps, _ = conn.DialGoogleServices(cfg.GoogleToken)
 	AppState.DB = conn.DialPostgres(cfg.PostgresURL)
@@ -188,6 +187,7 @@ func refreshMaterializedView() {
 		for {
 			select {
 			case <-tick.C:
+				fmt.Println("Refreshing Materialized View")
 				AppState.DB.Exec("REFRESH MATERIALIZED VIEW CONCURRENTLY searches;")
 			}
 		}
@@ -200,6 +200,7 @@ func refreshGoogleOauthKeys() {
 		for {
 			select {
 			case <-tick.C:
+				log.Printn("Refreshing Google Auth Keys")
 				resp, err := http.Get("https://www.googleapis.com/oauth2/v1/certs")
 				if err != nil {
 					log.Fatal(err)
