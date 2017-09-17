@@ -43,6 +43,13 @@ func SearchHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 			Code: http.StatusBadRequest}
 	}
 
+	genericColor := clr.Hex{Code: searchReq.Color.HexCode[1:7]}
+	if !genericColor.Valid() {
+		return handler.Response{}, handler.StatusError{
+			Err:  errors.New("invalid Hex Code"),
+			Code: http.StatusBadRequest}
+	}
+
 	var ids []Rank
 	var query string
 
@@ -89,11 +96,11 @@ func SearchHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 	if searchReq.Color != nil {
 		query = query + `
 		AND bridge.pixel_fraction >= ? AND ? :: CUBE <-> colors.cielab < 50`
-		color := searchReq.Color
-		genericColor := clr.Hex{Code: color.HexCode[1:7]}
+
 		l, a, b := genericColor.CIELAB()
 		c := fmt.Sprintf("(%f, %f, %f)", l, a, b)
-		initialArgs = append(initialArgs, color.PixelFraction, c)
+		initialArgs = append(initialArgs, searchReq.Color.PixelFraction, c)
+
 	}
 
 	query = query + `
