@@ -43,11 +43,15 @@ func SearchHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 			Code: http.StatusBadRequest}
 	}
 
-	genericColor := clr.Hex{Code: searchReq.Color.HexCode[1:7]}
-	if !genericColor.Valid() {
-		return handler.Response{}, handler.StatusError{
-			Err:  errors.New("invalid Hex Code"),
-			Code: http.StatusBadRequest}
+	var genericColor clr.Color
+
+	if searchReq.Color != nil {
+		genericColor = clr.Hex{Code: searchReq.Color.HexCode[1:7]}
+		if !genericColor.Valid() {
+			return handler.Response{}, handler.StatusError{
+				Err:  errors.New("invalid Hex Code"),
+				Code: http.StatusBadRequest}
+		}
 	}
 
 	var ids []Rank
