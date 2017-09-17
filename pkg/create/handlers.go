@@ -125,12 +125,13 @@ func ImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) 
 	}
 
 	if img.Metadata.Location != nil {
-		addr, err := geo.ReverseGeocode(store, img.Metadata.Location.Point)
+		addr, err := geo.ReverseGeocode(store.Maps, img.Metadata.Location.Point)
 		if err != nil {
 			log.Println(err)
 		}
 		img.Metadata.Location.Description = &addr
 	}
+
 	img.Labels = annotations.Labels
 	img.Landmarks = annotations.Landmark
 	img.Colors = annotations.ColorProperties

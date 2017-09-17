@@ -7,16 +7,16 @@ import (
 	"errors"
 
 	"github.com/cridenour/go-postgis"
-	"github.com/fokal/fokal/pkg/handler"
 	"googlemaps.github.io/maps"
 )
 
-func ReverseGeocode(state *handler.State, p *postgis.PointS) (string, error) {
+func ReverseGeocode(m *maps.Client, p *postgis.PointS) (string, error) {
 	geocodeRequest := &maps.GeocodingRequest{
-		LatLng: &maps.LatLng{Lat: p.Y, Lng: p.X},
+		LatLng:     &maps.LatLng{Lat: p.Y, Lng: p.X},
+		ResultType: []string{"point_of_interest", "natural_feature", "neighborhood"},
 	}
 
-	results, err := state.Maps.Geocode(context.Background(), geocodeRequest)
+	results, err := m.Geocode(context.Background(), geocodeRequest)
 	if err != nil {
 		log.Println(err)
 		return "", err
