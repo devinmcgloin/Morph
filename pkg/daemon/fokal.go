@@ -113,7 +113,7 @@ func Run(cfg *Config) {
 		AllowCredentials:   true,
 		OptionsPassthrough: true,
 		AllowedHeaders:     []string{"Authorization", "Content-Type"},
-		AllowedMethods:     []string{"GET", "PUT", "OPTIONS", "PATCH", "POST"},
+		AllowedMethods:     []string{"GET", "PUT", "OPTIONS", "PATCH", "POST", "DELETE"},
 	})
 
 	var base = alice.New(
