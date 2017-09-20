@@ -101,7 +101,7 @@ func GetImage(state *handler.State, i int64) (model.Image, error) {
 	SELECT aperture, exposure_time, focal_length, iso, make, model,
 	lens_make, lens_model, pixel_yd, pixel_xd, capture_time, loc, dir, description
 	FROM content.image_metadata AS meta
-	JOIN content.image_geo AS geo ON geo.image_id = meta.image_id
+	LEFT JOIN content.image_geo AS geo ON geo.image_id = meta.image_id
 	WHERE meta.image_id = %[1]d;
 
 	--landmarks
