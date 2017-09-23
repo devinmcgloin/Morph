@@ -24,8 +24,6 @@ type User struct {
 	ImageLinks    *[]string `json:"images_links,omitempty"`
 	FavoriteLinks *[]string `json:"favorite_links,omitempty"`
 
-	FollowedByUser *bool `json:"followed_by_user,omitempty"`
-
 	Featured     bool      `json:"featured"`
 	Admin        bool      `json:"admin"`
 	CreatedAt    time.Time `db:"created_at" json:"created_at"`
@@ -47,10 +45,11 @@ type Image struct {
 	Title       *string `db:"title" json:"title,omitempty"`
 	Description *string `db:"description" json:"description,omitempty"`
 
-	UserId          int64 `db:"user_id" json:"-"`
-	User            *User `json:"user,omitempty"`
-	Featured        bool  `json:"featured"`
-	FavoritedByUser *bool `json:"favorited_by_user,omitempty"`
+	UserId   int64 `db:"user_id" json:"-"`
+	User     *User `json:"user,omitempty"`
+	Featured bool  `json:"featured"`
+
+	FavoritedBy []string `json:"favorited_by"`
 
 	Stats    ImageStats    `json:"stats"`
 	Source   ImageSource   `json:"src_links"`

@@ -8,6 +8,7 @@ import (
 	"github.com/fokal/fokal/pkg/handler"
 	"github.com/fokal/fokal/pkg/request"
 	"github.com/fokal/fokal/pkg/retrieval"
+	"github.com/fokal/fokal/pkg/stats"
 	"github.com/gorilla/mux"
 	"github.com/mholt/binding"
 )
@@ -139,4 +140,19 @@ func DeleteUser(store *handler.State, w http.ResponseWriter, r *http.Request) (h
 	return handler.Response{
 		Code: http.StatusAccepted,
 	}, nil
+}
+
+func DownloadHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
+	id := mux.Vars(r)["ID"]
+	ref, err := retrieval.GetImageRef(store.DB, id)
+	if err != nil {
+		return handler.Response{}, err
+	}
+
+	err = stats.AddStat(store.DB, ref.Id, "download")
+	if err != nil {
+		return handler.Response{}, err
+	}
+	return handler.Response{Code: http.StatusAccepted}, nil
+
 }

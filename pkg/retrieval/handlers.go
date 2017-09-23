@@ -28,21 +28,6 @@ func UserHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (
 	if err != nil {
 		return rsp, err
 	}
-
-	var isFollowed bool
-	val, ok := context.GetOk(r, "auth")
-	if ok {
-		LoggedInID := val.(model.Ref).Id
-		err = store.DB.Get(&isFollowed, `
-		SELECT TRUE
-		FROM CONTENT.user_follows
-		WHERE user_id = $1 AND followed_id = $2;
-		`, LoggedInID, user.Id)
-		if err == nil {
-			user.FollowedByUser = &isFollowed
-		}
-	}
-
 	return handler.Response{
 		Code: http.StatusOK,
 		Data: user,
@@ -138,20 +123,6 @@ func ImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) 
 	img, err := GetImage(store, ref.Id)
 	if err != nil {
 		return rsp, err
-	}
-
-	var isFavorited bool
-	val, ok := context.GetOk(r, "auth")
-	if ok {
-		LoggedInID := val.(model.Ref).Id
-		err = store.DB.Get(&isFavorited, `
-		SELECT TRUE
-		FROM CONTENT.user_favorites
-		WHERE user_id = $1 AND image_id = $2;
-		`, LoggedInID, img.Id)
-		if err == nil {
-			img.FavoritedByUser = &isFavorited
-		}
 	}
 
 	stats.AddStat(store.DB, ref.Id, "view")

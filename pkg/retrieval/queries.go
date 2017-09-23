@@ -138,6 +138,12 @@ func GetImage(state *handler.State, i int64) (model.Image, error) {
 
 	SELECT COALESCE(sum(total),0) FROM content.image_stats
 	WHERE image_id = %[1]d AND stat_type = 'download';
+
+
+	-- favorited by
+	SELECT username FROM content.users as users
+	JOIN content.user_favorites as favs on favs.user_id = users.id
+	WHERE favs.image_id = %[1]d;
 	`
 
 	rows, err := state.DB.Queryx(fmt.Sprintf(q, i))
@@ -194,7 +200,12 @@ func GetImage(state *handler.State, i int64) (model.Image, error) {
 	img.Stats, err = imageStats(rows)
 	if err != nil {
 		log.Println(err)
+		return model.Image{}, err
+	}
 
+	img.FavoritedBy, err = imageFavorites(rows, state.Port, state.Local)
+	if err != nil {
+		log.Println(err)
 		return model.Image{}, err
 	}
 
@@ -257,6 +268,25 @@ func imageLabels(rows *sqlx.Rows) ([]model.Label, error) {
 	}
 
 	return labels, nil
+}
+
+func imageFavorites(rows *sqlx.Rows, port int, local bool) ([]string, error) {
+	usernames := []string{}
+	var err error
+	if !rows.NextResultSet() {
+		return usernames, rows.Err()
+	}
+
+	for rows.Next() {
+		username := ""
+		err = rows.Scan(&username)
+		if err != nil {
+			return usernames, err
+		}
+		usernames = append(usernames, model.Ref{Shortcode: username, Collection: model.Users}.ToURL(port, local))
+	}
+	return usernames, nil
+
 }
 
 func imageTags(rows *sqlx.Rows) ([]string, error) {

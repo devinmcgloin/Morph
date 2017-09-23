@@ -1,7 +1,6 @@
 package daemon
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -187,7 +186,7 @@ func refreshMaterializedView() {
 		for {
 			select {
 			case <-tick.C:
-				fmt.Println("Refreshing Materialized View")
+				log.Println("Refreshing Materialized View")
 				AppState.DB.Exec("REFRESH MATERIALIZED VIEW CONCURRENTLY searches;")
 			}
 		}

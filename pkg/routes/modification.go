@@ -14,6 +14,7 @@ func RegisterModificationRoutes(state *handler.State, api *mux.Router, chain ali
 	put := api.Methods("PUT").Subrouter()
 	del := api.Methods("DELETE").Subrouter()
 	opts := api.Methods("OPTIONS").Subrouter()
+	patch := api.Methods("PATCH").Subrouter()
 
 	//Image Routes
 	put.Handle("/images/{ID:[a-zA-Z]{12}}/featured",
@@ -44,7 +45,6 @@ func RegisterModificationRoutes(state *handler.State, api *mux.Router, chain ali
 				M:          permissions.PermissionMiddle}.Handler).
 			Then(handler.Handler{State: state, H: modification.DeleteImage}))
 
-	patch := api.Methods("PATCH").Subrouter()
 	patch.Handle("/images/{ID:[a-zA-Z]{12}}",
 		chain.Append(
 			handler.Middleware{State: state, M: security.Authenticate}.Handler,
@@ -53,7 +53,13 @@ func RegisterModificationRoutes(state *handler.State, api *mux.Router, chain ali
 				TargetType: model.Images,
 				M:          permissions.PermissionMiddle}.Handler).
 			Then(handler.Handler{State: state, H: modification.PatchImage}))
+
+	put.Handle("/images/{ID:[a-zA-Z]{12}}/download",
+		chain.
+			Then(handler.Handler{State: state, H: modification.DownloadHandler}))
+
 	opts.Handle("/images/{ID:[a-zA-Z]{12}}", chain.Then(handler.Options("PATCH", "DELETE")))
+	opts.Handle("/images/{ID:[a-zA-Z]{12}}/download", chain.Then(handler.Options("PUT")))
 
 	// User Routes
 	del.Handle("/users/{ID}",
