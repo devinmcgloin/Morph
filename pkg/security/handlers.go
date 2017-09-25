@@ -7,6 +7,7 @@ import (
 
 	"encoding/pem"
 
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/fokal/fokal/pkg/handler"
 	"github.com/fokal/fokal/pkg/tokens"
 )
@@ -30,11 +31,16 @@ func PublicKeyHandler(state *handler.State, w http.ResponseWriter, r *http.Reque
 func RefreshHandler(state *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
 	user, err := tokens.Verify(state, r)
 	if err != nil {
-		return handler.Response{}, handler.StatusError{Code: http.StatusBadRequest, Err: err}
+		return handler.Response{}, err
+
 	}
-	jwt, err := tokens.Create(state, user)
+	oldJWT, _ := tokens.Parse(state, r)
+	claims := oldJWT.Claims.(jwt.MapClaims)
+	email := claims["email"].(string)
+
+	jwt, err := tokens.Create(state, user, email)
 	if err != nil {
-		return handler.Response{}, handler.StatusError{Code: http.StatusBadRequest, Err: err}
+		return handler.Response{}, err
 	}
 	return handler.Response{Code: http.StatusOK, Data: map[string]string{"token": jwt}}, nil
 }

@@ -62,7 +62,7 @@ func RegisterModificationRoutes(state *handler.State, api *mux.Router, chain ali
 	opts.Handle("/images/{ID:[a-zA-Z]{12}}/download", chain.Then(handler.Options("PUT")))
 
 	// User Routes
-	del.Handle("/users/{ID}",
+	del.Handle("/users/me",
 		chain.Append(
 			handler.Middleware{State: state, M: security.Authenticate}.Handler,
 			permissions.Middleware{State: state,
@@ -70,7 +70,7 @@ func RegisterModificationRoutes(state *handler.State, api *mux.Router, chain ali
 				TargetType: model.Users,
 				M:          permissions.PermissionMiddle}.Handler).
 			Then(handler.Handler{State: state, H: modification.DeleteUser}))
-	patch.Handle("/users/{ID}",
+	patch.Handle("/users/me",
 		chain.Append(
 			handler.Middleware{State: state, M: security.Authenticate}.Handler,
 			permissions.Middleware{State: state,
@@ -78,6 +78,6 @@ func RegisterModificationRoutes(state *handler.State, api *mux.Router, chain ali
 				TargetType: model.Users,
 				M:          permissions.PermissionMiddle}.Handler).
 			Then(handler.Handler{State: state, H: modification.PatchUser}))
-	opts.Handle("/users/{ID}", chain.Then(handler.Options("PATCH", "DELETE")))
+	opts.Handle("/users/me", chain.Then(handler.Options("PATCH", "DELETE")))
 
 }

@@ -25,22 +25,23 @@ func (m Middleware) Handler(next http.Handler) http.Handler {
 
 func PermissionMiddle(state *handler.State, p Permission, TargetType model.ReferenceType, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var usr interface{}
-		usr = model.Ref{}
 		id, _ := mux.Vars(r)["ID"]
+
+		usr, ok := context.GetOk(r, "auth")
+
 		if p != CanView {
-			var ok bool
-			usr, ok = context.GetOk(r, "auth")
 			if !ok {
-				w.WriteHeader(http.StatusInternalServerError)
+				w.WriteHeader(http.StatusBadRequest)
 				log.Println("Auth params not set")
 				return
 			}
+
 			if usr == nil {
 				log.Println("User is nil")
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
+
 		}
 
 		user := usr.(model.Ref)

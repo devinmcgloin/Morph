@@ -27,13 +27,14 @@ import (
 
 func UserHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
 	token, err := tokens.Parse(store, r)
-	if token.Valid {
-		email := token.Header["email"].(string)
+	log.Println(token)
+	if err == nil && token.Valid {
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
 			return handler.Response{}, handler.StatusError{Code: http.StatusBadRequest, Err: errors.New(http.StatusText(http.StatusBadRequest))}
 		}
 
+		email := claims["email"].(string)
 		name := claims["name"].(string)
 		var username string
 		username = strings.Split(email, "@")[0]
@@ -45,12 +46,19 @@ func UserHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (
 		err = CommitUser(store.DB, username, email, name)
 		if err != nil {
 			return handler.Response{}, handler.StatusError{
-				Code: http.StatusBadRequest,
-				Err:  errors.New("Token is malformed")}
-		} else {
-			return handler.Response{Code: http.StatusOK}, nil
+				Code: http.StatusInternalServerError,
+				Err:  errors.New("error while adding user to db")}
 		}
+
+		ref, err := retrieval.GetUserRef(store.DB, username)
+		if err != nil {
+			log.Println(err)
+			return handler.Response{}, handler.StatusError{Code: http.StatusInternalServerError}
+		}
+		token, _ := tokens.Create(store, ref, email)
+		return handler.Response{Code: http.StatusAccepted, Data: map[string]string{"token": token}}, nil
 	} else {
+		log.Println(token, err)
 		return handler.Response{}, handler.StatusError{Code: http.StatusBadRequest, Err: errors.New("Token is invalid.")}
 	}
 }

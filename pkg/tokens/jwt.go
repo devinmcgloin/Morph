@@ -16,13 +16,14 @@ import (
 	"github.com/fokal/fokal/pkg/retrieval"
 )
 
-func Create(state *handler.State, u model.Ref) (string, error) {
+func Create(state *handler.State, u model.Ref, email string) (string, error) {
 
-	claims := &jwt.StandardClaims{
-		IssuedAt:  time.Now().Unix(),
-		ExpiresAt: time.Now().Add(state.SessionLifetime).Unix(),
-		Issuer:    "fokal",
-		Subject:   u.Shortcode,
+	claims := &jwt.MapClaims{
+		"iat":   time.Now().Unix(),
+		"exp":   time.Now().Add(state.SessionLifetime).Unix(),
+		"iss":   "fokal",
+		"sub":   u.Shortcode,
+		"email": email,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
@@ -84,30 +85,17 @@ func Verify(state *handler.State, r *http.Request) (model.Ref, error) {
 		return model.Ref{}, handler.StatusError{Err: err, Code: http.StatusBadRequest}
 	}
 
-	isGoogle := token.Header["kid"] != state.KeyHash
-
 	if token.Valid {
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if token.Valid && ok {
-			if isGoogle {
-				email := claims["email"].(string)
-				id, err := retrieval.GetUserRefByEmail(state.DB, email)
-				if err != nil {
-					return model.Ref{}, handler.StatusError{
-						Code: http.StatusBadRequest,
-						Err:  errors.New("Token is malformed")}
-				}
-				return id, nil
-			} else {
-				shortcode := claims["sub"].(string)
-				id, err := retrieval.GetUserRef(state.DB, shortcode)
-				if err != nil {
-					return model.Ref{}, handler.StatusError{
-						Code: http.StatusBadRequest,
-						Err:  errors.New("Token is malformed")}
-				}
-				return id, nil
+			email := claims["email"].(string)
+			id, err := retrieval.GetUserRefByEmail(state.DB, email)
+			if err != nil {
+				return model.Ref{}, handler.StatusError{
+					Code: http.StatusBadRequest,
+					Err:  errors.New("Token is malformed")}
 			}
+			return id, nil
 		}
 	} else if err, ok := err.(*jwt.ValidationError); ok {
 		if err.Errors&jwt.ValidationErrorMalformed != 0 {

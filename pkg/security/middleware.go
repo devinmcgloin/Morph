@@ -34,6 +34,7 @@ func Authenticate(state *handler.State, next http.Handler) http.Handler {
 					http.StatusInternalServerError)
 			}
 		} else {
+			log.Printf("Setting user auth: %v\n", user)
 			context.Set(r, "auth", user)
 			next.ServeHTTP(w, r)
 		}
