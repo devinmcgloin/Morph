@@ -44,8 +44,12 @@ func PermissionMiddle(state *handler.State, p Permission, TargetType model.Refer
 
 		}
 
-		user := usr.(model.Ref)
-		log.Println(user)
+		user, ok := usr.(model.Ref)
+		if !ok {
+			user = model.Ref{}
+		} else {
+			log.Println(user)
+		}
 
 		var tarRef model.Ref
 		var err error

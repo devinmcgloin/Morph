@@ -64,19 +64,11 @@ func RegisterModificationRoutes(state *handler.State, api *mux.Router, chain ali
 	// User Routes
 	del.Handle("/users/me",
 		chain.Append(
-			handler.Middleware{State: state, M: security.Authenticate}.Handler,
-			permissions.Middleware{State: state,
-				T:          permissions.CanDelete,
-				TargetType: model.Users,
-				M:          permissions.PermissionMiddle}.Handler).
+			handler.Middleware{State: state, M: security.Authenticate}.Handler).
 			Then(handler.Handler{State: state, H: modification.DeleteUser}))
 	patch.Handle("/users/me",
 		chain.Append(
-			handler.Middleware{State: state, M: security.Authenticate}.Handler,
-			permissions.Middleware{State: state,
-				T:          permissions.CanEdit,
-				TargetType: model.Users,
-				M:          permissions.PermissionMiddle}.Handler).
+			handler.Middleware{State: state, M: security.Authenticate}.Handler).
 			Then(handler.Handler{State: state, H: modification.PatchUser}))
 	opts.Handle("/users/me", chain.Then(handler.Options("PATCH", "DELETE")))
 

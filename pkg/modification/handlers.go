@@ -1,14 +1,17 @@
 package modification
 
 import (
+	"errors"
 	"log"
 	"net/http"
 
 	"github.com/fatih/structs"
 	"github.com/fokal/fokal/pkg/handler"
+	"github.com/fokal/fokal/pkg/model"
 	"github.com/fokal/fokal/pkg/request"
 	"github.com/fokal/fokal/pkg/retrieval"
 	"github.com/fokal/fokal/pkg/stats"
+	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	"github.com/mholt/binding"
 )
@@ -82,16 +85,19 @@ func PatchImage(store *handler.State, w http.ResponseWriter, r *http.Request) (h
 
 func PatchUser(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
 
-	vars := mux.Vars(r)
+	user, ok := context.GetOk(r, "auth")
+	if !ok {
+		return handler.Response{}, handler.StatusError{Code: http.StatusUnauthorized, Err: errors.New("User is not logged in")}
+	}
 
-	id := vars["ID"]
+	ref := user.(model.Ref)
 
 	req := new(request.PatchUserRequest)
 	if err := binding.Bind(r, req); err != nil {
 		return handler.Response{}, err
 	}
 
-	ref, err := retrieval.GetUserRef(store.DB, id)
+	ref, err := retrieval.GetUserRef(store.DB, ref.Shortcode)
 	if err != nil {
 		return handler.Response{}, err
 	}
