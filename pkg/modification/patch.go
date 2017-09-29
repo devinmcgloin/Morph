@@ -26,7 +26,7 @@ func commitImagePatch(db *sqlx.DB, image model.Ref, req map[string]interface{}) 
 			tags := val.([]string)
 			var tagID int
 			for _, tag := range tags {
-				err = tx.Get(&tagID, "SELECT (id) FROM content.image_tags WHERE description = $1;",
+				err = tx.Get(&tagID, "SELECT (id) FROM content.image_tags WHERE description = LOWER($1);",
 					tag)
 				if err != nil {
 					log.Printf("CREATE NEW TAG: %s\n", tag)

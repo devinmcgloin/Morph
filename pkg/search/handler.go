@@ -94,6 +94,7 @@ func SearchHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 		AND ST_Distance(GeomFromEWKB( ? ), geo.loc) < ?`
 		geo := searchReq.Geo
 		p := postgis.PointS{X: geo.Longitude, Y: geo.Latitude, SRID: 4326}
+		log.Printf("%+v\n", p)
 		initialArgs = append(initialArgs, p, geo.Radius)
 	}
 
@@ -119,6 +120,7 @@ func SearchHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 
 	q = store.DB.Rebind(q)
 
+	log.Println(q)
 	err = store.DB.Select(&ids, q, args...)
 	if err != nil {
 		log.Println(err)
