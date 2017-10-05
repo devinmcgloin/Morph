@@ -210,6 +210,14 @@
 			"Rev": "d391bea3118c9fc17a88d62c9189bb791255e0ef"
 		},
 		{
+			"ImportPath": "github.com/heroku/x/hmetrics",
+			"Rev": "705849e307dd75c91728463dea5bfd08ef493e64"
+		},
+		{
+			"ImportPath": "github.com/heroku/x/hmetrics/onload",
+			"Rev": "705849e307dd75c91728463dea5bfd08ef493e64"
+		},
+		{
 			"ImportPath": "github.com/jmespath/go-jmespath",
 			"Comment": "0.2.2-12-g0b12d6b",
 			"Rev": "0b12d6b521d83fc7f755e7cfc1b1fbdd35a01a74"
