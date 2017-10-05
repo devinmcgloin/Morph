@@ -38,6 +38,7 @@ func SearchHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 	}
 
 	if searchReq.Color != nil && (len(searchReq.Color.HexCode) != 7 || searchReq.Color.HexCode[0] != '#') {
+		log.Println(searchReq.Color.HexCode)
 		return handler.Response{}, handler.StatusError{
 			Err:  errors.New("invalid Hex Code"),
 			Code: http.StatusBadRequest}
@@ -49,7 +50,7 @@ func SearchHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 		genericColor = clr.Hex{Code: searchReq.Color.HexCode[1:7]}
 		if !genericColor.Valid() {
 			return handler.Response{}, handler.StatusError{
-				Err:  errors.New("invalid Hex Code"),
+				Err:  errors.New("clr invalid Hex Code"),
 				Code: http.StatusBadRequest}
 		}
 	}
@@ -87,7 +88,7 @@ func SearchHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 
 	}
 
-	log.Printf("TS_QUERY: {%s}\n", tsQuery)
+	log.Printf("TS_QUERY: {%s} Request: %+v Color: %+v Geo: %+v\n", tsQuery, searchReq, searchReq.Color, searchReq.Geo)
 
 	if searchReq.Geo != nil {
 		query = query + `

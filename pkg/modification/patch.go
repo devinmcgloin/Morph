@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	postgis "github.com/cridenour/go-postgis"
 	"github.com/fokal/fokal/pkg/model"
 	"github.com/jmoiron/sqlx"
 )
@@ -48,6 +49,26 @@ func commitImagePatch(db *sqlx.DB, image model.Ref, req map[string]interface{}) 
 					log.Println(err)
 					return err
 				}
+			}
+		} else if key == "geo" {
+			loc := val.(map[string]interface{})
+			p := postgis.PointS{
+				SRID: 4326,
+				X:    loc["Longitude"].(float64),
+				Y:    loc["Latitude"].(float64),
+			}
+			desc := loc["Description"].(string)
+			log.Println(image, p, desc)
+			_, err = tx.Exec(`
+			INSERT INTO content.image_geo (image_id, loc, description)
+			VALUES ($1, GeomFromEWKB($2), $3)
+				ON CONFLICT (image_id) DO UPDATE
+					SET loc = excluded.loc,
+						description = excluded.description`,
+				image.Id, p, desc)
+			if err != nil {
+				log.Println(err)
+				return err
 			}
 		} else {
 			_, err = tx.Exec(fmt.Sprintf(`UPDATE content.image_metadata SET %s = $1 WHERE image_id = $2;`, key), val, image.Id)

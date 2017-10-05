@@ -359,7 +359,7 @@ func imageColors(rows *sqlx.Rows) ([]model.Color, error) {
 			log.Println(err)
 			return colors, err
 		}
-		color.Hex = color.SRGB.Hex()
+		color.Hex = "#" + color.SRGB.Hex()
 		colors = append(colors, color)
 	}
 	return colors, nil

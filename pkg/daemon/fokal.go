@@ -12,6 +12,8 @@ import (
 
 	"time"
 
+	_ "github.com/heroku/x/hmetrics/onload"
+
 	"github.com/dgrijalva/jwt-go"
 	"github.com/fokal/fokal/pkg/conn"
 	"github.com/fokal/fokal/pkg/handler"
