@@ -21,7 +21,6 @@ func deleteUser(db *sqlx.DB, id int64) error {
 		return err
 	}
 
-	tx.Exec("DELETE FROM content.users WHERE id = $1", id)
 	for _, id := range image_ids {
 		tx.Exec("DELETE FROM content.image_metadata WHERE image_id = $1", id)
 		tx.Exec("DELETE FROM content.image_label_bridge WHERE image_id = $1", id)
@@ -32,6 +31,7 @@ func deleteUser(db *sqlx.DB, id int64) error {
 		tx.Exec("DELETE FROM content.image_geo WHERE image_id = $1", id)
 		tx.Exec("DELETE FROM content.images WHERE id = $1", id)
 	}
+	tx.Exec("DELETE FROM content.users WHERE id = $1", id)
 	return tx.Commit()
 }
 
