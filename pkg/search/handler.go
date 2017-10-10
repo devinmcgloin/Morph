@@ -180,6 +180,11 @@ func SearchHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 
 func formatQueryString(req []string, opt []string, exc []string) string {
 	args := []string{}
+
+	req = FilterEmpty(req)
+	opt = FilterEmpty(opt)
+	exc = FilterEmpty(exc)
+
 	for i, ex := range exc {
 		exc[i] = "!" + ex
 	}
@@ -195,4 +200,22 @@ func formatQueryString(req []string, opt []string, exc []string) string {
 		args = append(args, strings.Join(exc, " & "))
 	}
 	return strings.Join(args, " & ")
+}
+
+func Filter(vs []string, f func(string) bool) []string {
+	vsf := make([]string, 0)
+	for _, v := range vs {
+		if f(v) {
+			vsf = append(vsf, v)
+		}
+	}
+	return vsf
+}
+
+func FilterEmpty(arr []string) []string {
+	empty := func(s string) bool {
+		return s != ""
+	}
+
+	return Filter(arr, empty)
 }

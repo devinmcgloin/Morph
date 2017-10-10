@@ -87,7 +87,8 @@ type ImageMetadata struct {
 
 type Location struct {
 	ImageDirection *float64        `db:"dir" json:"direction,omitempty"`
-	Point          *postgis.PointS `db:"loc" json:"point,omitempty"`
+	Point          *postgis.PointS `db:"loc" json:"-"`
+	LatLng         *Point          `json:"point,omitempty"`
 	Description    *string         `db:"description" json:"description"`
 }
 
@@ -110,6 +111,11 @@ type Landmark struct {
 	Description string         `json:"description"`
 	Location    postgis.PointS `json:"location"`
 	Score       float64        `json:"score"`
+}
+
+type Point struct {
+	Lat float64 `json:"lat"`
+	Lng float64 `json:"lng"`
 }
 
 type Tag struct {

@@ -381,6 +381,7 @@ func imageMetadata(rows *sqlx.Rows) (model.ImageMetadata, error) {
 		}
 	}
 	if loc.Point != nil {
+		loc.LatLng = &model.Point{Lat: loc.Point.Y, Lng: loc.Point.X}
 		meta.Location = &loc
 	}
 	return meta, nil
