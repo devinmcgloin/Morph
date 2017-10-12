@@ -12,7 +12,7 @@ type User struct {
 	Username  string `json:"id"`
 	Permalink string `json:"permalink"`
 
-	Email     string      `json:"email"`
+	Email     string      `json:"-"`
 	Name      *string     `json:"name,omitempty"`
 	Bio       *string     `json:"bio,omitempty"`
 	URL       *string     `json:"url,omitempty"`
