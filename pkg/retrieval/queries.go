@@ -1,7 +1,6 @@
 package retrieval
 
 import (
-	"crypto/md5"
 	"log"
 
 	"fmt"
@@ -55,8 +54,11 @@ func GetUser(state *handler.State, u int64) (model.User, error) {
 	}
 
 	user.FavoriteLinks = &favoriteLinks
-	user.Avatars = avatarSources(user.Email)
-
+	if user.AvatarID != nil {
+		user.Avatars = ImageSources(*user.AvatarID, "avatar")
+	} else {
+		user.Avatars = ImageSources(user.Username, "avatar")
+	}
 	user.Permalink = model.Ref{Collection: model.Users, Shortcode: user.Username}.ToURL(state.Port, state.Local)
 
 	return user, nil
@@ -215,7 +217,7 @@ func GetImage(state *handler.State, i int64) (model.Image, error) {
 		return model.Image{}, err
 	}
 	img.User = &usr
-	img.Source = imageSources(img.Shortcode, "content")
+	img.Source = ImageSources(img.Shortcode, "content")
 
 	img.Permalink = model.Ref{Collection: model.Images, Shortcode: img.Shortcode}.ToURL(state.Port, state.Local)
 	return img, nil
@@ -240,21 +242,7 @@ func imageLandmarks(rows *sqlx.Rows) ([]model.Landmark, error) {
 	return landmarks, nil
 }
 
-func avatarSources(email string) model.ImageSource {
-	prefix := "https://www.gravatar.com/avatar/"
-	hash := md5.Sum([]byte(email))
-	resourceBaseURL := prefix + fmt.Sprintf("%x", hash) + "?d=retro"
-	return model.ImageSource{
-		Raw:    resourceBaseURL,
-		Large:  resourceBaseURL + "&s=300",
-		Medium: resourceBaseURL + "&s=500",
-		Small:  resourceBaseURL + "&s=800",
-		Thumb:  resourceBaseURL + "&s=1000",
-	}
-
-}
-
-func imageSources(shortcode, location string) model.ImageSource {
+func ImageSources(shortcode, location string) model.ImageSource {
 	var prefix = "https://images.fok.al/" + location + "/"
 	var resourceBaseURL = prefix + shortcode
 	return model.ImageSource{

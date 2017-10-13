@@ -20,6 +20,7 @@ type User struct {
 	Twitter   *string     `json:"twitter,omitempty"`
 	Location  *string     `json:"location,omitempty"`
 	Avatars   ImageSource `json:"avatar_links"`
+	AvatarID  *string     `db:"avatar_id" json:"-"`
 
 	ImageLinks    *[]string `json:"images_links,omitempty"`
 	FavoriteLinks *[]string `json:"favorite_links,omitempty"`

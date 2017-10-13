@@ -23,6 +23,7 @@ import (
 	"github.com/fokal/fokal/pkg/upload"
 	"github.com/fokal/fokal/pkg/vision"
 	"github.com/gorilla/context"
+	uuid "github.com/satori/go.uuid"
 )
 
 func UserHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
@@ -168,6 +169,8 @@ func AvatarHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 		return handler.Response{}, handler.StatusError{Code: http.StatusUnauthorized}
 	}
 
+	uid := uuid.NewV4()
+
 	uploadedImage, format, err := image.Decode(r.Body)
 	if err != nil {
 		return handler.Response{}, handler.StatusError{
@@ -183,7 +186,7 @@ func AvatarHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 
 	errChan := make(chan error, 1)
 
-	go upload.ProccessImage(errChan, uploadedImage, format, user.Shortcode, "avatar")
+	go upload.ProccessImage(errChan, uploadedImage, format, uid.String(), "avatar")
 	select {
 	case err := <-errChan:
 		if err != nil {
@@ -191,7 +194,14 @@ func AvatarHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 		}
 	}
 
+	_, err = store.DB.Exec("UPDATE content.users set avatar_id = $1 where id = $2", uid.String(), user.Id)
+	if err != nil {
+		log.Println(err)
+		return handler.Response{}, handler.StatusError{Code: http.StatusInternalServerError, Err: errors.New("Unable to update avatar id")}
+	}
+
 	return handler.Response{
 		Code: http.StatusAccepted,
+		Data: map[string]interface{}{"links": retrieval.ImageSources(uid.String(), "avatar")},
 	}, nil
 }
