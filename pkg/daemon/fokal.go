@@ -188,7 +188,10 @@ func refreshMaterializedView() {
 			select {
 			case <-tick.C:
 				log.Println("Refreshing Materialized View")
-				AppState.DB.Exec("REFRESH MATERIALIZED VIEW CONCURRENTLY searches;")
+				_, err := AppState.DB.Exec("REFRESH MATERIALIZED VIEW CONCURRENTLY searches;")
+				if err != nil {
+					log.Println(err)
+				}
 			}
 		}
 	}()

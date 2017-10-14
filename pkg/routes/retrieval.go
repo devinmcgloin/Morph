@@ -17,7 +17,7 @@ func RegisterRetrievalRoutes(state *handler.State, api *mux.Router, chain alice.
 
 	c := chain.Append(alice.Constructor(handler.Middleware{State: state, M: cache.Handler}.Handler))
 	get.Handle("/images/{ID:[a-zA-Z]{12}}",
-		c.Append(
+		chain.Append(
 			handler.Middleware{
 				State: state,
 				M:     security.SetAuthenticatedUser,
@@ -67,7 +67,7 @@ func RegisterRetrievalRoutes(state *handler.State, api *mux.Router, chain alice.
 		}.Handler).Then(handler.Handler{State: state, H: retrieval.LoggedInUserImagesHandler}))
 	opts.Handle("/users/me/images", chain.Then(handler.Options("GET")))
 
-	get.Handle("/users/{ID}", c.Then(handler.Handler{State: state, H: retrieval.UserHandler}))
+	get.Handle("/users/{ID}", chain.Then(handler.Handler{State: state, H: retrieval.UserHandler}))
 	opts.Handle("/users/{ID}", chain.Then(handler.Options("GET")))
 
 	get.Handle("/users/{ID}/images", c.Then(handler.Handler{State: state, H: retrieval.UserImagesHandler}))
