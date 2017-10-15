@@ -99,9 +99,9 @@ func ImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) 
 		UserId:    user.Id,
 	}
 
-	if uploadedImage.Bounds().Dx() == 0 {
+	if uploadedImage.Bounds().Dx() <= 1500 || uploadedImage.Bounds().Dy() <= 1500 {
 		return handler.Response{}, handler.StatusError{
-			Err:  errors.New("Cannot upload file with 0 bytes."),
+			Err:  errors.New("Cannot upload file image smaller than 1500x1500"),
 			Code: http.StatusBadRequest}
 	}
 
