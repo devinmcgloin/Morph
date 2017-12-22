@@ -441,6 +441,9 @@ func GetUserRef(db *sqlx.DB, u string) (model.Ref, error) {
 	err := db.Get(&ref.Id, "SELECT id FROM content.users WHERE username = $1", u)
 	if err != nil {
 		log.Printf("Error Retrieving: %v %v %v\n", u, ref, err)
+		if err == sql.ErrNoRows {
+			return model.Ref{}, handler.StatusError{Code: 404, Err: errors.New("No user found")}
+		}
 		return model.Ref{}, err
 	}
 	return ref, nil
