@@ -20,7 +20,7 @@ func ImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) 
 
 	image, err := Image(store, userID)
 	if err != nil {
-		return handler.Response{}, nil
+		return handler.Response{}, err
 	}
 
 	return handler.Response{Code: http.StatusOK, Data: image}, nil
