@@ -89,10 +89,7 @@ type Handler struct {
 func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	res, err := h.H(h.State, w, r)
 	if err != nil {
-		raven.CaptureError(err, map[string]string{
-			"ip":   context.Get(r, "ip").(string),
-			"uuid": context.Get(r, "uuid").(string),
-		})
+		raven.CaptureError(err, RavenTags(h.State, r))
 		switch e := err.(type) {
 		case Error:
 			// We can retrieve the status here and write out a specific
@@ -125,6 +122,28 @@ func Options(opts ...string) http.Handler {
 		w.Header().Set("Allow", strings.Join(opts, ", "))
 		w.WriteHeader(http.StatusOK)
 	})
+}
+
+func RavenTags(h *State, r *http.Request) map[string]string {
+	tags := map[string]string{}
+
+	if h.Local {
+		tags["environment"] = "development"
+	} else {
+		tags["environment"] = "production"
+	}
+
+	contextTags := []string{"ip", "uuid"}
+	for _, t := range contextTags {
+		value, ok := context.GetOk(r, t)
+		if ok {
+			stringValue, ok := value.(string)
+			if ok {
+				tags[t] = stringValue
+			}
+		}
+	}
+	return tags
 }
 
 func NotFound(w http.ResponseWriter, r *http.Request) {
