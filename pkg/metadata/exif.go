@@ -150,7 +150,6 @@ func GetMetadata(errChan chan error, metaChan chan model.ImageMetadata, img io.R
 
 	metaChan <- meta
 	errChan <- nil
-	return
 }
 
 func Round(x, unit float64) float64 {

@@ -9,7 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-func UploadImageAWS(img *bytes.Buffer, format string, filename string, bucketURI string, region string) error {
+func ImageAWS(img *bytes.Buffer, format string, filename string, bucketURI string, region string) error {
 
 	svc := s3.New(session.New(&aws.Config{Region: aws.String(region)}))
 

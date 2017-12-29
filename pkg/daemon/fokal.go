@@ -182,16 +182,13 @@ func ParseKeys() (*rsa.PrivateKey, map[string]*rsa.PublicKey) {
 }
 
 func refreshMaterializedView() {
-	tick := time.NewTicker(time.Minute * 15)
+	tick := time.NewTicker(time.Minute * 10)
 	go func() {
-		for {
-			select {
-			case <-tick.C:
-				log.Println("Refreshing Materialized View")
-				_, err := AppState.DB.Exec("REFRESH MATERIALIZED VIEW CONCURRENTLY searches;")
-				if err != nil {
-					log.Println(err)
-				}
+		for range tick.C {
+			log.Println("Refreshing Materialized View")
+			_, err := AppState.DB.Exec("REFRESH MATERIALIZED VIEW CONCURRENTLY searches;")
+			if err != nil {
+				log.Println(err)
 			}
 		}
 	}()
@@ -200,34 +197,30 @@ func refreshMaterializedView() {
 func refreshGoogleOauthKeys() {
 	tick := time.NewTicker(time.Minute * 10)
 	go func() {
-		for {
-			select {
-			case <-tick.C:
-				log.Println("Refreshing Google Auth Keys")
-				resp, err := http.Get("https://www.googleapis.com/oauth2/v1/certs")
+		for range tick.C {
+			log.Println("Refreshing Google Auth Keys")
+			resp, err := http.Get("https://www.googleapis.com/oauth2/v1/certs")
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				log.Fatal(err)
+			}
+			resp.Body.Close()
+
+			keys := make(map[string]string)
+			err = json.Unmarshal(body, &keys)
+			if err != nil {
+				log.Fatal(err)
+			}
+			for kid, pem := range keys {
+				publicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(pem))
 				if err != nil {
 					log.Fatal(err)
 				}
-
-				defer resp.Body.Close()
-				body, err := ioutil.ReadAll(resp.Body)
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				keys := make(map[string]string)
-				err = json.Unmarshal(body, &keys)
-				if err != nil {
-					log.Fatal(err)
-				}
-				for kid, pem := range keys {
-					publicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(pem))
-					if err != nil {
-						log.Fatal(err)
-					}
-					AppState.PublicKeys[kid] = publicKey
-				}
-
+				AppState.PublicKeys[kid] = publicKey
 			}
 		}
 	}()

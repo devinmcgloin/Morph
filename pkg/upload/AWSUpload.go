@@ -31,13 +31,12 @@ func ProccessImage(errChan chan error, img image.Image, format string, shortcode
 		errChan <- err
 		return
 	}
-	err = UploadImageAWS(buf, format, path, "images-fokal", "us-west-1")
+	err = ImageAWS(buf, format, path, "images-fokal", "us-west-1")
 	if err != nil {
 		errChan <- errors.New("Error while uploading image")
 		return
 	}
 	errChan <- nil
-	return
 }
 
 func in(contentType string, opts []string) bool {

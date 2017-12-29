@@ -23,7 +23,7 @@ func GenerateSC(db *sqlx.DB, collection model.ReferenceType) (string, error) {
 		return "", errors.New("Invalid Collection Type.")
 	}
 
-	for exist, err = f(db, id); exist == true; exist, err = f(db, id) {
+	for exist, err = f(db, id); exist; exist, err = f(db, id) {
 		if err != nil {
 			return "", err
 		}

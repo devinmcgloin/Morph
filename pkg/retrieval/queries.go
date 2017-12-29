@@ -556,8 +556,7 @@ func FeaturedImages(state *handler.State, limit int) ([]model.Image, error) {
 
 func RecentImages(state *handler.State, limit int) ([]model.Image, error) {
 	imageIds := []int64{}
-	var err error
-	err = state.DB.Select(&imageIds, `
+	err := state.DB.Select(&imageIds, `
 		SELECT images.id
 		FROM content.images AS images
 		INNER JOIN permissions.can_view AS view ON view.o_id = images.id

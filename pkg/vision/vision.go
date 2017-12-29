@@ -128,5 +128,4 @@ func AnnotateImage(errChan chan error, annotations chan ImageResponse, db *sqlx.
 	}
 	errChan <- nil
 	annotations <- rsp
-	return
 }

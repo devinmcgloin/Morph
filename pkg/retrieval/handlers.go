@@ -44,6 +44,10 @@ func UserImagesHandler(store *handler.State, w http.ResponseWriter, r *http.Requ
 	}
 
 	user, err := GetUserImages(store, ref.Id)
+	if err != nil {
+		return handler.Response{}, err
+	}
+
 	return handler.Response{
 		Code: http.StatusOK,
 		Data: user,
@@ -60,6 +64,10 @@ func UserFavoritesHandler(store *handler.State, w http.ResponseWriter, r *http.R
 	}
 
 	user, err := GetUserFavorites(store, ref.Id)
+	if err != nil {
+		return handler.Response{}, err
+	}
+
 	return handler.Response{
 		Code: http.StatusOK,
 		Data: user,

@@ -7,9 +7,9 @@ import (
 )
 
 func deleteUser(db *sqlx.DB, id int64) error {
-	var image_ids []int64
+	var imageIds []int64
 
-	err := db.Select(&image_ids, "SELECT id FROM content.images WHERE owner = $1", id)
+	err := db.Select(&imageIds, "SELECT id FROM content.images WHERE owner = $1", id)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -21,7 +21,7 @@ func deleteUser(db *sqlx.DB, id int64) error {
 		return err
 	}
 
-	for _, id := range image_ids {
+	for _, id := range imageIds {
 		tx.Exec("DELETE FROM content.image_metadata WHERE image_id = $1", id)
 		tx.Exec("DELETE FROM content.image_label_bridge WHERE image_id = $1", id)
 		tx.Exec("DELETE FROM content.image_tag_bridge WHERE image_id = $1", id)

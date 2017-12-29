@@ -72,8 +72,5 @@ func run(db *sqlx.DB, file, t string) error {
 	}
 
 	err = color.AddColors(db, toAdd, t)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }

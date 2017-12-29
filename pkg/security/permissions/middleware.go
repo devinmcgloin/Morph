@@ -25,7 +25,7 @@ func (m Middleware) Handler(next http.Handler) http.Handler {
 
 func PermissionMiddle(state *handler.State, p Permission, TargetType model.ReferenceType, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		id, _ := mux.Vars(r)["ID"]
+		id := mux.Vars(r)["ID"]
 
 		usr, ok := context.GetOk(r, "auth")
 

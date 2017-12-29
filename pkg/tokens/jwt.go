@@ -61,7 +61,7 @@ func Parse(state *handler.State, r *http.Request) (*jwt.Token, error) {
 		}
 
 		valid := false
-		for k, _ := range state.PublicKeys {
+		for k := range state.PublicKeys {
 			if k == kid {
 				valid = true
 				break

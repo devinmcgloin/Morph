@@ -37,8 +37,7 @@ func UserHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (
 
 		email := claims["email"].(string)
 		name := claims["name"].(string)
-		var username string
-		username = strings.Split(email, "@")[0]
+		username := strings.Split(email, "@")[0]
 		if domain, ok := claims["hd"]; ok {
 			username = username + "." + domain.(string)
 		}
@@ -116,12 +115,11 @@ func ImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) 
 	go vision.AnnotateImage(errChan, annotationsChan, store.DB, store.Vision, uploadedImage)
 
 	for i := 0; i < 3; i++ {
-		select {
-		case err := <-errChan:
-			if err != nil {
-				return handler.Response{}, err
-			}
+		err = <-errChan
+		if err != nil {
+			return handler.Response{}, err
 		}
+
 	}
 
 	img.Metadata = <-metadataChan
@@ -187,11 +185,10 @@ func AvatarHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 	errChan := make(chan error, 1)
 
 	go upload.ProccessImage(errChan, uploadedImage, format, uid.String(), "avatar")
-	select {
-	case err := <-errChan:
-		if err != nil {
-			return handler.Response{}, err
-		}
+
+	err = <-errChan
+	if err != nil {
+		return handler.Response{}, err
 	}
 
 	_, err = store.DB.Exec("UPDATE content.users set avatar_id = $1 where id = $2", uid.String(), user.Id)
