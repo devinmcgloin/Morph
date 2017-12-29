@@ -13,6 +13,8 @@ import (
 	"strings"
 
 	"github.com/garyburd/redigo/redis"
+	raven "github.com/getsentry/raven-go"
+	"github.com/gorilla/context"
 	"github.com/jmoiron/sqlx"
 	vision "google.golang.org/api/vision/v1"
 	"googlemaps.github.io/maps"
@@ -87,6 +89,10 @@ type Handler struct {
 func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	res, err := h.H(h.State, w, r)
 	if err != nil {
+		raven.CaptureError(err, map[string]string{
+			"ip":   context.Get(r, "ip").(string),
+			"uuid": context.Get(r, "uuid").(string),
+		})
 		switch e := err.(type) {
 		case Error:
 			// We can retrieve the status here and write out a specific
