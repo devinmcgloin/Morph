@@ -89,9 +89,11 @@ type Handler struct {
 func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	res, err := h.H(h.State, w, r)
 	if err != nil {
-		raven.CaptureError(err, RavenTags(h.State, r))
 		switch e := err.(type) {
 		case Error:
+			if e.Status() >= 500 {
+				raven.CaptureError(err, RavenTags(h.State, r))
+			}
 			// We can retrieve the status here and write out a specific
 			// HTTP status code.
 			log.Printf("HTTP %d - %s", e.Status(), e)
@@ -105,6 +107,7 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		default:
 			// Any error types we don't specifically look out for default
 			// to serving a HTTP 500
+			raven.CaptureError(err, RavenTags(h.State, r))
 			log.Printf("HTTP %d - %s", http.StatusInternalServerError, e.Error())
 			http.Error(w, http.StatusText(http.StatusInternalServerError),
 				http.StatusInternalServerError)
