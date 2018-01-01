@@ -7,6 +7,7 @@ import (
 	"github.com/getsentry/raven-go"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
+	"github.com/pkg/errors"
 )
 
 type ColorCatagory string
@@ -59,9 +60,8 @@ func AddColor(db *sqlx.DB, name, hex, t string) error {
 	_, err := db.Exec("INSERT INTO colors.clr(name, hex, type) VALUES($1, $2, $3)",
 		name, hex, t)
 	if err != nil {
-		log.Println(err)
 		raven.CaptureError(err, map[string]string{"type": "postgresql", "module": "color"})
-		return err
+		return errors.Wrap(err, "unable to inset new color")
 	}
 	return nil
 }
@@ -69,15 +69,13 @@ func AddColor(db *sqlx.DB, name, hex, t string) error {
 func AddColors(db *sqlx.DB, colors map[string]string, t string) error {
 	tx, err := db.Begin()
 	if err != nil {
-		log.Println(err)
 		raven.CaptureError(err, map[string]string{"type": "postgresql", "module": "color"})
-		return err
+		return errors.Wrap(err, "unable to begin transaction")
 	}
 	stmt, err := tx.Prepare(pq.CopyInSchema("colors", "clr", "name", "hex", "type"))
 	if err != nil {
-		log.Println(err)
 		raven.CaptureError(err, map[string]string{"type": "postgresql", "module": "color"})
-		return err
+		return errors.Wrap(err, "unable to begin transaction")
 	}
 
 	for hex, name := range colors {
@@ -85,7 +83,6 @@ func AddColors(db *sqlx.DB, colors map[string]string, t string) error {
 		if err != nil {
 			log.Println(err)
 			raven.CaptureError(err, map[string]string{"type": "postgresql", "module": "color"})
-
 			return err
 		}
 	}
