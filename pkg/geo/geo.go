@@ -2,11 +2,9 @@ package geo
 
 import (
 	"context"
-	"log"
-
-	"errors"
 
 	"github.com/cridenour/go-postgis"
+	"github.com/pkg/errors"
 	"googlemaps.github.io/maps"
 )
 
@@ -18,8 +16,7 @@ func ReverseGeocode(m *maps.Client, p *postgis.PointS) (string, error) {
 
 	results, err := m.Geocode(context.Background(), geocodeRequest)
 	if err != nil {
-		log.Println(err)
-		return "", err
+		return "", errors.Wrap(err, "unable to geocode request")
 	}
 
 	for _, r := range results {
