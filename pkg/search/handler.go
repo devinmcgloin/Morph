@@ -13,7 +13,6 @@ import (
 
 	"fmt"
 
-	"github.com/cridenour/go-postgis"
 	"github.com/devinmcgloin/clr/clr"
 	"github.com/fokal/fokal/pkg/handler"
 	"github.com/fokal/fokal/pkg/model"
@@ -92,11 +91,12 @@ func SearchHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 
 	if searchReq.Geo != nil {
 		query = query + `
-		AND ST_Distance(GeomFromEWKB( ? ), geo.loc) < ?`
+		AND ST_Covers(ST_MakeEnvelope(
+        ?, ?,
+        ?, ?, 
+        ?), geo.loc) `
 		geo := searchReq.Geo
-		p := postgis.PointS{X: geo.Longitude, Y: geo.Latitude, SRID: 4326}
-		log.Printf("%+v\n", p)
-		initialArgs = append(initialArgs, p, geo.Radius)
+		initialArgs = append(initialArgs, geo.SW.Longitude, geo.SW.Longitude, geo.NE.Longitude, geo.NE.Latitude, 4326)
 	}
 
 	if searchReq.Color != nil {

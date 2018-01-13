@@ -25,9 +25,13 @@ type Request struct {
 }
 
 type GeoParams struct {
+	NE Point `json:"ne"`
+	SW Point `json:"sw"`
+}
+
+type Point struct {
 	Latitude  float64 `json:"lat"`
 	Longitude float64 `json:"lng"`
-	Radius    float64 `json:"radius"`
 }
 
 type ColorParams struct {
