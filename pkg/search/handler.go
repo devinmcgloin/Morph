@@ -13,11 +13,13 @@ import (
 
 	"fmt"
 
+	"sort"
+
+	sq "github.com/Masterminds/squirrel"
 	"github.com/devinmcgloin/clr/clr"
 	"github.com/fokal/fokal/pkg/handler"
 	"github.com/fokal/fokal/pkg/model"
 	"github.com/fokal/fokal/pkg/retrieval"
-	"github.com/jmoiron/sqlx"
 )
 
 func SearchHandler(store *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {
@@ -55,78 +57,54 @@ func SearchHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 	}
 
 	var ids []Rank
-	var query string
 
 	tsQuery := formatQueryString(searchReq.RequiredTerms, searchReq.OptionalTerms, searchReq.ExcludedTerms)
-	var initialArgs []interface{}
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	q := psql.Select("searches.searchable_id as ID", "searches.searchable_type as type").From("searches").
+		LeftJoin("content.image_geo AS geo ON searches.searchable_id = geo.image_id").
+		LeftJoin("content.image_color_bridge AS bridge ON searches.searchable_id = bridge.image_id").
+		LeftJoin("content.colors AS colors ON bridge.color_id = colors.id").Where(sq.Eq{"searches.searchable_type": searchReq.Types}).
+		Options("DISTINCT ON (ID, type)")
+
 	if tsQuery == "" {
-		query = `
-		SELECT
-		  searches.searchable_id                          AS ID,
-		  0 											  AS rank,
-		  searches.searchable_type                        AS type
-		FROM searches
-		  LEFT JOIN content.image_geo AS geo ON searches.searchable_id = geo.image_id
-		  LEFT JOIN content.image_color_bridge AS bridge ON searches.searchable_id = bridge.image_id
-		  LEFT JOIN content.colors AS colors ON bridge.color_id = colors.id
-		WHERE searches.searchable_type IN ( ? )`
-		initialArgs = append(initialArgs, searchReq.Types)
+		q = q.Column("0 AS rank")
 
 	} else {
-		query = `
-		SELECT
-		  searches.searchable_id                          AS ID,
-		  ts_rank_cd(term, to_tsquery(?), 32 /* rank/(rank+1) */) AS rank,
-		  searches.searchable_type                        AS type
-		FROM searches
-		  LEFT JOIN content.image_geo AS geo ON searches.searchable_id = geo.image_id
-		  LEFT JOIN content.image_color_bridge AS bridge ON searches.searchable_id = bridge.image_id
-		  LEFT JOIN content.colors AS colors ON bridge.color_id = colors.id
-		WHERE to_tsquery(?) @@ term AND searches.searchable_type IN ( ? )`
-		initialArgs = append(initialArgs, tsQuery, tsQuery, searchReq.Types)
-
+		q = q.Column("ts_rank_cd(term, to_tsquery(?), 32 /* rank/(rank+1) */) AS rank", tsQuery).Where("to_tsquery(?) @@ term", tsQuery)
 	}
 
-	log.Printf("TS_QUERY: {%s} Request: %+v Color: %+v Geo: %+v\n", tsQuery, searchReq, searchReq.Color, searchReq.Geo)
-
 	if searchReq.Geo != nil {
-		query = query + `
-		AND ST_Covers(ST_MakeEnvelope(
+		geo := searchReq.Geo
+
+		q = q.Where(`ST_Covers(ST_MakeEnvelope(
         ?, ?,
         ?, ?, 
-        ?), geo.loc) `
-		geo := searchReq.Geo
-		initialArgs = append(initialArgs, geo.SW.Longitude, geo.SW.Longitude, geo.NE.Longitude, geo.NE.Latitude, 4326)
+        ?), geo.loc) `, geo.SW.Longitude, geo.SW.Longitude, geo.NE.Longitude, geo.NE.Latitude, 4326)
 	}
 
 	if searchReq.Color != nil {
-		query = query + `
-		AND bridge.pixel_fraction >= ? AND ? :: CUBE <-> colors.cielab < 50`
-
 		l, a, b := genericColor.CIELAB()
 		c := fmt.Sprintf("(%f, %f, %f)", l, a, b)
-		initialArgs = append(initialArgs, searchReq.Color.PixelFraction, c)
-
+		q = q.Where("? :: CUBE <-> colors.cielab < 50", c).Where(sq.Gt{"bridge.pixel_fraction": 0.05}).Column("? :: CUBE <-> colors.cielab as color_dist", c).GroupBy("colors.cielab")
 	}
 
-	query = query + `
-		GROUP BY searches.searchable_type, searches.searchable_id, searches.term
-		ORDER BY rank DESC;`
+	q = q.GroupBy("searches.searchable_type", "searches.searchable_id", "searches.term").OrderBy("ID", "type")
 
-	q, args, err := sqlx.In(query, initialArgs...)
+	sqlString, args, err := q.ToSql()
 	if err != nil {
 		log.Println(err)
 		return handler.Response{}, handler.StatusError{Err: err, Code: http.StatusInternalServerError}
 	}
 
-	q = store.DB.Rebind(q)
-
-	log.Println(q)
-	err = store.DB.Select(&ids, q, args...)
+	err = store.DB.Select(&ids, sqlString, args...)
 	if err != nil {
 		log.Println(err)
 		return handler.Response{}, handler.StatusError{Err: err, Code: http.StatusInternalServerError}
 	}
+
+	sort.Sort(ByRankColor(ids))
+
+	log.Println(ids)
 
 	resp := Response{
 		Images: []model.Image{},
