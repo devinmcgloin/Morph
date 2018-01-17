@@ -12,6 +12,11 @@
 			"Rev": "a368813c5e648fee92e5f6c30e3944ff9d5e8895"
 		},
 		{
+			"ImportPath": "github.com/Masterminds/squirrel",
+			"Comment": "v1.0-4-gf3d8be4",
+			"Rev": "f3d8be4a3bca69543a71773c54dc7b44837ba14c"
+		},
+		{
 			"ImportPath": "github.com/aws/aws-sdk-go/aws",
 			"Comment": "v1.2.6-1-g4b157863",
 			"Rev": "4b1578637669ed2a10689caf88cae18dbef08edb"
@@ -236,6 +241,14 @@
 			"ImportPath": "github.com/justinas/alice",
 			"Comment": "1.0.0-16-g1051eaf",
 			"Rev": "1051eaf52fcafdd87ead59d28b065f1fcb8274ec"
+		},
+		{
+			"ImportPath": "github.com/lann/builder",
+			"Rev": "f22ce00fd9394014049dad11c244859432bd6820"
+		},
+		{
+			"ImportPath": "github.com/lann/ps",
+			"Rev": "62de8c46ede02a7675c4c79c84883eb164cb71e3"
 		},
 		{
 			"ImportPath": "github.com/lib/pq",
