@@ -104,8 +104,6 @@ func SearchHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 
 	sort.Sort(ByRankColor(ids))
 
-	log.Println(ids)
-
 	resp := Response{
 		Images: []model.Image{},
 		Users:  []model.User{},
