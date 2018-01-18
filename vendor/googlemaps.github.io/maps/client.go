@@ -15,6 +15,7 @@
 package maps
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -38,12 +39,13 @@ type Client struct {
 	signature         []byte
 	requestsPerSecond int
 	rateLimiter       chan int
+	channel           string
 }
 
 // ClientOption is the type of constructor options for NewClient(...).
 type ClientOption func(*Client) error
 
-var defaultRequestsPerSecond = 10
+var defaultRequestsPerSecond = 50
 
 // NewClient constructs a new Client which can make requests to the Google Maps WebService APIs.
 func NewClient(options ...ClientOption) (*Client, error) {
@@ -59,21 +61,23 @@ func NewClient(options ...ClientOption) (*Client, error) {
 		return nil, errors.New("maps: API Key or Maps for Work credentials missing")
 	}
 
-	// Implement a bursty rate limiter.
-	// Allow up to 1 second worth of requests to be made at once.
-	c.rateLimiter = make(chan int, c.requestsPerSecond)
-	// Prefill rateLimiter with 1 seconds worth of requests.
-	for i := 0; i < c.requestsPerSecond; i++ {
-		c.rateLimiter <- 1
-	}
-	go func() {
-		// Wait a second for pre-filled quota to drain
-		time.Sleep(time.Second)
-		// Then, refill rateLimiter continuously
-		for _ = range time.Tick(time.Second / time.Duration(c.requestsPerSecond)) {
+	if c.requestsPerSecond > 0 {
+		// Implement a bursty rate limiter.
+		// Allow up to 1 second worth of requests to be made at once.
+		c.rateLimiter = make(chan int, c.requestsPerSecond)
+		// Prefill rateLimiter with 1 seconds worth of requests.
+		for i := 0; i < c.requestsPerSecond; i++ {
 			c.rateLimiter <- 1
 		}
-	}()
+		go func() {
+			// Wait a second for pre-filled quota to drain
+			time.Sleep(time.Second)
+			// Then, refill rateLimiter continuously
+			for range time.Tick(time.Second / time.Duration(c.requestsPerSecond)) {
+				c.rateLimiter <- 1
+			}
+		}()
+	}
 
 	return c, nil
 }
@@ -102,6 +106,22 @@ func WithAPIKey(apiKey string) ClientOption {
 	}
 }
 
+// WithBaseURL configures a Maps API client with a custom base url
+func WithBaseURL(baseURL string) ClientOption {
+	return func(c *Client) error {
+		c.baseURL = baseURL
+		return nil
+	}
+}
+
+// WithChannel configures a Maps API client with a Channel
+func WithChannel(channel string) ClientOption {
+	return func(c *Client) error {
+		c.channel = channel
+		return nil
+	}
+}
+
 // WithClientIDAndSignature configures a Maps API client for a Maps for Work application
 // The signature is assumed to be URL modified Base64 encoded
 func WithClientIDAndSignature(clientID, signature string) ClientOption {
@@ -116,8 +136,8 @@ func WithClientIDAndSignature(clientID, signature string) ClientOption {
 	}
 }
 
-// WithRateLimit configures the rate limit for back end requests.
-// Default is to limit to 10 requests per second.
+// WithRateLimit configures the rate limit for back end requests. Default is to
+// limit to 50 requests per second. A value of zero disables rate limiting.
 func WithRateLimit(requestsPerSecond int) ClientOption {
 	return func(c *Client) error {
 		c.requestsPerSecond = requestsPerSecond
@@ -135,12 +155,22 @@ type apiRequest interface {
 	params() url.Values
 }
 
-func (c *Client) get(ctx context.Context, config *apiConfig, apiReq apiRequest) (*http.Response, error) {
+func (c *Client) awaitRateLimiter(ctx context.Context) error {
+	if c.rateLimiter == nil {
+		return nil
+	}
 	select {
 	case <-ctx.Done():
-		return nil, ctx.Err()
+		return ctx.Err()
 	case <-c.rateLimiter:
 		// Execute request.
+		return nil
+	}
+}
+
+func (c *Client) get(ctx context.Context, config *apiConfig, apiReq apiRequest) (*http.Response, error) {
+	if err := c.awaitRateLimiter(ctx); err != nil {
+		return nil, err
 	}
 
 	host := config.host
@@ -159,8 +189,46 @@ func (c *Client) get(ctx context.Context, config *apiConfig, apiReq apiRequest) 
 	return ctxhttp.Do(ctx, c.httpClient, req)
 }
 
+func (c *Client) post(ctx context.Context, config *apiConfig, apiReq interface{}) (*http.Response, error) {
+	if err := c.awaitRateLimiter(ctx); err != nil {
+		return nil, err
+	}
+
+	host := config.host
+	if c.baseURL != "" {
+		host = c.baseURL
+	}
+
+	body, err := json.Marshal(apiReq)
+	if err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequest("POST", host+config.path, bytes.NewBuffer(body))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	q, err := c.generateAuthQuery(config.path, url.Values{}, config.acceptsClientID)
+	if err != nil {
+		return nil, err
+	}
+
+	req.URL.RawQuery = q
+	return ctxhttp.Do(ctx, c.httpClient, req)
+}
+
 func (c *Client) getJSON(ctx context.Context, config *apiConfig, apiReq apiRequest, resp interface{}) error {
 	httpResp, err := c.get(ctx, config, apiReq)
+	if err != nil {
+		return err
+	}
+	defer httpResp.Body.Close()
+
+	return json.NewDecoder(httpResp.Body).Decode(resp)
+}
+
+func (c *Client) postJSON(ctx context.Context, config *apiConfig, apiReq interface{}, resp interface{}) error {
+	httpResp, err := c.post(ctx, config, apiReq)
 	if err != nil {
 		return err
 	}
@@ -185,6 +253,9 @@ func (c *Client) getBinary(ctx context.Context, config *apiConfig, apiReq apiReq
 }
 
 func (c *Client) generateAuthQuery(path string, q url.Values, acceptClientID bool) (string, error) {
+	if c.channel != "" {
+		q.Set("channel", c.channel)
+	}
 	if c.apiKey != "" {
 		q.Set("key", c.apiKey)
 		return q.Encode(), nil

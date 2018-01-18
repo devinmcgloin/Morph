@@ -1,6 +1,5 @@
 [<img src="http://mholt.github.io/binding/resources/images/binding-sm.png" height="250" alt="binding is reflectionless data binding for Go"></a>](http://mholt.github.io/binding)
 
-[![GoDoc](https://godoc.org/github.com/mholt/binding?status.svg)](https://godoc.org/github.com/mholt/binding)
 
 binding
 =======
@@ -67,8 +66,8 @@ func (cf *ContactForm) FieldMap(req *http.Request) binding.FieldMap {
 // Now your handlers can stay clean and simple
 func handler(resp http.ResponseWriter, req *http.Request) {
 	contactForm := new(ContactForm)
-	if errs := binding.Bind(req, contactForm); errs != nil {
-		http.Error(resp, errs.Error(), http.StatusBadRequest)
+	errs := binding.Bind(req, contactForm)
+	if errs.Handle(resp) {
 		return
 	}
 	fmt.Fprintf(resp, "From:    %d\n", contactForm.User.ID)
@@ -112,8 +111,8 @@ func (f *MultipartForm) FieldMap(req *http.Request) binding.FieldMap {
 // Handlers are still clean and simple
 func handler(resp http.ResponseWriter, req *http.Request) {
 	multipartForm := new(MultipartForm)
-	if errs := binding.Bind(req, multipartForm); errs != nil {
-		http.Error(resp, errs.Error(), http.StatusBadRequest)
+	errs := binding.Bind(req, multipartForm)
+	if errs.Handle(resp) {
 		return
 	}
 
@@ -123,7 +122,7 @@ func handler(resp http.ResponseWriter, req *http.Request) {
 	var err error
 	if fh, err = multipartForm.Data.Open(); err != nil {
 		http.Error(resp,
-			fmt.Sprint("Error opening Mime::Data %v", err),
+			fmt.Sprint("Error opening Mime::Data %+v", err),
 			http.StatusInternalServerError)
 		return
 	}
@@ -132,7 +131,7 @@ func handler(resp http.ResponseWriter, req *http.Request) {
 	var size int64
 	if size, err = dataBytes.ReadFrom(fh); err != nil {
 		http.Error(resp,
-			fmt.Sprint("Error reading Mime::Data %v", err),
+			fmt.Sprint("Error reading Mime::Data %+v", err),
 			http.StatusInternalServerError)
 		return
 	}
@@ -159,15 +158,32 @@ Custom data validation
 You may optionally have your type implement the `binding.Validator` interface to perform your own data validation. The `.Validate()` method is called after the struct is populated.
 
 ```go
-func (cf ContactForm) Validate(req *http.Request) error {
+func (cf ContactForm) Validate(req *http.Request, errs binding.Errors) binding.Errors {
 	if cf.Message == "Go needs generics" {
-		return binding.Errors{
-			binding.NewError([]string{"message"}, "ComplaintError", "Go has generics. They're called interfaces.")
-		}
+		errs = append(errs, binding.Error{
+			FieldNames:     []string{"message"},
+			Classification: "ComplaintError",
+			Message:        "Go has generics. They're called interfaces.",
+		})
 	}
-	return nil
+	return errs
 }
 ```
+
+
+
+Error Handling
+---------------
+
+`binding.Bind()` and each deserializer returns errors. You don't have to use them, but the `binding.Errors` type comes with a kind of built-in "handler" to write the errors to the response as JSON for you. For example, you might do this in your HTTP handler:
+
+```go
+if binding.Bind(req, contactForm).Handle(resp) {
+	return
+}
+```
+
+As you can see, if `.Handle(resp)` wrote errors to the response, your handler may gracefully exit.
 
 
 
@@ -180,9 +196,9 @@ For types you've defined, you can bind form data to it by implementing the `Bind
 ```go
 type MyType map[string]string
 
-func (t MyType) Bind(fieldName string, strVals []string) error {
+func (t *MyType) Bind(fieldName string, strVals []string, errs binding.Errors) binding.Errors {
 	t["formData"] = strVals[0]
-	return nil
+	return errs
 }
 ```
 
@@ -192,30 +208,31 @@ If you can't add a method to the type, you can still specify a `Binder` func in 
 func (t *MyType) FieldMap() binding.FieldMap {
 	return binding.FieldMap{
 		"number": binding.Field{
-			Binder: func(fieldName string, formVals []string) error {
+			Binder: func(fieldName string, formVals []string, errs binding.Errors) binding.Errors {
 				val, err := strconv.Atoi(formVals[0])
 				if err != nil {
-					return binding.Errors{binding.NewError([]string{fieldName}, binding.DeserializationError, err.Error())}
+					errs.Add([]string{fieldName}, binding.DeserializationError, err.Error())
 				}
 				t.SomeNumber = val
-				return nil
+				return errs
 			},
 		},
 	}
 }
 ```
 
-The `Errors` type has a convenience method, `Add`, which you can use to append to the slice if you prefer.
+Notice that the `binding.Errors` type has a convenience method `.Add()` which you can use to append to the slice if you prefer.
+
 
 Supported types (forms)
 ------------------------
 
 The following types are supported in form deserialization by default. (JSON requests are delegated to `encoding/json`.)
 
-- uint, \*uint, []uint, uint8, \*uint8, []uint8, uint16, \*uint16, []uint16, uint32, \*uint32, []uint32, uint64, \*uint64, []uint64
-- int, \*int, []int, int8, \*int8, []int8, int16, \*int16, []int16, int32, \*int32, []int32, int64, \*int64, []int64
-- float32, \*float32, []float32, float64, \*float64, []float64
-- bool, \*bool, []bool
-- string, \*string, []string
-- time.Time, \*time.Time, []time.Time
-- \*multipart.FileHeader, []\*multipart.FileHeader
+- uint, *uint, []uint, uint8, *uint8, []uint8, uint16, *uint16, []uint16, uint32, *uint32, []uint32, uint64, *uint64, []uint64
+- int, *int, []int, int8, *int8, []int8, int16, *int16, []int16, int32, *int32, []int32, int64, *int64, []int64
+- float32, *float32, []float32, float64, *float64, []float64
+- bool, *bool, []bool
+- string, *string, []string
+- time.Time, *time.Time, []time.Time
+- *multipart.FileHeader, []*multipart.FileHeader

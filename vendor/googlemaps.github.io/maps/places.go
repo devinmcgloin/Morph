@@ -59,9 +59,9 @@ func (c *Client) NearbySearch(ctx context.Context, r *NearbySearchRequest) (Plac
 	}
 
 	var response struct {
-		Results          []PlacesSearchResult `json:"results"`
-		HTMLAttributions []string             `json:"html_attributions"`
-		NextPageToken    string               `json:"next_page_token"`
+		Results          []PlacesSearchResult `json:"results,omitempty"`
+		HTMLAttributions []string             `json:"html_attributions,omitempty"`
+		NextPageToken    string               `json:"next_page_token,omitempty"`
 		commonResponse
 	}
 
@@ -171,9 +171,9 @@ func (c *Client) TextSearch(ctx context.Context, r *TextSearchRequest) (PlacesSe
 	}
 
 	var response struct {
-		Results          []PlacesSearchResult `json:"results"`
-		HTMLAttributions []string             `json:"html_attributions"`
-		NextPageToken    string               `json:"next_page_token"`
+		Results          []PlacesSearchResult `json:"results,omitempty"`
+		HTMLAttributions []string             `json:"html_attributions,omitempty"`
+		NextPageToken    string               `json:"next_page_token,omitempty"`
 		commonResponse
 	}
 
@@ -257,6 +257,8 @@ var placesRadarSearchAPI = &apiConfig{
 }
 
 // RadarSearch lets you search for places within a specified area. You can refine your search request by supplying keywords or specifying the type of place you are searching for.
+//
+// Deprecated: This functionality is deprecated and will stop working on June 30, 2018. See https://maps-apis.googleblog.com/2017/06/announcing-deprecation-of-place-add.html for more detail.
 func (c *Client) RadarSearch(ctx context.Context, r *RadarSearchRequest) (PlacesSearchResponse, error) {
 
 	if r.Location == nil {
@@ -272,9 +274,9 @@ func (c *Client) RadarSearch(ctx context.Context, r *RadarSearchRequest) (Places
 	}
 
 	var response struct {
-		Results          []PlacesSearchResult `json:"results"`
-		HTMLAttributions []string             `json:"html_attributions"`
-		NextPageToken    string               `json:"next_page_token"`
+		Results          []PlacesSearchResult `json:"results,omitempty"`
+		HTMLAttributions []string             `json:"html_attributions,omitempty"`
+		NextPageToken    string               `json:"next_page_token,omitempty"`
 		commonResponse
 	}
 
@@ -328,7 +330,7 @@ func (r *RadarSearchRequest) params() url.Values {
 	return q
 }
 
-// RadarSearchRequest is the functional options struct for NearbySearch
+// RadarSearchRequest is the functional options struct for RadarSearch
 type RadarSearchRequest struct {
 	// Location is the latitude/longitude around which to retrieve place information. If you specify a location parameter, you must also specify a radius parameter.
 	Location *LatLng
@@ -361,41 +363,41 @@ type PlacesSearchResponse struct {
 // PlacesSearchResult is an individual Places API search result
 type PlacesSearchResult struct {
 	// FormattedAddress is the human-readable address of this place
-	FormattedAddress string `json:"formatted_address"`
+	FormattedAddress string `json:"formatted_address,omitempty"`
 	// Geometry contains geometry information about the result, generally including the location (geocode) of the place and (optionally) the viewport identifying its general area of coverage.
-	Geometry AddressGeometry `json:"geometry"`
+	Geometry AddressGeometry `json:"geometry,omitempty"`
 	// Name contains the human-readable name for the returned result. For establishment results, this is usually the business name.
-	Name string `json:"name"`
+	Name string `json:"name,omitempty"`
 	// Icon contains the URL of a recommended icon which may be displayed to the user when indicating this result.
-	Icon string `json:"icon"`
+	Icon string `json:"icon,omitempty"`
 	// PlaceID is a textual identifier that uniquely identifies a place.
-	PlaceID string `json:"place_id"`
+	PlaceID string `json:"place_id,omitempty"`
 	// Scope indicates the scope of the PlaceID.
-	Scope string `json:"scope"`
+	Scope string `json:"scope,omitempty"`
 	// Rating contains the place's rating, from 1.0 to 5.0, based on aggregated user reviews.
-	Rating float32 `json:"rating"`
+	Rating float32 `json:"rating,omitempty"`
 	// Types contains an array of feature types describing the given result.
-	Types []string `json:"types"`
+	Types []string `json:"types,omitempty"`
 	// OpeningHours may contain whether the place is open now or not.
-	OpeningHours *OpeningHours `json:"opening_hours"`
+	OpeningHours *OpeningHours `json:"opening_hours,omitempty"`
 	// Photos is an array of photo objects, each containing a reference to an image.
-	Photos []Photo `json:"photos"`
+	Photos []Photo `json:"photos,omitempty"`
 	// AltIDs — An array of zero, one or more alternative place IDs for the place, with a scope related to each alternative ID.
-	AltIDs []AltID `json:"alt_ids"`
+	AltIDs []AltID `json:"alt_ids,omitempty"`
 	// PriceLevel is the price level of the place, on a scale of 0 to 4.
-	PriceLevel int `json:"price_level"`
+	PriceLevel int `json:"price_level,omitempty"`
 	// Vicinity contains a feature name of a nearby location.
-	Vicinity string `json:"vicinity"`
+	Vicinity string `json:"vicinity,omitempty"`
 	// PermanentlyClosed is a boolean flag indicating whether the place has permanently shut down.
-	PermanentlyClosed bool `json:"permanently_closed"`
+	PermanentlyClosed bool `json:"permanently_closed,omitempty"`
 }
 
 // AltID is the alternative place IDs for a place.
 type AltID struct {
 	// PlaceID is the APP scoped Place ID that you received when you initially created this Place, before it was given a Google wide Place ID.
-	PlaceID string `json:"place_id"`
+	PlaceID string `json:"place_id,omitempty"`
 	// Scope is the scope of this alternative place ID. It will always be APP, indicating that the alternative place ID is recognised by your application only.
-	Scope string `json:"scope"`
+	Scope string `json:"scope,omitempty"`
 }
 
 var placeDetailsAPI = &apiConfig{
@@ -412,8 +414,8 @@ func (c *Client) PlaceDetails(ctx context.Context, r *PlaceDetailsRequest) (Plac
 	}
 
 	var response struct {
-		Result           PlaceDetailsResult `json:"result"`
-		HTMLAttributions []string           `json:"html_attributions"`
+		Result           PlaceDetailsResult `json:"result,omitempty"`
+		HTMLAttributions []string           `json:"html_attributions,omitempty"`
 		commonResponse
 	}
 
@@ -452,67 +454,69 @@ type PlaceDetailsRequest struct {
 // PlaceDetailsResult is an individual Places API Place Details result
 type PlaceDetailsResult struct {
 	// AddressComponents is an array of separate address components used to compose a given address.
-	AddressComponents []AddressComponent `json:"address_components"`
-	// FormattedAddress is the human-readable address of this place
-	FormattedAddress string `json:"formatted_address"`
+	AddressComponents []AddressComponent `json:"address_components,omitempty"`
+	// FormattedAddress is the human-readable address of this place.
+	FormattedAddress string `json:"formatted_address,omitempty"`
+	// AdrAddress is the address in the "adr" microformat.
+	AdrAddress string `json:"adr_address,omitempty"`
 	// FormattedPhoneNumber contains the place's phone number in its local format. For example, the formatted_phone_number for Google's Sydney, Australia office is (02) 9374 4000.
-	FormattedPhoneNumber string `json:"formatted_phone_number"`
+	FormattedPhoneNumber string `json:"formatted_phone_number,omitempty"`
 	// InternationalPhoneNumber contains the place's phone number in international format. International format includes the country code, and is prefixed with the plus (+) sign. For example, the international_phone_number for Google's Sydney, Australia office is +61 2 9374 4000.
-	InternationalPhoneNumber string `json:"international_phone_number"`
+	InternationalPhoneNumber string `json:"international_phone_number,omitempty"`
 	// Geometry contains geometry information about the result, generally including the location (geocode) of the place and (optionally) the viewport identifying its general area of coverage.
-	Geometry AddressGeometry `json:"geometry"`
+	Geometry AddressGeometry `json:"geometry,omitempty"`
 	// Name contains the human-readable name for the returned result. For establishment results, this is usually the business name.
-	Name string `json:"name"`
+	Name string `json:"name,omitempty"`
 	// Icon contains the URL of a recommended icon which may be displayed to the user when indicating this result.
-	Icon string `json:"icon"`
+	Icon string `json:"icon,omitempty"`
 	// PlaceID is a textual identifier that uniquely identifies a place.
-	PlaceID string `json:"place_id"`
+	PlaceID string `json:"place_id,omitempty"`
 	// Scope indicates the scope of the PlaceID.
-	Scope string `json:"scope"`
+	Scope string `json:"scope,omitempty"`
 	// Rating contains the place's rating, from 1.0 to 5.0, based on aggregated user reviews.
-	Rating float32 `json:"rating"`
+	Rating float32 `json:"rating,omitempty"`
 	// Types contains an array of feature types describing the given result.
-	Types []string `json:"types"`
+	Types []string `json:"types,omitempty"`
 	// OpeningHours may contain whether the place is open now or not.
-	OpeningHours *OpeningHours `json:"opening_hours"`
+	OpeningHours *OpeningHours `json:"opening_hours,omitempty"`
 	// Photos is an array of photo objects, each containing a reference to an image.
-	Photos []Photo `json:"photos"`
+	Photos []Photo `json:"photos,omitempty"`
 	// AltIDs — An array of zero, one or more alternative place IDs for the place, with a scope related to each alternative ID.
-	AltIDs []AltID `json:"alt_ids"`
+	AltIDs []AltID `json:"alt_ids,omitempty"`
 	// PriceLevel is the price level of the place, on a scale of 0 to 4.
-	PriceLevel int `json:"price_level"`
+	PriceLevel int `json:"price_level,omitempty"`
 	// Vicinity contains a feature name of a nearby location.
-	Vicinity string `json:"vicinity"`
+	Vicinity string `json:"vicinity,omitempty"`
 	// PermanentlyClosed is a boolean flag indicating whether the place has permanently shut down (value true). If the place is not permanently closed, the flag is absent from the response.
-	PermanentlyClosed bool `json:"permanently_closed"`
+	PermanentlyClosed bool `json:"permanently_closed,omitempty"`
 	// Reviews is an array of up to five reviews. If a language parameter was specified in the Place Details request, the Places Service will bias the results to prefer reviews written in that language.
-	Reviews []PlaceReview `json:"reviews"`
+	Reviews []PlaceReview `json:"reviews,omitempty"`
 	// UTCOffset contains the number of minutes this place’s current timezone is offset from UTC. For example, for places in Sydney, Australia during daylight saving time this would be 660 (+11 hours from UTC), and for places in California outside of daylight saving time this would be -480 (-8 hours from UTC).
-	UTCOffset int `json:"utc_offset"`
+	UTCOffset int `json:"utc_offset,omitempty"`
 	// Website lists the authoritative website for this place, such as a business' homepage.
-	Website string `json:"website"`
+	Website string `json:"website,omitempty"`
 	// URL contains the URL of the official Google page for this place. This will be the establishment's Google+ page if the Google+ page exists, otherwise it will be the Google-owned page that contains the best available information about the place. Applications must link to or embed this page on any screen that shows detailed results about the place to the user.
-	URL string `json:"url"`
+	URL string `json:"url,omitempty"`
 	// HTMLAttributions contain a set of attributions about this listing which must be displayed to the user.
-	HTMLAttributions []string
+	HTMLAttributions []string `json:"html_attributions,omitempty"`
 }
 
 // PlaceReview is a review of a Place
 type PlaceReview struct {
 	// Aspects contains a collection of AspectRatings, each of which provides a rating of a single attribute of the establishment. The first in the collection is considered the primary aspect.
-	Aspects []PlaceReviewAspect `json:"aspects"`
+	Aspects []PlaceReviewAspect `json:"aspects,omitempty"`
 	// AuthorName the name of the user who submitted the review. Anonymous reviews are attributed to "A Google user".
-	AuthorName string `json:"author_name"`
+	AuthorName string `json:"author_name,omitempty"`
 	// AuthorURL the URL to the user's Google+ profile, if available.
-	AuthorURL string `json:"author_url"`
+	AuthorURL string `json:"author_url,omitempty"`
 	// Language an IETF language code indicating the language used in the user's review. This field contains the main language tag only, and not the secondary tag indicating country or region.
-	Language string `json:"language"`
+	Language string `json:"language,omitempty"`
 	// Rating the user's overall rating for this place. This is a whole number, ranging from 1 to 5.
-	Rating int `json:"rating"`
+	Rating int `json:"rating,omitempty"`
 	// Text is the user's review. When reviewing a location with Google Places, text reviews are considered optional. Therefore, this field may by empty. Note that this field may include simple HTML markup.
-	Text string `json:"text"`
+	Text string `json:"text,omitempty"`
 	// Time the time that the review was submitted, measured in the number of seconds since since midnight, January 1, 1970 UTC.
-	Time int `json:"time"` // TODO(samthor): convert this to a real time.Time
+	Time int `json:"time,omitempty"` // TODO(samthor): convert this to a real time.Time
 }
 
 // PlaceReviewAspect provides a rating of a single attribute of the establishment.
@@ -520,7 +524,7 @@ type PlaceReviewAspect struct {
 	// Rating is the user's rating for this particular aspect, from 0 to 3.
 	Rating int `json:"rating"`
 	// Type is the name of the aspect that is being rated. The following types are supported: appeal, atmosphere, decor, facilities, food, overall, quality and service.
-	Type string `json:"type"`
+	Type string `json:"type,omitempty"`
 }
 
 var placesQueryAutocompleteAPI = &apiConfig{
@@ -537,7 +541,7 @@ func (c *Client) QueryAutocomplete(ctx context.Context, r *QueryAutocompleteRequ
 	}
 
 	var response struct {
-		Predictions []AutocompletePrediction `json:"predictions"`
+		Predictions []AutocompletePrediction `json:"predictions,omitempty"`
 		commonResponse
 	}
 
@@ -592,21 +596,23 @@ type QueryAutocompleteRequest struct {
 
 // AutocompleteResponse is a response to a Query Autocomplete request.
 type AutocompleteResponse struct {
-	Predictions []AutocompletePrediction
+	Predictions []AutocompletePrediction `json:"predictions"`
 }
 
 // AutocompletePrediction represents a single Query Autocomplete result returned from the Google Places API Web Service.
 type AutocompletePrediction struct {
 	// Description of the matched prediction.
-	Description string `json:"description"`
+	Description string `json:"description,omitempty"`
 	// PlaceID is the ID of the Place
-	PlaceID string `json:"place_id"`
+	PlaceID string `json:"place_id,omitempty"`
 	// Types is an array indicating the type of the address component.
-	Types []string `json:"types"`
+	Types []string `json:"types,omitempty"`
 	// MatchedSubstring describes the location of the entered term in the prediction result text, so that the term can be highlighted if desired.
-	MatchedSubstrings []AutocompleteMatchedSubstring `json:"matched_substrings"`
+	MatchedSubstrings []AutocompleteMatchedSubstring `json:"matched_substrings,omitempty"`
 	// Terms contains an array of terms identifying each section of the returned description (a section of the description is generally terminated with a comma).
-	Terms []AutocompleteTermOffset `json:"terms"`
+	Terms []AutocompleteTermOffset `json:"terms,omitempty"`
+	// StructuredFormatting contains the main and secondary text of a prediction
+	StructuredFormatting AutocompleteStructuredFormatting `json:"structured_formatting,omitempty"`
 }
 
 // AutocompleteMatchedSubstring describes the location of the entered term in the prediction result text, so that the term can be highlighted if desired.
@@ -620,9 +626,16 @@ type AutocompleteMatchedSubstring struct {
 // AutocompleteTermOffset identifies each section of the returned description (a section of the description is generally terminated with a comma).
 type AutocompleteTermOffset struct {
 	// Value is the text of the matched term.
-	Value string `json:"value"`
+	Value string `json:"value,omitempty"`
 	// Offset defines the start position of this term in the description, measured in Unicode characters.
 	Offset int `json:"offset"`
+}
+
+// AutocompleteStructuredFormatting contains the main and secondary text of an autocomplete prediction
+type AutocompleteStructuredFormatting struct {
+	MainText                  string                         `json:"main_text,omitempty"`
+	MainTextMatchedSubstrings []AutocompleteMatchedSubstring `json:"main_text_matched_substrings,omitempty"`
+	SecondaryText             string                         `json:"secondary_text,omitempty"`
 }
 
 var placesPlaceAutocompleteAPI = &apiConfig{
@@ -639,7 +652,7 @@ func (c *Client) PlaceAutocomplete(ctx context.Context, r *PlaceAutocompleteRequ
 	}
 
 	var response struct {
-		Predictions []AutocompletePrediction `json:"predictions"`
+		Predictions []AutocompletePrediction `json:"predictions,omitempty"`
 		commonResponse
 	}
 
@@ -675,8 +688,12 @@ func (r *PlaceAutocompleteRequest) params() url.Values {
 		q.Set("language", r.Language)
 	}
 
-	if r.Type != "" {
-		q.Set("type", string(r.Type))
+	if r.Types != "" {
+		q.Set("types", string(r.Types))
+	}
+
+	if r.StrictBounds {
+		q.Set("strictbounds", "true")
 	}
 
 	var cf []string
@@ -690,7 +707,7 @@ func (r *PlaceAutocompleteRequest) params() url.Values {
 	return q
 }
 
-// PlaceAutocompleteRequest is the functional options struct for Query Autocomplete
+// PlaceAutocompleteRequest is the functional options struct for Place Autocomplete
 type PlaceAutocompleteRequest struct {
 	// Input is the text string on which to search. The Places service will return candidate matches based on this string and order results based on their perceived relevance.
 	Input string
@@ -703,9 +720,11 @@ type PlaceAutocompleteRequest struct {
 	// Language is the language in which to return results.
 	Language string
 	// Type restricts the results to places matching the specified type.
-	Type PlaceType
+	Types AutocompletePlaceType
 	// Components is a grouping of places to which you would like to restrict your results. Currently, you can use components to filter by country.
 	Components map[Component]string
+	// StrictBounds return only those places that are strictly within the region defined by location and radius.
+	StrictBounds bool
 }
 
 var placesPhotoAPI = &apiConfig{

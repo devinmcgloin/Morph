@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/didip/tollbooth/errors"
 	"github.com/didip/tollbooth/libstring"
@@ -15,14 +14,14 @@ import (
 // setResponseHeaders configures X-Rate-Limit-Limit and X-Rate-Limit-Duration
 func setResponseHeaders(lmt *limiter.Limiter, w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("X-Rate-Limit-Limit", strconv.FormatInt(lmt.GetMax(), 10))
-	w.Header().Add("X-Rate-Limit-Duration", lmt.GetTTL().String())
+	w.Header().Add("X-Rate-Limit-Duration", "1")
 	w.Header().Add("X-Rate-Limit-Request-Forwarded-For", r.Header.Get("X-Forwarded-For"))
 	w.Header().Add("X-Rate-Limit-Request-Remote-Addr", r.RemoteAddr)
 }
 
 // NewLimiter is a convenience function to limiter.New.
-func NewLimiter(max int64, ttl time.Duration, tbOptions *limiter.ExpirableOptions) *limiter.Limiter {
-	return limiter.New(tbOptions).SetMax(max).SetTTL(ttl)
+func NewLimiter(max int64, tbOptions *limiter.ExpirableOptions) *limiter.Limiter {
+	return limiter.New(tbOptions).SetMax(max).SetBurst(int(max))
 }
 
 // LimitByKeys keeps track number of request made by keys separated by pipe.
@@ -50,8 +49,8 @@ func BuildKeys(lmt *limiter.Limiter, r *http.Request) [][]string {
 	lmtHeaders := lmt.GetHeaders()
 	lmtBasicAuthUsers := lmt.GetBasicAuthUsers()
 
-	lmtHeadersIsSet := lmtHeaders != nil && len(lmtHeaders) > 0
-	lmtBasicAuthUsersIsSet := lmtBasicAuthUsers != nil && len(lmtBasicAuthUsers) > 0
+	lmtHeadersIsSet := len(lmtHeaders) > 0
+	lmtBasicAuthUsersIsSet := len(lmtBasicAuthUsers) > 0
 
 	if lmtMethods != nil && lmtHeadersIsSet && lmtBasicAuthUsersIsSet {
 		// Limit by HTTP methods and HTTP headers+values and Basic Auth credentials.
@@ -160,11 +159,10 @@ func LimitHandler(lmt *limiter.Limiter, next http.Handler) http.Handler {
 	middle := func(w http.ResponseWriter, r *http.Request) {
 		httpError := LimitByRequest(lmt, w, r)
 		if httpError != nil {
+			lmt.ExecOnLimitReached(w, r)
 			w.Header().Add("Content-Type", lmt.GetMessageContentType())
 			w.WriteHeader(httpError.StatusCode)
 			w.Write([]byte(httpError.Message))
-
-			lmt.ExecOnLimitReached(w, r)
 			return
 		}
 

@@ -31,7 +31,7 @@ func main() {
 		FrameDeny:             true,
 		ContentTypeNosniff:    true,
 		BrowserXssFilter:      true,
-		ContentSecurityPolicy: "default-src 'self'",
+		ContentSecurityPolicy: "script-src $NONCE",
 		PublicKey:             `pin-sha256="base64+primary=="; pin-sha256="base64+backup=="; max-age=5184000; includeSubdomains; report-uri="https://www.example.com/hpkp-report"`,
 	})
 
@@ -49,7 +49,7 @@ Strict-Transport-Security: 315360000; includeSubdomains; preload
 X-Frame-Options: DENY
 X-Content-Type-Options: nosniff
 X-XSS-Protection: 1; mode=block
-Content-Security-Policy: default-src 'self'
+Content-Security-Policy: script-src 'nonce-a2ZobGFoZg=='
 PublicKey: pin-sha256="base64+primary=="; pin-sha256="base64+backup=="; max-age=5184000; includeSubdomains; report-uri="https://www.example.com/hpkp-report"
 ~~~
 
@@ -77,7 +77,7 @@ s := secure.New(secure.Options{
     ContentTypeNosniff: true, // If ContentTypeNosniff is true, adds the X-Content-Type-Options header with the value `nosniff`. Default is false.
     BrowserXssFilter: true, // If BrowserXssFilter is true, adds the X-XSS-Protection header with the value `1; mode=block`. Default is false.
     CustomBrowserXssValue: "1; report=https://example.com/xss-report", // CustomBrowserXssValue allows the X-XSS-Protection header value to be set with a custom value. This overrides the BrowserXssFilter option. Default is "".
-    ContentSecurityPolicy: "default-src 'self'", // ContentSecurityPolicy allows the Content-Security-Policy header value to be set with a custom value. Default is "".
+	ContentSecurityPolicy: "default-src 'self'", // ContentSecurityPolicy allows the Content-Security-Policy header value to be set with a custom value. Default is "". Passing a template string will replace `$NONCE` with a dynamic nonce value of 16 bytes for each request which can be later retrieved using the Nonce function.
     PublicKey: `pin-sha256="base64+primary=="; pin-sha256="base64+backup=="; max-age=5184000; includeSubdomains; report-uri="https://www.example.com/hpkp-report"`, // PublicKey implements HPKP to prevent MITM attacks with forged certificates. Default is "".
     ReferrerPolicy: "same-origin" // ReferrerPolicy allows the Referrer-Policy header with the value to be set with a custom value. Default is "".
 
@@ -154,7 +154,7 @@ func main() {
 
 	// HTTPS
 	// To generate a development cert and key, run the following from your *nix terminal:
-	// go run $GOROOT/src/pkg/crypto/tls/generate_cert.go --host="localhost"
+	// go run $GOROOT/src/crypto/tls/generate_cert.go --host="localhost"
 	log.Fatal(http.ListenAndServeTLS(":8443", "cert.pem", "key.pem", app))
 }
 ~~~
@@ -165,7 +165,7 @@ The STS header will only be sent on verified HTTPS connections (and when `IsDeve
 * The `preload` flag is required for domain inclusion in Chrome's [preload](https://hstspreload.appspot.com/) list.
 
 ### Content Security Policy
-If you need dynamic support for CSP while using Websockets, check out this other middleware [awakenetworks/csp](https://github.com/awakenetworks/csp).  
+If you need dynamic support for CSP while using Websockets, check out this other middleware [awakenetworks/csp](https://github.com/awakenetworks/csp).
 
 
 ## Integration examples
@@ -216,14 +216,12 @@ func main() {
 	})
 
 	e := echo.New()
-
-	e.Get("/", func(c *echo.Context) error {
-		c.String(http.StatusOK, "X-Frame-Options header is now `DENY`.")
-		return nil
+	e.GET("/", func(c echo.Context) error {
+		return c.String(http.StatusOK, "X-Frame-Options header is now `DENY`.")
 	})
-	e.Use(secureMiddleware.Handler)
 
-	e.Run("127.0.0.1:3000")
+	e.Use(echo.WrapMiddleware(secureMiddleware.Handler))
+	e.Logger.Fatal(e.Start("127.0.0.1:3000"))
 }
 ~~~
 
@@ -302,7 +300,7 @@ package main
 
 import (
 	"github.com/kataras/iris"
-	"github.com/unrolled/secure"
+	"github.com/unrolled/secure" // or "gopkg.in/unrolled/secure.v1"
 )
 
 func main() {

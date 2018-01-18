@@ -18,6 +18,8 @@ This is a generic middleware to rate-limit HTTP requests.
 
 **v2.x.x:** Brand new API for the sake of code cleanup, thread safety, & auto-expiring data structures.
 
+**v3.x.x:** Apparently we have been using golang.org/x/time/rate incorrectly. See issue #48. It always limit X number per 1 second. The time duration is not changeable, so it does not make sense to pass TTL to tollbooth.
+
 
 ## Five Minutes Tutorial
 ```go
@@ -35,7 +37,7 @@ func HelloHandler(w http.ResponseWriter, req *http.Request) {
 
 func main() {
     // Create a request limiter per handler.
-    http.Handle("/", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second, nil), HelloHandler))
+    http.Handle("/", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, nil), HelloHandler))
     http.ListenAndServe(":12345", nil)
 }
 ```
@@ -49,19 +51,19 @@ func main() {
         "github.com/didip/tollbooth/limiter"
     )
 
-    lmt := tollbooth.NewLimiter(1, time.Second, nil)
+    lmt := tollbooth.NewLimiter(1, nil)
 
     // or create a limiter with expirable token buckets
     // This setting means:
     // create a 1 request/second limiter and
     // every token bucket in it will expire 1 hour after it was initially set.
-    lmt = tollbooth.NewLimiter(1, time.Second, &limiter.ExpirableOptions{DefaultExpirationTTL: time.Hour})
+    lmt = tollbooth.NewLimiter(1, &limiter.ExpirableOptions{DefaultExpirationTTL: time.Hour})
 
     // Configure list of places to look for IP address.
     // By default it's: "RemoteAddr", "X-Forwarded-For", "X-Real-IP"
     // If your application is behind a proxy, set "X-Forwarded-For" first.
     lmt.SetIPLookups([]string{"RemoteAddr", "X-Forwarded-For", "X-Real-IP"})
- 
+
     // Limit only GET and POST requests.
     lmt.SetMethods([]string{"GET", "POST"})
 
@@ -93,7 +95,7 @@ func main() {
     ```go
     import "time"
 
-    lmt := tollbooth.NewLimiter(1, time.Second, nil)
+    lmt := tollbooth.NewLimiter(1, nil)
 
     // Set a custom expiration TTL for token bucket.
     lmt.SetTokenBucketExpirationTTL(time.Hour)
@@ -119,7 +121,7 @@ func main() {
 5. Customize your own message or function when limit is reached.
 
     ```go
-    lmt := tollbooth.NewLimiter(1, time.Second, nil)
+    lmt := tollbooth.NewLimiter(1, nil)
 
     // Set a custom message.
     lmt.SetMessage("You have reached maximum request limit.")
@@ -134,7 +136,7 @@ func main() {
 6. Tollbooth does not require external storage since it uses an algorithm called [Token Bucket](http://en.wikipedia.org/wiki/Token_bucket) [(Go library: golang.org/x/time/rate)](//godoc.org/golang.org/x/time/rate).
 
 
-# Other Web Frameworks
+## Other Web Frameworks
 
 Sometimes, other frameworks require a little bit of shim to use Tollbooth. These shims below are contributed by the community, so I make no promises on how well they work. The one I am familiar with are: Chi, Gin, and Negroni.
 
@@ -153,3 +155,10 @@ Sometimes, other frameworks require a little bit of shim to use Tollbooth. These
 * [Iris](https://github.com/didip/tollbooth_iris)
 
 * [Negroni](https://github.com/didip/tollbooth_negroni)
+
+
+## My other Go libraries
+
+* [Stopwatch](https://github.com/didip/stopwatch): A small library to measure latency of things. Useful if you want to report latency data to Graphite.
+
+* [Gomet](https://github.com/didip/gomet): Simple HTTP client & server long poll library for Go. Useful for receiving live updates without needing Websocket.
