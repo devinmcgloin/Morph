@@ -11,7 +11,12 @@ import (
 
 func ImageAWS(img *bytes.Buffer, format string, filename string, bucketURI string, region string) error {
 
-	svc := s3.New(session.New(&aws.Config{Region: aws.String(region)}))
+	sess, err := session.NewSession(&aws.Config{Region: aws.String(region)})
+	if err != nil {
+		log.Printf("error while constructing new aws session %s", err)
+		return err
+	}
+	svc := s3.New(sess)
 
 	params, err := formatParams(img, int64(img.Len()), format, bucketURI, filename)
 
