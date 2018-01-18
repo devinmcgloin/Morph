@@ -5,30 +5,35 @@ import (
 	"math"
 )
 
+// RGB Represents a point in the RGB Colorspace.
 type RGB struct {
 	R uint8 `json:"r"`
 	G uint8 `json:"g"`
 	B uint8 `json:"b"`
 }
 
+// Valid checks if the RGB instance is a valid point in the RGB ColorSpace.
 func (rgb RGB) Valid() bool {
 	return rgb.R <= 255 && rgb.G <= 255 && rgb.B <= 255
 }
 
-func (c RGB) RGB() (r, g, b uint8) {
-	return c.R, c.G, c.B
+// RGB returns the RGB components for the given point.
+func (rgb RGB) RGB() (uint8, uint8, uint8) {
+	return rgb.R, rgb.G, rgb.B
 }
-func (c RGB) RGBA() (r, g, b, a uint8) {
-	return c.R, c.G, c.B, 1
+
+// RGBA is similar to RGB but adds an alpha channel.
+func (rgb RGB) RGBA() (uint8, uint8, uint8, uint8) {
+	return rgb.R, rgb.G, rgb.B, 1
 }
 
 // HSL converts RGB values into HSL ones in which
 // H = 0 - 360, S = 0 - 100 and V = 0 - 100
-func (c RGB) HSL() (uint16, uint8, uint8) {
+func (rgb RGB) HSL() (uint16, uint8, uint8) {
 	var h, s, l float64
-	R := float64(c.R) / 255
-	G := float64(c.G) / 255
-	B := float64(c.B) / 255
+	R := float64(rgb.R) / 255
+	G := float64(rgb.G) / 255
+	B := float64(rgb.B) / 255
 
 	minVal := min(R, G, B)
 	maxVal := max(R, G, B)
@@ -66,11 +71,11 @@ func (c RGB) HSL() (uint16, uint8, uint8) {
 
 // HSV converts RGB values into HSV ones in which
 // H = 0 - 360, S = 0 - 100 and V = 0 - 100
-func (c RGB) HSV() (uint16, uint8, uint8) {
+func (rgb RGB) HSV() (uint16, uint8, uint8) {
 	var h, s, v float64
-	R := float64(c.R) / 255
-	G := float64(c.G) / 255
-	B := float64(c.B) / 255
+	R := float64(rgb.R) / 255
+	G := float64(rgb.G) / 255
+	B := float64(rgb.B) / 255
 
 	minVal := min(R, G, B)
 	maxVal := max(R, G, B)
@@ -101,6 +106,7 @@ func (c RGB) HSV() (uint16, uint8, uint8) {
 	return uint16(h * 360), uint8(s * 100), uint8(v * 100)
 }
 
+// CMYK converts RGB colorspace into CMYK
 func (rgb RGB) CMYK() (uint8, uint8, uint8, uint8) {
 	r := float64(rgb.R) / 255.0
 	g := float64(rgb.G) / 255.0
@@ -115,10 +121,12 @@ func (rgb RGB) CMYK() (uint8, uint8, uint8, uint8) {
 	return uint8(dc * 100), uint8(dm * 100), uint8(dy * 100), uint8(dk * 100)
 }
 
+// Hex formats rgb in Hex
 func (rgb RGB) Hex() string {
 	return fmt.Sprintf("%02X%02X%02X", rgb.R, rgb.G, rgb.B)
 }
 
+// ColorName matches this RGB color to a color name
 func (rgb RGB) ColorName(colors ColorTable) ColorSpace {
 	var minHex string
 	minDist := math.MaxFloat64
@@ -137,6 +145,8 @@ func (rgb RGB) ColorName(colors ColorTable) ColorSpace {
 	return colors.Lookup(minHex)
 }
 
+// Distance calculates the distance between colors in CIELAB using
+// simple Euclidian distance.
 func (rgb RGB) Distance(c Color) float64 {
 	l1, a1, b1 := rgb.CIELAB()
 	l2, a2, b2 := c.CIELAB()
@@ -146,6 +156,7 @@ func (rgb RGB) Distance(c Color) float64 {
 			math.Pow(b1-b2, 2))
 }
 
+// XYZ Converts to the XYZ Colorspace.
 func (rgb RGB) XYZ() (float64, float64, float64) {
 	r := float64(rgb.R) / 255.0
 	g := float64(rgb.G) / 255.0
@@ -179,6 +190,8 @@ func (rgb RGB) XYZ() (float64, float64, float64) {
 	return x, y, z
 }
 
+// CIELAB converts RGB to CIELAB, which is useful for comparing
+// between colors how people actually view them.
 func (rgb RGB) CIELAB() (l, a, b float64) {
 	x, y, z := rgb.XYZ()
 	x /= 95.682

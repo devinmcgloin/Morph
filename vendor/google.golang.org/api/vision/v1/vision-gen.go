@@ -7,7 +7,7 @@
 //   import "google.golang.org/api/vision/v1"
 //   ...
 //   visionService, err := vision.New(oauthHttpClient)
-package vision // import "google.golang.org/api/vision/v1"
+package vision
 
 import (
 	"bytes"
