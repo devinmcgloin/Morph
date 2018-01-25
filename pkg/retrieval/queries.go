@@ -511,7 +511,7 @@ func Trending(state *handler.State, limit int) ([]model.Image, error) {
 
 	err := state.DB.Select(&ids, `
 	SELECT id FROM content.images
-	ORDER BY ranking(id, views + favorites , featured::int + 3) DESC
+	ORDER BY ranking(publish_time, views + favorites , featured::int + 3) DESC
 	LIMIT $1
 	`, limit)
 	if err != nil {
