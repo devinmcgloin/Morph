@@ -1,6 +1,7 @@
 package logging
 
 import (
+	"log"
 	"net/http"
 
 	"net"
@@ -31,7 +32,8 @@ func IP(h http.Handler) http.Handler {
 					// bad address, go to next
 					continue
 				}
-				context.Set(r, "ip", realIP)
+				log.Printf("IP: %s\n", realIP.String())
+				context.Set(r, "ip", realIP.String())
 				break
 			}
 		}
