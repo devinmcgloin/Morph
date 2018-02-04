@@ -132,6 +132,7 @@ func Run(cfg *Config) {
 	routes.RegisterSearchRoutes(&AppState, api, base)
 	routes.RegisterRandomRoutes(&AppState, api, base)
 	routes.RegisterAuthRoutes(&AppState, api, base)
+	routes.RegisterStatusRoutes(&AppState, api, base)
 	api.NotFoundHandler = base.Then(http.HandlerFunc(handler.NotFound))
 
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(cfg.Port),
