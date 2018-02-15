@@ -40,6 +40,11 @@ func TestQuery(t *testing.T) {
 			CorrectTSVector: "(lake & mountain) & !city & !nyc",
 		},
 		{
+			RequiredTerms:   []string{"lake", "mountain", "st,"},
+			OptionalTerms:   []string{},
+			ExcludedTerms:   []string{"city", "nyc"},
+			CorrectTSVector: "(lake & mountain & st) & !city & !nyc",
+		}, {
 			RequiredTerms:   []string{},
 			OptionalTerms:   []string{},
 			ExcludedTerms:   []string{},

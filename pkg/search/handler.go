@@ -158,8 +158,11 @@ func formatQueryString(req []string, opt []string, exc []string) string {
 	args := []string{}
 
 	req = FilterEmpty(req)
+	trim(req)
 	opt = FilterEmpty(opt)
+	trim(opt)
 	exc = FilterEmpty(exc)
+	trim(exc)
 
 	for i, ex := range exc {
 		exc[i] = "!" + ex
@@ -186,6 +189,12 @@ func Filter(vs []string, f func(string) bool) []string {
 		}
 	}
 	return vsf
+}
+
+func trim(vs []string) {
+	for i, v := range vs {
+		vs[i] = strings.Trim(v, ",./!@#$%^&*()_+-= ")
+	}
 }
 
 func FilterEmpty(arr []string) []string {
