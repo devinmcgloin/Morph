@@ -84,6 +84,7 @@ type ImageMetadata struct {
 	PixelYDimension *int64     `db:"pixel_yd" json:"pixel_yd,omitempty"`
 	CaptureTime     *time.Time `db:"capture_time" json:"capture_time,omitempty"`
 	Location        *Location  `db:"location" json:"location,omitempty"`
+	Orientation     uint16     `db:"-" json:"-"`
 }
 
 type Location struct {

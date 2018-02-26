@@ -108,13 +108,11 @@ func ImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) 
 	metadataChan := make(chan model.ImageMetadata, 1)
 	annotationsChan := make(chan vision.ImageResponse, 1)
 
-	go upload.ProccessImage(errChan, uploadedImage, format, img.Shortcode, "content")
-
 	go metadata.GetMetadata(errChan, metadataChan, bytes.NewBuffer(file))
 
 	go vision.AnnotateImage(errChan, annotationsChan, store.DB, store.Vision, uploadedImage)
 
-	for i := 0; i < 3; i++ {
+	for i := 0; i < 2; i++ {
 		err = <-errChan
 		if err != nil {
 			return handler.Response{}, err
@@ -124,6 +122,13 @@ func ImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) 
 
 	img.Metadata = <-metadataChan
 	annotations := <-annotationsChan
+	rotatedImage := metadata.NormalizeOrientatation(uploadedImage, img.Metadata.Orientation)
+
+	go upload.ProccessImage(errChan, rotatedImage, format, img.Shortcode, "content")
+	err = <-errChan
+	if err != nil {
+		return handler.Response{}, err
+	}
 
 	if !annotations.Safe {
 		return handler.Response{}, handler.StatusError{

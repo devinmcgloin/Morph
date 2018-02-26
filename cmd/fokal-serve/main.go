@@ -32,17 +32,19 @@ func main() {
 
 	postgresURL := os.Getenv("DATABASE_URL")
 	if postgresURL == "" {
-		log.Fatal("Postgres URL not set at POSTGRES_URL")
+		log.Fatal("Postgres URL not set at DATABASE_URL")
 	}
 
 	googleToken := os.Getenv("GOOGLE_API_TOKEN")
 	if googleToken == "" {
 		log.Fatal("Google API Token not set at GOOGLE_API_TOKEN")
 	}
+
 	redisURL := os.Getenv("REDIS_URL")
 	if redisURL == "" {
 		log.Fatal("Redis URL not set at REDIS_URL")
 	}
+
 	redisPass := os.Getenv("REDIS_PASS")
 	if redisPass == "" {
 		log.Fatal("Redis Pass not set at REDIS_PASS")
@@ -53,6 +55,7 @@ func main() {
 	if AWSAccessKey == "" {
 		log.Fatal("AWS Access Key Id not set at AWS_ACCESS_KEY_ID")
 	}
+
 	AWSSecret := os.Getenv("AWS_SECRET_ACCESS_KEY")
 	if AWSSecret == "" {
 		log.Fatal("AWS Secret Access Key not set at AWS_SECRET_ACCESS_KEY")

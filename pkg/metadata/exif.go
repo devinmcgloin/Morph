@@ -148,6 +148,15 @@ func GetMetadata(errChan chan error, metaChan chan model.ImageMetadata, img io.R
 		}
 	}
 
+	meta.Orientation = 1
+	Orientation, err := x.Get(exif.Orientation)
+	if err == nil {
+		n, err := Orientation.Int(0)
+		if err == nil {
+			meta.Orientation = uint16(n)
+		}
+	}
+
 	metaChan <- meta
 	errChan <- nil
 }
