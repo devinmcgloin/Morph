@@ -15,7 +15,33 @@
 
 [[projects]]
   name = "github.com/aws/aws-sdk-go"
-  packages = ["aws","aws/awserr","aws/awsutil","aws/client","aws/client/metadata","aws/corehandlers","aws/credentials","aws/credentials/ec2rolecreds","aws/credentials/endpointcreds","aws/credentials/stscreds","aws/defaults","aws/ec2metadata","aws/endpoints","aws/request","aws/session","aws/signer/v4","internal/shareddefaults","private/protocol","private/protocol/query","private/protocol/query/queryutil","private/protocol/rest","private/protocol/restxml","private/protocol/xml/xmlutil","service/s3","service/sts"]
+  packages = [
+    "aws",
+    "aws/awserr",
+    "aws/awsutil",
+    "aws/client",
+    "aws/client/metadata",
+    "aws/corehandlers",
+    "aws/credentials",
+    "aws/credentials/ec2rolecreds",
+    "aws/credentials/endpointcreds",
+    "aws/credentials/stscreds",
+    "aws/defaults",
+    "aws/ec2metadata",
+    "aws/endpoints",
+    "aws/request",
+    "aws/session",
+    "aws/signer/v4",
+    "internal/shareddefaults",
+    "private/protocol",
+    "private/protocol/query",
+    "private/protocol/query/queryutil",
+    "private/protocol/rest",
+    "private/protocol/restxml",
+    "private/protocol/xml/xmlutil",
+    "service/s3",
+    "service/sts"
+  ]
   revision = "c13a879e75646fe750d21bcb05bf2cabea9791c1"
   version = "v1.12.65"
 
@@ -39,15 +65,29 @@
 
 [[projects]]
   name = "github.com/dgrijalva/jwt-go"
-  packages = [".","request"]
+  packages = [
+    ".",
+    "request"
+  ]
   revision = "dbeaa9332f19a944acb5736b4456cfcc02140e29"
   version = "v3.1.0"
 
 [[projects]]
   name = "github.com/didip/tollbooth"
-  packages = [".","errors","libstring","limiter"]
+  packages = [
+    ".",
+    "errors",
+    "libstring",
+    "limiter"
+  ]
   revision = "b65680a2d5f624ed528d36f8406f31535555828a"
   version = "v3.0.2"
+
+[[projects]]
+  name = "github.com/disintegration/imaging"
+  packages = ["."]
+  revision = "1884593a19ddc6f2ea050403430d02c1d0fc1283"
+  version = "v1.3.0"
 
 [[projects]]
   name = "github.com/fatih/structs"
@@ -57,7 +97,10 @@
 
 [[projects]]
   name = "github.com/garyburd/redigo"
-  packages = ["internal","redis"]
+  packages = [
+    "internal",
+    "redis"
+  ]
   revision = "d1ed5c67e5794de818ea85e6b522fda02623a484"
   version = "v1.4.0"
 
@@ -94,7 +137,10 @@
 [[projects]]
   branch = "master"
   name = "github.com/heroku/x"
-  packages = ["hmetrics","hmetrics/onload"]
+  packages = [
+    "hmetrics",
+    "hmetrics/onload"
+  ]
   revision = "705849e307dd75c91728463dea5bfd08ef493e64"
 
 [[projects]]
@@ -105,7 +151,10 @@
 [[projects]]
   branch = "master"
   name = "github.com/jmoiron/sqlx"
-  packages = [".","reflectx"]
+  packages = [
+    ".",
+    "reflectx"
+  ]
   revision = "de8647470aafe4854c976707c431dbe1eb2822c6"
 
 [[projects]]
@@ -129,7 +178,10 @@
 [[projects]]
   branch = "master"
   name = "github.com/lib/pq"
-  packages = [".","oid"]
+  packages = [
+    ".",
+    "oid"
+  ]
   revision = "83612a56d3dd153a94a629cd64925371c9adad78"
 
 [[projects]]
@@ -165,7 +217,10 @@
 [[projects]]
   branch = "go1"
   name = "github.com/rwcarlsen/goexif"
-  packages = ["exif","tiff"]
+  packages = [
+    "exif",
+    "tiff"
+  ]
   revision = "17202558c8d9c3fd047859f1a5e73fd9ae709187"
 
 [[projects]]
@@ -182,8 +237,21 @@
 
 [[projects]]
   branch = "master"
+  name = "golang.org/x/image"
+  packages = [
+    "bmp",
+    "tiff",
+    "tiff/lzw"
+  ]
+  revision = "12117c17ca67ffa1ce22e9409f3b0b0a93ac08c7"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/net"
-  packages = ["context","context/ctxhttp"]
+  packages = [
+    "context",
+    "context/ctxhttp"
+  ]
   revision = "5ccada7d0a7ba9aeb5d3aca8d3501b4c2a509fec"
 
 [[projects]]
@@ -195,18 +263,27 @@
 [[projects]]
   branch = "master"
   name = "google.golang.org/api"
-  packages = ["gensupport","googleapi","googleapi/internal/uritemplates","googleapi/transport","vision/v1"]
+  packages = [
+    "gensupport",
+    "googleapi",
+    "googleapi/internal/uritemplates",
+    "googleapi/transport",
+    "vision/v1"
+  ]
   revision = "fa74edab4387514996aa08b9bc287882c18cb79a"
 
 [[projects]]
   branch = "master"
   name = "googlemaps.github.io/maps"
-  packages = [".","internal"]
+  packages = [
+    ".",
+    "internal"
+  ]
   revision = "61301add2e62745d65ac52712e30f68faeabfc8b"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "741a97f77da4ec2c3629c487110fcc96a88da8f2b38cb81d4e8ef5d645fad122"
+  inputs-digest = "28003e7cc3be75662ffbc68493c4fd1ca0a7bdb97cc5fee44d5dba655507cba0"
   solver-name = "gps-cdcl"
   solver-version = 1
