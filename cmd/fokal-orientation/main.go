@@ -14,6 +14,7 @@ import (
 )
 
 func main() {
+
 	var in, out string
 
 	flag.StringVar(&in, "in", "", "input file")
@@ -29,6 +30,10 @@ func main() {
 	}
 
 	meta, err := metadata.GetExif(bytes.NewBuffer(file))
+	if err != nil {
+		log.Fatal("unable to load exif data")
+	}
+
 	var orientation int
 
 	tag, err := meta.Get(exif.Orientation)
