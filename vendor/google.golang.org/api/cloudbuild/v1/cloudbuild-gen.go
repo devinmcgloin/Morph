@@ -1,4 +1,4 @@
-// Package cloudbuild provides access to the Google Cloud Container Builder API.
+// Package cloudbuild provides access to the Cloud Container Builder API.
 //
 // See https://cloud.google.com/container-builder/docs/
 //
@@ -181,7 +181,7 @@ type Build struct {
 	Images []string `json:"images,omitempty"`
 
 	// LogUrl: URL to logs for this build in Google Cloud
-	// Logging.
+	// Console.
 	// @OutputOnly
 	LogUrl string `json:"logUrl,omitempty"`
 
@@ -227,13 +227,13 @@ type Build struct {
 	//
 	// Possible values:
 	//   "STATUS_UNKNOWN" - Status of the build is unknown.
-	//   "QUEUED" - Build is queued; work has not yet begun.
-	//   "WORKING" - Build is being executed.
-	//   "SUCCESS" - Build finished successfully.
-	//   "FAILURE" - Build failed to complete successfully.
-	//   "INTERNAL_ERROR" - Build failed due to an internal cause.
-	//   "TIMEOUT" - Build took longer than was allowed.
-	//   "CANCELLED" - Build was canceled by a user.
+	//   "QUEUED" - Build or step is queued; work has not yet begun.
+	//   "WORKING" - Build or step is being executed.
+	//   "SUCCESS" - Build or step finished successfully.
+	//   "FAILURE" - Build or step failed to complete successfully.
+	//   "INTERNAL_ERROR" - Build or step failed due to an internal cause.
+	//   "TIMEOUT" - Build or step took longer than was allowed.
+	//   "CANCELLED" - Build or step was canceled by a user.
 	Status string `json:"status,omitempty"`
 
 	// StatusDetail: Customer-readable message about the current
@@ -269,6 +269,7 @@ type Build struct {
 	// If the build does not specify source, or does not specify
 	// images,
 	// these keys will not be included.
+	// @OutputOnly
 	Timing map[string]TimeSpan `json:"timing,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
@@ -428,9 +429,22 @@ type BuildStep struct {
 	// and the remainder will be used as arguments.
 	Args []string `json:"args,omitempty"`
 
-	// Dir: Working directory (relative to project source root) to use when
-	// running
-	// this operation's container.
+	// Dir: Working directory to use when running this step's container.
+	//
+	// If this value is a relative path, it is relative to the build's
+	// working
+	// directory. If this value is absolute, it may be outside the build's
+	// working
+	// directory, in which case the contents of the path may not be
+	// persisted
+	// across build step executions, unless a volume for that path is
+	// specified.
+	//
+	// If the build specifies a RepoSource with dir and a step with a dir
+	// which
+	// specifies an absolute path, the RepoSource dir is ignored for the
+	// step's
+	// execution.
 	Dir string `json:"dir,omitempty"`
 
 	// Entrypoint: Optional entrypoint to be used instead of the build step
@@ -485,7 +499,34 @@ type BuildStep struct {
 	// crypto key. These values must be specified in the build's secrets.
 	SecretEnv []string `json:"secretEnv,omitempty"`
 
-	// Timing: Stores timing information for executing this build step.
+	// Status: Status of the build step. At this time, build step status is
+	// only updated
+	// on build completion; step status is not updated in real-time as the
+	// build
+	// progresses.
+	// @OutputOnly
+	//
+	// Possible values:
+	//   "STATUS_UNKNOWN" - Status of the build is unknown.
+	//   "QUEUED" - Build or step is queued; work has not yet begun.
+	//   "WORKING" - Build or step is being executed.
+	//   "SUCCESS" - Build or step finished successfully.
+	//   "FAILURE" - Build or step failed to complete successfully.
+	//   "INTERNAL_ERROR" - Build or step failed due to an internal cause.
+	//   "TIMEOUT" - Build or step took longer than was allowed.
+	//   "CANCELLED" - Build or step was canceled by a user.
+	Status string `json:"status,omitempty"`
+
+	// Timeout: Time limit for executing this build step. If not defined,
+	// the step has no
+	// time limit and will be allowed to continue to run until either it
+	// completes
+	// or the build itself times out.
+	Timeout string `json:"timeout,omitempty"`
+
+	// Timing: Stores timing information for executing this build
+	// step.
+	// @OutputOnly
 	Timing *TimeSpan `json:"timing,omitempty"`
 
 	// Volumes: List of volumes to mount into the build step.
@@ -615,6 +656,7 @@ type BuiltImage struct {
 
 	// PushTiming: Stores timing information for pushing the specified
 	// image.
+	// @OutputOnly
 	PushTiming *TimeSpan `json:"pushTiming,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Digest") to
@@ -926,6 +968,10 @@ type RepoSource struct {
 
 	// Dir: Directory, relative to the source root, in which to run the
 	// build.
+	//
+	// This must be a relative path. If a step's dir is specified and is
+	// an
+	// absolute path, this value is ignored for that step's execution.
 	Dir string `json:"dir,omitempty"`
 
 	// ProjectId: ID of the project that owns the repo. If omitted, the

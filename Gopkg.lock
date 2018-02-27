@@ -32,6 +32,7 @@
     "aws/request",
     "aws/session",
     "aws/signer/v4",
+    "internal/sdkrand",
     "internal/shareddefaults",
     "private/protocol",
     "private/protocol/query",
@@ -42,14 +43,14 @@
     "service/s3",
     "service/sts"
   ]
-  revision = "c13a879e75646fe750d21bcb05bf2cabea9791c1"
-  version = "v1.12.65"
+  revision = "ce48e67ca697079662aee65a13202f37a185962b"
+  version = "v1.13.6"
 
 [[projects]]
   name = "github.com/certifi/gocertifi"
   packages = ["."]
-  revision = "a4ab0227d360091084658029ec8ae45f989fba3e"
-  version = "2017.11.05"
+  revision = "deb3ae2ef2610fde3330947281941c562861188b"
+  version = "2018.01.18"
 
 [[projects]]
   name = "github.com/cridenour/go-postgis"
@@ -61,7 +62,7 @@
   branch = "master"
   name = "github.com/devinmcgloin/clr"
   packages = ["clr"]
-  revision = "93e4b61ab2344b9841b1f135ae4801bc50fed771"
+  revision = "a7c75fa6c3a472b5a2ea3299a54c71c88ee203c7"
 
 [[projects]]
   name = "github.com/dgrijalva/jwt-go"
@@ -102,13 +103,13 @@
     "redis"
   ]
   revision = "d1ed5c67e5794de818ea85e6b522fda02623a484"
-  version = "v1.4.0"
+  version = "v1.5.0"
 
 [[projects]]
   branch = "master"
   name = "github.com/getsentry/raven-go"
   packages = ["."]
-  revision = "32a13797442ccb601b11761d74232773c1402d14"
+  revision = "563b81fc02b75d664e54da31f787c2cc2186780b"
 
 [[projects]]
   name = "github.com/go-ini/ini"
@@ -155,7 +156,7 @@
     ".",
     "reflectx"
   ]
-  revision = "de8647470aafe4854c976707c431dbe1eb2822c6"
+  revision = "05cef0741ade10ca668982355b3f3f0bcf0ff0a8"
 
 [[projects]]
   branch = "master"
@@ -167,7 +168,7 @@
   branch = "master"
   name = "github.com/lann/builder"
   packages = ["."]
-  revision = "f22ce00fd9394014049dad11c244859432bd6820"
+  revision = "1b87b36280d04fe7882d1512bf038ea2967ad534"
 
 [[projects]]
   branch = "master"
@@ -182,7 +183,7 @@
     ".",
     "oid"
   ]
-  revision = "83612a56d3dd153a94a629cd64925371c9adad78"
+  revision = "88edab0803230a3898347e77b474f8c1820a1f20"
 
 [[projects]]
   name = "github.com/mholt/binding"
@@ -194,7 +195,7 @@
   branch = "master"
   name = "github.com/nfnt/resize"
   packages = ["."]
-  revision = "891127d8d1b52734debe1b3c3d7e747502b6c366"
+  revision = "83c6a9932646f83e3267f353373d47347b6036b2"
 
 [[projects]]
   name = "github.com/patrickmn/go-cache"
@@ -211,8 +212,8 @@
 [[projects]]
   name = "github.com/rs/cors"
   packages = ["."]
-  revision = "7af7a1e09ba336d2ea14b1ce73bf693c6837dbf6"
-  version = "v1.2"
+  revision = "feef513b9575b32f84bafa580aad89b011259019"
+  version = "v1.3.0"
 
 [[projects]]
   branch = "go1"
@@ -233,7 +234,7 @@
   branch = "master"
   name = "github.com/unrolled/secure"
   packages = ["."]
-  revision = "d6ff8660e1a61e887970a917ee2b9be0cfad6d40"
+  revision = "09c600e6d88476139828e3722c13c8553699adb0"
 
 [[projects]]
   branch = "master"
@@ -252,7 +253,7 @@
     "context",
     "context/ctxhttp"
   ]
-  revision = "5ccada7d0a7ba9aeb5d3aca8d3501b4c2a509fec"
+  revision = "cbe0f9307d0156177f9dd5dc85da1a31abc5f2fb"
 
 [[projects]]
   branch = "master"
@@ -270,7 +271,7 @@
     "googleapi/transport",
     "vision/v1"
   ]
-  revision = "fa74edab4387514996aa08b9bc287882c18cb79a"
+  revision = "ab90adb3efa287b869ecb698db42f923cc734972"
 
 [[projects]]
   branch = "master"
@@ -279,7 +280,7 @@
     ".",
     "internal"
   ]
-  revision = "61301add2e62745d65ac52712e30f68faeabfc8b"
+  revision = "5d92dee1f24924c5627fdb48fe088004b031425a"
 
 [solve-meta]
   analyzer-name = "dep"

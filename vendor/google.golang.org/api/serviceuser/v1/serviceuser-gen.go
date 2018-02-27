@@ -1817,17 +1817,6 @@ type HttpRule struct {
 	// Put: Used for updating a resource.
 	Put string `json:"put,omitempty"`
 
-	// ResponseBody: The name of the response field whose value is mapped to
-	// the HTTP body of
-	// response. Other response fields are ignored. This field is optional.
-	// When
-	// not set, the response message will be used as HTTP body of
-	// response.
-	// NOTE: the referred field must be not a repeated field and must be
-	// present
-	// at the top-level of response message type.
-	ResponseBody string `json:"responseBody,omitempty"`
-
 	// Selector: Selects methods to which this rule applies.
 	//
 	// Refer to selector for syntax details.
@@ -2388,8 +2377,6 @@ type MetricDescriptor struct {
 	//
 	// **Grammar**
 	//
-	// The grammar includes the dimensionless unit `1`, such as `1/s`.
-	//
 	// The grammar also includes these connectors:
 	//
 	// * `/`    division (as an infix operator, e.g. `1/s`).
@@ -2399,7 +2386,7 @@ type MetricDescriptor struct {
 	//
 	//     Expression = Component { "." Component } { "/" Component } ;
 	//
-	//     Component = [ PREFIX ] UNIT [ Annotation ]
+	//     Component = ( [ PREFIX ] UNIT | "%" ) [ Annotation ]
 	//               | Annotation
 	//               | "1"
 	//               ;
@@ -2413,6 +2400,10 @@ type MetricDescriptor struct {
 	//    `{requests}/s == 1/s`, `By{transmitted}/s == By/s`.
 	// * `NAME` is a sequence of non-blank printable ASCII characters not
 	//    containing '{' or '}'.
+	// * `1` represents dimensionless value 1, such as in `1/s`.
+	// * `%` represents dimensionless value 1/100, and annotates values
+	// giving
+	//    a percentage.
 	Unit string `json:"unit,omitempty"`
 
 	// ValueType: Whether the measurement is an integer, a floating-point
