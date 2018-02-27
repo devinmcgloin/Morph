@@ -23,6 +23,7 @@
 [metadata.heroku]
 root-package = "github.com/fokal/fokal"
 install = [ "./cmd/..." ]
+go-version: "1.10"
 
 
 [[constraint]]
