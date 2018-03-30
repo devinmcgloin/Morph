@@ -132,22 +132,6 @@ func GetMetadata(errChan chan error, metaChan chan model.ImageMetadata, img io.R
 
 	// Setting fields in sources for orig image
 
-	PixelXDimension, err := x.Get(exif.PixelXDimension)
-	if err == nil {
-		n, err := PixelXDimension.Int64(0)
-		if err == nil {
-			meta.PixelXDimension = &n
-		}
-	}
-
-	PixelYDimension, err := x.Get(exif.PixelYDimension)
-	if err == nil {
-		n, err := PixelYDimension.Int64(0)
-		if err == nil {
-			meta.PixelYDimension = &n
-		}
-	}
-
 	meta.Orientation = 1
 	Orientation, err := x.Get(exif.Orientation)
 	if err == nil {

@@ -80,8 +80,8 @@ type ImageMetadata struct {
 	Model           *string    `db:"model" json:"model,omitempty"`
 	LensMake        *string    `db:"lens_make" json:"lens_make,omitempty"`
 	LensModel       *string    `db:"lens_model" json:"lens_model,omitempty"`
-	PixelXDimension *int64     `db:"pixel_xd" json:"pixel_xd,omitempty"`
-	PixelYDimension *int64     `db:"pixel_yd" json:"pixel_yd,omitempty"`
+	PixelXDimension int64      `db:"pixel_xd" json:"pixel_xd"`
+	PixelYDimension int64      `db:"pixel_yd" json:"pixel_yd"`
 	CaptureTime     *time.Time `db:"capture_time" json:"capture_time,omitempty"`
 	Location        *Location  `db:"location" json:"location,omitempty"`
 	Orientation     uint16     `db:"-" json:"-"`

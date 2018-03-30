@@ -123,6 +123,8 @@ func ImageHandler(store *handler.State, w http.ResponseWriter, r *http.Request) 
 	img.Metadata = <-metadataChan
 	annotations := <-annotationsChan
 	rotatedImage := metadata.NormalizeOrientatation(uploadedImage, img.Metadata.Orientation)
+	img.Metadata.PixelXDimension = int64(rotatedImage.Bounds().Dx())
+	img.Metadata.PixelYDimension = int64(rotatedImage.Bounds().Dy())
 
 	go upload.ProccessImage(errChan, rotatedImage, format, img.Shortcode, "content")
 	err = <-errChan
