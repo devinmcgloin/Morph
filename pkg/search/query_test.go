@@ -56,6 +56,12 @@ func TestQuery(t *testing.T) {
 			ExcludedTerms:   []string{},
 			CorrectTSVector: "",
 		},
+		{
+			RequiredTerms:   []string{"Clay", "St", "&", "Front", "St,", "San", "Francisco,", "CA", "94111,", "USA"},
+			OptionalTerms:   []string{},
+			ExcludedTerms:   []string{},
+			CorrectTSVector: "(Clay & St & Front & St & San & Francisco & CA & 94111 & USA)",
+		},
 	}
 
 	for _, test := range tables {
