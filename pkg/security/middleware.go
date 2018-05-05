@@ -7,8 +7,8 @@ import (
 
 	"encoding/json"
 
-	"github.com/fokal/fokal/pkg/handler"
-	"github.com/fokal/fokal/pkg/tokens"
+	"github.com/fokal/fokal-core/pkg/handler"
+	"github.com/fokal/fokal-core/pkg/tokens"
 	"github.com/gorilla/context"
 )
 

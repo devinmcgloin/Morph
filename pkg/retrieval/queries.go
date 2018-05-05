@@ -9,8 +9,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/fokal/fokal/pkg/handler"
-	"github.com/fokal/fokal/pkg/model"
+	"github.com/fokal/fokal-core/pkg/handler"
+	"github.com/fokal/fokal-core/pkg/model"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 )

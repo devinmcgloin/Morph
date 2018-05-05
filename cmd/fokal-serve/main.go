@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/fokal/fokal/pkg/daemon"
+	"github.com/fokal/fokal-core/pkg/daemon"
 
 	"strconv"
 )

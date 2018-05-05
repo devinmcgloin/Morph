@@ -8,8 +8,8 @@ import (
 	"encoding/pem"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/fokal/fokal/pkg/handler"
-	"github.com/fokal/fokal/pkg/tokens"
+	"github.com/fokal/fokal-core/pkg/handler"
+	"github.com/fokal/fokal-core/pkg/tokens"
 )
 
 func PublicKeyHandler(state *handler.State, w http.ResponseWriter, r *http.Request) (handler.Response, error) {

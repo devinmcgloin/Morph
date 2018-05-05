@@ -7,7 +7,7 @@ import (
 
 	"log"
 
-	"github.com/fokal/fokal/pkg/handler"
+	"github.com/fokal/fokal-core/pkg/handler"
 )
 
 func Handler(state *handler.State, next http.Handler) http.Handler {

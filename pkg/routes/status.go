@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"github.com/fokal/fokal/pkg/handler"
-	"github.com/fokal/fokal/pkg/status"
+	"github.com/fokal/fokal-core/pkg/handler"
+	"github.com/fokal/fokal-core/pkg/status"
 	"github.com/gorilla/mux"
 	"github.com/justinas/alice"
 )

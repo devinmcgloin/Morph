@@ -1,9 +1,9 @@
 package routes
 
 import (
-	"github.com/fokal/fokal/pkg/create"
-	"github.com/fokal/fokal/pkg/handler"
-	"github.com/fokal/fokal/pkg/security"
+	"github.com/fokal/fokal-core/pkg/create"
+	"github.com/fokal/fokal-core/pkg/handler"
+	"github.com/fokal/fokal-core/pkg/security"
 	"github.com/gorilla/mux"
 	"github.com/justinas/alice"
 )

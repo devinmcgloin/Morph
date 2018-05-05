@@ -1,7 +1,7 @@
 package search
 
 import (
-	"github.com/fokal/fokal/pkg/model"
+	"github.com/fokal/fokal-core/pkg/model"
 )
 
 const (

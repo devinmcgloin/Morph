@@ -5,9 +5,9 @@ import (
 
 	"log"
 
-	"github.com/fokal/fokal/pkg/handler"
-	"github.com/fokal/fokal/pkg/model"
-	"github.com/fokal/fokal/pkg/retrieval"
+	"github.com/fokal/fokal-core/pkg/handler"
+	"github.com/fokal/fokal-core/pkg/model"
+	"github.com/fokal/fokal-core/pkg/retrieval"
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
 )

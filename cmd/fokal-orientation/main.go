@@ -9,7 +9,7 @@ import (
 	"io/ioutil"
 	"log"
 
-	"github.com/fokal/fokal/pkg/metadata"
+	"github.com/fokal/fokal-core/pkg/metadata"
 	"github.com/rwcarlsen/goexif/exif"
 )
 

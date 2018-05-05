@@ -9,8 +9,8 @@ import (
 	"io/ioutil"
 
 	"github.com/BurntSushi/toml"
-	"github.com/fokal/fokal/pkg/color"
-	"github.com/fokal/fokal/pkg/conn"
+	"github.com/fokal/fokal-core/pkg/color"
+	"github.com/fokal/fokal-core/pkg/conn"
 	"github.com/jmoiron/sqlx"
 )
 

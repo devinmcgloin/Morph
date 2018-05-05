@@ -9,9 +9,9 @@ import (
 
 	"errors"
 
-	"github.com/fokal/fokal/pkg/generator"
-	"github.com/fokal/fokal/pkg/handler"
-	"github.com/fokal/fokal/pkg/request"
+	"github.com/fokal/fokal-core/pkg/generator"
+	"github.com/fokal/fokal-core/pkg/handler"
+	"github.com/fokal/fokal-core/pkg/request"
 	"github.com/jmoiron/sqlx"
 )
 

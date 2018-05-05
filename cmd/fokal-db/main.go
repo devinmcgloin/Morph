@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/fokal/fokal/pkg/conn"
+	"github.com/fokal/fokal-core/pkg/conn"
 	"github.com/jmoiron/sqlx"
 )
 

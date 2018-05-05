@@ -5,7 +5,7 @@ import (
 	"log"
 
 	postgis "github.com/cridenour/go-postgis"
-	"github.com/fokal/fokal/pkg/model"
+	"github.com/fokal/fokal-core/pkg/model"
 	"github.com/jmoiron/sqlx"
 )
 

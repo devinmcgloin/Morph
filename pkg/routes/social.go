@@ -1,11 +1,11 @@
 package routes
 
 import (
-	"github.com/fokal/fokal/pkg/handler"
-	"github.com/fokal/fokal/pkg/model"
-	"github.com/fokal/fokal/pkg/security"
-	"github.com/fokal/fokal/pkg/security/permissions"
-	"github.com/fokal/fokal/pkg/social"
+	"github.com/fokal/fokal-core/pkg/handler"
+	"github.com/fokal/fokal-core/pkg/model"
+	"github.com/fokal/fokal-core/pkg/security"
+	"github.com/fokal/fokal-core/pkg/security/permissions"
+	"github.com/fokal/fokal-core/pkg/social"
 	"github.com/gorilla/mux"
 	"github.com/justinas/alice"
 )

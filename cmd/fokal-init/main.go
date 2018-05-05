@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/fokal/fokal/pkg/conn"
+	"github.com/fokal/fokal-core/pkg/conn"
 )
 
 func main() {
