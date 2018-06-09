@@ -11,14 +11,10 @@ import (
 
 var db *sqlx.DB
 
-func init() {
-	postgresURL := os.Getenv("DATABASE_URL")
-	db = conn.DialPostgres(postgresURL)
-}
-
 func main() {
 	exampleDBQueryMultipleResultSets()
-
+	postgresURL := os.Getenv("DATABASE_URL")
+	db = conn.DialPostgres(postgresURL)
 }
 
 func exampleDBQueryMultipleResultSets() {
