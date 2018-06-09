@@ -1,3 +1,9 @@
+/* Copyright (c) 2018 Salesforce
+ * All rights reserved.
+ * Licensed under the BSD 3-Clause license.
+ * For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
+ */
+
 package librato
 
 import (
@@ -69,9 +75,9 @@ type gauge struct {
 // sample the metrics
 func (p *Provider) sample(period float64) []gauge {
 	p.mu.Lock()
-	defer p.mu.Unlock() // should only block New{Histogram,Counter,Gauge}
+	defer p.mu.Unlock() // should only block New{Histogram,Counter,Gauge,Cardinalityounter}
 
-	if len(p.counters) == 0 && len(p.histograms) == 0 && len(p.gauges) == 0 {
+	if len(p.counters) == 0 && len(p.histograms) == 0 && len(p.gauges) == 0 && len(p.cardinalityCounters) == 0 {
 		return nil
 	}
 
@@ -93,6 +99,17 @@ func (p *Provider) sample(period float64) []gauge {
 	for _, h := range p.histograms {
 		gauges = append(gauges, h.measures(period)...)
 	}
+
+	for _, c := range p.cardinalityCounters {
+		var v float64
+		if p.resetCounters {
+			v = float64(c.EstimateReset())
+		} else {
+			v = float64(c.Estimate())
+		}
+		gauges = append(gauges, gauge{Name: c.Name, Period: period, Count: 1, Sum: v, Min: v, Max: v, SumSq: v * v})
+	}
+
 	return gauges
 }
 

@@ -1,3 +1,9 @@
+/* Copyright (c) 2018 Salesforce
+ * All rights reserved.
+ * Licensed under the BSD 3-Clause license.
+ * For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
+ */
+
 /*
 Package discard is copied out of the go-kit metrics, provider package because
 importing that package brings in too many dependencies.
@@ -27,5 +33,20 @@ func (discardProvider) NewGauge(string) metrics.Gauge { return discard.NewGauge(
 // NewHistogram implements Provider.
 func (discardProvider) NewHistogram(string, int) metrics.Histogram { return discard.NewHistogram() }
 
+// NewCardinalityCounter implements Provider.
+func (discardProvider) NewCardinalityCounter(string) xmetrics.CardinalityCounter {
+	return discardCardinalityCounter{}
+}
+
 // Stop implements Provider.
 func (discardProvider) Stop() {}
+
+type discardCardinalityCounter struct{}
+
+// With implements CardinalityCounter.
+func (d discardCardinalityCounter) With(labelValues ...string) xmetrics.CardinalityCounter {
+	return d
+}
+
+// Insert implements CardinalityCounter.
+func (d discardCardinalityCounter) Insert(x []byte) {}

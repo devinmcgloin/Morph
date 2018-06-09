@@ -232,6 +232,61 @@ func TestBasicSSLWithHost(t *testing.T) {
 	expect(t, res.Header().Get("Location"), "https://secure.example.com/foo")
 }
 
+func TestBasicSSLWithHostFunc(t *testing.T) {
+	sslHostFunc := (func() SSLHostFunc {
+		isServerDown := false
+		return func(host string) (newHost string) {
+			if isServerDown {
+				newHost = "404.example.com"
+				return
+			}
+			if host == "www.example.com" {
+				newHost = "secure.example.com:8443"
+			} else if host == "www.example.org" {
+				newHost = "secure.example.org"
+			}
+			return
+		}
+	})()
+	s := New(Options{
+		SSLRedirect: true,
+		SSLHostFunc: &sslHostFunc,
+	})
+
+	// test www.example.com
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/foo", nil)
+	req.Host = "www.example.com"
+	req.URL.Scheme = "http"
+
+	s.Handler(myHandler).ServeHTTP(res, req)
+
+	expect(t, res.Code, http.StatusMovedPermanently)
+	expect(t, res.Header().Get("Location"), "https://secure.example.com:8443/foo")
+
+	// test www.example.org
+	res = httptest.NewRecorder()
+	req, _ = http.NewRequest("GET", "/foo", nil)
+	req.Host = "www.example.org"
+	req.URL.Scheme = "http"
+
+	s.Handler(myHandler).ServeHTTP(res, req)
+
+	expect(t, res.Code, http.StatusMovedPermanently)
+	expect(t, res.Header().Get("Location"), "https://secure.example.org/foo")
+
+	// test other
+	res = httptest.NewRecorder()
+	req, _ = http.NewRequest("GET", "/foo", nil)
+	req.Host = "www.other.com"
+	req.URL.Scheme = "http"
+
+	s.Handler(myHandler).ServeHTTP(res, req)
+
+	expect(t, res.Code, http.StatusMovedPermanently)
+	expect(t, res.Header().Get("Location"), "https://www.other.com/foo")
+}
+
 func TestBadProxySSL(t *testing.T) {
 	s := New(Options{
 		SSLRedirect: true,
@@ -989,6 +1044,79 @@ func TestIsSSL(t *testing.T) {
 	req, _ = http.NewRequest("GET", "/foo", nil)
 	req.Header.Add("X-Forwarded-Proto", "https")
 	expect(t, s.isSSL(req), true)
+}
+
+func TestSSLForceHostWithHTTPS(t *testing.T) {
+	s := New(Options{
+		SSLProxyHeaders: map[string]string{"X-Forwarded-Proto": "https"},
+		SSLHost:         "secure.example.com",
+		SSLForceHost:    true,
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/foo", nil)
+	req.Host = "www.example.com"
+	req.URL.Scheme = "https"
+	req.Header.Add("X-Forwarded-Proto", "https")
+
+	s.Handler(myHandler).ServeHTTP(res, req)
+
+	expect(t, res.Code, http.StatusMovedPermanently)
+}
+
+func TestSSLForceHostWithHTTP(t *testing.T) {
+	s := New(Options{
+		SSLHost:         "secure.example.com",
+		SSLForceHost:    true,
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/foo", nil)
+	req.Host = "www.example.com"
+	req.URL.Scheme = "http"
+	req.Header.Add("X-Forwarded-Proto", "http")
+
+	s.Handler(myHandler).ServeHTTP(res, req)
+
+	expect(t, res.Code, http.StatusMovedPermanently)
+}
+
+func TestSSLForceHostWithSSLRedirect(t *testing.T) {
+	s := New(Options{
+		SSLRedirect:     true,
+		SSLProxyHeaders: map[string]string{"X-Forwarded-Proto": "https"},
+		SSLHost:         "secure.example.com",
+		SSLForceHost:    true,
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/foo", nil)
+	req.Host = "www.example.com"
+	req.URL.Scheme = "https"
+	req.Header.Add("X-Forwarded-Proto", "https")
+
+	s.Handler(myHandler).ServeHTTP(res, req)
+
+	expect(t, res.Code, http.StatusMovedPermanently)
+}
+
+func TestSSLForceHostTemporaryRedirect(t *testing.T) {
+	s := New(Options{
+		SSLProxyHeaders:      map[string]string{"X-Forwarded-Proto": "https"},
+		SSLHost:              "secure.example.com",
+		SSLForceHost:         true,
+		SSLTemporaryRedirect: true,
+	})
+
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/foo", nil)
+	req.Host = "www.example.com"
+	req.URL.Scheme = "https"
+	req.Header.Add("X-Forwarded-Proto", "https")
+
+	s.Handler(myHandler).ServeHTTP(res, req)
+
+	expect(t, res.Code, http.StatusTemporaryRedirect)
 }
 
 /* Test Helpers */

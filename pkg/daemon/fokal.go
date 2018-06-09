@@ -83,14 +83,18 @@ func Run(cfg *Config) {
 	AppState.KeyHash = "554b5db484856bfa16e7da70a427dc4d9989678a"
 
 	// RSA Keys
-	AppState.PrivateKey, AppState.PublicKeys = ParseKeys()
 	AppState.SessionLifetime = time.Hour * 16
 
 	AppState.RefreshAt = time.Minute * 15
 
 	// Refreshing Materialized View
 	refreshMaterializedView()
-	refreshGoogleOauthKeys()
+
+	// operations that don't work without internet connection
+	if !AppState.Local {
+		AppState.PrivateKey, AppState.PublicKeys = ParseKeys()
+		refreshGoogleOauthKeys()
+	}
 
 	var secureMiddleware = secure.New(secure.Options{
 		AllowedHosts:          []string{"api.fok.al", "dev.fok.al", "beta.fok.al", "fok.al"},

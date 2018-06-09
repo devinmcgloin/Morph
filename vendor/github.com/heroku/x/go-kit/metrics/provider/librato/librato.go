@@ -1,3 +1,9 @@
+/* Copyright (c) 2018 Salesforce
+ * All rights reserved.
+ * Licensed under the BSD 3-Clause license.
+ * For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
+ */
+
 package librato
 
 import (
@@ -9,6 +15,7 @@ import (
 	kmetrics "github.com/go-kit/kit/metrics"
 	"github.com/go-kit/kit/metrics/generic"
 	"github.com/heroku/x/go-kit/metrics"
+	xmetrics "github.com/heroku/x/go-kit/metrics"
 )
 
 const (
@@ -48,10 +55,11 @@ type Provider struct {
 	once          sync.Once
 	done, stopped chan struct{}
 
-	mu         sync.Mutex
-	counters   []*generic.Counter
-	gauges     []*generic.Gauge
-	histograms []*Histogram
+	mu                  sync.Mutex
+	counters            []*generic.Counter
+	gauges              []*generic.Gauge
+	histograms          []*Histogram
+	cardinalityCounters []*xmetrics.HLLCounter
 }
 
 // OptionFunc used to set options on a librato provider
@@ -232,6 +240,15 @@ func (p *Provider) NewHistogram(name string, buckets int) kmetrics.Histogram {
 	defer p.mu.Unlock()
 	p.histograms = append(p.histograms, &h)
 	return &h
+}
+
+// NewCardinalityCounter that will be reported by the provider.
+func (p *Provider) NewCardinalityCounter(name string) xmetrics.CardinalityCounter {
+	c := xmetrics.NewHLLCounter(prefixName(p.prefix, name))
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	p.cardinalityCounters = append(p.cardinalityCounters, c)
+	return c
 }
 
 // Histogram adapts go-kit/Heroku/Librato's ideas of histograms. It
