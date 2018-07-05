@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -92,6 +93,7 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		switch e := err.(type) {
 		case Error:
 			if e.Status() >= 500 {
+				log.Println("Capturing raven error")
 				raven.CaptureError(err, RavenTags(h.State, r))
 			}
 			// We can retrieve the status here and write out a specific
@@ -107,6 +109,7 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		default:
 			// Any error types we don't specifically look out for default
 			// to serving a HTTP 500
+			log.Printf("Generating Tags: %+v", RavenTags(h.State, r))
 			raven.CaptureError(err, RavenTags(h.State, r))
 			log.Printf("HTTP %d - %s", http.StatusInternalServerError, e.Error())
 			http.Error(w, http.StatusText(http.StatusInternalServerError),
@@ -140,10 +143,7 @@ func RavenTags(h *State, r *http.Request) map[string]string {
 	for _, t := range contextTags {
 		value, ok := context.GetOk(r, t)
 		if ok {
-			stringValue, ok := value.(string)
-			if ok {
-				tags[t] = stringValue
-			}
+			tags[t] = fmt.Sprintf("%+v", value)
 		}
 	}
 	return tags
