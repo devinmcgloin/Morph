@@ -113,7 +113,7 @@ func Run(cfg *Config) {
 	})
 
 	var crs = cors.New(cors.Options{
-		AllowedOrigins:     []string{"https://fok.al", "https://beta.fok.al", "https://dev.fok.al", "http://localhost:3000"},
+		AllowedOrigins:     []string{"https://fok.al", "https://beta.fok.al", "https://alpha.fok.al", "http://localhost:3000"},
 		AllowCredentials:   true,
 		OptionsPassthrough: true,
 		AllowedHeaders:     []string{"Authorization", "Content-Type"},
