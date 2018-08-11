@@ -97,7 +97,7 @@ func Run(cfg *Config) {
 	}
 
 	var secureMiddleware = secure.New(secure.Options{
-		AllowedHosts:          []string{"api.fok.al", "dev.fok.al", "beta.fok.al", "fok.al"},
+		AllowedHosts:          []string{"api.fok.al", "alpha.fok.al", "beta.fok.al", "fok.al"},
 		HostsProxyHeaders:     []string{"X-Forwarded-Host"},
 		SSLRedirect:           true,
 		SSLHost:               "api.fok.al",
