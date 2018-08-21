@@ -22,7 +22,7 @@ func Handler(state *handler.State, next http.Handler) http.Handler {
 				c := httptest.NewRecorder()
 				next.ServeHTTP(c, r)
 
-				for k, v := range c.HeaderMap {
+				for k, v := range c.Header() {
 					w.Header()[k] = v
 				}
 

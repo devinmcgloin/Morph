@@ -94,7 +94,7 @@ func Run(cfg *Config) {
 	refreshGoogleOauthKeys()
 
 	var secureMiddleware = secure.New(secure.Options{
-		AllowedHosts:          []string{"api.fok.al", "dev.fok.al", "beta.fok.al", "fok.al"},
+		AllowedHosts:          []string{"api.fok.al", "alpha.fok.al", "beta.fok.al", "fok.al"},
 		HostsProxyHeaders:     []string{"X-Forwarded-Host"},
 		SSLRedirect:           true,
 		SSLHost:               "api.fok.al",
@@ -110,7 +110,7 @@ func Run(cfg *Config) {
 	})
 
 	var crs = cors.New(cors.Options{
-		AllowedOrigins:     []string{"https://fok.al", "https://beta.fok.al", "https://dev.fok.al", "http://localhost:3000"},
+		AllowedOrigins:     []string{"https://fok.al", "https://beta.fok.al", "https://alpha.fok.al", "http://localhost:3000"},
 		AllowCredentials:   true,
 		OptionsPassthrough: true,
 		AllowedHeaders:     []string{"Authorization", "Content-Type"},
