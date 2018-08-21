@@ -90,11 +90,8 @@ func Run(cfg *Config) {
 	// Refreshing Materialized View
 	refreshMaterializedView()
 
-	// operations that don't work without internet connection
-	if !AppState.Local {
-		AppState.PrivateKey, AppState.PublicKeys = ParseKeys()
-		refreshGoogleOauthKeys()
-	}
+	AppState.PrivateKey, AppState.PublicKeys = ParseKeys()
+	refreshGoogleOauthKeys()
 
 	var secureMiddleware = secure.New(secure.Options{
 		AllowedHosts:          []string{"api.fok.al", "dev.fok.al", "beta.fok.al", "fok.al"},
