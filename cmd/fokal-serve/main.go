@@ -45,11 +45,6 @@ func main() {
 		log.Fatal("Redis URL not set at REDIS_URL")
 	}
 
-	redisPass := os.Getenv("REDIS_PASS")
-	if redisPass == "" {
-		log.Fatal("Redis Pass not set at REDIS_PASS")
-	}
-
 	// AWS auth
 	AWSAccessKey := os.Getenv("AWS_ACCESS_KEY_ID")
 	if AWSAccessKey == "" {
@@ -69,7 +64,6 @@ func main() {
 	cfg.GoogleToken = googleToken
 	cfg.PostgresURL = postgresURL
 	cfg.RedisURL = redisURL
-	cfg.RedisPass = redisPass
 	cfg.AWSAccessKeyId = AWSAccessKey
 	cfg.AWSSecretAccessKey = AWSSecret
 	cfg.SentryURL = SentryURL

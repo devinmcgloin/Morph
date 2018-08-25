@@ -36,7 +36,6 @@ type Config struct {
 
 	PostgresURL        string
 	RedisURL           string
-	RedisPass          string
 	GoogleToken        string
 	AWSAccessKeyId     string
 	AWSSecretAccessKey string
@@ -75,7 +74,7 @@ func Run(cfg *Config) {
 
 	AppState.Vision, AppState.Maps, _ = conn.DialGoogleServices(cfg.GoogleToken)
 	AppState.DB = conn.DialPostgres(cfg.PostgresURL)
-	AppState.RD = conn.DialRedis(cfg.RedisURL, cfg.RedisPass)
+	AppState.RD = conn.DialRedis(cfg.RedisURL)
 	AppState.Local = cfg.Local
 	AppState.Port = cfg.Port
 	AppState.DB.SetMaxOpenConns(20)

@@ -28,7 +28,7 @@ func DialPostgres(postgresURL string) (db *sqlx.DB) {
 	return
 }
 
-func DialRedis(server, password string) *redis.Pool {
+func DialRedis(server string) *redis.Pool {
 	return &redis.Pool{
 		MaxActive:   15,
 		Wait:        true,
@@ -37,12 +37,6 @@ func DialRedis(server, password string) *redis.Pool {
 		Dial: func() (redis.Conn, error) {
 			c, err := redis.DialURL(server)
 			if err != nil {
-				log.Println(err)
-				return nil, err
-			}
-			_, err = c.Do("AUTH", password)
-			if err != nil {
-				c.Close()
 				log.Println(err)
 				return nil, err
 			}
