@@ -17,6 +17,9 @@ type ImageService interface {
 	CreateImage(ctx context.Context, i *Image) error
 	DeleteImage(ctx context.Context, id uint64) error
 
+	RandomImage(ctx context.Context) (*Image, error)
+	RandomImageForUser(ctx context.Context, userID uint64) (*Image, error)
+
 	Feature(ctx context.Context, id uint64, user uint64) error
 	UnFeature(ctx context.Context, id uint64, user uint64) error
 

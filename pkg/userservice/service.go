@@ -32,7 +32,7 @@ func (store *UserStore) CreateUser(ctx context.Context, user *domain.User) error
 		return err
 	}
 
-	rows, err := tx.Query(`
+	rows, err := tx.QueryContext(ctx, `
 	INSERT INTO content.users(username, email)
 	VALUES($1, $2) RETURNING id;`,
 		user.Username, user.Email)
@@ -206,7 +206,7 @@ func (store UserStore) DeleteUser(ctx context.Context, id uint64) error {
 		return err
 	}
 	for _, image := range *images {
-		err := store.images.DeleteImage(image.ID)
+		err := store.images.DeleteImage(ctx, image.ID)
 		if err != nil {
 			logger.Error(ctx, err)
 			return err
