@@ -20,13 +20,34 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+const PublicKey = `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsW3uHvJvqaaMIW8wKP2E
+NI3oVRghsNwUV4VN+5UH2oMAEaYaHiUfOvhXXRjPZo3q8f+v3rS4R7gfJXe8efP0
+3x87DRB1uJlNNS777xDISnTLzVAOFFkLOTL9bOTJBlb69yCRhHV1NdUIPCGWntWC
+WdKZBJ2zHOQUQgPpAn31imsYlvmlrLEoGNqKOPUQjwdtxEqEYpZyN84Hj5/NIhTC
+F6rU8FhReQzEL27BHPfbUwTWUApmtfvCtrSc9pVM3MtlsMOf4OfoGg65kF5HJ/S8
+tKRtL24z48ya+ntjbwbE3A5pEswm/Vm19wd77qbY5UILLmNf0xMQfwrkT/IcnBoD
+pQIDAQAB
+-----END PUBLIC KEY-----`
+
 type PGAuthService struct {
 	db              *sqlx.DB
 	userService     domain.UserService
 	SessionLifetime time.Duration
-	PrivateKey      *rsa.PrivateKey
-	PublicKeys      map[string]*rsa.PublicKey
-	KeyHash         string
+	privateKey      *rsa.PrivateKey
+	publicKeys      map[string]*rsa.PublicKey
+	keyHash         string
+}
+
+func New(db *sqlx.DB, userService domain.UserService, sessionLifetime time.Duration) *PGAuthService {
+	service := &PGAuthService{
+		db:              db,
+		userService:     userService,
+		SessionLifetime: sessionLifetime,
+	}
+	service.LoadKeys()
+	service.RefreshGoogleOauthKeys()
+	return service
 }
 
 func (auth *PGAuthService) CreateToken(ctx context.Context, userID uint64) (*string, error) {
@@ -45,8 +66,8 @@ func (auth *PGAuthService) CreateToken(ctx context.Context, userID uint64) (*str
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
-	token.Header["kid"] = auth.KeyHash
-	ss, err := token.SignedString(auth.PrivateKey)
+	token.Header["kid"] = auth.keyHash
+	ss, err := token.SignedString(auth.privateKey)
 	if err != nil {
 		logger.Error(ctx, err)
 		return nil, err
@@ -71,7 +92,7 @@ func (auth *PGAuthService) VerifyToken(ctx context.Context, stringToken string) 
 		}
 
 		valid := false
-		for k := range auth.PublicKeys {
+		for k := range auth.publicKeys {
 			if k == kid {
 				valid = true
 				break
@@ -82,7 +103,7 @@ func (auth *PGAuthService) VerifyToken(ctx context.Context, stringToken string) 
 
 		}
 
-		return auth.PublicKeys[kid], nil
+		return auth.publicKeys[kid], nil
 	})
 	if err != nil {
 		logger.Error(ctx, err)
@@ -123,7 +144,7 @@ func (auth *PGAuthService) RefreshToken(ctx context.Context, stringToken string)
 }
 
 func (auth *PGAuthService) PublicKey(ctx context.Context) (string, error) {
-	keyBytes, err := x509.MarshalPKIXPublicKey(auth.PublicKeys[auth.KeyHash])
+	keyBytes, err := x509.MarshalPKIXPublicKey(auth.publicKeys[auth.keyHash])
 	if err != nil {
 		logger.Error(ctx, err)
 		return "", err
@@ -137,7 +158,7 @@ func (auth *PGAuthService) PublicKey(ctx context.Context) (string, error) {
 	return string(pemBytes), nil
 }
 
-func (auth *PGAuthService) LoadKeys(publicKey string) {
+func (auth *PGAuthService) LoadKeys() {
 	resp, err := http.Get("https://www.googleapis.com/oauth2/v1/certs")
 	if err != nil {
 		log.Fatal(err)
@@ -165,15 +186,15 @@ func (auth *PGAuthService) LoadKeys(publicKey string) {
 		parsedKeys[kid] = publicKey
 	}
 
-	fokalPublicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(publicKey))
+	fokalPublicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(PublicKey))
 	if err != nil {
 		log.Fatal(err)
 	}
-	parsedKeys[auth.KeyHash] = fokalPublicKey
-	auth.PublicKeys = parsedKeys
+	parsedKeys[auth.keyHash] = fokalPublicKey
+	auth.publicKeys = parsedKeys
 
 	privateStr := os.Getenv("PRIVATE_KEY")
-	auth.PrivateKey, err = jwt.ParseRSAPrivateKeyFromPEM([]byte(privateStr))
+	auth.privateKey, err = jwt.ParseRSAPrivateKeyFromPEM([]byte(privateStr))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -206,7 +227,7 @@ func (auth *PGAuthService) RefreshGoogleOauthKeys() {
 				if err != nil {
 					log.Fatal(err)
 				}
-				auth.PublicKeys[kid] = publicKey
+				auth.publicKeys[kid] = publicKey
 			}
 		}
 	}()
