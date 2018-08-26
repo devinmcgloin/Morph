@@ -86,7 +86,7 @@ func (stream *PGStreamService) CreateStream(ctx context.Context, creator uint64,
 		logger.Error(ctx, err)
 		return err
 	}
-	err = stream.permissions.Public(ctx, creator, newStream.ID, domain.StreamClass)
+	err = stream.permissions.Public(ctx, newStream.ID, domain.StreamClass)
 	if err != nil {
 		logger.Error(ctx, err)
 		return err

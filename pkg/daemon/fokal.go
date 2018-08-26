@@ -92,10 +92,10 @@ func Run(cfg *Config) {
 	}
 	AppState.PermissionService = permission.New(DB)
 	AppState.TagService = tag.New(DB)
-	AppState.AuthService = authentication.New()
 
-	AppState.UserService = user.New(DB, AppState.ImageService, AppState.PermissionService)
-	AppState.StreamService = stream.New(DB, AppState.ImageService)
+	AppState.UserService = user.New(DB, AppState.PermissionService, AppState.ImageService)
+	AppState.AuthService = authentication.New(DB, AppState.UserService, time.Hour*200)
+	AppState.StreamService = stream.New(DB, AppState.ImageService, AppState.PermissionService)
 
 	var secureMiddleware = secure.New(secure.Options{
 		AllowedHosts:          []string{"api.fok.al", "alpha.fok.al", "beta.fok.al", "fok.al"},

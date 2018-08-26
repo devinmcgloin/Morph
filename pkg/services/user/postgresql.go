@@ -65,7 +65,7 @@ func (store *UserStore) CreateUser(ctx context.Context, user *domain.User) error
 		logger.Error(ctx, err)
 		return err
 	}
-	err = store.permissions.Public(ctx, userID, userID, domain.UserClass)
+	err = store.permissions.Public(ctx, userID, domain.UserClass)
 	if err != nil {
 		logger.Error(ctx, err)
 		return err

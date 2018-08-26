@@ -75,7 +75,7 @@ type State struct {
 	ImageService      domain.ImageService
 }
 type StorageState struct {
-	Avatars domain.StorageService
+	Avatar  domain.StorageService
 	Content domain.StorageService
 }
 type ColorState struct {

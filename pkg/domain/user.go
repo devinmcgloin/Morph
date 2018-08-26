@@ -34,15 +34,15 @@ type UserService interface {
 	UserByEmail(ctx context.Context, username string) (*User, error)
 	ExistsByEmail(ctx context.Context, email string) (bool, error)
 	ExistsByUsername(ctx context.Context, username string) (bool, error)
-	Users(ctx context.Context, limit int) ([]*User, error)
+	Users(ctx context.Context, limit int) (*[]User, error)
 
-	Admins(ctx context.Context) ([]*User, error)
+	Admins(ctx context.Context) (*[]User, error)
 	IsAdmin(ctx context.Context, id uint64) (bool, error)
 
-	Featured(ctx context.Context) ([]*User, error)
+	Featured(ctx context.Context) (*[]User, error)
 	Feature(ctx context.Context, id uint64) error
 	UnFeature(ctx context.Context, id uint64) error
-	IsFeatured(ctx context.Context, id uint64) error
+	IsFeatured(ctx context.Context, id uint64) (bool, error)
 
 	SetAvatarID(ctx context.Context, id uint64, avatarID string) error
 	CreateUser(ctx context.Context, u *User) error
