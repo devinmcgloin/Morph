@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"time"
 )
 
@@ -9,6 +10,7 @@ type User struct {
 	Username string
 	Email    string
 
+	Name      *string
 	Bio       *string
 	URL       *string
 	Twitter   *string
@@ -27,19 +29,21 @@ type User struct {
 //go:generate moq -out user_service_runner.go . UserService
 
 type UserService interface {
-	UserByID(id uint64) (*User, error)
-	UserByUsername(username string) (*User, error)
-	ExistsByEmail(email string) (bool, error)
-	ExistsByUsername(username string) (bool, error)
-	Users() ([]*User, error)
-	Admins() ([]*User, error)
+	UserByID(ctx context.Context, id uint64) (*User, error)
+	UserByUsername(ctx context.Context, username string) (*User, error)
+	ExistsByEmail(ctx context.Context, email string) (bool, error)
+	ExistsByUsername(ctx context.Context, username string) (bool, error)
+	Users(ctx context.Context, limit int) ([]*User, error)
 
-	Featured() ([]*User, error)
-	Feature(id uint64, user uint64) error
-	UnFeature(id uint64, user uint64) error
+	Admins(ctx context.Context) ([]*User, error)
+	IsAdmin(ctx context.Context, id uint64) (bool, error)
 
-	SetAvatarID(id uint64, avatarID string) error
-	IsAdmin(id uint64) (bool, error)
-	CreateUser(u *User) error
-	DeleteUser(id uint64) error
+	Featured(ctx context.Context) ([]*User, error)
+	Feature(ctx context.Context, id uint64) error
+	UnFeature(ctx context.Context, id uint64) error
+	IsFeatured(ctx context.Context, id uint64) error
+
+	SetAvatarID(ctx context.Context, id uint64, avatarID string) error
+	CreateUser(ctx context.Context, u *User) error
+	DeleteUser(ctx context.Context, id uint64) error
 }

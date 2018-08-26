@@ -1,24 +1,49 @@
-package logging
+package logger
 
 import (
+	"context"
+	"log"
 	"net/http"
 
 	"net"
 	"strings"
 
-	"github.com/gorilla/context"
 	"github.com/satori/go.uuid"
 )
 
+const (
+	requestIDKey = "request-id-key"
+	ipIDKey      = "ip-key"
+)
+
+func Log(ctx context.Context, format string, v ...interface{}) {
+	fmt := "[%+v] " + format
+	uuid := ctx.Value(requestIDKey)
+	var values []interface{}
+	values = append(values, uuid)
+	values = append(values, v...)
+	log.Printf(fmt, values...)
+}
+
+func Error(ctx context.Context, err error) {
+	fmt := "[%+v] Error: %+v"
+	uuid := ctx.Value(requestIDKey)
+	var values []interface{}
+	values = append(values, uuid, err)
+	log.Printf(fmt, values...)
+}
+
 func UUID(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		context.Set(r, "uuid", uuid.NewV4())
-		h.ServeHTTP(w, r)
+		ctx := r.Context()
+		ctx = context.WithValue(ctx, requestIDKey, uuid.NewV4())
+		h.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
 func IP(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
 		for _, h := range []string{"X-Forwarded-For", "X-Real-Ip"} {
 			addresses := strings.Split(r.Header.Get(h), ",")
 			// march from right to left until we get a public address
@@ -31,12 +56,12 @@ func IP(h http.Handler) http.Handler {
 					// bad address, go to next
 					continue
 				}
-				context.Set(r, "ip", realIP.String())
+				ctx = context.WithValue(ctx, ipIDKey, realIP.String())
 				break
 			}
 		}
 
-		h.ServeHTTP(w, r)
+		h.ServeHTTP(w, r.WithContext(ctx))
 
 	})
 }

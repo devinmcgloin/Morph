@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"time"
 
 	postgis "github.com/cridenour/go-postgis"
@@ -10,25 +11,27 @@ import (
 //go:generate moq -out image_service_runner.go . ImageService
 
 type ImageService interface {
-	ImageByID(id uint64) (*Image, error)
-	ImageByShortcode(shortcode string) (*Image, error)
-	ExistsByShortcode(shortcode string) (bool, error)
-	CreateImage(i *Image) error
-	DeleteImage(id uint64) error
+	ImageByID(ctx context.Context, id uint64) (*Image, error)
+	ImageByShortcode(ctx context.Context, shortcode string) (*Image, error)
+	ExistsByShortcode(ctx context.Context, shortcode string) (bool, error)
+	CreateImage(ctx context.Context, i *Image) error
+	DeleteImage(ctx context.Context, id uint64) error
 
-	Feature(id uint64, user uint64) error
-	UnFeature(id uint64, user uint64) error
+	Feature(ctx context.Context, id uint64, user uint64) error
+	UnFeature(ctx context.Context, id uint64, user uint64) error
 
-	ImagesForUser(id uint64) (*[]Image, error)
+	ImagesForUser(ctx context.Context, id uint64) (*[]Image, error)
 
-	ImageStats(id uint64) (*ImageStats, error)
-	ImageSource(id uint64) (*ImageSource, error)
-	ImageMetadata(id uint64) (*ImageMetadata, error)
-	SetImageMetadata(id uint64, metadata ImageMetadata) error
-	ImageLocation(id uint64) (*Location, error)
-	ImageColors(id uint64) (*[]Color, error)
-	ImageTags(id uint64) (*[]string, error)
-	ImageLabels(id uint64) (*[]Label, error)
+	ImageStats(ctx context.Context, id uint64) (*ImageStats, error)
+	ImageSource(ctx context.Context, id uint64) (*ImageSource, error)
+	ImageMetadata(ctx context.Context, id uint64) (*ImageMetadata, error)
+	SetImageMetadata(ctx context.Context, id uint64, metadata ImageMetadata) error
+	ImageLocation(ctx context.Context, id uint64) (*Location, error)
+	SetImageLocation(ctx context.Context, id uint64, location Location) error
+	ImageColors(ctx context.Context, id uint64) (*[]Color, error)
+	SetImageColors(ctx context.Context, id uint64, colors []Color) error
+	ImageTags(ctx context.Context, id uint64) (*[]string, error)
+	ImageLabels(ctx context.Context, id uint64) (*[]Label, error)
 }
 
 type Image struct {

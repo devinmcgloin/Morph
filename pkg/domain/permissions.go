@@ -26,6 +26,7 @@ type Permission struct {
 //go:generate moq -out permission_service_runner.go . PermissionService
 
 type PermissionService interface {
+	Public(userID, ResourceID uint64, class ResourceClass) error
 	AddScope(userID, ResouceID uint64, class ResourceClass, scope Scope) error
 	ValidScope(userID, ResourceID uint64, class ResourceClass, scope Scope) (bool, error)
 }

@@ -15,7 +15,6 @@ func Handler(state *handler.State, next http.Handler) http.Handler {
 		if state.Local {
 			next.ServeHTTP(w, r)
 		} else {
-
 			url := r.URL.String()
 			b, err := Get(state.RD, url)
 			if err != nil {

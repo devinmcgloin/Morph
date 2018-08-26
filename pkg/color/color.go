@@ -56,9 +56,9 @@ func RetrieveColorTable(db *sqlx.DB, t ColorCatagory) FokalColorTable {
 	}
 }
 
-func AddColor(db *sqlx.DB, name, hex, t string) error {
-	_, err := db.Exec("INSERT INTO colors.clr(name, hex, type) VALUES($1, $2, $3)",
-		name, hex, t)
+func (spc FokalColorTable) AddColor(name, hex string) error {
+	_, err := spc.db.Exec("INSERT INTO colors.clr(name, hex, type) VALUES($1, $2, $3)",
+		name, hex, spc.Type)
 	if err != nil {
 		raven.CaptureError(err, map[string]string{"type": "postgresql", "module": "color"})
 		return errors.Wrap(err, "unable to inset new color")
@@ -66,8 +66,9 @@ func AddColor(db *sqlx.DB, name, hex, t string) error {
 	return nil
 }
 
-func AddColors(db *sqlx.DB, colors map[string]string, t string) error {
-	tx, err := db.Begin()
+func (spc FokalColorTable) AddColors(colors map[string]string) error {
+
+	tx, err := spc.db.Begin()
 	if err != nil {
 		raven.CaptureError(err, map[string]string{"type": "postgresql", "module": "color"})
 		return errors.Wrap(err, "unable to begin transaction")
@@ -79,7 +80,7 @@ func AddColors(db *sqlx.DB, colors map[string]string, t string) error {
 	}
 
 	for hex, name := range colors {
-		_, err = stmt.Exec(name, hex, t)
+		_, err = stmt.Exec(name, hex, spc.Type)
 		if err != nil {
 			log.Println(err)
 			raven.CaptureError(err, map[string]string{"type": "postgresql", "module": "color"})
@@ -111,13 +112,13 @@ func AddColors(db *sqlx.DB, colors map[string]string, t string) error {
 	return nil
 }
 
-func GetColors(db *sqlx.DB, t string) (map[string]string, error) {
+func (spc FokalColorTable) GetColors() (map[string]string, error) {
 	var clrs = make(map[string]string)
 	var hex []struct {
 		Name string
 		Hex  string
 	}
-	err := db.Select(&hex, "SELECT name, hex FROM colors.clr WHERE type = $1", t)
+	err := spc.db.Select(&hex, "SELECT name, hex FROM colors.clr WHERE type = $1", spc.Type)
 	if err != nil {
 		log.Println(err)
 		raven.CaptureError(err, map[string]string{"type": "postgresql", "module": "color"})
