@@ -5,7 +5,7 @@ type SearchService interface {
 	GeoSearch(geo GeoParams) Response
 	ColorSearch(color ColorParams) Response
 
-	Similar(imageID uint64) Response
+	SimilarImages(imageID uint64) Response
 }
 
 type Request struct {
