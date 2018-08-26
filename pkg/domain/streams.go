@@ -8,7 +8,7 @@ import (
 type Stream struct {
 	ID          uint64
 	Title       string
-	Description string
+	Description *string
 	Creator     uint64
 
 	UpdatedAt time.Time
@@ -23,4 +23,7 @@ type StreamService interface {
 	CreateStream(ctx context.Context, creator uint64, title string) error
 	SetDiscription(ctx context.Context, id uint64, description string) error
 	SetTitle(ctx context.Context, title string) error
+	AddImage(ctx context.Context, id, imageID uint64) error
+	RemoveImage(ctx context.Context, id, imageID uint64) error
+	Images(ctx context.Context, id uint64) (*[]Image, error)
 }

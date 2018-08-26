@@ -1,4 +1,5 @@
 -- +migrate Up
+
 CREATE SCHEMA content;
 
 CREATE TABLE content.images (
@@ -10,10 +11,12 @@ CREATE TABLE content.images (
   favorites integer DEFAULT 0,
   title text,
   description text,
-  publish_time timestamp WITH time zone DEFAULT timezone('UTC'::text, now()) NOT NULL, last_modified timestamp WITH time zone DEFAULT timezone('UTC'::text, now()) NOT NULL) 
-  
-  
- -- +migrate Down
+  publish_time timestamp WITH time zone DEFAULT timezone('UTC'::text, now()) NOT NULL, 
+  last_modified timestamp WITH time zone DEFAULT timezone('UTC'::text, now()) NOT NULL
+);
+
+-- +migrate Down
+
 DROP TABLE content.images;
 DROP SCHEMA content;
 

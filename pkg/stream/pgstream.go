@@ -10,27 +10,29 @@ import (
 )
 
 type PGStreamService struct {
-	db *sqlx.DB
+	db          *sqlx.DB
+	images      domain.ImageService
+	permissions domain.PermissionService
 }
 
 func (stream *PGStreamService) StreamByID(ctx context.Context, id uint64) (*domain.Stream, error) {
-	var stream *domain.Stream
-	err := stream.db.GetContext(ctx, "SELECT * FROM content.streams WHERE id = $1", id)
+	var retrieved *domain.Stream
+	err := stream.db.GetContext(ctx, retrieved, "SELECT * FROM content.streams WHERE id = $1", id)
 	if err != nil {
-		logger.Error(err)
+		logger.Error(ctx, err)
 		return nil, err
 	}
-	return stream, nil
+	return retrieved, nil
 }
 
-func (stream *PGStreamService) StreamsByCreator(ctx context.Context, userID uint64) (*[]Stream, error) {
+func (stream *PGStreamService) StreamsByCreator(ctx context.Context, userID uint64) (*[]domain.Stream, error) {
 	var streams *[]domain.Stream
-	err := stream.db.SelectContext(ctx, "SELECT * FROM content.streams WHERE user_id = $1", userID)
+	err := stream.db.SelectContext(ctx, streams, "SELECT * FROM content.streams WHERE user_id = $1", userID)
 	if err != nil {
-		logger.Error(err)
+		logger.Error(ctx, err)
 		return nil, err
 	}
-	return stream, nil
+	return streams, nil
 }
 
 func (stream *PGStreamService) CreateStream(ctx context.Context, creator uint64, title string) error {
@@ -38,12 +40,12 @@ func (stream *PGStreamService) CreateStream(ctx context.Context, creator uint64,
 		Creator:     creator,
 		Title:       title,
 		Description: nil,
-		UpdatedAt:   time.Now,
-		CreatedAt:   time.Now,
+		UpdatedAt:   time.Now(),
+		CreatedAt:   time.Now(),
 	}
-	tx, err := store.db.Beginx()
+	tx, err := stream.db.Beginx()
 	if err != nil {
-		logger.Error(err)
+		logger.Error(ctx, err)
 		return err
 	}
 
@@ -75,17 +77,17 @@ func (stream *PGStreamService) CreateStream(ctx context.Context, creator uint64,
 		return err
 	}
 
-	err = store.permissions.AddScope(userID, newStream.ID, domain.StreamClass, domain.CanEdit)
+	err = stream.permissions.AddScope(creator, newStream.ID, domain.StreamClass, domain.CanEdit)
 	if err != nil {
 		logger.Error(ctx, err)
 		return err
 	}
-	err = store.permissions.Public(userID, newStream.ID, domain.StreamClass)
+	err = stream.permissions.Public(creator, newStream.ID, domain.StreamClass)
 	if err != nil {
 		logger.Error(ctx, err)
 		return err
 	}
-	err = store.permissions.AddScope(userID, newStream.ID, domain.StreamClass, domain.CanDelete)
+	err = stream.permissions.AddScope(creator, newStream.ID, domain.StreamClass, domain.CanDelete)
 	if err != nil {
 		logger.Error(ctx, err)
 		return err
@@ -94,21 +96,60 @@ func (stream *PGStreamService) CreateStream(ctx context.Context, creator uint64,
 	return nil
 }
 
-func (stream *pgstreamservice) SetDescription(ctx context.context, id uint64, description string) error {
-	err := stream.db.ExecContext(ctx, "UPDATE content.streams SET description = $2 WHERE id = $1", id, description)
+func (stream *PGStreamService) SetDescription(ctx context.Context, id uint64, description string) error {
+	_, err := stream.db.ExecContext(ctx, "UPDATE content.streams SET description = $2 WHERE id = $1", id, description)
 	if err != nil {
-		logger.error(ctx, err)
+		logger.Error(ctx, err)
 		return err
 	}
 
 	return nil
 }
-func (stream *pgstreamservice) SetTitle(ctx context.context, id uint64, title string) error {
-	err := stream.db.ExecContext(ctx, "UPDATE content.streams SET title = $2 WHERE id = $1", id, title)
+func (stream *PGStreamService) SetTitle(ctx context.Context, id uint64, title string) error {
+	_, err := stream.db.ExecContext(ctx, "UPDATE content.streams SET title = $2 WHERE id = $1", id, title)
 	if err != nil {
-		logger.error(ctx, err)
+		logger.Error(ctx, err)
 		return err
 	}
 
 	return nil
+}
+
+func (stream *PGStreamService) AddImage(ctx context.Context, id, imageID uint64) error {
+	_, err := stream.db.ExecContext(ctx, "INSERT INTO content.image_stream_bridge (stream_id, image_id) VALUES($1, $2)", id, imageID)
+	if err != nil {
+		logger.Error(ctx, err)
+		return err
+	}
+
+	return nil
+}
+
+func (stream *PGStreamService) RemoveImage(ctx context.Context, id, imageID uint64) error {
+	_, err := stream.db.ExecContext(ctx, "DELETE FROM content.image_stream_bridge WHERE stream_id = $1 AND image_id = $2", id, imageID)
+	if err != nil {
+		logger.Error(ctx, err)
+		return err
+	}
+
+	return nil
+}
+
+func (stream *PGStreamService) Images(ctx context.Context, id uint64) (*[]domain.Image, error) {
+	var imageIDs *[]uint64
+	err := stream.db.SelectContext(ctx, imageIDs, "SELECT image_id FROM content.image_stream_bridge WHERE id = $1", id)
+	if err != nil {
+		logger.Error(ctx, err)
+		return nil, err
+	}
+	images := []domain.Image{}
+	for _, id := range *imageIDs {
+		img, err := stream.images.ImageByID(ctx, id)
+		if err != nil {
+			logger.Error(ctx, err)
+			return nil, err
+		}
+		images = append(images, *img)
+	}
+	return &images, nil
 }
