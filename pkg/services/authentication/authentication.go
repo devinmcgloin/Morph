@@ -30,13 +30,14 @@ tKRtL24z48ya+ntjbwbE3A5pEswm/Vm19wd77qbY5UILLmNf0xMQfwrkT/IcnBoD
 pQIDAQAB
 -----END PUBLIC KEY-----`
 
+const KeyHash = "554b5db484856bfa16e7da70a427dc4d9989678a"
+
 type PGAuthService struct {
 	db              *sqlx.DB
 	userService     domain.UserService
 	SessionLifetime time.Duration
 	privateKey      *rsa.PrivateKey
 	publicKeys      map[string]*rsa.PublicKey
-	keyHash         string
 }
 
 func New(db *sqlx.DB, userService domain.UserService, sessionLifetime time.Duration) *PGAuthService {
@@ -66,7 +67,7 @@ func (auth *PGAuthService) CreateToken(ctx context.Context, userID uint64) (*str
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
-	token.Header["kid"] = auth.keyHash
+	token.Header["kid"] = KeyHash
 	ss, err := token.SignedString(auth.privateKey)
 	if err != nil {
 		logger.Error(ctx, err)
@@ -144,7 +145,7 @@ func (auth *PGAuthService) RefreshToken(ctx context.Context, stringToken string)
 }
 
 func (auth *PGAuthService) PublicKey(ctx context.Context) (string, error) {
-	keyBytes, err := x509.MarshalPKIXPublicKey(auth.publicKeys[auth.keyHash])
+	keyBytes, err := x509.MarshalPKIXPublicKey(auth.publicKeys[KeyHash])
 	if err != nil {
 		logger.Error(ctx, err)
 		return "", err
@@ -190,7 +191,7 @@ func (auth *PGAuthService) LoadKeys() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	parsedKeys[auth.keyHash] = fokalPublicKey
+	parsedKeys[KeyHash] = fokalPublicKey
 	auth.publicKeys = parsedKeys
 
 	privateStr := os.Getenv("PRIVATE_KEY")

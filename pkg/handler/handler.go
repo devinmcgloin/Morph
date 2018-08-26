@@ -65,7 +65,7 @@ type State struct {
 	StorageService    StorageState
 	AuthService       domain.AuthenticationService
 	CacheService      domain.CacheService
-	ColorService      ColorState
+	ColorService      domain.ColorService
 	PermissionService domain.PermissionService
 	SearchService     domain.SearchService
 	StreamService     domain.StreamService
@@ -77,10 +77,6 @@ type State struct {
 type StorageState struct {
 	Avatar  domain.StorageService
 	Content domain.StorageService
-}
-type ColorState struct {
-	Shade    domain.ColorService
-	Specific domain.ColorService
 }
 
 // Handler struct that takes a configured Env and a function matching

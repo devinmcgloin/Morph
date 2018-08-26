@@ -1,6 +1,7 @@
 package daemon
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -10,6 +11,7 @@ import (
 	"github.com/fokal/fokal-core/pkg/services/stream"
 	"github.com/fokal/fokal-core/pkg/services/tag"
 	"github.com/fokal/fokal-core/pkg/services/user"
+	"github.com/fokal/fokal-core/pkg/services/vision"
 
 	"github.com/fokal/fokal-core/pkg/services/permission"
 
@@ -19,7 +21,6 @@ import (
 	"github.com/fokal/fokal-core/pkg/services/authentication"
 	"github.com/fokal/fokal-core/pkg/services/cache"
 	"github.com/fokal/fokal-core/pkg/services/color"
-	"github.com/fokal/fokal-core/pkg/services/search"
 	"github.com/fokal/fokal-core/pkg/services/upload"
 	raven "github.com/getsentry/raven-go"
 	"github.com/gorilla/context"
@@ -64,37 +65,35 @@ func Run(cfg *Config) {
 		cfg.PostgresURL = cfg.PostgresURL + "?sslmode=disable"
 	}
 
-	Vision, Maps, _ := conn.DialGoogleServices(cfg.GoogleToken)
+	VisionService, MapService, _ := conn.DialGoogleServices(cfg.GoogleToken)
 	DB := conn.DialPostgres(cfg.PostgresURL)
 	RD := conn.DialRedis(cfg.RedisURL)
 
 	DB.SetMaxOpenConns(20)
 	DB.SetMaxIdleConns(50)
-	KeyHash := "554b5db484856bfa16e7da70a427dc4d9989678a"
 
 	// RSA Keys
 	SessionLifetime := time.Hour * 16
 
-	RefreshAt := time.Minute * 15
+	CacheExpiryTime := time.Hour * 2
 
 	AppState.Local = cfg.Local
 	AppState.Port = cfg.Port
 
-	AppState.CacheService = cache.New(RD, "cache:", time.Hour*2)
-	AppState.ColorService = handler.ColorState{
-		Shade:    color.New(DB, "shade"),
-		Specific: color.New(DB, "specific"),
-	}
-	AppState.SearchService = search.New(DB)
+	AppState.CacheService = cache.New(RD, "cache:", CacheExpiryTime)
+	AppState.ColorService = color.New(DB)
 	AppState.StorageService = handler.StorageState{
 		Content: upload.New("fokal-content", "us-west-1", "content"),
 		Avatar:  upload.New("fokal-content", "us-west-1", "avatar"),
 	}
 	AppState.PermissionService = permission.New(DB)
 	AppState.TagService = tag.New(DB)
+	AppState.VisionService = vision.New(DB, VisionService)
+	// AppState.SearchService = search.New(DB)
 
+	fmt.Println(MapService)
 	AppState.UserService = user.New(DB, AppState.PermissionService, AppState.ImageService)
-	AppState.AuthService = authentication.New(DB, AppState.UserService, time.Hour*200)
+	AppState.AuthService = authentication.New(DB, AppState.UserService, SessionLifetime)
 	AppState.StreamService = stream.New(DB, AppState.ImageService, AppState.PermissionService)
 
 	var secureMiddleware = secure.New(secure.Options{

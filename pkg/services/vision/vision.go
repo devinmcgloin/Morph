@@ -22,12 +22,11 @@ import (
 
 type VisionService struct {
 	db     *sqlx.DB
-	vision vision.Service
-	color  domain.ColorService
+	vision *vision.Service
 }
 
-func New(db *sqlx.DB, vision vision.Service, color domain.ColorService) *VisionService {
-	return &VisionService{db: db, vision: vision, color: color}
+func New(db *sqlx.DB, vision *vision.Service) *VisionService {
+	return &VisionService{db: db, vision: vision}
 }
 
 func (vs VisionService) AnnotateImage(ctx context.Context, img image.Image) (*domain.ImageAnnotation, error) {
@@ -67,8 +66,8 @@ func (vs VisionService) AnnotateImage(ctx context.Context, img image.Image) (*do
 	r := res.Responses[0]
 	rsp := &domain.ImageAnnotation{Safe: true}
 
-	shade := color.New(vs.db, color.Shade)
-	specific := color.New(vs.db, color.SpecificColor)
+	shade := color.NewWithType(vs.db, color.Shade)
+	specific := color.NewWithType(vs.db, color.SpecificColor)
 
 	for _, col := range r.ImagePropertiesAnnotation.DominantColors.Colors {
 		sRGB := clr.RGB{

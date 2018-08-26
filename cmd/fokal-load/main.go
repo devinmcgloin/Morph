@@ -71,7 +71,7 @@ func run(db *sqlx.DB, file, t string) error {
 		toAdd[clr.Hex] = clr.Name
 	}
 
-	table := color.New(db, color.ColorCatagory(t))
+	table := color.NewWithType(db, color.ColorCatagory(t))
 
 	err = table.AddColors(toAdd)
 	return err

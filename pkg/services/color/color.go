@@ -20,11 +20,20 @@ type FokalColorTable struct {
 	Type ColorCatagory
 }
 
-func New(db *sqlx.DB, t ColorCatagory) *FokalColorTable {
+func New(db *sqlx.DB) *FokalColorTable {
 	return &FokalColorTable{
 		db:   db,
-		Type: t,
+		Type: SpecificColor,
 	}
+
+}
+
+func NewWithType(db *sqlx.DB, kind ColorCatagory) *FokalColorTable {
+	return &FokalColorTable{
+		db:   db,
+		Type: kind,
+	}
+
 }
 
 func (spc FokalColorTable) Iterate() []clr.Color {
