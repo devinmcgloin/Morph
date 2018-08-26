@@ -4,6 +4,7 @@ type SearchService interface {
 	FullSearch(req Request) Response
 	GeoSearch(geo GeoParams) Response
 	ColorSearch(color ColorParams) Response
+	UserSearch(userID uint64, req Request) Response
 
 	SimilarImages(imageID uint64) Response
 }
