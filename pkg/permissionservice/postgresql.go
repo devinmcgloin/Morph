@@ -35,11 +35,11 @@ func (pgp *PGPermission) ValidScope(ctx context.Context, userID, resourceID uint
 	var query string
 	switch scope {
 	case domain.CanEdit:
-		query = "SELECT count(1) FROM permissions.can_edit WHERE user_id = $1 AND o_id = $2 AND type = $3"
+		query = "SELECT count(1) FROM permissions.can_edit WHERE (user_id = $1 OR user_id = -1) AND o_id = $2 AND type = $3"
 	case domain.CanDelete:
-		query = "SELECT count(1) FROM permissions.can_delete WHERE user_id = $1 AND o_id = $2 AND type = $3"
+		query = "SELECT count(1) FROM permissions.can_delete WHERE (user_id = $1 OR user_id = -1) AND o_id = $2 AND type = $3"
 	case domain.CanView:
-		query = "SELECT count(1) FROM permissions.can_view WHERE user_id = $1 AND o_id = $2 AND type = $3"
+		query = "SELECT count(1) FROM permissions.can_view WHERE (user_id = $1 OR user_id = -1)AND o_id = $2 AND type = $3"
 	}
 	_, err := pgp.db.ExecContext(ctx, query, userID, resourceID, class)
 	if err != nil {
