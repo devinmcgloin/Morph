@@ -20,6 +20,13 @@ type FokalColorTable struct {
 	Type ColorCatagory
 }
 
+func New(db *sqlx.DB, t ColorCatagory) *FokalColorTable {
+	return &FokalColorTable{
+		db:   db,
+		Type: t,
+	}
+}
+
 func (spc FokalColorTable) Iterate() []clr.Color {
 	hexColors := []struct{ Hex string }{}
 	err := spc.db.Select(&hexColors, `SELECT hex FROM colors.clr WHERE type = $1`, spc.Type)

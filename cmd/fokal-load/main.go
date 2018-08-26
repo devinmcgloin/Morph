@@ -9,8 +9,8 @@ import (
 	"io/ioutil"
 
 	"github.com/BurntSushi/toml"
-	"github.com/fokal/fokal-core/pkg/color"
 	"github.com/fokal/fokal-core/pkg/conn"
+	"github.com/fokal/fokal-core/pkg/services/color"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -71,6 +71,8 @@ func run(db *sqlx.DB, file, t string) error {
 		toAdd[clr.Hex] = clr.Name
 	}
 
-	err = color.AddColors(db, toAdd, t)
+	table := color.New(db, color.ColorCatagory(t))
+
+	err = table.AddColors(toAdd)
 	return err
 }
