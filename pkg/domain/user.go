@@ -31,6 +31,7 @@ type User struct {
 type UserService interface {
 	UserByID(ctx context.Context, id uint64) (*User, error)
 	UserByUsername(ctx context.Context, username string) (*User, error)
+	UserByEmail(ctx context.Context, username string) (*User, error)
 	ExistsByEmail(ctx context.Context, email string) (bool, error)
 	ExistsByUsername(ctx context.Context, username string) (bool, error)
 	Users(ctx context.Context, limit int) ([]*User, error)

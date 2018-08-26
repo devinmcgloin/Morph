@@ -98,6 +98,15 @@ func (store UserStore) UserByUsername(ctx context.Context, username string) (*do
 	}
 	return user, nil
 }
+func (store UserStore) UserByEmail(ctx context.Context, email string) (*domain.User, error) {
+	var user *domain.User
+	err := store.db.GetContext(ctx, user, "SELECT * FROM content.users WHERE email = $1", email)
+	if err != nil {
+		logger.Error(ctx, err)
+		return nil, err
+	}
+	return user, nil
+}
 
 func (store UserStore) ExistsByEmail(ctx context.Context, email string) (bool, error) {
 	var exists bool
