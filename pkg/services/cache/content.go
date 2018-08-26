@@ -13,6 +13,14 @@ type RedisCache struct {
 	defaultExpiry time.Duration
 }
 
+func New(rd *redis.Pool, prefix string, defaultExpiry time.Duration) *RedisCache {
+	return &RedisCache{
+		rd:            rd,
+		prefix:        prefix,
+		defaultExpiry: defaultExpiry,
+	}
+}
+
 func (rc *RedisCache) qualifiedID(key string) string {
 	return rc.prefix + key
 }

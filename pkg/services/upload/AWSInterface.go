@@ -23,7 +23,11 @@ type AWSStorageService struct {
 	kind      string // content, avatar
 }
 
-func (ss AWSStorageService) UploadImage(ctx context.Context, img image.Image, shortcode string) error {
+func New(bucket, region, kind string) *AWSStorageService {
+	return &AWSStorageService{bucketURI: bucket, region: region, kind: kind}
+}
+
+func (ss *AWSStorageService) UploadImage(ctx context.Context, img image.Image, shortcode string) error {
 	var err error
 
 	path := strings.Join([]string{ss.kind, shortcode}, "/")
@@ -34,7 +38,7 @@ func (ss AWSStorageService) UploadImage(ctx context.Context, img image.Image, sh
 		return err
 	}
 
-	err = imageAWS(buf, "png", path, "images-fokal", "us-west-1")
+	err = ss.imageAWS(buf, "png", path)
 	if err != nil {
 		logger.Error(ctx, err)
 		err := errors.New("Error while uploading image")
@@ -43,7 +47,7 @@ func (ss AWSStorageService) UploadImage(ctx context.Context, img image.Image, sh
 	return nil
 }
 
-func (ss AWSStorageService) DeleteImage(ctx context.Context, shortcode string) error {
+func (ss *AWSStorageService) DeleteImage(ctx context.Context, shortcode string) error {
 	return errors.New("Not Implemented")
 }
 
@@ -56,16 +60,16 @@ func in(contentType string, opts []string) bool {
 	return false
 }
 
-func imageAWS(img *bytes.Buffer, format string, filename string, bucketURI string, region string) error {
+func (ss *AWSStorageService) imageAWS(img *bytes.Buffer, format string, filename string) error {
 
-	sess, err := session.NewSession(&aws.Config{Region: aws.String(region)})
+	sess, err := session.NewSession(&aws.Config{Region: aws.String(ss.region)})
 	if err != nil {
 		log.Printf("error while constructing new aws session %s", err)
 		return err
 	}
 	svc := s3.New(sess)
 
-	params, err := formatParams(img, int64(img.Len()), format, bucketURI, filename)
+	params, err := ss.formatParams(img, int64(img.Len()), format, filename)
 
 	if err != nil {
 		log.Printf("Error while creating AWS params %s", err)
@@ -81,14 +85,14 @@ func imageAWS(img *bytes.Buffer, format string, filename string, bucketURI strin
 	return nil
 }
 
-func formatParams(buffer *bytes.Buffer, size int64, filetype string, bucketName string, path string) (*s3.PutObjectInput, error) {
+func (ss *AWSStorageService) formatParams(buffer *bytes.Buffer, size int64, filetype string, path string) (*s3.PutObjectInput, error) {
 
 	fileBytes := bytes.NewReader(buffer.Bytes())
 
-	log.Printf("Uploading %s to %s with size %d and type %s", path, bucketName, size, filetype)
+	log.Printf("Uploading %s to %s with size %d and type %s", path, ss.bucketURI, size, filetype)
 
 	params := &s3.PutObjectInput{
-		Bucket:        aws.String(bucketName),
+		Bucket:        aws.String(ss.bucketURI),
 		Key:           aws.String(path),
 		Body:          fileBytes,
 		ContentLength: aws.Int64(size),

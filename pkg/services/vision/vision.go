@@ -21,9 +21,13 @@ import (
 )
 
 type VisionService struct {
-	db *sqlx.DB
-	vision.Service
-	color domain.ColorService
+	db     *sqlx.DB
+	vision vision.Service
+	color  domain.ColorService
+}
+
+func New(db *sqlx.DB, vision vision.Service, color domain.ColorService) *VisionService {
+	return &VisionService{db: db, vision: vision, color: color}
 }
 
 func (vs VisionService) AnnotateImage(ctx context.Context, img image.Image) (*domain.ImageAnnotation, error) {
@@ -54,7 +58,7 @@ func (vs VisionService) AnnotateImage(ctx context.Context, img image.Image) (*do
 		Requests: []*vision.AnnotateImageRequest{req},
 	}
 
-	res, err := vs.Images.Annotate(batch).Do()
+	res, err := vs.vision.Images.Annotate(batch).Do()
 	if err != nil {
 		logger.Error(ctx, err)
 		return nil, err

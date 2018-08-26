@@ -15,6 +15,10 @@ type PGStreamService struct {
 	permissions domain.PermissionService
 }
 
+func New(db *sqlx.DB, imageService domain.ImageService, permissionService domain.PermissionService) *PGStreamService {
+	return &PGStreamService{db: db, images: imageService, permissions: permissionService}
+}
+
 func (stream *PGStreamService) StreamByID(ctx context.Context, id uint64) (*domain.Stream, error) {
 	var retrieved *domain.Stream
 	err := stream.db.GetContext(ctx, retrieved, "SELECT * FROM content.streams WHERE id = $1", id)

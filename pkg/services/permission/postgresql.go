@@ -13,6 +13,12 @@ type PGPermission struct {
 	db *sqlx.DB
 }
 
+func New(db *sqlx.DB) *PGPermission {
+	return &PGPermission{
+		db: db,
+	}
+}
+
 func (pgp *PGPermission) AddScope(ctx context.Context, userID, resourceID uint64, class domain.ResourceClass, scope domain.Scope) error {
 	var query string
 	switch scope {

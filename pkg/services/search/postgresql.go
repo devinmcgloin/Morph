@@ -11,6 +11,14 @@ type PGSearchService struct {
 	db *sqlx.DB
 }
 
+func New(db *sqlx.DB) *PGSearchService {
+	search := &PGSearchService{
+		db: db,
+	}
+	search.RefreshMaterializedView()
+	return search
+}
+
 func (pgs *PGSearchService) RefreshMaterializedView() {
 	tick := time.NewTicker(time.Minute * 10)
 	go func() {
