@@ -7,9 +7,20 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/fokal/fokal-core/pkg/services/stream"
+	"github.com/fokal/fokal-core/pkg/services/tag"
+	"github.com/fokal/fokal-core/pkg/services/user"
+
+	"github.com/fokal/fokal-core/pkg/services/permission"
+
 	"github.com/fokal/fokal-core/pkg/conn"
 	"github.com/fokal/fokal-core/pkg/handler"
 	"github.com/fokal/fokal-core/pkg/middleware"
+	"github.com/fokal/fokal-core/pkg/services/authentication"
+	"github.com/fokal/fokal-core/pkg/services/cache"
+	"github.com/fokal/fokal-core/pkg/services/color"
+	"github.com/fokal/fokal-core/pkg/services/search"
+	"github.com/fokal/fokal-core/pkg/services/upload"
 	raven "github.com/getsentry/raven-go"
 	"github.com/gorilla/context"
 	"github.com/gorilla/handlers"
@@ -68,7 +79,23 @@ func Run(cfg *Config) {
 
 	AppState.Local = cfg.Local
 	AppState.Port = cfg.Port
-	// Refreshing Materialized View
+
+	AppState.CacheService = cache.New(RD, "cache:", time.Hour*2)
+	AppState.ColorService = handler.ColorState{
+		Shade:    color.New(DB, "shade"),
+		Specific: color.New(DB, "specific"),
+	}
+	AppState.SearchService = search.New(DB)
+	AppState.StorageService = handler.StorageState{
+		Content: upload.New("fokal-content", "us-west-1", "content"),
+		Avatar:  upload.New("fokal-content", "us-west-1", "avatar"),
+	}
+	AppState.PermissionService = permission.New(DB)
+	AppState.TagService = tag.New(DB)
+	AppState.AuthService = authentication.New()
+
+	AppState.UserService = user.New(DB, AppState.ImageService, AppState.PermissionService)
+	AppState.StreamService = stream.New(DB, AppState.ImageService)
 
 	var secureMiddleware = secure.New(secure.Options{
 		AllowedHosts:          []string{"api.fok.al", "alpha.fok.al", "beta.fok.al", "fok.al"},

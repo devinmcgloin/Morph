@@ -62,10 +62,10 @@ type State struct {
 	Local bool
 	Port  int
 
-	StorageService    domain.StorageService
+	StorageService    StorageState
 	AuthService       domain.AuthenticationService
 	CacheService      domain.CacheService
-	ColorService      domain.ColorService
+	ColorService      ColorState
 	PermissionService domain.PermissionService
 	SearchService     domain.SearchService
 	StreamService     domain.StreamService
@@ -73,6 +73,14 @@ type State struct {
 	UserService       domain.UserService
 	VisionService     domain.VisionService
 	ImageService      domain.ImageService
+}
+type StorageState struct {
+	Avatars domain.StorageService
+	Content domain.StorageService
+}
+type ColorState struct {
+	Shade    domain.ColorService
+	Specific domain.ColorService
 }
 
 // Handler struct that takes a configured Env and a function matching

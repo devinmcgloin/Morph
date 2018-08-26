@@ -1,8 +1,11 @@
 package domain
 
-import "bytes"
+import (
+	"bytes"
+	"context"
+)
 
 type StorageService interface {
-	UploadImage(img *bytes.Buffer, mimeType, path string) error
-	DeleteImage(path string) error
+	UploadImage(ctx context.Context, img *bytes.Buffer, mimeType, path string) error
+	DeleteImage(ctx context.Context, path string) error
 }

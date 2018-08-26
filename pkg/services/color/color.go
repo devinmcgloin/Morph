@@ -112,7 +112,7 @@ func (spc FokalColorTable) AddColors(colors map[string]string) error {
 	return nil
 }
 
-func (spc FokalColorTable) GetColors() (map[string]string, error) {
+func (spc FokalColorTable) Colors() (map[string]string, error) {
 	var clrs = make(map[string]string)
 	var hex []struct {
 		Name string

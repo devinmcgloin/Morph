@@ -14,5 +14,5 @@ type ColorService interface {
 	Lookup(hex string) clr.ColorSpace
 	AddColor(name, hex string) error
 	AddColors(colors map[string]string) error
-	Colors() (*[]clr.Color, error)
+	Colors() (map[string]string, error)
 }
