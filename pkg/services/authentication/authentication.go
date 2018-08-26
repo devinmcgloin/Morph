@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"time"
 
-	"cloud.google.com/go/logging"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/fokal/fokal-core/pkg/domain"
 	"github.com/fokal/fokal-core/pkg/logger"
@@ -112,13 +111,16 @@ func (auth *PGAuthService) RefreshToken(ctx context.Context, stringToken string)
 	if err != nil {
 		return nil, err
 	}
+	if !valid {
+		return nil, errors.New("invalid token provided")
+	}
 	return auth.CreateToken(ctx, *id)
 }
 
 func (auth *PGAuthService) PublicKey(ctx context.Context) (string, error) {
 	keyBytes, err := x509.MarshalPKIXPublicKey(auth.PublicKeys[auth.KeyHash])
 	if err != nil {
-		logging.Error(ctx, err)
+		logger.Error(ctx, err)
 		return "", err
 	}
 

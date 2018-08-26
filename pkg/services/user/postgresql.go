@@ -60,17 +60,17 @@ func (store *UserStore) CreateUser(ctx context.Context, user *domain.User) error
 		return err
 	}
 
-	err = store.permissions.AddScope(userID, userID, domain.UserClass, domain.CanEdit)
+	err = store.permissions.AddScope(ctx, userID, userID, domain.UserClass, domain.CanEdit)
 	if err != nil {
 		logger.Error(ctx, err)
 		return err
 	}
-	err = store.permissions.Public(userID, userID, domain.UserClass)
+	err = store.permissions.Public(ctx, userID, userID, domain.UserClass)
 	if err != nil {
 		logger.Error(ctx, err)
 		return err
 	}
-	err = store.permissions.AddScope(userID, userID, domain.UserClass, domain.CanDelete)
+	err = store.permissions.AddScope(ctx, userID, userID, domain.UserClass, domain.CanDelete)
 	if err != nil {
 		logger.Error(ctx, err)
 		return err

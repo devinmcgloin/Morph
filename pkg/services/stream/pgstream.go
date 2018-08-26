@@ -77,17 +77,17 @@ func (stream *PGStreamService) CreateStream(ctx context.Context, creator uint64,
 		return err
 	}
 
-	err = stream.permissions.AddScope(creator, newStream.ID, domain.StreamClass, domain.CanEdit)
+	err = stream.permissions.AddScope(ctx, creator, newStream.ID, domain.StreamClass, domain.CanEdit)
 	if err != nil {
 		logger.Error(ctx, err)
 		return err
 	}
-	err = stream.permissions.Public(creator, newStream.ID, domain.StreamClass)
+	err = stream.permissions.Public(ctx, creator, newStream.ID, domain.StreamClass)
 	if err != nil {
 		logger.Error(ctx, err)
 		return err
 	}
-	err = stream.permissions.AddScope(creator, newStream.ID, domain.StreamClass, domain.CanDelete)
+	err = stream.permissions.AddScope(ctx, creator, newStream.ID, domain.StreamClass, domain.CanDelete)
 	if err != nil {
 		logger.Error(ctx, err)
 		return err

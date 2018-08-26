@@ -17,8 +17,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/fokal/fokal-core/pkg/conn"
 	"github.com/fokal/fokal-core/pkg/handler"
-	"github.com/fokal/fokal-core/pkg/logging"
-	"github.com/fokal/fokal-core/pkg/routes"
+	"github.com/fokal/fokal-core/pkg/logger"
 	raven "github.com/getsentry/raven-go"
 	"github.com/gorilla/context"
 	"github.com/gorilla/handlers"
@@ -121,18 +120,11 @@ func Run(cfg *Config) {
 		//ratelimit.RateLimit,
 		crs.Handler,
 		handler.Timeout,
-		logging.IP, logging.UUID, secureMiddleware.Handler,
-		context.ClearHandler, handlers.CompressHandler, logging.ContentTypeJSON)
+		logger.IP, logger.UUID, secureMiddleware.Handler,
+		context.ClearHandler, handlers.CompressHandler, logger.ContentTypeJSON)
 
 	//  ROUTES
-	routes.RegisterCreateRoutes(&AppState, api, base)
-	routes.RegisterModificationRoutes(&AppState, api, base)
-	routes.RegisterRetrievalRoutes(&AppState, api, base)
-	routes.RegisterSocialRoutes(&AppState, api, base)
-	routes.RegisterSearchRoutes(&AppState, api, base)
-	routes.RegisterRandomRoutes(&AppState, api, base)
-	routes.RegisterAuthRoutes(&AppState, api, base)
-	routes.RegisterStatusRoutes(&AppState, api, base)
+
 	api.NotFoundHandler = base.Then(http.HandlerFunc(handler.NotFound))
 
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(cfg.Port),

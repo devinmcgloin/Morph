@@ -4,14 +4,15 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"image/jpeg"
+	"image"
+	"image/png"
 	"log"
 	"strings"
 
-	"cloud.google.com/go/logging"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/fokal/fokal-core/pkg/logger"
 )
 
 var mediaTypeOptions = []string{"jp2", "jpeg", "png", "tiff", "bmp"}
@@ -22,31 +23,24 @@ type AWSStorageService struct {
 	kind      string // content, avatar
 }
 
-func (ss AWSStorageService) UploadImage(ctx context.Context, img *bytes.Buffer, path string) error {
+func (ss AWSStorageService) UploadImage(ctx context.Context, img image.Image, shortcode string) error {
 	var err error
 
-	// TODO this does not match properly to the mediaTypeOptions
-	in := in(format, mediaTypeOptions)
-	if !in {
-		err := errors.New("Unsupported Media Type")
-		logging.Error(ctx, err)
+	path := strings.Join([]string{ss.kind, shortcode}, "/")
+	buf := new(bytes.Buffer)
+	err = png.Encode(buf, img)
+	if err != nil {
+		logger.Error(ctx, err)
 		return err
 	}
 
-	path := strings.Join([]string{kind, shortcode}, "/")
-	buf := new(bytes.Buffer)
-	err = jpeg.Encode(buf, img, nil)
+	err = imageAWS(buf, "png", path, "images-fokal", "us-west-1")
 	if err != nil {
-		logging.Error(ctx, err)
+		logger.Error(ctx, err)
+		err := errors.New("Error while uploading image")
 		return err
 	}
-	err = imageAWS(buf, format, path, "images-fokal", "us-west-1")
-	if err != nil {
-		logging.Error(ctx, err)
-		err := errors.New("Error while uploading image")
-		return
-	}
-	errChan <- nil
+	return nil
 }
 
 func (ss AWSStorageService) DeleteImage(ctx context.Context, shortcode string) error {

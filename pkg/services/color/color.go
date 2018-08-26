@@ -56,13 +56,6 @@ func (spc FokalColorTable) Lookup(hex string) clr.ColorSpace {
 	return clr.ColorSpace(name)
 }
 
-func RetrieveColorTable(db *sqlx.DB, t ColorCatagory) FokalColorTable {
-	return FokalColorTable{
-		db:   db,
-		Type: t,
-	}
-}
-
 func (spc FokalColorTable) AddColor(name, hex string) error {
 	_, err := spc.db.Exec("INSERT INTO colors.clr(name, hex, type) VALUES($1, $2, $3)",
 		name, hex, spc.Type)

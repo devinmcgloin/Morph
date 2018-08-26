@@ -1,13 +1,14 @@
 package vision
 
 import (
+	"context"
 	"encoding/base64"
-	"log"
 
 	"github.com/cridenour/go-postgis"
 	"github.com/devinmcgloin/clr/clr"
-	"github.com/fokal/fokal-core/pkg/color"
-	"github.com/fokal/fokal-core/pkg/model"
+	"github.com/fokal/fokal-core/pkg/domain"
+	"github.com/fokal/fokal-core/pkg/logger"
+	"github.com/fokal/fokal-core/pkg/services/color"
 	"github.com/jmoiron/sqlx"
 
 	"image"
@@ -19,21 +20,25 @@ import (
 	"google.golang.org/api/vision/v1"
 )
 
+type VisionService struct {
+	db *sqlx.DB
+	vision.Service
+	color domain.ColorService
+}
 type ImageResponse struct {
-	Labels          []model.Label
+	Labels          []domain.Label
 	Safe            bool
-	ColorProperties []model.Color
-	Landmark        []model.Landmark
+	ColorProperties []domain.Color
+	Landmark        []domain.Landmark
 }
 
-func AnnotateImage(errChan chan error, annotations chan ImageResponse, db *sqlx.DB, visionService *vision.Service, img image.Image) {
-
+func (vs VisionService) AnnotateImage(ctx context.Context, img image.Image) (*ImageResponse, error) {
 	m := resize.Resize(300, 0, img, resize.Bilinear)
 	buf := new(bytes.Buffer)
 	err := jpeg.Encode(buf, m, nil)
 	if err != nil {
-		errChan <- err
-		return
+		logger.Error(ctx, err)
+		return nil, err
 	}
 	// Construct a text request, encoding the image in base64.
 
@@ -55,18 +60,17 @@ func AnnotateImage(errChan chan error, annotations chan ImageResponse, db *sqlx.
 		Requests: []*vision.AnnotateImageRequest{req},
 	}
 
-	res, err := visionService.Images.Annotate(batch).Do()
+	res, err := vs.Images.Annotate(batch).Do()
 	if err != nil {
-		log.Println(err)
-		errChan <- err
-		return
+		logger.Error(ctx, err)
+		return nil, err
 	}
 
 	r := res.Responses[0]
-	rsp := ImageResponse{Safe: true}
+	rsp := &ImageResponse{Safe: true}
 
-	shade := color.RetrieveColorTable(db, color.Shade)
-	specific := color.RetrieveColorTable(db, color.SpecificColor)
+	shade := color.New(vs.db, color.Shade)
+	specific := color.New(vs.db, color.SpecificColor)
 
 	for _, col := range r.ImagePropertiesAnnotation.DominantColors.Colors {
 		sRGB := clr.RGB{
@@ -75,7 +79,7 @@ func AnnotateImage(errChan chan error, annotations chan ImageResponse, db *sqlx.
 			B: uint8(col.Color.Blue)}
 
 		h, s, v := sRGB.HSV()
-		rsp.ColorProperties = append(rsp.ColorProperties, model.Color{
+		rsp.ColorProperties = append(rsp.ColorProperties, domain.Color{
 			SRGB:          sRGB,
 			PixelFraction: col.PixelFraction,
 			Score:         col.Score,
@@ -107,7 +111,7 @@ func AnnotateImage(errChan chan error, annotations chan ImageResponse, db *sqlx.
 
 	for _, label := range r.LabelAnnotations {
 		if _, ok := unique[label.Description]; !ok {
-			rsp.Labels = append(rsp.Labels, model.Label{
+			rsp.Labels = append(rsp.Labels, domain.Label{
 				Description: label.Description,
 				Score:       label.Score,
 			})
@@ -116,7 +120,7 @@ func AnnotateImage(errChan chan error, annotations chan ImageResponse, db *sqlx.
 	}
 
 	for _, landmark := range r.LandmarkAnnotations {
-		rsp.Landmark = append(rsp.Landmark, model.Landmark{
+		rsp.Landmark = append(rsp.Landmark, domain.Landmark{
 			Description: landmark.Description,
 			Score:       landmark.Score,
 			Location: postgis.PointS{
@@ -126,6 +130,5 @@ func AnnotateImage(errChan chan error, annotations chan ImageResponse, db *sqlx.
 			},
 		})
 	}
-	errChan <- nil
-	annotations <- rsp
+	return rsp, nil
 }
