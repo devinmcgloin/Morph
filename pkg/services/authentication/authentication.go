@@ -4,9 +4,14 @@ import (
 	"context"
 	"crypto/rsa"
 	"crypto/x509"
+	"encoding/json"
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"os"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -130,4 +135,79 @@ func (auth *PGAuthService) PublicKey(ctx context.Context) (string, error) {
 	})
 
 	return string(pemBytes), nil
+}
+
+func (auth *PGAuthService) LoadKeys(publicKey string) {
+	resp, err := http.Get("https://www.googleapis.com/oauth2/v1/certs")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	keys := make(map[string]string)
+	err = json.Unmarshal(body, &keys)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	parsedKeys := make(map[string]*rsa.PublicKey)
+
+	for kid, pem := range keys {
+		publicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(pem))
+		if err != nil {
+			log.Fatal(err)
+		}
+		parsedKeys[kid] = publicKey
+	}
+
+	fokalPublicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(publicKey))
+	if err != nil {
+		log.Fatal(err)
+	}
+	parsedKeys[auth.KeyHash] = fokalPublicKey
+	auth.PublicKeys = parsedKeys
+
+	privateStr := os.Getenv("PRIVATE_KEY")
+	auth.PrivateKey, err = jwt.ParseRSAPrivateKeyFromPEM([]byte(privateStr))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+}
+
+func (auth *PGAuthService) RefreshGoogleOauthKeys() {
+	tick := time.NewTicker(time.Minute * 10)
+	go func() {
+		for range tick.C {
+			log.Println("Refreshing Google Auth Keys")
+			resp, err := http.Get("https://www.googleapis.com/oauth2/v1/certs")
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				log.Fatal(err)
+			}
+			resp.Body.Close()
+
+			keys := make(map[string]string)
+			err = json.Unmarshal(body, &keys)
+			if err != nil {
+				log.Fatal(err)
+			}
+			for kid, pem := range keys {
+				publicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(pem))
+				if err != nil {
+					log.Fatal(err)
+				}
+				auth.PublicKeys[kid] = publicKey
+			}
+		}
+	}()
 }

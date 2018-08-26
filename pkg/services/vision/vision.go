@@ -25,14 +25,8 @@ type VisionService struct {
 	vision.Service
 	color domain.ColorService
 }
-type ImageResponse struct {
-	Labels          []domain.Label
-	Safe            bool
-	ColorProperties []domain.Color
-	Landmark        []domain.Landmark
-}
 
-func (vs VisionService) AnnotateImage(ctx context.Context, img image.Image) (*ImageResponse, error) {
+func (vs VisionService) AnnotateImage(ctx context.Context, img image.Image) (*domain.ImageAnnotation, error) {
 	m := resize.Resize(300, 0, img, resize.Bilinear)
 	buf := new(bytes.Buffer)
 	err := jpeg.Encode(buf, m, nil)
@@ -67,7 +61,7 @@ func (vs VisionService) AnnotateImage(ctx context.Context, img image.Image) (*Im
 	}
 
 	r := res.Responses[0]
-	rsp := &ImageResponse{Safe: true}
+	rsp := &domain.ImageAnnotation{Safe: true}
 
 	shade := color.New(vs.db, color.Shade)
 	specific := color.New(vs.db, color.SpecificColor)

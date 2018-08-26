@@ -5,20 +5,15 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/fokal/fokal-core/pkg/domain"
+
 	"bytes"
 	"encoding/json"
 
-	"crypto/rsa"
-	"time"
-
 	"strings"
 
-	"github.com/garyburd/redigo/redis"
 	raven "github.com/getsentry/raven-go"
 	"github.com/gorilla/context"
-	"github.com/jmoiron/sqlx"
-	vision "google.golang.org/api/vision/v1"
-	"googlemaps.github.io/maps"
 )
 
 // Error represents a handler error. It provides methods for a HTTP status
@@ -64,19 +59,20 @@ func (rsp Response) Format() []byte {
 
 // A (simple) example of our application-wide configuration.
 type State struct {
-	DB *sqlx.DB
-	//ES     *elastic.Client
-	RD     *redis.Pool
-	Local  bool
-	Port   int
-	Vision *vision.Service
-	Maps   *maps.Client
+	Local bool
+	Port  int
 
-	SessionLifetime time.Duration
-	RefreshAt       time.Duration
-	PrivateKey      *rsa.PrivateKey
-	PublicKeys      map[string]*rsa.PublicKey
-	KeyHash         string
+	StorageService    domain.StorageService
+	AuthService       domain.AuthenticationService
+	CacheService      domain.CacheService
+	ColorService      domain.ColorService
+	PermissionService domain.PermissionService
+	SearchService     domain.SearchService
+	StreamService     domain.StreamService
+	TagService        domain.TagService
+	UserService       domain.UserService
+	VisionService     domain.VisionService
+	ImageService      domain.ImageService
 }
 
 // Handler struct that takes a configured Env and a function matching
@@ -158,4 +154,8 @@ func NotFound(w http.ResponseWriter, r *http.Request) {
 	})
 
 	w.Write(j)
+}
+
+func StatusHandler(store *State, w http.ResponseWriter, r *http.Request) (Response, error) {
+	return Response{Code: http.StatusOK}, nil
 }

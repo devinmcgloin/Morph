@@ -16,7 +16,7 @@ func Handler(state *handler.State, next http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 		} else {
 			url := r.URL.String()
-			b, err := Get(state.RD, url)
+			b, err := state.CacheService.Get(url)
 			if err != nil {
 				c := httptest.NewRecorder()
 				next.ServeHTTP(c, r)
@@ -31,7 +31,7 @@ func Handler(state *handler.State, next http.Handler) http.Handler {
 
 				if c.Code == http.StatusOK {
 					log.Printf("Cache: Setting Handler URL: %s\n", url)
-					Setex(state.RD, url, content, state.RefreshAt)
+					state.CacheService.Set(url, content)
 				}
 				return
 			} else {

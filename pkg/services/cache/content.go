@@ -7,14 +7,22 @@ import (
 	"github.com/pkg/errors"
 )
 
-const prefix = "cache:"
+type RedisCache struct {
+	rd            *redis.Pool
+	prefix        string
+	defaultExpiry time.Duration
+}
+
+func (rc *RedisCache) qualifiedID(key string) string {
+	return rc.prefix + key
+}
 
 // Get returns the data cached at the key string and throws an error otherwise.
-func Get(pool *redis.Pool, key string) ([]byte, error) {
-	conn := pool.Get()
+func (rc *RedisCache) Get(key string) ([]byte, error) {
+	conn := rc.rd.Get()
 	defer conn.Close()
 
-	b, err := redis.Bytes(conn.Do("GET", prefix+key))
+	b, err := redis.Bytes(conn.Do("GET", rc.qualifiedID(key)))
 	if err != nil {
 		return []byte{}, errors.Wrap(err, "redis unable to get cached value")
 	}
@@ -22,44 +30,33 @@ func Get(pool *redis.Pool, key string) ([]byte, error) {
 	return b, nil
 }
 
-func Invalidate(pool *redis.Pool, key string) error {
-	conn := pool.Get()
+func (rc *RedisCache) Invalidate(key string) error {
+	conn := rc.rd.Get()
 	defer conn.Close()
 
-	_, err := conn.Do("DEL", prefix+key)
+	_, err := conn.Do("DEL", rc.qualifiedID(key))
 	if err != nil {
 		return errors.Wrap(err, "unable to delete redis cached value")
 	}
 	return nil
 }
 
-func ExpireAt(pool *redis.Pool, key string, t time.Duration) error {
-	conn := pool.Get()
+func (rc *RedisCache) Set(key string, content []byte) error {
+	conn := rc.rd.Get()
 	defer conn.Close()
 
-	_, err := conn.Do("EXPIRE", prefix+key, t.Seconds())
-	if err != nil {
-		return errors.Wrap(err, "unable to set expiration for redis cached value")
-	}
-	return nil
-}
-
-func Set(pool *redis.Pool, key string, content []byte) error {
-	conn := pool.Get()
-	defer conn.Close()
-
-	_, err := conn.Do("SET", prefix+key, content)
+	_, err := conn.Do("SETEX", rc.qualifiedID(key), content, rc.defaultExpiry)
 	if err != nil {
 		return errors.Wrap(err, "unable to set redis cached value")
 	}
 	return nil
 }
 
-func Setex(pool *redis.Pool, key string, content []byte, t time.Duration) error {
-	conn := pool.Get()
+func (rc *RedisCache) SetWithExpiry(key string, content []byte, t time.Duration) error {
+	conn := rc.rd.Get()
 	defer conn.Close()
 
-	_, err := conn.Do("SETEX", prefix+key, t.Seconds(), content)
+	_, err := conn.Do("SETEX", rc.qualifiedID(key), t.Seconds(), content)
 	if err != nil {
 		return errors.Wrap(err, "unable to set/expiration for redis cached value")
 	}

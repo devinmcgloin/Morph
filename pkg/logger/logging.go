@@ -5,6 +5,11 @@ import (
 	"log"
 )
 
+const (
+	requestIDKey = iota
+	ipIDKey
+)
+
 func Log(ctx context.Context, format string, v ...interface{}) {
 	fmt := "[%+v] " + format
 	uuid := ctx.Value(requestIDKey)
@@ -20,4 +25,8 @@ func Error(ctx context.Context, err error) {
 	var values []interface{}
 	values = append(values, uuid, err)
 	log.Printf(fmt, values...)
+}
+
+func Println(ctx context.Context, message string) {
+	Log(ctx, message)
 }

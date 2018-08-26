@@ -5,19 +5,11 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-
-	"crypto/rsa"
-	"encoding/json"
-	"io/ioutil"
-
 	"time"
 
-	_ "github.com/heroku/x/hmetrics/onload"
-
-	"github.com/dgrijalva/jwt-go"
 	"github.com/fokal/fokal-core/pkg/conn"
 	"github.com/fokal/fokal-core/pkg/handler"
-	"github.com/fokal/fokal-core/pkg/logger"
+	"github.com/fokal/fokal-core/pkg/middleware"
 	raven "github.com/getsentry/raven-go"
 	"github.com/gorilla/context"
 	"github.com/gorilla/handlers"
@@ -71,25 +63,22 @@ func Run(cfg *Config) {
 		cfg.PostgresURL = cfg.PostgresURL + "?sslmode=disable"
 	}
 
-	AppState.Vision, AppState.Maps, _ = conn.DialGoogleServices(cfg.GoogleToken)
-	AppState.DB = conn.DialPostgres(cfg.PostgresURL)
-	AppState.RD = conn.DialRedis(cfg.RedisURL)
-	AppState.Local = cfg.Local
-	AppState.Port = cfg.Port
-	AppState.DB.SetMaxOpenConns(20)
-	AppState.DB.SetMaxIdleConns(50)
-	AppState.KeyHash = "554b5db484856bfa16e7da70a427dc4d9989678a"
+	Vision, Maps, _ := conn.DialGoogleServices(cfg.GoogleToken)
+	DB := conn.DialPostgres(cfg.PostgresURL)
+	RD := conn.DialRedis(cfg.RedisURL)
+
+	DB.SetMaxOpenConns(20)
+	DB.SetMaxIdleConns(50)
+	KeyHash := "554b5db484856bfa16e7da70a427dc4d9989678a"
 
 	// RSA Keys
-	AppState.SessionLifetime = time.Hour * 16
+	SessionLifetime := time.Hour * 16
 
-	AppState.RefreshAt = time.Minute * 15
+	RefreshAt := time.Minute * 15
 
+	AppState.Local = cfg.Local
+	AppState.Port = cfg.Port
 	// Refreshing Materialized View
-	refreshMaterializedView()
-
-	AppState.PrivateKey, AppState.PublicKeys = ParseKeys()
-	refreshGoogleOauthKeys()
 
 	var secureMiddleware = secure.New(secure.Options{
 		AllowedHosts:          []string{"api.fok.al", "alpha.fok.al", "beta.fok.al", "fok.al"},
@@ -116,12 +105,12 @@ func Run(cfg *Config) {
 	})
 
 	var base = alice.New(
-		handler.SentryRecovery,
-		//ratelimit.RateLimit,
+		middleware.SentryRecovery,
+		middleware.RateLimit,
 		crs.Handler,
-		handler.Timeout,
-		logger.IP, logger.UUID, secureMiddleware.Handler,
-		context.ClearHandler, handlers.CompressHandler, logger.ContentTypeJSON)
+		middleware.Timeout,
+		middleware.IP, middleware.UUID, secureMiddleware.Handler,
+		context.ClearHandler, handlers.CompressHandler, middleware.ContentTypeJSON)
 
 	//  ROUTES
 
@@ -129,92 +118,4 @@ func Run(cfg *Config) {
 
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(cfg.Port),
 		handlers.LoggingHandler(os.Stdout, router)))
-}
-
-func ParseKeys() (*rsa.PrivateKey, map[string]*rsa.PublicKey) {
-	resp, err := http.Get("https://www.googleapis.com/oauth2/v1/certs")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	keys := make(map[string]string)
-	err = json.Unmarshal(body, &keys)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	parsedKeys := make(map[string]*rsa.PublicKey)
-
-	for kid, pem := range keys {
-		publicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(pem))
-		if err != nil {
-			log.Fatal(err)
-		}
-		parsedKeys[kid] = publicKey
-	}
-
-	publicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(PublicKey))
-	if err != nil {
-		log.Fatal(err)
-	}
-	parsedKeys[AppState.KeyHash] = publicKey
-
-	privateStr := os.Getenv("PRIVATE_KEY")
-	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(privateStr))
-	if err != nil {
-		log.Fatal(err)
-	}
-	return privateKey, parsedKeys
-
-}
-
-func refreshMaterializedView() {
-	tick := time.NewTicker(time.Minute * 10)
-	go func() {
-		for range tick.C {
-			log.Println("Refreshing Materialized View")
-			_, err := AppState.DB.Exec("REFRESH MATERIALIZED VIEW CONCURRENTLY searches;")
-			if err != nil {
-				log.Println(err)
-			}
-		}
-	}()
-}
-
-func refreshGoogleOauthKeys() {
-	tick := time.NewTicker(time.Minute * 10)
-	go func() {
-		for range tick.C {
-			log.Println("Refreshing Google Auth Keys")
-			resp, err := http.Get("https://www.googleapis.com/oauth2/v1/certs")
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			body, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				log.Fatal(err)
-			}
-			resp.Body.Close()
-
-			keys := make(map[string]string)
-			err = json.Unmarshal(body, &keys)
-			if err != nil {
-				log.Fatal(err)
-			}
-			for kid, pem := range keys {
-				publicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(pem))
-				if err != nil {
-					log.Fatal(err)
-				}
-				AppState.PublicKeys[kid] = publicKey
-			}
-		}
-	}()
 }
