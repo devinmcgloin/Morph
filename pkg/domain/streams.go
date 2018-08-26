@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"time"
 )
 
@@ -17,9 +18,9 @@ type Stream struct {
 //go:generate moq -out stream_service_runner.go . StreamService
 
 type StreamService interface {
-	StreamByID(id uint64) (*Stream, error)
-	StreamsByCreator(userID uint64) (*[]Stream, error)
-	CreateStream(creator uint64, title string) error
-	SetDiscription(description string) error
-	SetTitle(title string) error
+	StreamByID(ctx context.Context, id uint64) (*Stream, error)
+	StreamsByCreator(ctx context.Context, userID uint64) (*[]Stream, error)
+	CreateStream(ctx context.Context, creator uint64, title string) error
+	SetDiscription(ctx context.Context, description string) error
+	SetTitle(ctx context.Context, title string) error
 }

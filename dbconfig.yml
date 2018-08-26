@@ -1,0 +1,5 @@
+development:
+    dialect: postgres
+    datasource: dbname=fokal sslmode=disable
+    dir: migrations
+    table: migrations
