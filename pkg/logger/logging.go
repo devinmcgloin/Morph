@@ -3,16 +3,13 @@ package logger
 import (
 	"context"
 	"log"
-)
 
-const (
-	requestIDKey = iota
-	ipIDKey
+	"github.com/fokal/fokal-core/pkg/request"
 )
 
 func Log(ctx context.Context, format string, v ...interface{}) {
 	fmt := "[%+v] " + format
-	uuid := ctx.Value(requestIDKey)
+	uuid := ctx.Value(request.IDKey)
 	var values []interface{}
 	values = append(values, uuid)
 	values = append(values, v...)
@@ -21,7 +18,7 @@ func Log(ctx context.Context, format string, v ...interface{}) {
 
 func Error(ctx context.Context, err error) {
 	fmt := "[%+v] Error: %+v"
-	uuid := ctx.Value(requestIDKey)
+	uuid := ctx.Value(request.IPKey)
 	var values []interface{}
 	values = append(values, uuid, err)
 	log.Printf(fmt, values...)

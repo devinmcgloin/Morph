@@ -13,13 +13,9 @@ import (
 	"github.com/didip/tollbooth"
 	"github.com/didip/tollbooth/limiter"
 	"github.com/fokal/fokal-core/pkg/handler"
+	"github.com/fokal/fokal-core/pkg/request"
 	raven "github.com/getsentry/raven-go"
 	"github.com/satori/go.uuid"
-)
-
-const (
-	requestIDKey = iota
-	ipIDKey
 )
 
 type Middleware struct {
@@ -34,7 +30,7 @@ func (m Middleware) Handler(next http.Handler) http.Handler {
 func UUID(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		ctx = context.WithValue(ctx, requestIDKey, uuid.NewV4())
+		ctx = context.WithValue(ctx, request.IDKey, uuid.NewV4())
 		h.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -54,7 +50,7 @@ func IP(h http.Handler) http.Handler {
 					// bad address, go to next
 					continue
 				}
-				ctx = context.WithValue(ctx, ipIDKey, realIP.String())
+				ctx = context.WithValue(ctx, request.IPKey, realIP.String())
 				break
 			}
 		}

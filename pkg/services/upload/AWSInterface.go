@@ -15,8 +15,6 @@ import (
 	"github.com/fokal/fokal-core/pkg/logger"
 )
 
-var mediaTypeOptions = []string{"jp2", "jpeg", "png", "tiff", "bmp"}
-
 type AWSStorageService struct {
 	bucketURI string
 	region    string
@@ -49,15 +47,6 @@ func (ss *AWSStorageService) UploadImage(ctx context.Context, img image.Image, s
 
 func (ss *AWSStorageService) DeleteImage(ctx context.Context, shortcode string) error {
 	return errors.New("Not Implemented")
-}
-
-func in(contentType string, opts []string) bool {
-	for _, opt := range opts {
-		if strings.Compare(contentType, opt) == 0 {
-			return true
-		}
-	}
-	return false
 }
 
 func (ss *AWSStorageService) imageAWS(img *bytes.Buffer, format string, filename string) error {
