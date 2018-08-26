@@ -3,3 +3,9 @@ development:
     datasource: dbname=fokal sslmode=disable
     dir: migrations
     table: migrations
+
+production:
+    dialect: postgres
+    datasource: ${DATBASE}
+    dir: migrations
+    table: migrations
