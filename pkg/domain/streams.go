@@ -21,6 +21,6 @@ type StreamService interface {
 	StreamByID(ctx context.Context, id uint64) (*Stream, error)
 	StreamsByCreator(ctx context.Context, userID uint64) (*[]Stream, error)
 	CreateStream(ctx context.Context, creator uint64, title string) error
-	SetDiscription(ctx context.Context, description string) error
+	SetDiscription(ctx context.Context, id uint64, description string) error
 	SetTitle(ctx context.Context, title string) error
 }
