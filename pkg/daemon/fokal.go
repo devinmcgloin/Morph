@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/fokal/fokal-core/pkg/services/search"
 	"github.com/fokal/fokal-core/pkg/services/stream"
 	"github.com/fokal/fokal-core/pkg/services/tag"
 	"github.com/fokal/fokal-core/pkg/services/user"
@@ -89,12 +90,12 @@ func Run(cfg *Config) {
 	AppState.PermissionService = permission.New(DB)
 	AppState.TagService = tag.New(DB)
 	AppState.VisionService = vision.New(DB, VisionService)
-	// AppState.SearchService = search.New(DB)
 
 	fmt.Println(MapService)
 	AppState.UserService = user.New(DB, AppState.PermissionService, AppState.ImageService)
 	AppState.AuthService = authentication.New(DB, AppState.UserService, SessionLifetime)
 	AppState.StreamService = stream.New(DB, AppState.ImageService, AppState.PermissionService)
+	AppState.SearchService = search.New(DB, AppState.UserService, AppState.TagService, AppState.ImageService)
 
 	var secureMiddleware = secure.New(secure.Options{
 		AllowedHosts:          []string{"api.fok.al", "alpha.fok.al", "beta.fok.al", "fok.al"},

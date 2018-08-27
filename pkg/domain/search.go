@@ -1,15 +1,19 @@
 package domain
 
-type SearchService interface {
-	FullSearch(req Request) Response
-	GeoSearch(geo GeoParams) Response
-	ColorSearch(color ColorParams) Response
-	UserSearch(userID uint64, req Request) Response
+import (
+	"context"
+)
 
-	SimilarImages(imageID uint64) Response
+type SearchService interface {
+	FullSearch(ctx context.Context, req SearchRequest) (*[]Rank, error)
+	// GeoSearch(geo GeoParams) Response
+	// ColorSearch(color ColorParams) Response
+	// UserSearch(userID uint64, req Request) Response
+
+	// SimilarImages(imageID uint64) Response
 }
 
-type Request struct {
+type SearchRequest struct {
 	RequiredTerms []string `json:"required_terms"`
 	OptionalTerms []string `json:"optional_terms"`
 	ExcludedTerms []string `json:"excluded_terms"`
@@ -33,13 +37,8 @@ type ColorParams struct {
 }
 
 type Rank struct {
-	ID   int64   `json:"id"`
-	Rank float64 `json:"rank"`
-}
-
-type Response struct {
-	Images  []Rank
-	Streams []Rank
-	Tags    []Rank
-	Users   []Rank
+	ID        int64   `json:"id"`
+	Rank      float64 `json:"rank"`
+	Type      string  `json:"type"`
+	ColorDist float64 `json:"-" db:"color_dist"`
 }
