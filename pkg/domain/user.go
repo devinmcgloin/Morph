@@ -3,6 +3,8 @@ package domain
 import (
 	"context"
 	"time"
+
+	"github.com/fokal/fokal-core/pkg/request"
 )
 
 type User struct {
@@ -46,5 +48,6 @@ type UserService interface {
 
 	SetAvatarID(ctx context.Context, id uint64, avatarID string) error
 	CreateUser(ctx context.Context, u *User) error
+	PatchUser(ctx context.Context, u uint64, changes request.PatchUser) error
 	DeleteUser(ctx context.Context, id uint64) error
 }

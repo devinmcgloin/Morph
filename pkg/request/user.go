@@ -6,13 +6,13 @@ import (
 	"github.com/mholt/binding"
 )
 
-type CreateUserRequest struct {
+type CreateUser struct {
 	Username string
 	Email    string
-	Password string
+	Token    string
 }
 
-func (cf *CreateUserRequest) FieldMap(req *http.Request) binding.FieldMap {
+func (cf *CreateUser) FieldMap(req *http.Request) binding.FieldMap {
 	return binding.FieldMap{
 		&cf.Username: binding.Field{
 			Form:     "username",
@@ -22,14 +22,14 @@ func (cf *CreateUserRequest) FieldMap(req *http.Request) binding.FieldMap {
 			Form:     "email",
 			Required: true,
 		},
-		&cf.Password: binding.Field{
-			Form:     "password",
+		&cf.Token: binding.Field{
+			Form:     "token",
 			Required: true,
 		},
 	}
 }
 
-type PatchUserRequest struct {
+type PatchUser struct {
 	Username  string `structs:"username,omitempty"`
 	Bio       string `structs:"bio,omitempty"`
 	URL       string `structs:"url,omitempty"`
@@ -39,7 +39,7 @@ type PatchUserRequest struct {
 	Twitter   string `structs:"twitter,omitempty"`
 }
 
-func (cf *PatchUserRequest) FieldMap(req *http.Request) binding.FieldMap {
+func (cf *PatchUser) FieldMap(req *http.Request) binding.FieldMap {
 	return binding.FieldMap{
 		&cf.Bio:       "bio",
 		&cf.URL:       "email",

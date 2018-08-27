@@ -1,6 +1,8 @@
 package request
 
 const (
-	IDKey = iota
-	IPKey
+	IDKey     = "fokal-id-key"
+	IPKey     = "fokal-ip-key"
+	JWTID     = "fokal-jwt-key"
+	UserIDKey = "fokal-user-key"
 )

@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -10,6 +11,7 @@ import (
 	"net"
 	"strings"
 
+	jwtreq "github.com/dgrijalva/jwt-go/request"
 	"github.com/didip/tollbooth"
 	"github.com/didip/tollbooth/limiter"
 	"github.com/fokal/fokal-core/pkg/handler"
@@ -91,12 +93,79 @@ func Cache(state *handler.State, next http.Handler) http.Handler {
 					state.CacheService.Set(url, content)
 				}
 				return
-			} else {
-				log.Printf("Cache: Retrieving Handler URL: %s\n", url)
-				w.Write(b)
-				w.WriteHeader(http.StatusOK)
-				return
 			}
+			log.Printf("Cache: Retrieving Handler URL: %s\n", url)
+			w.Write(b)
+			w.WriteHeader(http.StatusOK)
+			return
+
+		}
+	})
+}
+
+func SetJWT(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		tokenStrings, err := jwtreq.HeaderExtractor{"Authorization"}.ExtractToken(r)
+		if err != nil {
+			next.ServeHTTP(w, r)
+		} else {
+			tokenStr := strings.Replace(tokenStrings, "Bearer ", "", 1)
+			ctx = context.WithValue(ctx, request.JWTID, tokenStr)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		}
+	})
+}
+
+func Authenticate(state *handler.State, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		jwt, ok := ctx.Value(request.JWTID).(string)
+		if !ok {
+			return
+		}
+		valid, userID, err := state.AuthService.VerifyToken(ctx, jwt)
+		if err != nil {
+			switch e := err.(type) {
+			case handler.Error:
+				// We can retrieve the status here and write out a specific
+				// HTTP status code.
+				log.Printf("HTTP %d - %s", e.Status(), e.Error())
+				w.WriteHeader(e.Status())
+				j, _ := json.Marshal(map[string]interface{}{
+					"code": e.Status(),
+					"err":  e.Error(),
+				})
+				w.Write(j)
+			default:
+				// Any error types we don't specifically look out for default
+				// to serving a HTTP 500
+				http.Error(w, http.StatusText(http.StatusInternalServerError),
+					http.StatusInternalServerError)
+			}
+		} else if !valid {
+			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		} else {
+			ctx = context.WithValue(ctx, request.UserIDKey, userID)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		}
+
+	})
+}
+
+func SetAuthenticatedUser(state *handler.State, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		jwt, ok := ctx.Value(request.JWTID).(string)
+		if !ok {
+			next.ServeHTTP(w, r)
+		}
+		valid, userID, err := state.AuthService.VerifyToken(ctx, jwt)
+		if !valid || err == nil {
+			next.ServeHTTP(w, r)
+		} else {
+			ctx = context.WithValue(ctx, request.UserIDKey, userID)
+			next.ServeHTTP(w, r.WithContext(ctx))
 		}
 	})
 }
