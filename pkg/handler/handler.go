@@ -17,6 +17,7 @@ import (
 	raven "github.com/getsentry/raven-go"
 	"github.com/gorilla/context"
 	"github.com/jmoiron/sqlx"
+	newrelic "github.com/newrelic/go-agent"
 	vision "google.golang.org/api/vision/v1"
 	"googlemaps.github.io/maps"
 )
@@ -66,11 +67,12 @@ func (rsp Response) Format() []byte {
 type State struct {
 	DB *sqlx.DB
 	//ES     *elastic.Client
-	RD     *redis.Pool
-	Local  bool
-	Port   int
-	Vision *vision.Service
-	Maps   *maps.Client
+	RD       *redis.Pool
+	Local    bool
+	Port     int
+	Vision   *vision.Service
+	Maps     *maps.Client
+	NewRelic newrelic.Application
 
 	SessionLifetime time.Duration
 	RefreshAt       time.Duration

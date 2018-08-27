@@ -61,12 +61,18 @@ func main() {
 		log.Fatal("Sentry URL not set at SENTRY_URL")
 	}
 
+	NewRelicID := os.Getenv("NEW_RELIC_LICENSE_KEY")
+	if NewRelicID == "" {
+		log.Fatal("NewRelicID not set at NEW_RELIC_LICENSE_KEY")
+	}
+
 	cfg.GoogleToken = googleToken
 	cfg.PostgresURL = postgresURL
 	cfg.RedisURL = redisURL
 	cfg.AWSAccessKeyId = AWSAccessKey
 	cfg.AWSSecretAccessKey = AWSSecret
 	cfg.SentryURL = SentryURL
+	cfg.NewRelicID = NewRelicID
 
 	daemon.Run(cfg)
 }

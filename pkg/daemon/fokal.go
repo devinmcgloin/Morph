@@ -13,6 +13,7 @@ import (
 	"time"
 
 	_ "github.com/heroku/x/hmetrics/onload"
+	newrelic "github.com/newrelic/go-agent"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/fokal/fokal-core/pkg/conn"
@@ -40,7 +41,8 @@ type Config struct {
 	AWSAccessKeyId     string
 	AWSSecretAccessKey string
 
-	SentryURL string
+	SentryURL  string
+	NewRelicID string
 }
 
 var AppState handler.State
@@ -66,6 +68,12 @@ func Run(cfg *Config) {
 	err := raven.SetDSN(cfg.SentryURL)
 	if err != nil {
 		log.Fatal("Sentry IO not configured")
+	}
+
+	config := newrelic.NewConfig("Fokal", cfg.NewRelicID)
+	app, err := newrelic.NewApplication(config)
+	if err != nil {
+		log.Fatal("New Relic not configured")
 	}
 
 	if cfg.Local {
@@ -117,6 +125,7 @@ func Run(cfg *Config) {
 	})
 
 	var base = alice.New(
+		handler.NewRelic(app),
 		handler.SentryRecovery,
 		//ratelimit.RateLimit,
 		crs.Handler,
