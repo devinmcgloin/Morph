@@ -1,0 +1,6 @@
+release:
+  command:
+    - go get -v github.com/rubenv/sql-migrate/...
+    - sql-migrate up
+run:
+  web: fokal-serve 
