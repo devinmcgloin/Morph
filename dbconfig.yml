@@ -4,8 +4,3 @@ development:
     dir: migrations
     table: migrations
 
-production:
-    dialect: postgres
-    datasource: ${DATBASE}
-    dir: migrations
-    table: migrations
