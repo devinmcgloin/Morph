@@ -38,7 +38,7 @@ func SearchHandler(store *handler.State, w http.ResponseWriter, r *http.Request)
 			Code: http.StatusBadRequest}
 	}
 
-	log.Println(searchReq)
+	log.Printf("Search Request: %+v\n", searchReq)
 
 	if searchReq.Color != nil && (len(searchReq.Color.HexCode) != 7 || searchReq.Color.HexCode[0] != '#') {
 		log.Println(searchReq.Color.HexCode)
