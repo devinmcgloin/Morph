@@ -1,7 +1,7 @@
 package conn
 
 import (
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"time"
 
 	"net/http"

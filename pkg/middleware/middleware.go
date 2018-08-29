@@ -3,10 +3,11 @@ package middleware
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"time"
+
+	log "github.com/Sirupsen/logrus"
 
 	"net"
 	"strings"

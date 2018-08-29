@@ -9,14 +9,13 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"time"
 
+	log "github.com/Sirupsen/logrus"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/fokal/fokal-core/pkg/domain"
-	"github.com/fokal/fokal-core/pkg/logger"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -54,7 +53,7 @@ func New(db *sqlx.DB, userService domain.UserService, sessionLifetime time.Durat
 func (auth *PGAuthService) CreateToken(ctx context.Context, userID uint64) (*string, error) {
 	user, err := auth.userService.UserByID(ctx, userID)
 	if err != nil {
-		logger.Error(ctx, err)
+		log.Error(err)
 		return nil, err
 	}
 
@@ -70,7 +69,7 @@ func (auth *PGAuthService) CreateToken(ctx context.Context, userID uint64) (*str
 	token.Header["kid"] = KeyHash
 	ss, err := token.SignedString(auth.privateKey)
 	if err != nil {
-		logger.Error(ctx, err)
+		log.Error(err)
 		return nil, err
 	}
 	return &ss, nil
@@ -107,7 +106,7 @@ func (auth *PGAuthService) VerifyToken(ctx context.Context, stringToken string) 
 		return auth.publicKeys[kid], nil
 	})
 	if err != nil {
-		logger.Error(ctx, err)
+		log.Error(err)
 	}
 
 	if token.Valid {
@@ -147,7 +146,7 @@ func (auth *PGAuthService) RefreshToken(ctx context.Context, stringToken string)
 func (auth *PGAuthService) PublicKey(ctx context.Context) (string, error) {
 	keyBytes, err := x509.MarshalPKIXPublicKey(auth.publicKeys[KeyHash])
 	if err != nil {
-		logger.Error(ctx, err)
+		log.Error(err)
 		return "", err
 	}
 

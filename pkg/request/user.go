@@ -7,9 +7,9 @@ import (
 )
 
 type CreateUser struct {
-	Username string
-	Email    string
-	Token    string
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Token    string `json:"token"`
 }
 
 func (cf *CreateUser) FieldMap(req *http.Request) binding.FieldMap {

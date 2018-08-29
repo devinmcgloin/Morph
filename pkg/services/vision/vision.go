@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/base64"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/cridenour/go-postgis"
 	"github.com/devinmcgloin/clr/clr"
 	"github.com/fokal/fokal-core/pkg/domain"
-	"github.com/fokal/fokal-core/pkg/logger"
 	"github.com/fokal/fokal-core/pkg/services/color"
 	"github.com/jmoiron/sqlx"
 
@@ -34,7 +34,7 @@ func (vs VisionService) AnnotateImage(ctx context.Context, img image.Image) (*do
 	buf := new(bytes.Buffer)
 	err := jpeg.Encode(buf, m, nil)
 	if err != nil {
-		logger.Error(ctx, err)
+		log.Error(err)
 		return nil, err
 	}
 	// Construct a text request, encoding the image in base64.
@@ -59,7 +59,7 @@ func (vs VisionService) AnnotateImage(ctx context.Context, img image.Image) (*do
 
 	res, err := vs.vision.Images.Annotate(batch).Do()
 	if err != nil {
-		logger.Error(ctx, err)
+		log.Error(err)
 		return nil, err
 	}
 

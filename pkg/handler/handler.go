@@ -2,8 +2,9 @@ package handler
 
 import (
 	"fmt"
-	"log"
 	"net/http"
+
+	log "github.com/Sirupsen/logrus"
 
 	"github.com/fokal/fokal-core/pkg/domain"
 
@@ -83,7 +84,7 @@ type StorageState struct {
 // our useful signature.
 type Handler struct {
 	*State
-	H func(e *State, w http.ResponseWriter, r *http.Request) (Response, error)
+	H func(e *State, w http.ResponseWriter, r *http.Request) (*Response, error)
 }
 
 // ServeHTTP allows our Handler type to satisfy http.Handler.
@@ -93,7 +94,7 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		switch e := err.(type) {
 		case Error:
 			if e.Status() >= 500 {
-				log.Println("Capturing raven error")
+				log.Info("Capturing raven error")
 				raven.CaptureError(err, RavenTags(h.State, r))
 			}
 			// We can retrieve the status here and write out a specific

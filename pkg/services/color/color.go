@@ -1,7 +1,7 @@
 package color
 
 import (
-	"log"
+	log "github.com/Sirupsen/logrus"
 
 	"github.com/devinmcgloin/clr/clr"
 	"github.com/getsentry/raven-go"

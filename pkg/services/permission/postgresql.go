@@ -3,8 +3,7 @@ package permission
 import (
 	"context"
 
-	"github.com/fokal/fokal-core/pkg/logger"
-
+	log "github.com/Sirupsen/logrus"
 	"github.com/fokal/fokal-core/pkg/domain"
 	"github.com/jmoiron/sqlx"
 )
@@ -31,7 +30,7 @@ func (pgp *PGPermission) AddScope(ctx context.Context, userID, resourceID uint64
 	}
 	_, err := pgp.db.ExecContext(ctx, query, userID, resourceID, class)
 	if err != nil {
-		logger.Error(ctx, err)
+		log.Error(err)
 		return err
 	}
 	return nil
@@ -49,7 +48,7 @@ func (pgp *PGPermission) ValidScope(ctx context.Context, userID, resourceID uint
 	}
 	_, err := pgp.db.ExecContext(ctx, query, userID, resourceID, class)
 	if err != nil {
-		logger.Error(ctx, err)
+		log.Error(err)
 		return false, err
 	}
 	return false, nil
@@ -67,7 +66,7 @@ func (pgp *PGPermission) RemoveScope(ctx context.Context, userID, resourceID uin
 	}
 	_, err := pgp.db.ExecContext(ctx, query, userID, resourceID, class)
 	if err != nil {
-		logger.Error(ctx, err)
+		log.Error(err)
 		return err
 	}
 	return nil
@@ -76,7 +75,7 @@ func (pgp *PGPermission) RemoveScope(ctx context.Context, userID, resourceID uin
 func (pgp *PGPermission) Public(ctx context.Context, resourceID uint64, class domain.ResourceClass) error {
 	_, err := pgp.db.ExecContext(ctx, "INSERT INTO permissions.can_view (user_id, o_id, type) VALUES ($1, $2, $3)", -1, resourceID, class)
 	if err != nil {
-		logger.Error(ctx, err)
+		log.Error(err)
 		return err
 	}
 	return nil

@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strconv"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/fokal/fokal-core/pkg/domain"
-	"github.com/fokal/fokal-core/pkg/logger"
 	"github.com/fokal/fokal-core/pkg/request"
 
 	"github.com/fokal/fokal-core/pkg/handler"
@@ -31,7 +31,7 @@ func PermissionMiddle(state *handler.State, scope domain.Scope, resouceClass dom
 		ctx := r.Context()
 		id, err := strconv.ParseUint(mux.Vars(r)["ID"], 10, 64)
 		if err != nil {
-			logger.Error(ctx, err)
+			log.Error(err)
 		}
 		userID, ok := ctx.Value(request.UserIDKey).(uint64)
 

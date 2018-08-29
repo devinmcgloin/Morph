@@ -3,10 +3,9 @@ package metadata
 import (
 	"context"
 	"errors"
-	"log"
 	"strings"
 
-	"github.com/fokal/fokal-core/pkg/logger"
+	log "github.com/Sirupsen/logrus"
 
 	"github.com/fokal/fokal-core/pkg/domain"
 
@@ -29,7 +28,7 @@ func GetMetadata(ctx context.Context, img io.Reader) (*domain.ImageMetadata, err
 	meta := &domain.ImageMetadata{Location: &domain.Location{}}
 	x, err := GetExif(img)
 	if err != nil {
-		logger.Error(ctx, err)
+		log.Error(err)
 		return nil, err
 	}
 

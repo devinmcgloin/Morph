@@ -1,20 +1,19 @@
 package daemon
 
 import (
-	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"time"
 
+	log "github.com/Sirupsen/logrus"
+
+	"github.com/fokal/fokal-core/pkg/services/permission"
 	"github.com/fokal/fokal-core/pkg/services/search"
 	"github.com/fokal/fokal-core/pkg/services/stream"
 	"github.com/fokal/fokal-core/pkg/services/tag"
 	"github.com/fokal/fokal-core/pkg/services/user"
 	"github.com/fokal/fokal-core/pkg/services/vision"
-
-	"github.com/fokal/fokal-core/pkg/services/permission"
 
 	"github.com/fokal/fokal-core/pkg/conn"
 	"github.com/fokal/fokal-core/pkg/handler"
@@ -50,13 +49,15 @@ type Config struct {
 var AppState handler.State
 
 func Run(cfg *Config) {
-	flag := log.LstdFlags | log.Lmicroseconds | log.Lshortfile
-	log.SetFlags(flag)
+	Formatter := new(log.TextFormatter)
+	Formatter.TimestampFormat = "02-01-2006 15:04:05"
+	Formatter.FullTimestamp = true
+	log.SetFormatter(Formatter)
 
 	router := mux.NewRouter()
 	api := router.PathPrefix("/v0/").Subrouter()
 
-	log.Printf("Serving at http://%s:%d", cfg.Host, cfg.Port)
+	log.Infof("Serving at http://%s:%d", cfg.Host, cfg.Port)
 	err := raven.SetDSN(cfg.SentryURL)
 	if err != nil {
 		log.Fatal("Sentry IO not configured")
@@ -66,7 +67,7 @@ func Run(cfg *Config) {
 		cfg.PostgresURL = cfg.PostgresURL + "?sslmode=disable"
 	}
 
-	VisionService, MapService, _ := conn.DialGoogleServices(cfg.GoogleToken)
+	VisionService, _, _ := conn.DialGoogleServices(cfg.GoogleToken)
 	DB := conn.DialPostgres(cfg.PostgresURL)
 	RD := conn.DialRedis(cfg.RedisURL)
 
@@ -91,7 +92,7 @@ func Run(cfg *Config) {
 	AppState.TagService = tag.New(DB)
 	AppState.VisionService = vision.New(DB, VisionService)
 
-	fmt.Println(MapService)
+	// fmt.Println(MapService)
 	AppState.UserService = user.New(DB, AppState.PermissionService, AppState.ImageService)
 	AppState.AuthService = authentication.New(DB, AppState.UserService, SessionLifetime)
 	AppState.StreamService = stream.New(DB, AppState.ImageService, AppState.PermissionService)
@@ -131,6 +132,7 @@ func Run(cfg *Config) {
 
 	//  ROUTES
 
+	handler.RegisterHandlers(&AppState, api, base)
 	api.NotFoundHandler = base.Then(http.HandlerFunc(handler.NotFound))
 
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(cfg.Port),

@@ -6,13 +6,13 @@ import (
 	"errors"
 	"image"
 	"image/png"
-	"log"
 	"strings"
+
+	log "github.com/Sirupsen/logrus"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/fokal/fokal-core/pkg/logger"
 )
 
 type AWSStorageService struct {
@@ -32,13 +32,13 @@ func (ss *AWSStorageService) UploadImage(ctx context.Context, img image.Image, s
 	buf := new(bytes.Buffer)
 	err = png.Encode(buf, img)
 	if err != nil {
-		logger.Error(ctx, err)
+		log.Error(err)
 		return err
 	}
 
 	err = ss.imageAWS(buf, "png", path)
 	if err != nil {
-		logger.Error(ctx, err)
+		log.Error(err)
 		err := errors.New("Error while uploading image")
 		return err
 	}

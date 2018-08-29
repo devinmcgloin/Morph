@@ -4,14 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"sort"
 	"time"
+
+	log "github.com/Sirupsen/logrus"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/devinmcgloin/clr/clr"
 	"github.com/fokal/fokal-core/pkg/domain"
-	"github.com/fokal/fokal-core/pkg/logger"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -98,13 +98,13 @@ func (pgs *PGSearchService) FullSearch(ctx context.Context, req domain.SearchReq
 
 	sqlString, args, err := q.ToSql()
 	if err != nil {
-		logger.Error(ctx, err)
+		log.Error(err)
 		return nil, err
 	}
 
 	err = pgs.db.Select(&ids, sqlString, args...)
 	if err != nil {
-		logger.Error(ctx, err)
+		log.Error(err)
 		return nil, err
 	}
 
