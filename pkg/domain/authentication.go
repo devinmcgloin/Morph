@@ -11,5 +11,4 @@ type AuthenticationService interface {
 	VerifyToken(ctx context.Context, token string) (bool, *uint64, error)
 	RefreshToken(ctx context.Context, token string) (*string, error)
 	PublicKey(ctx context.Context) (string, error)
-	ValidJWT(ctx context.Context, token string) (bool, error)
 }
