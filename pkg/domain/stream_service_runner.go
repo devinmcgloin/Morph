@@ -4,12 +4,16 @@
 package domain
 
 import (
+	"context"
 	"sync"
 )
 
 var (
+	lockStreamServiceMockAddImage         sync.RWMutex
 	lockStreamServiceMockCreateStream     sync.RWMutex
-	lockStreamServiceMockSetDiscription   sync.RWMutex
+	lockStreamServiceMockImages           sync.RWMutex
+	lockStreamServiceMockRemoveImage      sync.RWMutex
+	lockStreamServiceMockSetDescription   sync.RWMutex
 	lockStreamServiceMockSetTitle         sync.RWMutex
 	lockStreamServiceMockStreamByID       sync.RWMutex
 	lockStreamServiceMockStreamsByCreator sync.RWMutex
@@ -21,19 +25,28 @@ var (
 //
 //         // make and configure a mocked StreamService
 //         mockedStreamService := &StreamServiceMock{
-//             CreateStreamFunc: func(creator uint64, title string) error {
+//             AddImageFunc: func(ctx context.Context, id uint64, imageID uint64) error {
+// 	               panic("TODO: mock out the AddImage method")
+//             },
+//             CreateStreamFunc: func(ctx context.Context, creator uint64, title string) error {
 // 	               panic("TODO: mock out the CreateStream method")
 //             },
-//             SetDiscriptionFunc: func(description string) error {
-// 	               panic("TODO: mock out the SetDiscription method")
+//             ImagesFunc: func(ctx context.Context, id uint64) (*[]Image, error) {
+// 	               panic("TODO: mock out the Images method")
 //             },
-//             SetTitleFunc: func(title string) error {
+//             RemoveImageFunc: func(ctx context.Context, id uint64, imageID uint64) error {
+// 	               panic("TODO: mock out the RemoveImage method")
+//             },
+//             SetDescriptionFunc: func(ctx context.Context, id uint64, description string) error {
+// 	               panic("TODO: mock out the SetDescription method")
+//             },
+//             SetTitleFunc: func(ctx context.Context, id uint64, title string) error {
 // 	               panic("TODO: mock out the SetTitle method")
 //             },
-//             StreamByIDFunc: func(id uint64) (*Stream, error) {
+//             StreamByIDFunc: func(ctx context.Context, id uint64) (*Stream, error) {
 // 	               panic("TODO: mock out the StreamByID method")
 //             },
-//             StreamsByCreatorFunc: func(userID uint64) (*[]Stream, error) {
+//             StreamsByCreatorFunc: func(ctx context.Context, userID uint64) (*[]Stream, error) {
 // 	               panic("TODO: mock out the StreamsByCreator method")
 //             },
 //         }
@@ -43,79 +56,170 @@ var (
 //
 //     }
 type StreamServiceMock struct {
-	// CreateStreamFunc mocks the CreateStream method.
-	CreateStreamFunc func(creator uint64, title string) error
+	// AddImageFunc mocks the AddImage method.
+	AddImageFunc func(ctx context.Context, id uint64, imageID uint64) error
 
-	// SetDiscriptionFunc mocks the SetDiscription method.
-	SetDiscriptionFunc func(description string) error
+	// CreateStreamFunc mocks the CreateStream method.
+	CreateStreamFunc func(ctx context.Context, creator uint64, title string) error
+
+	// ImagesFunc mocks the Images method.
+	ImagesFunc func(ctx context.Context, id uint64) (*[]Image, error)
+
+	// RemoveImageFunc mocks the RemoveImage method.
+	RemoveImageFunc func(ctx context.Context, id uint64, imageID uint64) error
+
+	// SetDescriptionFunc mocks the SetDescription method.
+	SetDescriptionFunc func(ctx context.Context, id uint64, description string) error
 
 	// SetTitleFunc mocks the SetTitle method.
-	SetTitleFunc func(title string) error
+	SetTitleFunc func(ctx context.Context, id uint64, title string) error
 
 	// StreamByIDFunc mocks the StreamByID method.
-	StreamByIDFunc func(id uint64) (*Stream, error)
+	StreamByIDFunc func(ctx context.Context, id uint64) (*Stream, error)
 
 	// StreamsByCreatorFunc mocks the StreamsByCreator method.
-	StreamsByCreatorFunc func(userID uint64) (*[]Stream, error)
+	StreamsByCreatorFunc func(ctx context.Context, userID uint64) (*[]Stream, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
+		// AddImage holds details about calls to the AddImage method.
+		AddImage []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// ID is the id argument value.
+			ID uint64
+			// ImageID is the imageID argument value.
+			ImageID uint64
+		}
 		// CreateStream holds details about calls to the CreateStream method.
 		CreateStream []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Creator is the creator argument value.
 			Creator uint64
 			// Title is the title argument value.
 			Title string
 		}
-		// SetDiscription holds details about calls to the SetDiscription method.
-		SetDiscription []struct {
+		// Images holds details about calls to the Images method.
+		Images []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// ID is the id argument value.
+			ID uint64
+		}
+		// RemoveImage holds details about calls to the RemoveImage method.
+		RemoveImage []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// ID is the id argument value.
+			ID uint64
+			// ImageID is the imageID argument value.
+			ImageID uint64
+		}
+		// SetDescription holds details about calls to the SetDescription method.
+		SetDescription []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// ID is the id argument value.
+			ID uint64
 			// Description is the description argument value.
 			Description string
 		}
 		// SetTitle holds details about calls to the SetTitle method.
 		SetTitle []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// ID is the id argument value.
+			ID uint64
 			// Title is the title argument value.
 			Title string
 		}
 		// StreamByID holds details about calls to the StreamByID method.
 		StreamByID []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// ID is the id argument value.
 			ID uint64
 		}
 		// StreamsByCreator holds details about calls to the StreamsByCreator method.
 		StreamsByCreator []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// UserID is the userID argument value.
 			UserID uint64
 		}
 	}
 }
 
+// AddImage calls AddImageFunc.
+func (mock *StreamServiceMock) AddImage(ctx context.Context, id uint64, imageID uint64) error {
+	if mock.AddImageFunc == nil {
+		panic("StreamServiceMock.AddImageFunc: method is nil but StreamService.AddImage was just called")
+	}
+	callInfo := struct {
+		Ctx     context.Context
+		ID      uint64
+		ImageID uint64
+	}{
+		Ctx:     ctx,
+		ID:      id,
+		ImageID: imageID,
+	}
+	lockStreamServiceMockAddImage.Lock()
+	mock.calls.AddImage = append(mock.calls.AddImage, callInfo)
+	lockStreamServiceMockAddImage.Unlock()
+	return mock.AddImageFunc(ctx, id, imageID)
+}
+
+// AddImageCalls gets all the calls that were made to AddImage.
+// Check the length with:
+//     len(mockedStreamService.AddImageCalls())
+func (mock *StreamServiceMock) AddImageCalls() []struct {
+	Ctx     context.Context
+	ID      uint64
+	ImageID uint64
+} {
+	var calls []struct {
+		Ctx     context.Context
+		ID      uint64
+		ImageID uint64
+	}
+	lockStreamServiceMockAddImage.RLock()
+	calls = mock.calls.AddImage
+	lockStreamServiceMockAddImage.RUnlock()
+	return calls
+}
+
 // CreateStream calls CreateStreamFunc.
-func (mock *StreamServiceMock) CreateStream(creator uint64, title string) error {
+func (mock *StreamServiceMock) CreateStream(ctx context.Context, creator uint64, title string) error {
 	if mock.CreateStreamFunc == nil {
 		panic("StreamServiceMock.CreateStreamFunc: method is nil but StreamService.CreateStream was just called")
 	}
 	callInfo := struct {
+		Ctx     context.Context
 		Creator uint64
 		Title   string
 	}{
+		Ctx:     ctx,
 		Creator: creator,
 		Title:   title,
 	}
 	lockStreamServiceMockCreateStream.Lock()
 	mock.calls.CreateStream = append(mock.calls.CreateStream, callInfo)
 	lockStreamServiceMockCreateStream.Unlock()
-	return mock.CreateStreamFunc(creator, title)
+	return mock.CreateStreamFunc(ctx, creator, title)
 }
 
 // CreateStreamCalls gets all the calls that were made to CreateStream.
 // Check the length with:
 //     len(mockedStreamService.CreateStreamCalls())
 func (mock *StreamServiceMock) CreateStreamCalls() []struct {
+	Ctx     context.Context
 	Creator uint64
 	Title   string
 } {
 	var calls []struct {
+		Ctx     context.Context
 		Creator uint64
 		Title   string
 	}
@@ -125,60 +229,150 @@ func (mock *StreamServiceMock) CreateStreamCalls() []struct {
 	return calls
 }
 
-// SetDiscription calls SetDiscriptionFunc.
-func (mock *StreamServiceMock) SetDiscription(description string) error {
-	if mock.SetDiscriptionFunc == nil {
-		panic("StreamServiceMock.SetDiscriptionFunc: method is nil but StreamService.SetDiscription was just called")
+// Images calls ImagesFunc.
+func (mock *StreamServiceMock) Images(ctx context.Context, id uint64) (*[]Image, error) {
+	if mock.ImagesFunc == nil {
+		panic("StreamServiceMock.ImagesFunc: method is nil but StreamService.Images was just called")
 	}
 	callInfo := struct {
-		Description string
+		Ctx context.Context
+		ID  uint64
 	}{
-		Description: description,
+		Ctx: ctx,
+		ID:  id,
 	}
-	lockStreamServiceMockSetDiscription.Lock()
-	mock.calls.SetDiscription = append(mock.calls.SetDiscription, callInfo)
-	lockStreamServiceMockSetDiscription.Unlock()
-	return mock.SetDiscriptionFunc(description)
+	lockStreamServiceMockImages.Lock()
+	mock.calls.Images = append(mock.calls.Images, callInfo)
+	lockStreamServiceMockImages.Unlock()
+	return mock.ImagesFunc(ctx, id)
 }
 
-// SetDiscriptionCalls gets all the calls that were made to SetDiscription.
+// ImagesCalls gets all the calls that were made to Images.
 // Check the length with:
-//     len(mockedStreamService.SetDiscriptionCalls())
-func (mock *StreamServiceMock) SetDiscriptionCalls() []struct {
+//     len(mockedStreamService.ImagesCalls())
+func (mock *StreamServiceMock) ImagesCalls() []struct {
+	Ctx context.Context
+	ID  uint64
+} {
+	var calls []struct {
+		Ctx context.Context
+		ID  uint64
+	}
+	lockStreamServiceMockImages.RLock()
+	calls = mock.calls.Images
+	lockStreamServiceMockImages.RUnlock()
+	return calls
+}
+
+// RemoveImage calls RemoveImageFunc.
+func (mock *StreamServiceMock) RemoveImage(ctx context.Context, id uint64, imageID uint64) error {
+	if mock.RemoveImageFunc == nil {
+		panic("StreamServiceMock.RemoveImageFunc: method is nil but StreamService.RemoveImage was just called")
+	}
+	callInfo := struct {
+		Ctx     context.Context
+		ID      uint64
+		ImageID uint64
+	}{
+		Ctx:     ctx,
+		ID:      id,
+		ImageID: imageID,
+	}
+	lockStreamServiceMockRemoveImage.Lock()
+	mock.calls.RemoveImage = append(mock.calls.RemoveImage, callInfo)
+	lockStreamServiceMockRemoveImage.Unlock()
+	return mock.RemoveImageFunc(ctx, id, imageID)
+}
+
+// RemoveImageCalls gets all the calls that were made to RemoveImage.
+// Check the length with:
+//     len(mockedStreamService.RemoveImageCalls())
+func (mock *StreamServiceMock) RemoveImageCalls() []struct {
+	Ctx     context.Context
+	ID      uint64
+	ImageID uint64
+} {
+	var calls []struct {
+		Ctx     context.Context
+		ID      uint64
+		ImageID uint64
+	}
+	lockStreamServiceMockRemoveImage.RLock()
+	calls = mock.calls.RemoveImage
+	lockStreamServiceMockRemoveImage.RUnlock()
+	return calls
+}
+
+// SetDescription calls SetDescriptionFunc.
+func (mock *StreamServiceMock) SetDescription(ctx context.Context, id uint64, description string) error {
+	if mock.SetDescriptionFunc == nil {
+		panic("StreamServiceMock.SetDescriptionFunc: method is nil but StreamService.SetDescription was just called")
+	}
+	callInfo := struct {
+		Ctx         context.Context
+		ID          uint64
+		Description string
+	}{
+		Ctx:         ctx,
+		ID:          id,
+		Description: description,
+	}
+	lockStreamServiceMockSetDescription.Lock()
+	mock.calls.SetDescription = append(mock.calls.SetDescription, callInfo)
+	lockStreamServiceMockSetDescription.Unlock()
+	return mock.SetDescriptionFunc(ctx, id, description)
+}
+
+// SetDescriptionCalls gets all the calls that were made to SetDescription.
+// Check the length with:
+//     len(mockedStreamService.SetDescriptionCalls())
+func (mock *StreamServiceMock) SetDescriptionCalls() []struct {
+	Ctx         context.Context
+	ID          uint64
 	Description string
 } {
 	var calls []struct {
+		Ctx         context.Context
+		ID          uint64
 		Description string
 	}
-	lockStreamServiceMockSetDiscription.RLock()
-	calls = mock.calls.SetDiscription
-	lockStreamServiceMockSetDiscription.RUnlock()
+	lockStreamServiceMockSetDescription.RLock()
+	calls = mock.calls.SetDescription
+	lockStreamServiceMockSetDescription.RUnlock()
 	return calls
 }
 
 // SetTitle calls SetTitleFunc.
-func (mock *StreamServiceMock) SetTitle(title string) error {
+func (mock *StreamServiceMock) SetTitle(ctx context.Context, id uint64, title string) error {
 	if mock.SetTitleFunc == nil {
 		panic("StreamServiceMock.SetTitleFunc: method is nil but StreamService.SetTitle was just called")
 	}
 	callInfo := struct {
+		Ctx   context.Context
+		ID    uint64
 		Title string
 	}{
+		Ctx:   ctx,
+		ID:    id,
 		Title: title,
 	}
 	lockStreamServiceMockSetTitle.Lock()
 	mock.calls.SetTitle = append(mock.calls.SetTitle, callInfo)
 	lockStreamServiceMockSetTitle.Unlock()
-	return mock.SetTitleFunc(title)
+	return mock.SetTitleFunc(ctx, id, title)
 }
 
 // SetTitleCalls gets all the calls that were made to SetTitle.
 // Check the length with:
 //     len(mockedStreamService.SetTitleCalls())
 func (mock *StreamServiceMock) SetTitleCalls() []struct {
+	Ctx   context.Context
+	ID    uint64
 	Title string
 } {
 	var calls []struct {
+		Ctx   context.Context
+		ID    uint64
 		Title string
 	}
 	lockStreamServiceMockSetTitle.RLock()
@@ -188,29 +382,33 @@ func (mock *StreamServiceMock) SetTitleCalls() []struct {
 }
 
 // StreamByID calls StreamByIDFunc.
-func (mock *StreamServiceMock) StreamByID(id uint64) (*Stream, error) {
+func (mock *StreamServiceMock) StreamByID(ctx context.Context, id uint64) (*Stream, error) {
 	if mock.StreamByIDFunc == nil {
 		panic("StreamServiceMock.StreamByIDFunc: method is nil but StreamService.StreamByID was just called")
 	}
 	callInfo := struct {
-		ID uint64
+		Ctx context.Context
+		ID  uint64
 	}{
-		ID: id,
+		Ctx: ctx,
+		ID:  id,
 	}
 	lockStreamServiceMockStreamByID.Lock()
 	mock.calls.StreamByID = append(mock.calls.StreamByID, callInfo)
 	lockStreamServiceMockStreamByID.Unlock()
-	return mock.StreamByIDFunc(id)
+	return mock.StreamByIDFunc(ctx, id)
 }
 
 // StreamByIDCalls gets all the calls that were made to StreamByID.
 // Check the length with:
 //     len(mockedStreamService.StreamByIDCalls())
 func (mock *StreamServiceMock) StreamByIDCalls() []struct {
-	ID uint64
+	Ctx context.Context
+	ID  uint64
 } {
 	var calls []struct {
-		ID uint64
+		Ctx context.Context
+		ID  uint64
 	}
 	lockStreamServiceMockStreamByID.RLock()
 	calls = mock.calls.StreamByID
@@ -219,28 +417,32 @@ func (mock *StreamServiceMock) StreamByIDCalls() []struct {
 }
 
 // StreamsByCreator calls StreamsByCreatorFunc.
-func (mock *StreamServiceMock) StreamsByCreator(userID uint64) (*[]Stream, error) {
+func (mock *StreamServiceMock) StreamsByCreator(ctx context.Context, userID uint64) (*[]Stream, error) {
 	if mock.StreamsByCreatorFunc == nil {
 		panic("StreamServiceMock.StreamsByCreatorFunc: method is nil but StreamService.StreamsByCreator was just called")
 	}
 	callInfo := struct {
+		Ctx    context.Context
 		UserID uint64
 	}{
+		Ctx:    ctx,
 		UserID: userID,
 	}
 	lockStreamServiceMockStreamsByCreator.Lock()
 	mock.calls.StreamsByCreator = append(mock.calls.StreamsByCreator, callInfo)
 	lockStreamServiceMockStreamsByCreator.Unlock()
-	return mock.StreamsByCreatorFunc(userID)
+	return mock.StreamsByCreatorFunc(ctx, userID)
 }
 
 // StreamsByCreatorCalls gets all the calls that were made to StreamsByCreator.
 // Check the length with:
 //     len(mockedStreamService.StreamsByCreatorCalls())
 func (mock *StreamServiceMock) StreamsByCreatorCalls() []struct {
+	Ctx    context.Context
 	UserID uint64
 } {
 	var calls []struct {
+		Ctx    context.Context
 		UserID uint64
 	}
 	lockStreamServiceMockStreamsByCreator.RLock()

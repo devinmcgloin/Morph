@@ -4,15 +4,17 @@
 package domain
 
 import (
+	"context"
 	"sync"
 )
 
 var (
-	lockTagServiceMockCreateTag    sync.RWMutex
-	lockTagServiceMockImagesForTag sync.RWMutex
-	lockTagServiceMockTagByID      sync.RWMutex
-	lockTagServiceMockTagImage     sync.RWMutex
-	lockTagServiceMockUnTagImage   sync.RWMutex
+	lockTagServiceMockCreateTag        sync.RWMutex
+	lockTagServiceMockImagesForTag     sync.RWMutex
+	lockTagServiceMockTagByDescription sync.RWMutex
+	lockTagServiceMockTagByID          sync.RWMutex
+	lockTagServiceMockTagImage         sync.RWMutex
+	lockTagServiceMockUnTagImage       sync.RWMutex
 )
 
 // TagServiceMock is a mock implementation of TagService.
@@ -21,19 +23,22 @@ var (
 //
 //         // make and configure a mocked TagService
 //         mockedTagService := &TagServiceMock{
-//             CreateTagFunc: func(id string) error {
+//             CreateTagFunc: func(ctx context.Context, desc string) (*Tag, error) {
 // 	               panic("TODO: mock out the CreateTag method")
 //             },
-//             ImagesForTagFunc: func(id string) (*[]Image, error) {
+//             ImagesForTagFunc: func(ctx context.Context, id uint64) (*[]Image, error) {
 // 	               panic("TODO: mock out the ImagesForTag method")
 //             },
-//             TagByIDFunc: func(id string) (*Tag, error) {
+//             TagByDescriptionFunc: func(ctx context.Context, desc string) (*Tag, error) {
+// 	               panic("TODO: mock out the TagByDescription method")
+//             },
+//             TagByIDFunc: func(ctx context.Context, id uint64) (*Tag, error) {
 // 	               panic("TODO: mock out the TagByID method")
 //             },
-//             TagImageFunc: func(id string, imageID uint64) error {
+//             TagImageFunc: func(ctx context.Context, id uint64, imageID uint64) error {
 // 	               panic("TODO: mock out the TagImage method")
 //             },
-//             UnTagImageFunc: func(id string, imageID uint64) error {
+//             UnTagImageFunc: func(ctx context.Context, id uint64, imageID uint64) error {
 // 	               panic("TODO: mock out the UnTagImage method")
 //             },
 //         }
@@ -44,48 +49,68 @@ var (
 //     }
 type TagServiceMock struct {
 	// CreateTagFunc mocks the CreateTag method.
-	CreateTagFunc func(id string) error
+	CreateTagFunc func(ctx context.Context, desc string) (*Tag, error)
 
 	// ImagesForTagFunc mocks the ImagesForTag method.
-	ImagesForTagFunc func(id string) (*[]Image, error)
+	ImagesForTagFunc func(ctx context.Context, id uint64) (*[]Image, error)
+
+	// TagByDescriptionFunc mocks the TagByDescription method.
+	TagByDescriptionFunc func(ctx context.Context, desc string) (*Tag, error)
 
 	// TagByIDFunc mocks the TagByID method.
-	TagByIDFunc func(id string) (*Tag, error)
+	TagByIDFunc func(ctx context.Context, id uint64) (*Tag, error)
 
 	// TagImageFunc mocks the TagImage method.
-	TagImageFunc func(id string, imageID uint64) error
+	TagImageFunc func(ctx context.Context, id uint64, imageID uint64) error
 
 	// UnTagImageFunc mocks the UnTagImage method.
-	UnTagImageFunc func(id string, imageID uint64) error
+	UnTagImageFunc func(ctx context.Context, id uint64, imageID uint64) error
 
 	// calls tracks calls to the methods.
 	calls struct {
 		// CreateTag holds details about calls to the CreateTag method.
 		CreateTag []struct {
-			// ID is the id argument value.
-			ID string
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Desc is the desc argument value.
+			Desc string
 		}
 		// ImagesForTag holds details about calls to the ImagesForTag method.
 		ImagesForTag []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// ID is the id argument value.
-			ID string
+			ID uint64
+		}
+		// TagByDescription holds details about calls to the TagByDescription method.
+		TagByDescription []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Desc is the desc argument value.
+			Desc string
 		}
 		// TagByID holds details about calls to the TagByID method.
 		TagByID []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// ID is the id argument value.
-			ID string
+			ID uint64
 		}
 		// TagImage holds details about calls to the TagImage method.
 		TagImage []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// ID is the id argument value.
-			ID string
+			ID uint64
 			// ImageID is the imageID argument value.
 			ImageID uint64
 		}
 		// UnTagImage holds details about calls to the UnTagImage method.
 		UnTagImage []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// ID is the id argument value.
-			ID string
+			ID uint64
 			// ImageID is the imageID argument value.
 			ImageID uint64
 		}
@@ -93,29 +118,33 @@ type TagServiceMock struct {
 }
 
 // CreateTag calls CreateTagFunc.
-func (mock *TagServiceMock) CreateTag(id string) error {
+func (mock *TagServiceMock) CreateTag(ctx context.Context, desc string) (*Tag, error) {
 	if mock.CreateTagFunc == nil {
 		panic("TagServiceMock.CreateTagFunc: method is nil but TagService.CreateTag was just called")
 	}
 	callInfo := struct {
-		ID string
+		Ctx  context.Context
+		Desc string
 	}{
-		ID: id,
+		Ctx:  ctx,
+		Desc: desc,
 	}
 	lockTagServiceMockCreateTag.Lock()
 	mock.calls.CreateTag = append(mock.calls.CreateTag, callInfo)
 	lockTagServiceMockCreateTag.Unlock()
-	return mock.CreateTagFunc(id)
+	return mock.CreateTagFunc(ctx, desc)
 }
 
 // CreateTagCalls gets all the calls that were made to CreateTag.
 // Check the length with:
 //     len(mockedTagService.CreateTagCalls())
 func (mock *TagServiceMock) CreateTagCalls() []struct {
-	ID string
+	Ctx  context.Context
+	Desc string
 } {
 	var calls []struct {
-		ID string
+		Ctx  context.Context
+		Desc string
 	}
 	lockTagServiceMockCreateTag.RLock()
 	calls = mock.calls.CreateTag
@@ -124,29 +153,33 @@ func (mock *TagServiceMock) CreateTagCalls() []struct {
 }
 
 // ImagesForTag calls ImagesForTagFunc.
-func (mock *TagServiceMock) ImagesForTag(id string) (*[]Image, error) {
+func (mock *TagServiceMock) ImagesForTag(ctx context.Context, id uint64) (*[]Image, error) {
 	if mock.ImagesForTagFunc == nil {
 		panic("TagServiceMock.ImagesForTagFunc: method is nil but TagService.ImagesForTag was just called")
 	}
 	callInfo := struct {
-		ID string
+		Ctx context.Context
+		ID  uint64
 	}{
-		ID: id,
+		Ctx: ctx,
+		ID:  id,
 	}
 	lockTagServiceMockImagesForTag.Lock()
 	mock.calls.ImagesForTag = append(mock.calls.ImagesForTag, callInfo)
 	lockTagServiceMockImagesForTag.Unlock()
-	return mock.ImagesForTagFunc(id)
+	return mock.ImagesForTagFunc(ctx, id)
 }
 
 // ImagesForTagCalls gets all the calls that were made to ImagesForTag.
 // Check the length with:
 //     len(mockedTagService.ImagesForTagCalls())
 func (mock *TagServiceMock) ImagesForTagCalls() []struct {
-	ID string
+	Ctx context.Context
+	ID  uint64
 } {
 	var calls []struct {
-		ID string
+		Ctx context.Context
+		ID  uint64
 	}
 	lockTagServiceMockImagesForTag.RLock()
 	calls = mock.calls.ImagesForTag
@@ -154,30 +187,69 @@ func (mock *TagServiceMock) ImagesForTagCalls() []struct {
 	return calls
 }
 
+// TagByDescription calls TagByDescriptionFunc.
+func (mock *TagServiceMock) TagByDescription(ctx context.Context, desc string) (*Tag, error) {
+	if mock.TagByDescriptionFunc == nil {
+		panic("TagServiceMock.TagByDescriptionFunc: method is nil but TagService.TagByDescription was just called")
+	}
+	callInfo := struct {
+		Ctx  context.Context
+		Desc string
+	}{
+		Ctx:  ctx,
+		Desc: desc,
+	}
+	lockTagServiceMockTagByDescription.Lock()
+	mock.calls.TagByDescription = append(mock.calls.TagByDescription, callInfo)
+	lockTagServiceMockTagByDescription.Unlock()
+	return mock.TagByDescriptionFunc(ctx, desc)
+}
+
+// TagByDescriptionCalls gets all the calls that were made to TagByDescription.
+// Check the length with:
+//     len(mockedTagService.TagByDescriptionCalls())
+func (mock *TagServiceMock) TagByDescriptionCalls() []struct {
+	Ctx  context.Context
+	Desc string
+} {
+	var calls []struct {
+		Ctx  context.Context
+		Desc string
+	}
+	lockTagServiceMockTagByDescription.RLock()
+	calls = mock.calls.TagByDescription
+	lockTagServiceMockTagByDescription.RUnlock()
+	return calls
+}
+
 // TagByID calls TagByIDFunc.
-func (mock *TagServiceMock) TagByID(id string) (*Tag, error) {
+func (mock *TagServiceMock) TagByID(ctx context.Context, id uint64) (*Tag, error) {
 	if mock.TagByIDFunc == nil {
 		panic("TagServiceMock.TagByIDFunc: method is nil but TagService.TagByID was just called")
 	}
 	callInfo := struct {
-		ID string
+		Ctx context.Context
+		ID  uint64
 	}{
-		ID: id,
+		Ctx: ctx,
+		ID:  id,
 	}
 	lockTagServiceMockTagByID.Lock()
 	mock.calls.TagByID = append(mock.calls.TagByID, callInfo)
 	lockTagServiceMockTagByID.Unlock()
-	return mock.TagByIDFunc(id)
+	return mock.TagByIDFunc(ctx, id)
 }
 
 // TagByIDCalls gets all the calls that were made to TagByID.
 // Check the length with:
 //     len(mockedTagService.TagByIDCalls())
 func (mock *TagServiceMock) TagByIDCalls() []struct {
-	ID string
+	Ctx context.Context
+	ID  uint64
 } {
 	var calls []struct {
-		ID string
+		Ctx context.Context
+		ID  uint64
 	}
 	lockTagServiceMockTagByID.RLock()
 	calls = mock.calls.TagByID
@@ -186,32 +258,36 @@ func (mock *TagServiceMock) TagByIDCalls() []struct {
 }
 
 // TagImage calls TagImageFunc.
-func (mock *TagServiceMock) TagImage(id string, imageID uint64) error {
+func (mock *TagServiceMock) TagImage(ctx context.Context, id uint64, imageID uint64) error {
 	if mock.TagImageFunc == nil {
 		panic("TagServiceMock.TagImageFunc: method is nil but TagService.TagImage was just called")
 	}
 	callInfo := struct {
-		ID      string
+		Ctx     context.Context
+		ID      uint64
 		ImageID uint64
 	}{
+		Ctx:     ctx,
 		ID:      id,
 		ImageID: imageID,
 	}
 	lockTagServiceMockTagImage.Lock()
 	mock.calls.TagImage = append(mock.calls.TagImage, callInfo)
 	lockTagServiceMockTagImage.Unlock()
-	return mock.TagImageFunc(id, imageID)
+	return mock.TagImageFunc(ctx, id, imageID)
 }
 
 // TagImageCalls gets all the calls that were made to TagImage.
 // Check the length with:
 //     len(mockedTagService.TagImageCalls())
 func (mock *TagServiceMock) TagImageCalls() []struct {
-	ID      string
+	Ctx     context.Context
+	ID      uint64
 	ImageID uint64
 } {
 	var calls []struct {
-		ID      string
+		Ctx     context.Context
+		ID      uint64
 		ImageID uint64
 	}
 	lockTagServiceMockTagImage.RLock()
@@ -221,32 +297,36 @@ func (mock *TagServiceMock) TagImageCalls() []struct {
 }
 
 // UnTagImage calls UnTagImageFunc.
-func (mock *TagServiceMock) UnTagImage(id string, imageID uint64) error {
+func (mock *TagServiceMock) UnTagImage(ctx context.Context, id uint64, imageID uint64) error {
 	if mock.UnTagImageFunc == nil {
 		panic("TagServiceMock.UnTagImageFunc: method is nil but TagService.UnTagImage was just called")
 	}
 	callInfo := struct {
-		ID      string
+		Ctx     context.Context
+		ID      uint64
 		ImageID uint64
 	}{
+		Ctx:     ctx,
 		ID:      id,
 		ImageID: imageID,
 	}
 	lockTagServiceMockUnTagImage.Lock()
 	mock.calls.UnTagImage = append(mock.calls.UnTagImage, callInfo)
 	lockTagServiceMockUnTagImage.Unlock()
-	return mock.UnTagImageFunc(id, imageID)
+	return mock.UnTagImageFunc(ctx, id, imageID)
 }
 
 // UnTagImageCalls gets all the calls that were made to UnTagImage.
 // Check the length with:
 //     len(mockedTagService.UnTagImageCalls())
 func (mock *TagServiceMock) UnTagImageCalls() []struct {
-	ID      string
+	Ctx     context.Context
+	ID      uint64
 	ImageID uint64
 } {
 	var calls []struct {
-		ID      string
+		Ctx     context.Context
+		ID      uint64
 		ImageID uint64
 	}
 	lockTagServiceMockUnTagImage.RLock()

@@ -4,26 +4,31 @@
 package domain
 
 import (
+	"context"
 	"sync"
 )
 
 var (
-	lockImageServiceMockCreateImage       sync.RWMutex
-	lockImageServiceMockDeleteImage       sync.RWMutex
-	lockImageServiceMockExistsByShortcode sync.RWMutex
-	lockImageServiceMockFeature           sync.RWMutex
-	lockImageServiceMockImageByID         sync.RWMutex
-	lockImageServiceMockImageByShortcode  sync.RWMutex
-	lockImageServiceMockImageColors       sync.RWMutex
-	lockImageServiceMockImageLabels       sync.RWMutex
-	lockImageServiceMockImageLocation     sync.RWMutex
-	lockImageServiceMockImageMetadata     sync.RWMutex
-	lockImageServiceMockImageSource       sync.RWMutex
-	lockImageServiceMockImageStats        sync.RWMutex
-	lockImageServiceMockImageTags         sync.RWMutex
-	lockImageServiceMockImagesForUser     sync.RWMutex
-	lockImageServiceMockSetImageMetadata  sync.RWMutex
-	lockImageServiceMockUnFeature         sync.RWMutex
+	lockImageServiceMockCreateImage        sync.RWMutex
+	lockImageServiceMockDeleteImage        sync.RWMutex
+	lockImageServiceMockExistsByShortcode  sync.RWMutex
+	lockImageServiceMockFeature            sync.RWMutex
+	lockImageServiceMockImageByID          sync.RWMutex
+	lockImageServiceMockImageByShortcode   sync.RWMutex
+	lockImageServiceMockImageColors        sync.RWMutex
+	lockImageServiceMockImageLabels        sync.RWMutex
+	lockImageServiceMockImageLocation      sync.RWMutex
+	lockImageServiceMockImageMetadata      sync.RWMutex
+	lockImageServiceMockImageSource        sync.RWMutex
+	lockImageServiceMockImageStats         sync.RWMutex
+	lockImageServiceMockImageTags          sync.RWMutex
+	lockImageServiceMockImagesForUser      sync.RWMutex
+	lockImageServiceMockRandomImage        sync.RWMutex
+	lockImageServiceMockRandomImageForUser sync.RWMutex
+	lockImageServiceMockSetImageColors     sync.RWMutex
+	lockImageServiceMockSetImageLocation   sync.RWMutex
+	lockImageServiceMockSetImageMetadata   sync.RWMutex
+	lockImageServiceMockUnFeature          sync.RWMutex
 )
 
 // ImageServiceMock is a mock implementation of ImageService.
@@ -32,52 +37,64 @@ var (
 //
 //         // make and configure a mocked ImageService
 //         mockedImageService := &ImageServiceMock{
-//             CreateImageFunc: func(i *Image) error {
+//             CreateImageFunc: func(ctx context.Context, i *Image) error {
 // 	               panic("TODO: mock out the CreateImage method")
 //             },
-//             DeleteImageFunc: func(id uint64) error {
+//             DeleteImageFunc: func(ctx context.Context, id uint64) error {
 // 	               panic("TODO: mock out the DeleteImage method")
 //             },
-//             ExistsByShortcodeFunc: func(shortcode string) (bool, error) {
+//             ExistsByShortcodeFunc: func(ctx context.Context, shortcode string) (bool, error) {
 // 	               panic("TODO: mock out the ExistsByShortcode method")
 //             },
-//             FeatureFunc: func(id uint64, user uint64) error {
+//             FeatureFunc: func(ctx context.Context, id uint64, user uint64) error {
 // 	               panic("TODO: mock out the Feature method")
 //             },
-//             ImageByIDFunc: func(id uint64) (*Image, error) {
+//             ImageByIDFunc: func(ctx context.Context, id uint64) (*Image, error) {
 // 	               panic("TODO: mock out the ImageByID method")
 //             },
-//             ImageByShortcodeFunc: func(shortcode string) (*Image, error) {
+//             ImageByShortcodeFunc: func(ctx context.Context, shortcode string) (*Image, error) {
 // 	               panic("TODO: mock out the ImageByShortcode method")
 //             },
-//             ImageColorsFunc: func(id uint64) (*[]Color, error) {
+//             ImageColorsFunc: func(ctx context.Context, id uint64) (*[]Color, error) {
 // 	               panic("TODO: mock out the ImageColors method")
 //             },
-//             ImageLabelsFunc: func(id uint64) (*[]Label, error) {
+//             ImageLabelsFunc: func(ctx context.Context, id uint64) (*[]Label, error) {
 // 	               panic("TODO: mock out the ImageLabels method")
 //             },
-//             ImageLocationFunc: func(id uint64) (*Location, error) {
+//             ImageLocationFunc: func(ctx context.Context, id uint64) (*Location, error) {
 // 	               panic("TODO: mock out the ImageLocation method")
 //             },
-//             ImageMetadataFunc: func(id uint64) (*ImageMetadata, error) {
+//             ImageMetadataFunc: func(ctx context.Context, id uint64) (*ImageMetadata, error) {
 // 	               panic("TODO: mock out the ImageMetadata method")
 //             },
-//             ImageSourceFunc: func(id uint64) (*ImageSource, error) {
+//             ImageSourceFunc: func(ctx context.Context, id uint64) (*ImageSource, error) {
 // 	               panic("TODO: mock out the ImageSource method")
 //             },
-//             ImageStatsFunc: func(id uint64) (*ImageStats, error) {
+//             ImageStatsFunc: func(ctx context.Context, id uint64) (*ImageStats, error) {
 // 	               panic("TODO: mock out the ImageStats method")
 //             },
-//             ImageTagsFunc: func(id uint64) (*[]string, error) {
+//             ImageTagsFunc: func(ctx context.Context, id uint64) (*[]string, error) {
 // 	               panic("TODO: mock out the ImageTags method")
 //             },
-//             ImagesForUserFunc: func(id uint64) (*[]Image, error) {
+//             ImagesForUserFunc: func(ctx context.Context, id uint64) (*[]Image, error) {
 // 	               panic("TODO: mock out the ImagesForUser method")
 //             },
-//             SetImageMetadataFunc: func(id uint64, metadata ImageMetadata) error {
+//             RandomImageFunc: func(ctx context.Context) (*Image, error) {
+// 	               panic("TODO: mock out the RandomImage method")
+//             },
+//             RandomImageForUserFunc: func(ctx context.Context, userID uint64) (*Image, error) {
+// 	               panic("TODO: mock out the RandomImageForUser method")
+//             },
+//             SetImageColorsFunc: func(ctx context.Context, id uint64, colors []Color) error {
+// 	               panic("TODO: mock out the SetImageColors method")
+//             },
+//             SetImageLocationFunc: func(ctx context.Context, id uint64, location Location) error {
+// 	               panic("TODO: mock out the SetImageLocation method")
+//             },
+//             SetImageMetadataFunc: func(ctx context.Context, id uint64, metadata ImageMetadata) error {
 // 	               panic("TODO: mock out the SetImageMetadata method")
 //             },
-//             UnFeatureFunc: func(id uint64, user uint64) error {
+//             UnFeatureFunc: func(ctx context.Context, id uint64, user uint64) error {
 // 	               panic("TODO: mock out the UnFeature method")
 //             },
 //         }
@@ -88,72 +105,92 @@ var (
 //     }
 type ImageServiceMock struct {
 	// CreateImageFunc mocks the CreateImage method.
-	CreateImageFunc func(i *Image) error
+	CreateImageFunc func(ctx context.Context, i *Image) error
 
 	// DeleteImageFunc mocks the DeleteImage method.
-	DeleteImageFunc func(id uint64) error
+	DeleteImageFunc func(ctx context.Context, id uint64) error
 
 	// ExistsByShortcodeFunc mocks the ExistsByShortcode method.
-	ExistsByShortcodeFunc func(shortcode string) (bool, error)
+	ExistsByShortcodeFunc func(ctx context.Context, shortcode string) (bool, error)
 
 	// FeatureFunc mocks the Feature method.
-	FeatureFunc func(id uint64, user uint64) error
+	FeatureFunc func(ctx context.Context, id uint64, user uint64) error
 
 	// ImageByIDFunc mocks the ImageByID method.
-	ImageByIDFunc func(id uint64) (*Image, error)
+	ImageByIDFunc func(ctx context.Context, id uint64) (*Image, error)
 
 	// ImageByShortcodeFunc mocks the ImageByShortcode method.
-	ImageByShortcodeFunc func(shortcode string) (*Image, error)
+	ImageByShortcodeFunc func(ctx context.Context, shortcode string) (*Image, error)
 
 	// ImageColorsFunc mocks the ImageColors method.
-	ImageColorsFunc func(id uint64) (*[]Color, error)
+	ImageColorsFunc func(ctx context.Context, id uint64) (*[]Color, error)
 
 	// ImageLabelsFunc mocks the ImageLabels method.
-	ImageLabelsFunc func(id uint64) (*[]Label, error)
+	ImageLabelsFunc func(ctx context.Context, id uint64) (*[]Label, error)
 
 	// ImageLocationFunc mocks the ImageLocation method.
-	ImageLocationFunc func(id uint64) (*Location, error)
+	ImageLocationFunc func(ctx context.Context, id uint64) (*Location, error)
 
 	// ImageMetadataFunc mocks the ImageMetadata method.
-	ImageMetadataFunc func(id uint64) (*ImageMetadata, error)
+	ImageMetadataFunc func(ctx context.Context, id uint64) (*ImageMetadata, error)
 
 	// ImageSourceFunc mocks the ImageSource method.
-	ImageSourceFunc func(id uint64) (*ImageSource, error)
+	ImageSourceFunc func(ctx context.Context, id uint64) (*ImageSource, error)
 
 	// ImageStatsFunc mocks the ImageStats method.
-	ImageStatsFunc func(id uint64) (*ImageStats, error)
+	ImageStatsFunc func(ctx context.Context, id uint64) (*ImageStats, error)
 
 	// ImageTagsFunc mocks the ImageTags method.
-	ImageTagsFunc func(id uint64) (*[]string, error)
+	ImageTagsFunc func(ctx context.Context, id uint64) (*[]string, error)
 
 	// ImagesForUserFunc mocks the ImagesForUser method.
-	ImagesForUserFunc func(id uint64) (*[]Image, error)
+	ImagesForUserFunc func(ctx context.Context, id uint64) (*[]Image, error)
+
+	// RandomImageFunc mocks the RandomImage method.
+	RandomImageFunc func(ctx context.Context) (*Image, error)
+
+	// RandomImageForUserFunc mocks the RandomImageForUser method.
+	RandomImageForUserFunc func(ctx context.Context, userID uint64) (*Image, error)
+
+	// SetImageColorsFunc mocks the SetImageColors method.
+	SetImageColorsFunc func(ctx context.Context, id uint64, colors []Color) error
+
+	// SetImageLocationFunc mocks the SetImageLocation method.
+	SetImageLocationFunc func(ctx context.Context, id uint64, location Location) error
 
 	// SetImageMetadataFunc mocks the SetImageMetadata method.
-	SetImageMetadataFunc func(id uint64, metadata ImageMetadata) error
+	SetImageMetadataFunc func(ctx context.Context, id uint64, metadata ImageMetadata) error
 
 	// UnFeatureFunc mocks the UnFeature method.
-	UnFeatureFunc func(id uint64, user uint64) error
+	UnFeatureFunc func(ctx context.Context, id uint64, user uint64) error
 
 	// calls tracks calls to the methods.
 	calls struct {
 		// CreateImage holds details about calls to the CreateImage method.
 		CreateImage []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// I is the i argument value.
 			I *Image
 		}
 		// DeleteImage holds details about calls to the DeleteImage method.
 		DeleteImage []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// ID is the id argument value.
 			ID uint64
 		}
 		// ExistsByShortcode holds details about calls to the ExistsByShortcode method.
 		ExistsByShortcode []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Shortcode is the shortcode argument value.
 			Shortcode string
 		}
 		// Feature holds details about calls to the Feature method.
 		Feature []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// ID is the id argument value.
 			ID uint64
 			// User is the user argument value.
@@ -161,56 +198,108 @@ type ImageServiceMock struct {
 		}
 		// ImageByID holds details about calls to the ImageByID method.
 		ImageByID []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// ID is the id argument value.
 			ID uint64
 		}
 		// ImageByShortcode holds details about calls to the ImageByShortcode method.
 		ImageByShortcode []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Shortcode is the shortcode argument value.
 			Shortcode string
 		}
 		// ImageColors holds details about calls to the ImageColors method.
 		ImageColors []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// ID is the id argument value.
 			ID uint64
 		}
 		// ImageLabels holds details about calls to the ImageLabels method.
 		ImageLabels []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// ID is the id argument value.
 			ID uint64
 		}
 		// ImageLocation holds details about calls to the ImageLocation method.
 		ImageLocation []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// ID is the id argument value.
 			ID uint64
 		}
 		// ImageMetadata holds details about calls to the ImageMetadata method.
 		ImageMetadata []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// ID is the id argument value.
 			ID uint64
 		}
 		// ImageSource holds details about calls to the ImageSource method.
 		ImageSource []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// ID is the id argument value.
 			ID uint64
 		}
 		// ImageStats holds details about calls to the ImageStats method.
 		ImageStats []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// ID is the id argument value.
 			ID uint64
 		}
 		// ImageTags holds details about calls to the ImageTags method.
 		ImageTags []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// ID is the id argument value.
 			ID uint64
 		}
 		// ImagesForUser holds details about calls to the ImagesForUser method.
 		ImagesForUser []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// ID is the id argument value.
 			ID uint64
 		}
+		// RandomImage holds details about calls to the RandomImage method.
+		RandomImage []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+		}
+		// RandomImageForUser holds details about calls to the RandomImageForUser method.
+		RandomImageForUser []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// UserID is the userID argument value.
+			UserID uint64
+		}
+		// SetImageColors holds details about calls to the SetImageColors method.
+		SetImageColors []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// ID is the id argument value.
+			ID uint64
+			// Colors is the colors argument value.
+			Colors []Color
+		}
+		// SetImageLocation holds details about calls to the SetImageLocation method.
+		SetImageLocation []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// ID is the id argument value.
+			ID uint64
+			// Location is the location argument value.
+			Location Location
+		}
 		// SetImageMetadata holds details about calls to the SetImageMetadata method.
 		SetImageMetadata []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// ID is the id argument value.
 			ID uint64
 			// Metadata is the metadata argument value.
@@ -218,6 +307,8 @@ type ImageServiceMock struct {
 		}
 		// UnFeature holds details about calls to the UnFeature method.
 		UnFeature []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// ID is the id argument value.
 			ID uint64
 			// User is the user argument value.
@@ -227,29 +318,33 @@ type ImageServiceMock struct {
 }
 
 // CreateImage calls CreateImageFunc.
-func (mock *ImageServiceMock) CreateImage(i *Image) error {
+func (mock *ImageServiceMock) CreateImage(ctx context.Context, i *Image) error {
 	if mock.CreateImageFunc == nil {
 		panic("ImageServiceMock.CreateImageFunc: method is nil but ImageService.CreateImage was just called")
 	}
 	callInfo := struct {
-		I *Image
+		Ctx context.Context
+		I   *Image
 	}{
-		I: i,
+		Ctx: ctx,
+		I:   i,
 	}
 	lockImageServiceMockCreateImage.Lock()
 	mock.calls.CreateImage = append(mock.calls.CreateImage, callInfo)
 	lockImageServiceMockCreateImage.Unlock()
-	return mock.CreateImageFunc(i)
+	return mock.CreateImageFunc(ctx, i)
 }
 
 // CreateImageCalls gets all the calls that were made to CreateImage.
 // Check the length with:
 //     len(mockedImageService.CreateImageCalls())
 func (mock *ImageServiceMock) CreateImageCalls() []struct {
-	I *Image
+	Ctx context.Context
+	I   *Image
 } {
 	var calls []struct {
-		I *Image
+		Ctx context.Context
+		I   *Image
 	}
 	lockImageServiceMockCreateImage.RLock()
 	calls = mock.calls.CreateImage
@@ -258,29 +353,33 @@ func (mock *ImageServiceMock) CreateImageCalls() []struct {
 }
 
 // DeleteImage calls DeleteImageFunc.
-func (mock *ImageServiceMock) DeleteImage(id uint64) error {
+func (mock *ImageServiceMock) DeleteImage(ctx context.Context, id uint64) error {
 	if mock.DeleteImageFunc == nil {
 		panic("ImageServiceMock.DeleteImageFunc: method is nil but ImageService.DeleteImage was just called")
 	}
 	callInfo := struct {
-		ID uint64
+		Ctx context.Context
+		ID  uint64
 	}{
-		ID: id,
+		Ctx: ctx,
+		ID:  id,
 	}
 	lockImageServiceMockDeleteImage.Lock()
 	mock.calls.DeleteImage = append(mock.calls.DeleteImage, callInfo)
 	lockImageServiceMockDeleteImage.Unlock()
-	return mock.DeleteImageFunc(id)
+	return mock.DeleteImageFunc(ctx, id)
 }
 
 // DeleteImageCalls gets all the calls that were made to DeleteImage.
 // Check the length with:
 //     len(mockedImageService.DeleteImageCalls())
 func (mock *ImageServiceMock) DeleteImageCalls() []struct {
-	ID uint64
+	Ctx context.Context
+	ID  uint64
 } {
 	var calls []struct {
-		ID uint64
+		Ctx context.Context
+		ID  uint64
 	}
 	lockImageServiceMockDeleteImage.RLock()
 	calls = mock.calls.DeleteImage
@@ -289,28 +388,32 @@ func (mock *ImageServiceMock) DeleteImageCalls() []struct {
 }
 
 // ExistsByShortcode calls ExistsByShortcodeFunc.
-func (mock *ImageServiceMock) ExistsByShortcode(shortcode string) (bool, error) {
+func (mock *ImageServiceMock) ExistsByShortcode(ctx context.Context, shortcode string) (bool, error) {
 	if mock.ExistsByShortcodeFunc == nil {
 		panic("ImageServiceMock.ExistsByShortcodeFunc: method is nil but ImageService.ExistsByShortcode was just called")
 	}
 	callInfo := struct {
+		Ctx       context.Context
 		Shortcode string
 	}{
+		Ctx:       ctx,
 		Shortcode: shortcode,
 	}
 	lockImageServiceMockExistsByShortcode.Lock()
 	mock.calls.ExistsByShortcode = append(mock.calls.ExistsByShortcode, callInfo)
 	lockImageServiceMockExistsByShortcode.Unlock()
-	return mock.ExistsByShortcodeFunc(shortcode)
+	return mock.ExistsByShortcodeFunc(ctx, shortcode)
 }
 
 // ExistsByShortcodeCalls gets all the calls that were made to ExistsByShortcode.
 // Check the length with:
 //     len(mockedImageService.ExistsByShortcodeCalls())
 func (mock *ImageServiceMock) ExistsByShortcodeCalls() []struct {
+	Ctx       context.Context
 	Shortcode string
 } {
 	var calls []struct {
+		Ctx       context.Context
 		Shortcode string
 	}
 	lockImageServiceMockExistsByShortcode.RLock()
@@ -320,31 +423,35 @@ func (mock *ImageServiceMock) ExistsByShortcodeCalls() []struct {
 }
 
 // Feature calls FeatureFunc.
-func (mock *ImageServiceMock) Feature(id uint64, user uint64) error {
+func (mock *ImageServiceMock) Feature(ctx context.Context, id uint64, user uint64) error {
 	if mock.FeatureFunc == nil {
 		panic("ImageServiceMock.FeatureFunc: method is nil but ImageService.Feature was just called")
 	}
 	callInfo := struct {
+		Ctx  context.Context
 		ID   uint64
 		User uint64
 	}{
+		Ctx:  ctx,
 		ID:   id,
 		User: user,
 	}
 	lockImageServiceMockFeature.Lock()
 	mock.calls.Feature = append(mock.calls.Feature, callInfo)
 	lockImageServiceMockFeature.Unlock()
-	return mock.FeatureFunc(id, user)
+	return mock.FeatureFunc(ctx, id, user)
 }
 
 // FeatureCalls gets all the calls that were made to Feature.
 // Check the length with:
 //     len(mockedImageService.FeatureCalls())
 func (mock *ImageServiceMock) FeatureCalls() []struct {
+	Ctx  context.Context
 	ID   uint64
 	User uint64
 } {
 	var calls []struct {
+		Ctx  context.Context
 		ID   uint64
 		User uint64
 	}
@@ -355,29 +462,33 @@ func (mock *ImageServiceMock) FeatureCalls() []struct {
 }
 
 // ImageByID calls ImageByIDFunc.
-func (mock *ImageServiceMock) ImageByID(id uint64) (*Image, error) {
+func (mock *ImageServiceMock) ImageByID(ctx context.Context, id uint64) (*Image, error) {
 	if mock.ImageByIDFunc == nil {
 		panic("ImageServiceMock.ImageByIDFunc: method is nil but ImageService.ImageByID was just called")
 	}
 	callInfo := struct {
-		ID uint64
+		Ctx context.Context
+		ID  uint64
 	}{
-		ID: id,
+		Ctx: ctx,
+		ID:  id,
 	}
 	lockImageServiceMockImageByID.Lock()
 	mock.calls.ImageByID = append(mock.calls.ImageByID, callInfo)
 	lockImageServiceMockImageByID.Unlock()
-	return mock.ImageByIDFunc(id)
+	return mock.ImageByIDFunc(ctx, id)
 }
 
 // ImageByIDCalls gets all the calls that were made to ImageByID.
 // Check the length with:
 //     len(mockedImageService.ImageByIDCalls())
 func (mock *ImageServiceMock) ImageByIDCalls() []struct {
-	ID uint64
+	Ctx context.Context
+	ID  uint64
 } {
 	var calls []struct {
-		ID uint64
+		Ctx context.Context
+		ID  uint64
 	}
 	lockImageServiceMockImageByID.RLock()
 	calls = mock.calls.ImageByID
@@ -386,28 +497,32 @@ func (mock *ImageServiceMock) ImageByIDCalls() []struct {
 }
 
 // ImageByShortcode calls ImageByShortcodeFunc.
-func (mock *ImageServiceMock) ImageByShortcode(shortcode string) (*Image, error) {
+func (mock *ImageServiceMock) ImageByShortcode(ctx context.Context, shortcode string) (*Image, error) {
 	if mock.ImageByShortcodeFunc == nil {
 		panic("ImageServiceMock.ImageByShortcodeFunc: method is nil but ImageService.ImageByShortcode was just called")
 	}
 	callInfo := struct {
+		Ctx       context.Context
 		Shortcode string
 	}{
+		Ctx:       ctx,
 		Shortcode: shortcode,
 	}
 	lockImageServiceMockImageByShortcode.Lock()
 	mock.calls.ImageByShortcode = append(mock.calls.ImageByShortcode, callInfo)
 	lockImageServiceMockImageByShortcode.Unlock()
-	return mock.ImageByShortcodeFunc(shortcode)
+	return mock.ImageByShortcodeFunc(ctx, shortcode)
 }
 
 // ImageByShortcodeCalls gets all the calls that were made to ImageByShortcode.
 // Check the length with:
 //     len(mockedImageService.ImageByShortcodeCalls())
 func (mock *ImageServiceMock) ImageByShortcodeCalls() []struct {
+	Ctx       context.Context
 	Shortcode string
 } {
 	var calls []struct {
+		Ctx       context.Context
 		Shortcode string
 	}
 	lockImageServiceMockImageByShortcode.RLock()
@@ -417,29 +532,33 @@ func (mock *ImageServiceMock) ImageByShortcodeCalls() []struct {
 }
 
 // ImageColors calls ImageColorsFunc.
-func (mock *ImageServiceMock) ImageColors(id uint64) (*[]Color, error) {
+func (mock *ImageServiceMock) ImageColors(ctx context.Context, id uint64) (*[]Color, error) {
 	if mock.ImageColorsFunc == nil {
 		panic("ImageServiceMock.ImageColorsFunc: method is nil but ImageService.ImageColors was just called")
 	}
 	callInfo := struct {
-		ID uint64
+		Ctx context.Context
+		ID  uint64
 	}{
-		ID: id,
+		Ctx: ctx,
+		ID:  id,
 	}
 	lockImageServiceMockImageColors.Lock()
 	mock.calls.ImageColors = append(mock.calls.ImageColors, callInfo)
 	lockImageServiceMockImageColors.Unlock()
-	return mock.ImageColorsFunc(id)
+	return mock.ImageColorsFunc(ctx, id)
 }
 
 // ImageColorsCalls gets all the calls that were made to ImageColors.
 // Check the length with:
 //     len(mockedImageService.ImageColorsCalls())
 func (mock *ImageServiceMock) ImageColorsCalls() []struct {
-	ID uint64
+	Ctx context.Context
+	ID  uint64
 } {
 	var calls []struct {
-		ID uint64
+		Ctx context.Context
+		ID  uint64
 	}
 	lockImageServiceMockImageColors.RLock()
 	calls = mock.calls.ImageColors
@@ -448,29 +567,33 @@ func (mock *ImageServiceMock) ImageColorsCalls() []struct {
 }
 
 // ImageLabels calls ImageLabelsFunc.
-func (mock *ImageServiceMock) ImageLabels(id uint64) (*[]Label, error) {
+func (mock *ImageServiceMock) ImageLabels(ctx context.Context, id uint64) (*[]Label, error) {
 	if mock.ImageLabelsFunc == nil {
 		panic("ImageServiceMock.ImageLabelsFunc: method is nil but ImageService.ImageLabels was just called")
 	}
 	callInfo := struct {
-		ID uint64
+		Ctx context.Context
+		ID  uint64
 	}{
-		ID: id,
+		Ctx: ctx,
+		ID:  id,
 	}
 	lockImageServiceMockImageLabels.Lock()
 	mock.calls.ImageLabels = append(mock.calls.ImageLabels, callInfo)
 	lockImageServiceMockImageLabels.Unlock()
-	return mock.ImageLabelsFunc(id)
+	return mock.ImageLabelsFunc(ctx, id)
 }
 
 // ImageLabelsCalls gets all the calls that were made to ImageLabels.
 // Check the length with:
 //     len(mockedImageService.ImageLabelsCalls())
 func (mock *ImageServiceMock) ImageLabelsCalls() []struct {
-	ID uint64
+	Ctx context.Context
+	ID  uint64
 } {
 	var calls []struct {
-		ID uint64
+		Ctx context.Context
+		ID  uint64
 	}
 	lockImageServiceMockImageLabels.RLock()
 	calls = mock.calls.ImageLabels
@@ -479,29 +602,33 @@ func (mock *ImageServiceMock) ImageLabelsCalls() []struct {
 }
 
 // ImageLocation calls ImageLocationFunc.
-func (mock *ImageServiceMock) ImageLocation(id uint64) (*Location, error) {
+func (mock *ImageServiceMock) ImageLocation(ctx context.Context, id uint64) (*Location, error) {
 	if mock.ImageLocationFunc == nil {
 		panic("ImageServiceMock.ImageLocationFunc: method is nil but ImageService.ImageLocation was just called")
 	}
 	callInfo := struct {
-		ID uint64
+		Ctx context.Context
+		ID  uint64
 	}{
-		ID: id,
+		Ctx: ctx,
+		ID:  id,
 	}
 	lockImageServiceMockImageLocation.Lock()
 	mock.calls.ImageLocation = append(mock.calls.ImageLocation, callInfo)
 	lockImageServiceMockImageLocation.Unlock()
-	return mock.ImageLocationFunc(id)
+	return mock.ImageLocationFunc(ctx, id)
 }
 
 // ImageLocationCalls gets all the calls that were made to ImageLocation.
 // Check the length with:
 //     len(mockedImageService.ImageLocationCalls())
 func (mock *ImageServiceMock) ImageLocationCalls() []struct {
-	ID uint64
+	Ctx context.Context
+	ID  uint64
 } {
 	var calls []struct {
-		ID uint64
+		Ctx context.Context
+		ID  uint64
 	}
 	lockImageServiceMockImageLocation.RLock()
 	calls = mock.calls.ImageLocation
@@ -510,29 +637,33 @@ func (mock *ImageServiceMock) ImageLocationCalls() []struct {
 }
 
 // ImageMetadata calls ImageMetadataFunc.
-func (mock *ImageServiceMock) ImageMetadata(id uint64) (*ImageMetadata, error) {
+func (mock *ImageServiceMock) ImageMetadata(ctx context.Context, id uint64) (*ImageMetadata, error) {
 	if mock.ImageMetadataFunc == nil {
 		panic("ImageServiceMock.ImageMetadataFunc: method is nil but ImageService.ImageMetadata was just called")
 	}
 	callInfo := struct {
-		ID uint64
+		Ctx context.Context
+		ID  uint64
 	}{
-		ID: id,
+		Ctx: ctx,
+		ID:  id,
 	}
 	lockImageServiceMockImageMetadata.Lock()
 	mock.calls.ImageMetadata = append(mock.calls.ImageMetadata, callInfo)
 	lockImageServiceMockImageMetadata.Unlock()
-	return mock.ImageMetadataFunc(id)
+	return mock.ImageMetadataFunc(ctx, id)
 }
 
 // ImageMetadataCalls gets all the calls that were made to ImageMetadata.
 // Check the length with:
 //     len(mockedImageService.ImageMetadataCalls())
 func (mock *ImageServiceMock) ImageMetadataCalls() []struct {
-	ID uint64
+	Ctx context.Context
+	ID  uint64
 } {
 	var calls []struct {
-		ID uint64
+		Ctx context.Context
+		ID  uint64
 	}
 	lockImageServiceMockImageMetadata.RLock()
 	calls = mock.calls.ImageMetadata
@@ -541,29 +672,33 @@ func (mock *ImageServiceMock) ImageMetadataCalls() []struct {
 }
 
 // ImageSource calls ImageSourceFunc.
-func (mock *ImageServiceMock) ImageSource(id uint64) (*ImageSource, error) {
+func (mock *ImageServiceMock) ImageSource(ctx context.Context, id uint64) (*ImageSource, error) {
 	if mock.ImageSourceFunc == nil {
 		panic("ImageServiceMock.ImageSourceFunc: method is nil but ImageService.ImageSource was just called")
 	}
 	callInfo := struct {
-		ID uint64
+		Ctx context.Context
+		ID  uint64
 	}{
-		ID: id,
+		Ctx: ctx,
+		ID:  id,
 	}
 	lockImageServiceMockImageSource.Lock()
 	mock.calls.ImageSource = append(mock.calls.ImageSource, callInfo)
 	lockImageServiceMockImageSource.Unlock()
-	return mock.ImageSourceFunc(id)
+	return mock.ImageSourceFunc(ctx, id)
 }
 
 // ImageSourceCalls gets all the calls that were made to ImageSource.
 // Check the length with:
 //     len(mockedImageService.ImageSourceCalls())
 func (mock *ImageServiceMock) ImageSourceCalls() []struct {
-	ID uint64
+	Ctx context.Context
+	ID  uint64
 } {
 	var calls []struct {
-		ID uint64
+		Ctx context.Context
+		ID  uint64
 	}
 	lockImageServiceMockImageSource.RLock()
 	calls = mock.calls.ImageSource
@@ -572,29 +707,33 @@ func (mock *ImageServiceMock) ImageSourceCalls() []struct {
 }
 
 // ImageStats calls ImageStatsFunc.
-func (mock *ImageServiceMock) ImageStats(id uint64) (*ImageStats, error) {
+func (mock *ImageServiceMock) ImageStats(ctx context.Context, id uint64) (*ImageStats, error) {
 	if mock.ImageStatsFunc == nil {
 		panic("ImageServiceMock.ImageStatsFunc: method is nil but ImageService.ImageStats was just called")
 	}
 	callInfo := struct {
-		ID uint64
+		Ctx context.Context
+		ID  uint64
 	}{
-		ID: id,
+		Ctx: ctx,
+		ID:  id,
 	}
 	lockImageServiceMockImageStats.Lock()
 	mock.calls.ImageStats = append(mock.calls.ImageStats, callInfo)
 	lockImageServiceMockImageStats.Unlock()
-	return mock.ImageStatsFunc(id)
+	return mock.ImageStatsFunc(ctx, id)
 }
 
 // ImageStatsCalls gets all the calls that were made to ImageStats.
 // Check the length with:
 //     len(mockedImageService.ImageStatsCalls())
 func (mock *ImageServiceMock) ImageStatsCalls() []struct {
-	ID uint64
+	Ctx context.Context
+	ID  uint64
 } {
 	var calls []struct {
-		ID uint64
+		Ctx context.Context
+		ID  uint64
 	}
 	lockImageServiceMockImageStats.RLock()
 	calls = mock.calls.ImageStats
@@ -603,29 +742,33 @@ func (mock *ImageServiceMock) ImageStatsCalls() []struct {
 }
 
 // ImageTags calls ImageTagsFunc.
-func (mock *ImageServiceMock) ImageTags(id uint64) (*[]string, error) {
+func (mock *ImageServiceMock) ImageTags(ctx context.Context, id uint64) (*[]string, error) {
 	if mock.ImageTagsFunc == nil {
 		panic("ImageServiceMock.ImageTagsFunc: method is nil but ImageService.ImageTags was just called")
 	}
 	callInfo := struct {
-		ID uint64
+		Ctx context.Context
+		ID  uint64
 	}{
-		ID: id,
+		Ctx: ctx,
+		ID:  id,
 	}
 	lockImageServiceMockImageTags.Lock()
 	mock.calls.ImageTags = append(mock.calls.ImageTags, callInfo)
 	lockImageServiceMockImageTags.Unlock()
-	return mock.ImageTagsFunc(id)
+	return mock.ImageTagsFunc(ctx, id)
 }
 
 // ImageTagsCalls gets all the calls that were made to ImageTags.
 // Check the length with:
 //     len(mockedImageService.ImageTagsCalls())
 func (mock *ImageServiceMock) ImageTagsCalls() []struct {
-	ID uint64
+	Ctx context.Context
+	ID  uint64
 } {
 	var calls []struct {
-		ID uint64
+		Ctx context.Context
+		ID  uint64
 	}
 	lockImageServiceMockImageTags.RLock()
 	calls = mock.calls.ImageTags
@@ -634,29 +777,33 @@ func (mock *ImageServiceMock) ImageTagsCalls() []struct {
 }
 
 // ImagesForUser calls ImagesForUserFunc.
-func (mock *ImageServiceMock) ImagesForUser(id uint64) (*[]Image, error) {
+func (mock *ImageServiceMock) ImagesForUser(ctx context.Context, id uint64) (*[]Image, error) {
 	if mock.ImagesForUserFunc == nil {
 		panic("ImageServiceMock.ImagesForUserFunc: method is nil but ImageService.ImagesForUser was just called")
 	}
 	callInfo := struct {
-		ID uint64
+		Ctx context.Context
+		ID  uint64
 	}{
-		ID: id,
+		Ctx: ctx,
+		ID:  id,
 	}
 	lockImageServiceMockImagesForUser.Lock()
 	mock.calls.ImagesForUser = append(mock.calls.ImagesForUser, callInfo)
 	lockImageServiceMockImagesForUser.Unlock()
-	return mock.ImagesForUserFunc(id)
+	return mock.ImagesForUserFunc(ctx, id)
 }
 
 // ImagesForUserCalls gets all the calls that were made to ImagesForUser.
 // Check the length with:
 //     len(mockedImageService.ImagesForUserCalls())
 func (mock *ImageServiceMock) ImagesForUserCalls() []struct {
-	ID uint64
+	Ctx context.Context
+	ID  uint64
 } {
 	var calls []struct {
-		ID uint64
+		Ctx context.Context
+		ID  uint64
 	}
 	lockImageServiceMockImagesForUser.RLock()
 	calls = mock.calls.ImagesForUser
@@ -664,32 +811,180 @@ func (mock *ImageServiceMock) ImagesForUserCalls() []struct {
 	return calls
 }
 
+// RandomImage calls RandomImageFunc.
+func (mock *ImageServiceMock) RandomImage(ctx context.Context) (*Image, error) {
+	if mock.RandomImageFunc == nil {
+		panic("ImageServiceMock.RandomImageFunc: method is nil but ImageService.RandomImage was just called")
+	}
+	callInfo := struct {
+		Ctx context.Context
+	}{
+		Ctx: ctx,
+	}
+	lockImageServiceMockRandomImage.Lock()
+	mock.calls.RandomImage = append(mock.calls.RandomImage, callInfo)
+	lockImageServiceMockRandomImage.Unlock()
+	return mock.RandomImageFunc(ctx)
+}
+
+// RandomImageCalls gets all the calls that were made to RandomImage.
+// Check the length with:
+//     len(mockedImageService.RandomImageCalls())
+func (mock *ImageServiceMock) RandomImageCalls() []struct {
+	Ctx context.Context
+} {
+	var calls []struct {
+		Ctx context.Context
+	}
+	lockImageServiceMockRandomImage.RLock()
+	calls = mock.calls.RandomImage
+	lockImageServiceMockRandomImage.RUnlock()
+	return calls
+}
+
+// RandomImageForUser calls RandomImageForUserFunc.
+func (mock *ImageServiceMock) RandomImageForUser(ctx context.Context, userID uint64) (*Image, error) {
+	if mock.RandomImageForUserFunc == nil {
+		panic("ImageServiceMock.RandomImageForUserFunc: method is nil but ImageService.RandomImageForUser was just called")
+	}
+	callInfo := struct {
+		Ctx    context.Context
+		UserID uint64
+	}{
+		Ctx:    ctx,
+		UserID: userID,
+	}
+	lockImageServiceMockRandomImageForUser.Lock()
+	mock.calls.RandomImageForUser = append(mock.calls.RandomImageForUser, callInfo)
+	lockImageServiceMockRandomImageForUser.Unlock()
+	return mock.RandomImageForUserFunc(ctx, userID)
+}
+
+// RandomImageForUserCalls gets all the calls that were made to RandomImageForUser.
+// Check the length with:
+//     len(mockedImageService.RandomImageForUserCalls())
+func (mock *ImageServiceMock) RandomImageForUserCalls() []struct {
+	Ctx    context.Context
+	UserID uint64
+} {
+	var calls []struct {
+		Ctx    context.Context
+		UserID uint64
+	}
+	lockImageServiceMockRandomImageForUser.RLock()
+	calls = mock.calls.RandomImageForUser
+	lockImageServiceMockRandomImageForUser.RUnlock()
+	return calls
+}
+
+// SetImageColors calls SetImageColorsFunc.
+func (mock *ImageServiceMock) SetImageColors(ctx context.Context, id uint64, colors []Color) error {
+	if mock.SetImageColorsFunc == nil {
+		panic("ImageServiceMock.SetImageColorsFunc: method is nil but ImageService.SetImageColors was just called")
+	}
+	callInfo := struct {
+		Ctx    context.Context
+		ID     uint64
+		Colors []Color
+	}{
+		Ctx:    ctx,
+		ID:     id,
+		Colors: colors,
+	}
+	lockImageServiceMockSetImageColors.Lock()
+	mock.calls.SetImageColors = append(mock.calls.SetImageColors, callInfo)
+	lockImageServiceMockSetImageColors.Unlock()
+	return mock.SetImageColorsFunc(ctx, id, colors)
+}
+
+// SetImageColorsCalls gets all the calls that were made to SetImageColors.
+// Check the length with:
+//     len(mockedImageService.SetImageColorsCalls())
+func (mock *ImageServiceMock) SetImageColorsCalls() []struct {
+	Ctx    context.Context
+	ID     uint64
+	Colors []Color
+} {
+	var calls []struct {
+		Ctx    context.Context
+		ID     uint64
+		Colors []Color
+	}
+	lockImageServiceMockSetImageColors.RLock()
+	calls = mock.calls.SetImageColors
+	lockImageServiceMockSetImageColors.RUnlock()
+	return calls
+}
+
+// SetImageLocation calls SetImageLocationFunc.
+func (mock *ImageServiceMock) SetImageLocation(ctx context.Context, id uint64, location Location) error {
+	if mock.SetImageLocationFunc == nil {
+		panic("ImageServiceMock.SetImageLocationFunc: method is nil but ImageService.SetImageLocation was just called")
+	}
+	callInfo := struct {
+		Ctx      context.Context
+		ID       uint64
+		Location Location
+	}{
+		Ctx:      ctx,
+		ID:       id,
+		Location: location,
+	}
+	lockImageServiceMockSetImageLocation.Lock()
+	mock.calls.SetImageLocation = append(mock.calls.SetImageLocation, callInfo)
+	lockImageServiceMockSetImageLocation.Unlock()
+	return mock.SetImageLocationFunc(ctx, id, location)
+}
+
+// SetImageLocationCalls gets all the calls that were made to SetImageLocation.
+// Check the length with:
+//     len(mockedImageService.SetImageLocationCalls())
+func (mock *ImageServiceMock) SetImageLocationCalls() []struct {
+	Ctx      context.Context
+	ID       uint64
+	Location Location
+} {
+	var calls []struct {
+		Ctx      context.Context
+		ID       uint64
+		Location Location
+	}
+	lockImageServiceMockSetImageLocation.RLock()
+	calls = mock.calls.SetImageLocation
+	lockImageServiceMockSetImageLocation.RUnlock()
+	return calls
+}
+
 // SetImageMetadata calls SetImageMetadataFunc.
-func (mock *ImageServiceMock) SetImageMetadata(id uint64, metadata ImageMetadata) error {
+func (mock *ImageServiceMock) SetImageMetadata(ctx context.Context, id uint64, metadata ImageMetadata) error {
 	if mock.SetImageMetadataFunc == nil {
 		panic("ImageServiceMock.SetImageMetadataFunc: method is nil but ImageService.SetImageMetadata was just called")
 	}
 	callInfo := struct {
+		Ctx      context.Context
 		ID       uint64
 		Metadata ImageMetadata
 	}{
+		Ctx:      ctx,
 		ID:       id,
 		Metadata: metadata,
 	}
 	lockImageServiceMockSetImageMetadata.Lock()
 	mock.calls.SetImageMetadata = append(mock.calls.SetImageMetadata, callInfo)
 	lockImageServiceMockSetImageMetadata.Unlock()
-	return mock.SetImageMetadataFunc(id, metadata)
+	return mock.SetImageMetadataFunc(ctx, id, metadata)
 }
 
 // SetImageMetadataCalls gets all the calls that were made to SetImageMetadata.
 // Check the length with:
 //     len(mockedImageService.SetImageMetadataCalls())
 func (mock *ImageServiceMock) SetImageMetadataCalls() []struct {
+	Ctx      context.Context
 	ID       uint64
 	Metadata ImageMetadata
 } {
 	var calls []struct {
+		Ctx      context.Context
 		ID       uint64
 		Metadata ImageMetadata
 	}
@@ -700,31 +995,35 @@ func (mock *ImageServiceMock) SetImageMetadataCalls() []struct {
 }
 
 // UnFeature calls UnFeatureFunc.
-func (mock *ImageServiceMock) UnFeature(id uint64, user uint64) error {
+func (mock *ImageServiceMock) UnFeature(ctx context.Context, id uint64, user uint64) error {
 	if mock.UnFeatureFunc == nil {
 		panic("ImageServiceMock.UnFeatureFunc: method is nil but ImageService.UnFeature was just called")
 	}
 	callInfo := struct {
+		Ctx  context.Context
 		ID   uint64
 		User uint64
 	}{
+		Ctx:  ctx,
 		ID:   id,
 		User: user,
 	}
 	lockImageServiceMockUnFeature.Lock()
 	mock.calls.UnFeature = append(mock.calls.UnFeature, callInfo)
 	lockImageServiceMockUnFeature.Unlock()
-	return mock.UnFeatureFunc(id, user)
+	return mock.UnFeatureFunc(ctx, id, user)
 }
 
 // UnFeatureCalls gets all the calls that were made to UnFeature.
 // Check the length with:
 //     len(mockedImageService.UnFeatureCalls())
 func (mock *ImageServiceMock) UnFeatureCalls() []struct {
+	Ctx  context.Context
 	ID   uint64
 	User uint64
 } {
 	var calls []struct {
+		Ctx  context.Context
 		ID   uint64
 		User uint64
 	}

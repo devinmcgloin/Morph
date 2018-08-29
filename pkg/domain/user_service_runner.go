@@ -4,6 +4,8 @@
 package domain
 
 import (
+	"context"
+	"github.com/fokal/fokal-core/pkg/request"
 	"sync"
 )
 
@@ -16,8 +18,11 @@ var (
 	lockUserServiceMockFeature          sync.RWMutex
 	lockUserServiceMockFeatured         sync.RWMutex
 	lockUserServiceMockIsAdmin          sync.RWMutex
+	lockUserServiceMockIsFeatured       sync.RWMutex
+	lockUserServiceMockPatchUser        sync.RWMutex
 	lockUserServiceMockSetAvatarID      sync.RWMutex
 	lockUserServiceMockUnFeature        sync.RWMutex
+	lockUserServiceMockUserByEmail      sync.RWMutex
 	lockUserServiceMockUserByID         sync.RWMutex
 	lockUserServiceMockUserByUsername   sync.RWMutex
 	lockUserServiceMockUsers            sync.RWMutex
@@ -29,43 +34,52 @@ var (
 //
 //         // make and configure a mocked UserService
 //         mockedUserService := &UserServiceMock{
-//             AdminsFunc: func() ([]*User, error) {
+//             AdminsFunc: func(ctx context.Context) (*[]User, error) {
 // 	               panic("TODO: mock out the Admins method")
 //             },
-//             CreateUserFunc: func(u *User) error {
+//             CreateUserFunc: func(ctx context.Context, u *User) error {
 // 	               panic("TODO: mock out the CreateUser method")
 //             },
-//             DeleteUserFunc: func(id uint64) error {
+//             DeleteUserFunc: func(ctx context.Context, id uint64) error {
 // 	               panic("TODO: mock out the DeleteUser method")
 //             },
-//             ExistsByEmailFunc: func(email string) (bool, error) {
+//             ExistsByEmailFunc: func(ctx context.Context, email string) (bool, error) {
 // 	               panic("TODO: mock out the ExistsByEmail method")
 //             },
-//             ExistsByUsernameFunc: func(username string) (bool, error) {
+//             ExistsByUsernameFunc: func(ctx context.Context, username string) (bool, error) {
 // 	               panic("TODO: mock out the ExistsByUsername method")
 //             },
-//             FeatureFunc: func(id uint64, user uint64) error {
+//             FeatureFunc: func(ctx context.Context, id uint64) error {
 // 	               panic("TODO: mock out the Feature method")
 //             },
-//             FeaturedFunc: func() ([]*User, error) {
+//             FeaturedFunc: func(ctx context.Context) (*[]User, error) {
 // 	               panic("TODO: mock out the Featured method")
 //             },
-//             IsAdminFunc: func(id uint64) (bool, error) {
+//             IsAdminFunc: func(ctx context.Context, id uint64) (bool, error) {
 // 	               panic("TODO: mock out the IsAdmin method")
 //             },
-//             SetAvatarIDFunc: func(id uint64, avatarID string) error {
+//             IsFeaturedFunc: func(ctx context.Context, id uint64) (bool, error) {
+// 	               panic("TODO: mock out the IsFeatured method")
+//             },
+//             PatchUserFunc: func(ctx context.Context, u uint64, changes request.PatchUser) error {
+// 	               panic("TODO: mock out the PatchUser method")
+//             },
+//             SetAvatarIDFunc: func(ctx context.Context, id uint64, avatarID string) error {
 // 	               panic("TODO: mock out the SetAvatarID method")
 //             },
-//             UnFeatureFunc: func(id uint64, user uint64) error {
+//             UnFeatureFunc: func(ctx context.Context, id uint64) error {
 // 	               panic("TODO: mock out the UnFeature method")
 //             },
-//             UserByIDFunc: func(id uint64) (*User, error) {
+//             UserByEmailFunc: func(ctx context.Context, username string) (*User, error) {
+// 	               panic("TODO: mock out the UserByEmail method")
+//             },
+//             UserByIDFunc: func(ctx context.Context, id uint64) (*User, error) {
 // 	               panic("TODO: mock out the UserByID method")
 //             },
-//             UserByUsernameFunc: func(username string) (*User, error) {
+//             UserByUsernameFunc: func(ctx context.Context, username string) (*User, error) {
 // 	               panic("TODO: mock out the UserByUsername method")
 //             },
-//             UsersFunc: func() ([]*User, error) {
+//             UsersFunc: func(ctx context.Context, limit int) (*[]User, error) {
 // 	               panic("TODO: mock out the Users method")
 //             },
 //         }
@@ -76,86 +90,127 @@ var (
 //     }
 type UserServiceMock struct {
 	// AdminsFunc mocks the Admins method.
-	AdminsFunc func() ([]*User, error)
+	AdminsFunc func(ctx context.Context) (*[]User, error)
 
 	// CreateUserFunc mocks the CreateUser method.
-	CreateUserFunc func(u *User) error
+	CreateUserFunc func(ctx context.Context, u *User) error
 
 	// DeleteUserFunc mocks the DeleteUser method.
-	DeleteUserFunc func(id uint64) error
+	DeleteUserFunc func(ctx context.Context, id uint64) error
 
 	// ExistsByEmailFunc mocks the ExistsByEmail method.
-	ExistsByEmailFunc func(email string) (bool, error)
+	ExistsByEmailFunc func(ctx context.Context, email string) (bool, error)
 
 	// ExistsByUsernameFunc mocks the ExistsByUsername method.
-	ExistsByUsernameFunc func(username string) (bool, error)
+	ExistsByUsernameFunc func(ctx context.Context, username string) (bool, error)
 
 	// FeatureFunc mocks the Feature method.
-	FeatureFunc func(id uint64, user uint64) error
+	FeatureFunc func(ctx context.Context, id uint64) error
 
 	// FeaturedFunc mocks the Featured method.
-	FeaturedFunc func() ([]*User, error)
+	FeaturedFunc func(ctx context.Context) (*[]User, error)
 
 	// IsAdminFunc mocks the IsAdmin method.
-	IsAdminFunc func(id uint64) (bool, error)
+	IsAdminFunc func(ctx context.Context, id uint64) (bool, error)
+
+	// IsFeaturedFunc mocks the IsFeatured method.
+	IsFeaturedFunc func(ctx context.Context, id uint64) (bool, error)
+
+	// PatchUserFunc mocks the PatchUser method.
+	PatchUserFunc func(ctx context.Context, u uint64, changes request.PatchUser) error
 
 	// SetAvatarIDFunc mocks the SetAvatarID method.
-	SetAvatarIDFunc func(id uint64, avatarID string) error
+	SetAvatarIDFunc func(ctx context.Context, id uint64, avatarID string) error
 
 	// UnFeatureFunc mocks the UnFeature method.
-	UnFeatureFunc func(id uint64, user uint64) error
+	UnFeatureFunc func(ctx context.Context, id uint64) error
+
+	// UserByEmailFunc mocks the UserByEmail method.
+	UserByEmailFunc func(ctx context.Context, username string) (*User, error)
 
 	// UserByIDFunc mocks the UserByID method.
-	UserByIDFunc func(id uint64) (*User, error)
+	UserByIDFunc func(ctx context.Context, id uint64) (*User, error)
 
 	// UserByUsernameFunc mocks the UserByUsername method.
-	UserByUsernameFunc func(username string) (*User, error)
+	UserByUsernameFunc func(ctx context.Context, username string) (*User, error)
 
 	// UsersFunc mocks the Users method.
-	UsersFunc func() ([]*User, error)
+	UsersFunc func(ctx context.Context, limit int) (*[]User, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
 		// Admins holds details about calls to the Admins method.
 		Admins []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 		}
 		// CreateUser holds details about calls to the CreateUser method.
 		CreateUser []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// U is the u argument value.
 			U *User
 		}
 		// DeleteUser holds details about calls to the DeleteUser method.
 		DeleteUser []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// ID is the id argument value.
 			ID uint64
 		}
 		// ExistsByEmail holds details about calls to the ExistsByEmail method.
 		ExistsByEmail []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Email is the email argument value.
 			Email string
 		}
 		// ExistsByUsername holds details about calls to the ExistsByUsername method.
 		ExistsByUsername []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Username is the username argument value.
 			Username string
 		}
 		// Feature holds details about calls to the Feature method.
 		Feature []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// ID is the id argument value.
 			ID uint64
-			// User is the user argument value.
-			User uint64
 		}
 		// Featured holds details about calls to the Featured method.
 		Featured []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 		}
 		// IsAdmin holds details about calls to the IsAdmin method.
 		IsAdmin []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// ID is the id argument value.
 			ID uint64
 		}
+		// IsFeatured holds details about calls to the IsFeatured method.
+		IsFeatured []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// ID is the id argument value.
+			ID uint64
+		}
+		// PatchUser holds details about calls to the PatchUser method.
+		PatchUser []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// U is the u argument value.
+			U uint64
+			// Changes is the changes argument value.
+			Changes request.PatchUser
+		}
 		// SetAvatarID holds details about calls to the SetAvatarID method.
 		SetAvatarID []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// ID is the id argument value.
 			ID uint64
 			// AvatarID is the avatarID argument value.
@@ -163,46 +218,66 @@ type UserServiceMock struct {
 		}
 		// UnFeature holds details about calls to the UnFeature method.
 		UnFeature []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// ID is the id argument value.
 			ID uint64
-			// User is the user argument value.
-			User uint64
+		}
+		// UserByEmail holds details about calls to the UserByEmail method.
+		UserByEmail []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Username is the username argument value.
+			Username string
 		}
 		// UserByID holds details about calls to the UserByID method.
 		UserByID []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// ID is the id argument value.
 			ID uint64
 		}
 		// UserByUsername holds details about calls to the UserByUsername method.
 		UserByUsername []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Username is the username argument value.
 			Username string
 		}
 		// Users holds details about calls to the Users method.
 		Users []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Limit is the limit argument value.
+			Limit int
 		}
 	}
 }
 
 // Admins calls AdminsFunc.
-func (mock *UserServiceMock) Admins() ([]*User, error) {
+func (mock *UserServiceMock) Admins(ctx context.Context) (*[]User, error) {
 	if mock.AdminsFunc == nil {
 		panic("UserServiceMock.AdminsFunc: method is nil but UserService.Admins was just called")
 	}
 	callInfo := struct {
-	}{}
+		Ctx context.Context
+	}{
+		Ctx: ctx,
+	}
 	lockUserServiceMockAdmins.Lock()
 	mock.calls.Admins = append(mock.calls.Admins, callInfo)
 	lockUserServiceMockAdmins.Unlock()
-	return mock.AdminsFunc()
+	return mock.AdminsFunc(ctx)
 }
 
 // AdminsCalls gets all the calls that were made to Admins.
 // Check the length with:
 //     len(mockedUserService.AdminsCalls())
 func (mock *UserServiceMock) AdminsCalls() []struct {
+	Ctx context.Context
 } {
 	var calls []struct {
+		Ctx context.Context
 	}
 	lockUserServiceMockAdmins.RLock()
 	calls = mock.calls.Admins
@@ -211,29 +286,33 @@ func (mock *UserServiceMock) AdminsCalls() []struct {
 }
 
 // CreateUser calls CreateUserFunc.
-func (mock *UserServiceMock) CreateUser(u *User) error {
+func (mock *UserServiceMock) CreateUser(ctx context.Context, u *User) error {
 	if mock.CreateUserFunc == nil {
 		panic("UserServiceMock.CreateUserFunc: method is nil but UserService.CreateUser was just called")
 	}
 	callInfo := struct {
-		U *User
+		Ctx context.Context
+		U   *User
 	}{
-		U: u,
+		Ctx: ctx,
+		U:   u,
 	}
 	lockUserServiceMockCreateUser.Lock()
 	mock.calls.CreateUser = append(mock.calls.CreateUser, callInfo)
 	lockUserServiceMockCreateUser.Unlock()
-	return mock.CreateUserFunc(u)
+	return mock.CreateUserFunc(ctx, u)
 }
 
 // CreateUserCalls gets all the calls that were made to CreateUser.
 // Check the length with:
 //     len(mockedUserService.CreateUserCalls())
 func (mock *UserServiceMock) CreateUserCalls() []struct {
-	U *User
+	Ctx context.Context
+	U   *User
 } {
 	var calls []struct {
-		U *User
+		Ctx context.Context
+		U   *User
 	}
 	lockUserServiceMockCreateUser.RLock()
 	calls = mock.calls.CreateUser
@@ -242,29 +321,33 @@ func (mock *UserServiceMock) CreateUserCalls() []struct {
 }
 
 // DeleteUser calls DeleteUserFunc.
-func (mock *UserServiceMock) DeleteUser(id uint64) error {
+func (mock *UserServiceMock) DeleteUser(ctx context.Context, id uint64) error {
 	if mock.DeleteUserFunc == nil {
 		panic("UserServiceMock.DeleteUserFunc: method is nil but UserService.DeleteUser was just called")
 	}
 	callInfo := struct {
-		ID uint64
+		Ctx context.Context
+		ID  uint64
 	}{
-		ID: id,
+		Ctx: ctx,
+		ID:  id,
 	}
 	lockUserServiceMockDeleteUser.Lock()
 	mock.calls.DeleteUser = append(mock.calls.DeleteUser, callInfo)
 	lockUserServiceMockDeleteUser.Unlock()
-	return mock.DeleteUserFunc(id)
+	return mock.DeleteUserFunc(ctx, id)
 }
 
 // DeleteUserCalls gets all the calls that were made to DeleteUser.
 // Check the length with:
 //     len(mockedUserService.DeleteUserCalls())
 func (mock *UserServiceMock) DeleteUserCalls() []struct {
-	ID uint64
+	Ctx context.Context
+	ID  uint64
 } {
 	var calls []struct {
-		ID uint64
+		Ctx context.Context
+		ID  uint64
 	}
 	lockUserServiceMockDeleteUser.RLock()
 	calls = mock.calls.DeleteUser
@@ -273,28 +356,32 @@ func (mock *UserServiceMock) DeleteUserCalls() []struct {
 }
 
 // ExistsByEmail calls ExistsByEmailFunc.
-func (mock *UserServiceMock) ExistsByEmail(email string) (bool, error) {
+func (mock *UserServiceMock) ExistsByEmail(ctx context.Context, email string) (bool, error) {
 	if mock.ExistsByEmailFunc == nil {
 		panic("UserServiceMock.ExistsByEmailFunc: method is nil but UserService.ExistsByEmail was just called")
 	}
 	callInfo := struct {
+		Ctx   context.Context
 		Email string
 	}{
+		Ctx:   ctx,
 		Email: email,
 	}
 	lockUserServiceMockExistsByEmail.Lock()
 	mock.calls.ExistsByEmail = append(mock.calls.ExistsByEmail, callInfo)
 	lockUserServiceMockExistsByEmail.Unlock()
-	return mock.ExistsByEmailFunc(email)
+	return mock.ExistsByEmailFunc(ctx, email)
 }
 
 // ExistsByEmailCalls gets all the calls that were made to ExistsByEmail.
 // Check the length with:
 //     len(mockedUserService.ExistsByEmailCalls())
 func (mock *UserServiceMock) ExistsByEmailCalls() []struct {
+	Ctx   context.Context
 	Email string
 } {
 	var calls []struct {
+		Ctx   context.Context
 		Email string
 	}
 	lockUserServiceMockExistsByEmail.RLock()
@@ -304,28 +391,32 @@ func (mock *UserServiceMock) ExistsByEmailCalls() []struct {
 }
 
 // ExistsByUsername calls ExistsByUsernameFunc.
-func (mock *UserServiceMock) ExistsByUsername(username string) (bool, error) {
+func (mock *UserServiceMock) ExistsByUsername(ctx context.Context, username string) (bool, error) {
 	if mock.ExistsByUsernameFunc == nil {
 		panic("UserServiceMock.ExistsByUsernameFunc: method is nil but UserService.ExistsByUsername was just called")
 	}
 	callInfo := struct {
+		Ctx      context.Context
 		Username string
 	}{
+		Ctx:      ctx,
 		Username: username,
 	}
 	lockUserServiceMockExistsByUsername.Lock()
 	mock.calls.ExistsByUsername = append(mock.calls.ExistsByUsername, callInfo)
 	lockUserServiceMockExistsByUsername.Unlock()
-	return mock.ExistsByUsernameFunc(username)
+	return mock.ExistsByUsernameFunc(ctx, username)
 }
 
 // ExistsByUsernameCalls gets all the calls that were made to ExistsByUsername.
 // Check the length with:
 //     len(mockedUserService.ExistsByUsernameCalls())
 func (mock *UserServiceMock) ExistsByUsernameCalls() []struct {
+	Ctx      context.Context
 	Username string
 } {
 	var calls []struct {
+		Ctx      context.Context
 		Username string
 	}
 	lockUserServiceMockExistsByUsername.RLock()
@@ -335,33 +426,33 @@ func (mock *UserServiceMock) ExistsByUsernameCalls() []struct {
 }
 
 // Feature calls FeatureFunc.
-func (mock *UserServiceMock) Feature(id uint64, user uint64) error {
+func (mock *UserServiceMock) Feature(ctx context.Context, id uint64) error {
 	if mock.FeatureFunc == nil {
 		panic("UserServiceMock.FeatureFunc: method is nil but UserService.Feature was just called")
 	}
 	callInfo := struct {
-		ID   uint64
-		User uint64
+		Ctx context.Context
+		ID  uint64
 	}{
-		ID:   id,
-		User: user,
+		Ctx: ctx,
+		ID:  id,
 	}
 	lockUserServiceMockFeature.Lock()
 	mock.calls.Feature = append(mock.calls.Feature, callInfo)
 	lockUserServiceMockFeature.Unlock()
-	return mock.FeatureFunc(id, user)
+	return mock.FeatureFunc(ctx, id)
 }
 
 // FeatureCalls gets all the calls that were made to Feature.
 // Check the length with:
 //     len(mockedUserService.FeatureCalls())
 func (mock *UserServiceMock) FeatureCalls() []struct {
-	ID   uint64
-	User uint64
+	Ctx context.Context
+	ID  uint64
 } {
 	var calls []struct {
-		ID   uint64
-		User uint64
+		Ctx context.Context
+		ID  uint64
 	}
 	lockUserServiceMockFeature.RLock()
 	calls = mock.calls.Feature
@@ -370,24 +461,29 @@ func (mock *UserServiceMock) FeatureCalls() []struct {
 }
 
 // Featured calls FeaturedFunc.
-func (mock *UserServiceMock) Featured() ([]*User, error) {
+func (mock *UserServiceMock) Featured(ctx context.Context) (*[]User, error) {
 	if mock.FeaturedFunc == nil {
 		panic("UserServiceMock.FeaturedFunc: method is nil but UserService.Featured was just called")
 	}
 	callInfo := struct {
-	}{}
+		Ctx context.Context
+	}{
+		Ctx: ctx,
+	}
 	lockUserServiceMockFeatured.Lock()
 	mock.calls.Featured = append(mock.calls.Featured, callInfo)
 	lockUserServiceMockFeatured.Unlock()
-	return mock.FeaturedFunc()
+	return mock.FeaturedFunc(ctx)
 }
 
 // FeaturedCalls gets all the calls that were made to Featured.
 // Check the length with:
 //     len(mockedUserService.FeaturedCalls())
 func (mock *UserServiceMock) FeaturedCalls() []struct {
+	Ctx context.Context
 } {
 	var calls []struct {
+		Ctx context.Context
 	}
 	lockUserServiceMockFeatured.RLock()
 	calls = mock.calls.Featured
@@ -396,29 +492,33 @@ func (mock *UserServiceMock) FeaturedCalls() []struct {
 }
 
 // IsAdmin calls IsAdminFunc.
-func (mock *UserServiceMock) IsAdmin(id uint64) (bool, error) {
+func (mock *UserServiceMock) IsAdmin(ctx context.Context, id uint64) (bool, error) {
 	if mock.IsAdminFunc == nil {
 		panic("UserServiceMock.IsAdminFunc: method is nil but UserService.IsAdmin was just called")
 	}
 	callInfo := struct {
-		ID uint64
+		Ctx context.Context
+		ID  uint64
 	}{
-		ID: id,
+		Ctx: ctx,
+		ID:  id,
 	}
 	lockUserServiceMockIsAdmin.Lock()
 	mock.calls.IsAdmin = append(mock.calls.IsAdmin, callInfo)
 	lockUserServiceMockIsAdmin.Unlock()
-	return mock.IsAdminFunc(id)
+	return mock.IsAdminFunc(ctx, id)
 }
 
 // IsAdminCalls gets all the calls that were made to IsAdmin.
 // Check the length with:
 //     len(mockedUserService.IsAdminCalls())
 func (mock *UserServiceMock) IsAdminCalls() []struct {
-	ID uint64
+	Ctx context.Context
+	ID  uint64
 } {
 	var calls []struct {
-		ID uint64
+		Ctx context.Context
+		ID  uint64
 	}
 	lockUserServiceMockIsAdmin.RLock()
 	calls = mock.calls.IsAdmin
@@ -426,32 +526,110 @@ func (mock *UserServiceMock) IsAdminCalls() []struct {
 	return calls
 }
 
+// IsFeatured calls IsFeaturedFunc.
+func (mock *UserServiceMock) IsFeatured(ctx context.Context, id uint64) (bool, error) {
+	if mock.IsFeaturedFunc == nil {
+		panic("UserServiceMock.IsFeaturedFunc: method is nil but UserService.IsFeatured was just called")
+	}
+	callInfo := struct {
+		Ctx context.Context
+		ID  uint64
+	}{
+		Ctx: ctx,
+		ID:  id,
+	}
+	lockUserServiceMockIsFeatured.Lock()
+	mock.calls.IsFeatured = append(mock.calls.IsFeatured, callInfo)
+	lockUserServiceMockIsFeatured.Unlock()
+	return mock.IsFeaturedFunc(ctx, id)
+}
+
+// IsFeaturedCalls gets all the calls that were made to IsFeatured.
+// Check the length with:
+//     len(mockedUserService.IsFeaturedCalls())
+func (mock *UserServiceMock) IsFeaturedCalls() []struct {
+	Ctx context.Context
+	ID  uint64
+} {
+	var calls []struct {
+		Ctx context.Context
+		ID  uint64
+	}
+	lockUserServiceMockIsFeatured.RLock()
+	calls = mock.calls.IsFeatured
+	lockUserServiceMockIsFeatured.RUnlock()
+	return calls
+}
+
+// PatchUser calls PatchUserFunc.
+func (mock *UserServiceMock) PatchUser(ctx context.Context, u uint64, changes request.PatchUser) error {
+	if mock.PatchUserFunc == nil {
+		panic("UserServiceMock.PatchUserFunc: method is nil but UserService.PatchUser was just called")
+	}
+	callInfo := struct {
+		Ctx     context.Context
+		U       uint64
+		Changes request.PatchUser
+	}{
+		Ctx:     ctx,
+		U:       u,
+		Changes: changes,
+	}
+	lockUserServiceMockPatchUser.Lock()
+	mock.calls.PatchUser = append(mock.calls.PatchUser, callInfo)
+	lockUserServiceMockPatchUser.Unlock()
+	return mock.PatchUserFunc(ctx, u, changes)
+}
+
+// PatchUserCalls gets all the calls that were made to PatchUser.
+// Check the length with:
+//     len(mockedUserService.PatchUserCalls())
+func (mock *UserServiceMock) PatchUserCalls() []struct {
+	Ctx     context.Context
+	U       uint64
+	Changes request.PatchUser
+} {
+	var calls []struct {
+		Ctx     context.Context
+		U       uint64
+		Changes request.PatchUser
+	}
+	lockUserServiceMockPatchUser.RLock()
+	calls = mock.calls.PatchUser
+	lockUserServiceMockPatchUser.RUnlock()
+	return calls
+}
+
 // SetAvatarID calls SetAvatarIDFunc.
-func (mock *UserServiceMock) SetAvatarID(id uint64, avatarID string) error {
+func (mock *UserServiceMock) SetAvatarID(ctx context.Context, id uint64, avatarID string) error {
 	if mock.SetAvatarIDFunc == nil {
 		panic("UserServiceMock.SetAvatarIDFunc: method is nil but UserService.SetAvatarID was just called")
 	}
 	callInfo := struct {
+		Ctx      context.Context
 		ID       uint64
 		AvatarID string
 	}{
+		Ctx:      ctx,
 		ID:       id,
 		AvatarID: avatarID,
 	}
 	lockUserServiceMockSetAvatarID.Lock()
 	mock.calls.SetAvatarID = append(mock.calls.SetAvatarID, callInfo)
 	lockUserServiceMockSetAvatarID.Unlock()
-	return mock.SetAvatarIDFunc(id, avatarID)
+	return mock.SetAvatarIDFunc(ctx, id, avatarID)
 }
 
 // SetAvatarIDCalls gets all the calls that were made to SetAvatarID.
 // Check the length with:
 //     len(mockedUserService.SetAvatarIDCalls())
 func (mock *UserServiceMock) SetAvatarIDCalls() []struct {
+	Ctx      context.Context
 	ID       uint64
 	AvatarID string
 } {
 	var calls []struct {
+		Ctx      context.Context
 		ID       uint64
 		AvatarID string
 	}
@@ -462,33 +640,33 @@ func (mock *UserServiceMock) SetAvatarIDCalls() []struct {
 }
 
 // UnFeature calls UnFeatureFunc.
-func (mock *UserServiceMock) UnFeature(id uint64, user uint64) error {
+func (mock *UserServiceMock) UnFeature(ctx context.Context, id uint64) error {
 	if mock.UnFeatureFunc == nil {
 		panic("UserServiceMock.UnFeatureFunc: method is nil but UserService.UnFeature was just called")
 	}
 	callInfo := struct {
-		ID   uint64
-		User uint64
+		Ctx context.Context
+		ID  uint64
 	}{
-		ID:   id,
-		User: user,
+		Ctx: ctx,
+		ID:  id,
 	}
 	lockUserServiceMockUnFeature.Lock()
 	mock.calls.UnFeature = append(mock.calls.UnFeature, callInfo)
 	lockUserServiceMockUnFeature.Unlock()
-	return mock.UnFeatureFunc(id, user)
+	return mock.UnFeatureFunc(ctx, id)
 }
 
 // UnFeatureCalls gets all the calls that were made to UnFeature.
 // Check the length with:
 //     len(mockedUserService.UnFeatureCalls())
 func (mock *UserServiceMock) UnFeatureCalls() []struct {
-	ID   uint64
-	User uint64
+	Ctx context.Context
+	ID  uint64
 } {
 	var calls []struct {
-		ID   uint64
-		User uint64
+		Ctx context.Context
+		ID  uint64
 	}
 	lockUserServiceMockUnFeature.RLock()
 	calls = mock.calls.UnFeature
@@ -496,30 +674,69 @@ func (mock *UserServiceMock) UnFeatureCalls() []struct {
 	return calls
 }
 
+// UserByEmail calls UserByEmailFunc.
+func (mock *UserServiceMock) UserByEmail(ctx context.Context, username string) (*User, error) {
+	if mock.UserByEmailFunc == nil {
+		panic("UserServiceMock.UserByEmailFunc: method is nil but UserService.UserByEmail was just called")
+	}
+	callInfo := struct {
+		Ctx      context.Context
+		Username string
+	}{
+		Ctx:      ctx,
+		Username: username,
+	}
+	lockUserServiceMockUserByEmail.Lock()
+	mock.calls.UserByEmail = append(mock.calls.UserByEmail, callInfo)
+	lockUserServiceMockUserByEmail.Unlock()
+	return mock.UserByEmailFunc(ctx, username)
+}
+
+// UserByEmailCalls gets all the calls that were made to UserByEmail.
+// Check the length with:
+//     len(mockedUserService.UserByEmailCalls())
+func (mock *UserServiceMock) UserByEmailCalls() []struct {
+	Ctx      context.Context
+	Username string
+} {
+	var calls []struct {
+		Ctx      context.Context
+		Username string
+	}
+	lockUserServiceMockUserByEmail.RLock()
+	calls = mock.calls.UserByEmail
+	lockUserServiceMockUserByEmail.RUnlock()
+	return calls
+}
+
 // UserByID calls UserByIDFunc.
-func (mock *UserServiceMock) UserByID(id uint64) (*User, error) {
+func (mock *UserServiceMock) UserByID(ctx context.Context, id uint64) (*User, error) {
 	if mock.UserByIDFunc == nil {
 		panic("UserServiceMock.UserByIDFunc: method is nil but UserService.UserByID was just called")
 	}
 	callInfo := struct {
-		ID uint64
+		Ctx context.Context
+		ID  uint64
 	}{
-		ID: id,
+		Ctx: ctx,
+		ID:  id,
 	}
 	lockUserServiceMockUserByID.Lock()
 	mock.calls.UserByID = append(mock.calls.UserByID, callInfo)
 	lockUserServiceMockUserByID.Unlock()
-	return mock.UserByIDFunc(id)
+	return mock.UserByIDFunc(ctx, id)
 }
 
 // UserByIDCalls gets all the calls that were made to UserByID.
 // Check the length with:
 //     len(mockedUserService.UserByIDCalls())
 func (mock *UserServiceMock) UserByIDCalls() []struct {
-	ID uint64
+	Ctx context.Context
+	ID  uint64
 } {
 	var calls []struct {
-		ID uint64
+		Ctx context.Context
+		ID  uint64
 	}
 	lockUserServiceMockUserByID.RLock()
 	calls = mock.calls.UserByID
@@ -528,28 +745,32 @@ func (mock *UserServiceMock) UserByIDCalls() []struct {
 }
 
 // UserByUsername calls UserByUsernameFunc.
-func (mock *UserServiceMock) UserByUsername(username string) (*User, error) {
+func (mock *UserServiceMock) UserByUsername(ctx context.Context, username string) (*User, error) {
 	if mock.UserByUsernameFunc == nil {
 		panic("UserServiceMock.UserByUsernameFunc: method is nil but UserService.UserByUsername was just called")
 	}
 	callInfo := struct {
+		Ctx      context.Context
 		Username string
 	}{
+		Ctx:      ctx,
 		Username: username,
 	}
 	lockUserServiceMockUserByUsername.Lock()
 	mock.calls.UserByUsername = append(mock.calls.UserByUsername, callInfo)
 	lockUserServiceMockUserByUsername.Unlock()
-	return mock.UserByUsernameFunc(username)
+	return mock.UserByUsernameFunc(ctx, username)
 }
 
 // UserByUsernameCalls gets all the calls that were made to UserByUsername.
 // Check the length with:
 //     len(mockedUserService.UserByUsernameCalls())
 func (mock *UserServiceMock) UserByUsernameCalls() []struct {
+	Ctx      context.Context
 	Username string
 } {
 	var calls []struct {
+		Ctx      context.Context
 		Username string
 	}
 	lockUserServiceMockUserByUsername.RLock()
@@ -559,24 +780,33 @@ func (mock *UserServiceMock) UserByUsernameCalls() []struct {
 }
 
 // Users calls UsersFunc.
-func (mock *UserServiceMock) Users() ([]*User, error) {
+func (mock *UserServiceMock) Users(ctx context.Context, limit int) (*[]User, error) {
 	if mock.UsersFunc == nil {
 		panic("UserServiceMock.UsersFunc: method is nil but UserService.Users was just called")
 	}
 	callInfo := struct {
-	}{}
+		Ctx   context.Context
+		Limit int
+	}{
+		Ctx:   ctx,
+		Limit: limit,
+	}
 	lockUserServiceMockUsers.Lock()
 	mock.calls.Users = append(mock.calls.Users, callInfo)
 	lockUserServiceMockUsers.Unlock()
-	return mock.UsersFunc()
+	return mock.UsersFunc(ctx, limit)
 }
 
 // UsersCalls gets all the calls that were made to Users.
 // Check the length with:
 //     len(mockedUserService.UsersCalls())
 func (mock *UserServiceMock) UsersCalls() []struct {
+	Ctx   context.Context
+	Limit int
 } {
 	var calls []struct {
+		Ctx   context.Context
+		Limit int
 	}
 	lockUserServiceMockUsers.RLock()
 	calls = mock.calls.Users

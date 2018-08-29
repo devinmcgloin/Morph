@@ -2,6 +2,8 @@ package domain
 
 import (
 	"context"
+
+	jwt "github.com/dgrijalva/jwt-go"
 )
 
 //go:generate moq -out authentication_service_runner.go . AuthenticationService
@@ -11,4 +13,5 @@ type AuthenticationService interface {
 	VerifyToken(ctx context.Context, token string) (bool, *uint64, error)
 	RefreshToken(ctx context.Context, token string) (*string, error)
 	PublicKey(ctx context.Context) (string, error)
+	ParseToken(ctx context.Context, token string) (*jwt.Token, error)
 }

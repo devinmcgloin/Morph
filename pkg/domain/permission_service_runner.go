@@ -4,12 +4,15 @@
 package domain
 
 import (
+	"context"
 	"sync"
 )
 
 var (
-	lockPermissionServiceMockAddScope   sync.RWMutex
-	lockPermissionServiceMockValidScope sync.RWMutex
+	lockPermissionServiceMockAddScope    sync.RWMutex
+	lockPermissionServiceMockPublic      sync.RWMutex
+	lockPermissionServiceMockRemoveScope sync.RWMutex
+	lockPermissionServiceMockValidScope  sync.RWMutex
 )
 
 // PermissionServiceMock is a mock implementation of PermissionService.
@@ -18,10 +21,16 @@ var (
 //
 //         // make and configure a mocked PermissionService
 //         mockedPermissionService := &PermissionServiceMock{
-//             AddScopeFunc: func(userID uint64, ResouceID uint64, class ResourceClass, scope Scope) error {
+//             AddScopeFunc: func(ctx context.Context, userID uint64, ResouceID uint64, class ResourceClass, scope Scope) error {
 // 	               panic("TODO: mock out the AddScope method")
 //             },
-//             ValidScopeFunc: func(userID uint64, ResourceID uint64, class ResourceClass, scope Scope) (bool, error) {
+//             PublicFunc: func(ctx context.Context, ResourceID uint64, class ResourceClass) error {
+// 	               panic("TODO: mock out the Public method")
+//             },
+//             RemoveScopeFunc: func(ctx context.Context, userID uint64, ResourceID uint64, class ResourceClass, scope Scope) error {
+// 	               panic("TODO: mock out the RemoveScope method")
+//             },
+//             ValidScopeFunc: func(ctx context.Context, userID uint64, ResourceID uint64, class ResourceClass, scope Scope) (bool, error) {
 // 	               panic("TODO: mock out the ValidScope method")
 //             },
 //         }
@@ -32,15 +41,23 @@ var (
 //     }
 type PermissionServiceMock struct {
 	// AddScopeFunc mocks the AddScope method.
-	AddScopeFunc func(userID uint64, ResouceID uint64, class ResourceClass, scope Scope) error
+	AddScopeFunc func(ctx context.Context, userID uint64, ResouceID uint64, class ResourceClass, scope Scope) error
+
+	// PublicFunc mocks the Public method.
+	PublicFunc func(ctx context.Context, ResourceID uint64, class ResourceClass) error
+
+	// RemoveScopeFunc mocks the RemoveScope method.
+	RemoveScopeFunc func(ctx context.Context, userID uint64, ResourceID uint64, class ResourceClass, scope Scope) error
 
 	// ValidScopeFunc mocks the ValidScope method.
-	ValidScopeFunc func(userID uint64, ResourceID uint64, class ResourceClass, scope Scope) (bool, error)
+	ValidScopeFunc func(ctx context.Context, userID uint64, ResourceID uint64, class ResourceClass, scope Scope) (bool, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
 		// AddScope holds details about calls to the AddScope method.
 		AddScope []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// UserID is the userID argument value.
 			UserID uint64
 			// ResouceID is the ResouceID argument value.
@@ -50,8 +67,32 @@ type PermissionServiceMock struct {
 			// Scope is the scope argument value.
 			Scope Scope
 		}
+		// Public holds details about calls to the Public method.
+		Public []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// ResourceID is the ResourceID argument value.
+			ResourceID uint64
+			// Class is the class argument value.
+			Class ResourceClass
+		}
+		// RemoveScope holds details about calls to the RemoveScope method.
+		RemoveScope []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// UserID is the userID argument value.
+			UserID uint64
+			// ResourceID is the ResourceID argument value.
+			ResourceID uint64
+			// Class is the class argument value.
+			Class ResourceClass
+			// Scope is the scope argument value.
+			Scope Scope
+		}
 		// ValidScope holds details about calls to the ValidScope method.
 		ValidScope []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// UserID is the userID argument value.
 			UserID uint64
 			// ResourceID is the ResourceID argument value.
@@ -65,16 +106,18 @@ type PermissionServiceMock struct {
 }
 
 // AddScope calls AddScopeFunc.
-func (mock *PermissionServiceMock) AddScope(userID uint64, ResouceID uint64, class ResourceClass, scope Scope) error {
+func (mock *PermissionServiceMock) AddScope(ctx context.Context, userID uint64, ResouceID uint64, class ResourceClass, scope Scope) error {
 	if mock.AddScopeFunc == nil {
 		panic("PermissionServiceMock.AddScopeFunc: method is nil but PermissionService.AddScope was just called")
 	}
 	callInfo := struct {
+		Ctx       context.Context
 		UserID    uint64
 		ResouceID uint64
 		Class     ResourceClass
 		Scope     Scope
 	}{
+		Ctx:       ctx,
 		UserID:    userID,
 		ResouceID: ResouceID,
 		Class:     class,
@@ -83,19 +126,21 @@ func (mock *PermissionServiceMock) AddScope(userID uint64, ResouceID uint64, cla
 	lockPermissionServiceMockAddScope.Lock()
 	mock.calls.AddScope = append(mock.calls.AddScope, callInfo)
 	lockPermissionServiceMockAddScope.Unlock()
-	return mock.AddScopeFunc(userID, ResouceID, class, scope)
+	return mock.AddScopeFunc(ctx, userID, ResouceID, class, scope)
 }
 
 // AddScopeCalls gets all the calls that were made to AddScope.
 // Check the length with:
 //     len(mockedPermissionService.AddScopeCalls())
 func (mock *PermissionServiceMock) AddScopeCalls() []struct {
+	Ctx       context.Context
 	UserID    uint64
 	ResouceID uint64
 	Class     ResourceClass
 	Scope     Scope
 } {
 	var calls []struct {
+		Ctx       context.Context
 		UserID    uint64
 		ResouceID uint64
 		Class     ResourceClass
@@ -107,17 +152,105 @@ func (mock *PermissionServiceMock) AddScopeCalls() []struct {
 	return calls
 }
 
-// ValidScope calls ValidScopeFunc.
-func (mock *PermissionServiceMock) ValidScope(userID uint64, ResourceID uint64, class ResourceClass, scope Scope) (bool, error) {
-	if mock.ValidScopeFunc == nil {
-		panic("PermissionServiceMock.ValidScopeFunc: method is nil but PermissionService.ValidScope was just called")
+// Public calls PublicFunc.
+func (mock *PermissionServiceMock) Public(ctx context.Context, ResourceID uint64, class ResourceClass) error {
+	if mock.PublicFunc == nil {
+		panic("PermissionServiceMock.PublicFunc: method is nil but PermissionService.Public was just called")
 	}
 	callInfo := struct {
+		Ctx        context.Context
+		ResourceID uint64
+		Class      ResourceClass
+	}{
+		Ctx:        ctx,
+		ResourceID: ResourceID,
+		Class:      class,
+	}
+	lockPermissionServiceMockPublic.Lock()
+	mock.calls.Public = append(mock.calls.Public, callInfo)
+	lockPermissionServiceMockPublic.Unlock()
+	return mock.PublicFunc(ctx, ResourceID, class)
+}
+
+// PublicCalls gets all the calls that were made to Public.
+// Check the length with:
+//     len(mockedPermissionService.PublicCalls())
+func (mock *PermissionServiceMock) PublicCalls() []struct {
+	Ctx        context.Context
+	ResourceID uint64
+	Class      ResourceClass
+} {
+	var calls []struct {
+		Ctx        context.Context
+		ResourceID uint64
+		Class      ResourceClass
+	}
+	lockPermissionServiceMockPublic.RLock()
+	calls = mock.calls.Public
+	lockPermissionServiceMockPublic.RUnlock()
+	return calls
+}
+
+// RemoveScope calls RemoveScopeFunc.
+func (mock *PermissionServiceMock) RemoveScope(ctx context.Context, userID uint64, ResourceID uint64, class ResourceClass, scope Scope) error {
+	if mock.RemoveScopeFunc == nil {
+		panic("PermissionServiceMock.RemoveScopeFunc: method is nil but PermissionService.RemoveScope was just called")
+	}
+	callInfo := struct {
+		Ctx        context.Context
 		UserID     uint64
 		ResourceID uint64
 		Class      ResourceClass
 		Scope      Scope
 	}{
+		Ctx:        ctx,
+		UserID:     userID,
+		ResourceID: ResourceID,
+		Class:      class,
+		Scope:      scope,
+	}
+	lockPermissionServiceMockRemoveScope.Lock()
+	mock.calls.RemoveScope = append(mock.calls.RemoveScope, callInfo)
+	lockPermissionServiceMockRemoveScope.Unlock()
+	return mock.RemoveScopeFunc(ctx, userID, ResourceID, class, scope)
+}
+
+// RemoveScopeCalls gets all the calls that were made to RemoveScope.
+// Check the length with:
+//     len(mockedPermissionService.RemoveScopeCalls())
+func (mock *PermissionServiceMock) RemoveScopeCalls() []struct {
+	Ctx        context.Context
+	UserID     uint64
+	ResourceID uint64
+	Class      ResourceClass
+	Scope      Scope
+} {
+	var calls []struct {
+		Ctx        context.Context
+		UserID     uint64
+		ResourceID uint64
+		Class      ResourceClass
+		Scope      Scope
+	}
+	lockPermissionServiceMockRemoveScope.RLock()
+	calls = mock.calls.RemoveScope
+	lockPermissionServiceMockRemoveScope.RUnlock()
+	return calls
+}
+
+// ValidScope calls ValidScopeFunc.
+func (mock *PermissionServiceMock) ValidScope(ctx context.Context, userID uint64, ResourceID uint64, class ResourceClass, scope Scope) (bool, error) {
+	if mock.ValidScopeFunc == nil {
+		panic("PermissionServiceMock.ValidScopeFunc: method is nil but PermissionService.ValidScope was just called")
+	}
+	callInfo := struct {
+		Ctx        context.Context
+		UserID     uint64
+		ResourceID uint64
+		Class      ResourceClass
+		Scope      Scope
+	}{
+		Ctx:        ctx,
 		UserID:     userID,
 		ResourceID: ResourceID,
 		Class:      class,
@@ -126,19 +259,21 @@ func (mock *PermissionServiceMock) ValidScope(userID uint64, ResourceID uint64, 
 	lockPermissionServiceMockValidScope.Lock()
 	mock.calls.ValidScope = append(mock.calls.ValidScope, callInfo)
 	lockPermissionServiceMockValidScope.Unlock()
-	return mock.ValidScopeFunc(userID, ResourceID, class, scope)
+	return mock.ValidScopeFunc(ctx, userID, ResourceID, class, scope)
 }
 
 // ValidScopeCalls gets all the calls that were made to ValidScope.
 // Check the length with:
 //     len(mockedPermissionService.ValidScopeCalls())
 func (mock *PermissionServiceMock) ValidScopeCalls() []struct {
+	Ctx        context.Context
 	UserID     uint64
 	ResourceID uint64
 	Class      ResourceClass
 	Scope      Scope
 } {
 	var calls []struct {
+		Ctx        context.Context
 		UserID     uint64
 		ResourceID uint64
 		Class      ResourceClass

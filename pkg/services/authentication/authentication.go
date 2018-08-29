@@ -75,8 +75,8 @@ func (auth *PGAuthService) CreateToken(ctx context.Context, userID uint64) (*str
 	return &ss, nil
 }
 
-func (auth *PGAuthService) VerifyToken(ctx context.Context, stringToken string) (bool, *uint64, error) {
-	token, err := jwt.Parse(stringToken, func(token *jwt.Token) (interface{}, error) {
+func (auth *PGAuthService) ParseToken(ctx context.Context, token string) (*jwt.Token, error) {
+	return jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
@@ -105,6 +105,10 @@ func (auth *PGAuthService) VerifyToken(ctx context.Context, stringToken string) 
 
 		return auth.publicKeys[kid], nil
 	})
+}
+
+func (auth *PGAuthService) VerifyToken(ctx context.Context, stringToken string) (bool, *uint64, error) {
+	token, err := auth.ParseToken(ctx, stringToken)
 	if err != nil {
 		log.Error(err)
 	}
