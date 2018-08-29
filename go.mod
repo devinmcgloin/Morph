@@ -1,0 +1,54 @@
+module github.com/fokal/fokal-core
+
+require (
+	cloud.google.com/go v0.26.0
+	github.com/BurntSushi/toml v0.3.0
+	github.com/Masterminds/squirrel v0.0.0-20170825200431-a6b93000bd21
+	github.com/Sirupsen/logrus v1.0.6
+	github.com/aws/aws-sdk-go v1.14.3
+	github.com/certifi/gocertifi v0.0.0-20180118203423-deb3ae2ef261
+	github.com/cridenour/go-postgis v1.0.0
+	github.com/devinmcgloin/clr v0.0.0-20180123130818-a7c75fa6c3a4
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/didip/tollbooth v3.0.2+incompatible
+	github.com/disintegration/imaging v1.4.2
+	github.com/fatih/structs v1.0.0
+	github.com/garyburd/redigo v1.6.0
+	github.com/getsentry/raven-go v0.0.0-20180517221441-ed7bcb39ff10
+	github.com/go-ini/ini v1.37.0
+	github.com/golang/protobuf v1.2.0
+	github.com/googleapis/gax-go v2.0.0+incompatible
+	github.com/gorilla/context v1.1.1
+	github.com/gorilla/handlers v1.3.0
+	github.com/gorilla/mux v1.6.2
+	github.com/jmespath/go-jmespath v0.0.0-20160202185014-0b12d6b521d8
+	github.com/jmoiron/sqlx v0.0.0-20180406164412-2aeb6a910c2b
+	github.com/justinas/alice v0.0.0-20171023064455-03f45bd4b7da
+	github.com/lann/builder v0.0.0-20180216234317-1b87b36280d0
+	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0
+	github.com/lib/pq v0.0.0-20180523175426-90697d60dd84
+	github.com/mholt/binding v0.3.0
+	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
+	github.com/patrickmn/go-cache v2.1.0+incompatible
+	github.com/pkg/errors v0.8.0
+	github.com/rs/cors v1.4.0
+	github.com/rubenv/sql-migrate v0.0.0-20180704111356-3f452fc0ebeb
+	github.com/rwcarlsen/goexif v0.0.0-20180518182100-8d986c03457a
+	github.com/satori/go.uuid v1.2.0
+	github.com/unrolled/secure v0.0.0-20180416205222-a1cf62cc2159
+	go.opencensus.io v0.15.0
+	golang.org/x/crypto v0.0.0-20180820150726-614d502a4dac // indirect
+	golang.org/x/image v0.0.0-20180601115456-af66defab954
+	golang.org/x/net v0.0.0-20180530234432-1e491301e022
+	golang.org/x/oauth2 v0.0.0-20180821212333-d2e6202438be
+	golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f
+	golang.org/x/sys v0.0.0-20180824143301-4910a1d54f87
+	golang.org/x/text v0.3.0
+	golang.org/x/time v0.0.0-20180412165947-fbb02b2291d2
+	google.golang.org/api v0.0.0-20180607230103-4d8a15a217e4
+	google.golang.org/appengine v1.1.0
+	google.golang.org/genproto v0.0.0-20180817151627-c66870c02cf8
+	google.golang.org/grpc v1.14.0
+	googlemaps.github.io/maps v0.0.0-20180515075318-74df290bd159
+	gopkg.in/gorp.v1 v1.7.1
+)
