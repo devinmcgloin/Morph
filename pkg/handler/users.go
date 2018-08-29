@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	log "github.com/Sirupsen/logrus"
+	jwt "github.com/dgrijalva/jwt-go"
 
 	"github.com/fokal/fokal-core/pkg/domain"
 	"github.com/gorilla/mux"
@@ -39,7 +40,23 @@ func CreateUser(s *State, w http.ResponseWriter, r *http.Request) (*Response, er
 		}
 	}
 
-	exists, err := s.UserService.ExistsByEmail(ctx, createRequest.Email)
+	token, err := s.AuthService.ParseToken(ctx, createRequest.Token)
+	if err != nil {
+		return nil, &StatusError{
+			Code: http.StatusBadRequest,
+			Err:  errors.New("token is invalid"),
+		}
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return nil, StatusError{Code: http.StatusBadRequest, Err: errors.New("token is invalid")}
+	}
+
+	email := claims["email"].(string)
+	name := claims["name"].(string)
+
+	exists, err := s.UserService.ExistsByEmail(ctx, email)
 	if err != nil {
 		return nil, StatusError{
 			Code: http.StatusInternalServerError,
@@ -50,7 +67,7 @@ func CreateUser(s *State, w http.ResponseWriter, r *http.Request) (*Response, er
 	if exists {
 		return nil, StatusError{
 			Code: http.StatusBadRequest,
-			Err:  fmt.Errorf("User with email %s already exists", createRequest.Email),
+			Err:  fmt.Errorf("User with email %s already exists", email),
 		}
 	}
 
@@ -69,23 +86,9 @@ func CreateUser(s *State, w http.ResponseWriter, r *http.Request) (*Response, er
 		}
 	}
 
-	valid, _, err := s.AuthService.VerifyToken(ctx, createRequest.Token)
-	if err != nil {
-		return nil, StatusError{
-			Code: http.StatusBadRequest,
-			Err:  err,
-		}
-	}
-
-	if !valid {
-		return nil, &StatusError{
-			Code: http.StatusBadRequest,
-			Err:  errors.New("token is invalid"),
-		}
-	}
-
 	user := &domain.User{
-		Email:    createRequest.Email,
+		Email:    email,
+		Name:     &name,
 		Username: createRequest.Username,
 	}
 	err = s.UserService.CreateUser(ctx, user)

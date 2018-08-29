@@ -119,7 +119,7 @@ func (auth *PGAuthService) VerifyToken(ctx context.Context, stringToken string) 
 			email := claims["email"].(string)
 			user, err := auth.userService.UserByEmail(ctx, email)
 			if err != nil {
-				return true, nil, errors.New("valid token does not match fokal user")
+				return false, nil, errors.New("valid token does not match fokal user")
 			}
 			return true, &user.ID, nil
 		}

@@ -36,9 +36,9 @@ func (store *UserStore) CreateUser(ctx context.Context, user *domain.User) error
 	}
 
 	rows, err := tx.QueryContext(ctx, `
-	INSERT INTO content.users(username, email)
-	VALUES($1, $2) RETURNING id;`,
-		user.Username, user.Email)
+	INSERT INTO content.users(username, email, name)
+	VALUES($1, $2, $3) RETURNING id;`,
+		user.Username, user.Email, user.Name)
 	if err != nil {
 		log.Error(err)
 		return err
