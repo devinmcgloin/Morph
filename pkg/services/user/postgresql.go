@@ -2,9 +2,12 @@ package user
 
 import (
 	"context"
+	"fmt"
 	"log"
 
+	"github.com/fatih/structs"
 	"github.com/fokal/fokal-core/pkg/logger"
+	"github.com/fokal/fokal-core/pkg/request"
 	"github.com/jmoiron/sqlx"
 
 	"github.com/fokal/fokal-core/pkg/domain"
@@ -229,4 +232,31 @@ func (store UserStore) DeleteUser(ctx context.Context, id uint64) error {
 	}
 	return nil
 
+}
+
+func (store UserStore) PatchUser(ctx context.Context, id uint64, changes request.PatchUser) error {
+	tx, err := store.db.Beginx()
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	for key, val := range structs.Map(changes) {
+		log.Printf("UPDATE content.users SET %s = %s WHERE id = %d", key, val, id)
+		stmt := fmt.Sprintf("UPDATE content.users SET %s = $1 WHERE id = $2", key)
+		_, err = tx.Exec(stmt, val, id)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
 }
