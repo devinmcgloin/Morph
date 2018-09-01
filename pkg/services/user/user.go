@@ -8,24 +8,24 @@ import (
 )
 
 type User struct {
-	ID       uint64
-	Username string
-	Email    string
+	ID       uint64 `json:"id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
 
-	Name      *string
-	Bio       *string
-	URL       *string
-	Twitter   *string
-	Instagram *string
-	Location  *string
+	Name      *string `json:"name,omitempty"`
+	Bio       *string `json:"bio,omitempty"`
+	URL       *string `json:"url,omitempty"`
+	Twitter   *string `json:"twitter,omitempty"`
+	Instagram *string `json:"instagram,omitempty"`
+	Location  *string `json:"location,omitempty"`
 
-	AvatarID *string
+	AvatarID *string `db:"avatar_id" json:"avatar_id,omitempty"`
 
-	Featured bool
-	Admin    bool
+	Featured bool `json:"featured"`
+	Admin    bool `json:"admin"`
 
-	CreatedAt    time.Time
-	LastModified time.Time
+	CreatedAt    time.Time `db:"created_at" json:"created_at"`
+	LastModified time.Time `db:"last_modified" json:"last_modified"`
 }
 
 //go:generate moq -out user_service_runner.go . UserService

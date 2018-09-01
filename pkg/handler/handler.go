@@ -106,7 +106,7 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		switch e := err.(type) {
 		case Error:
 			if e.Status() >= 500 {
-				logrus.Info("Capturing raven error")
+				log.WithContext(ctx).Info("Capturing raven error")
 				raven.CaptureError(err, RavenTags(h.State, r))
 			}
 			// We can retrieve the status here and write out a specific
@@ -114,7 +114,7 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			log.WithContext(ctx).WithFields(logrus.Fields{
 				"status-code": e.Status(),
 				"error":       e,
-			}).Infof("unable to fulfill request")
+			}).Error("unable to fulfill request")
 			w.WriteHeader(e.Status())
 			j, _ := json.Marshal(map[string]interface{}{
 				"code": e.Status(),
@@ -125,12 +125,12 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		default:
 			// Any error types we don't specifically look out for default
 			// to serving a HTTP 500
-			logrus.Printf("Generating Tags: %+v", RavenTags(h.State, r))
+			log.WithContext(ctx).Info("Capturing raven error")
 			raven.CaptureError(err, RavenTags(h.State, r))
 			log.WithContext(ctx).WithFields(logrus.Fields{
 				"status-code": http.StatusInternalServerError,
 				"error":       e,
-			}).Infof("unable to fulfill request")
+			}).Error("unable to fulfill request")
 			http.Error(w, http.StatusText(http.StatusInternalServerError),
 				http.StatusInternalServerError)
 		}

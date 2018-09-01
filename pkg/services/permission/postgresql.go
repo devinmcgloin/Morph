@@ -43,14 +43,15 @@ func (pgp *PGPermission) ValidScope(ctx context.Context, userID, resourceID uint
 	case CanDelete:
 		query = "SELECT count(1) FROM permissions.can_delete WHERE (user_id = $1 OR user_id = -1) AND o_id = $2 AND class = $3"
 	case CanView:
-		query = "SELECT count(1) FROM permissions.can_view WHERE (user_id = $1 OR user_id = -1)AND o_id = $2 AND class = $3"
+		query = "SELECT count(1) FROM permissions.can_view WHERE (user_id = $1 OR user_id = -1) AND o_id = $2 AND class = $3"
 	}
-	_, err := pgp.db.ExecContext(ctx, query, userID, resourceID, class)
+	var valid bool
+	err := pgp.db.GetContext(ctx, &valid, query, userID, resourceID, class)
 	if err != nil {
 		logrus.Error(err)
 		return false, err
 	}
-	return false, nil
+	return valid, nil
 }
 
 func (pgp *PGPermission) RemoveScope(ctx context.Context, tx *sqlx.Tx, userID, resourceID uint64, class ResourceClass, scope Scope) error {

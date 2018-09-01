@@ -21,6 +21,8 @@ type Stream struct {
 
 type Service interface {
 	StreamByID(ctx context.Context, id uint64) (*Stream, error)
+	StreamByShortcode(ctx context.Context, shortcode string) (*Stream, error)
+
 	StreamsByCreator(ctx context.Context, userID uint64) (*[]Stream, error)
 	CreateStream(ctx context.Context, creator uint64, title string) error
 	SetDescription(ctx context.Context, id uint64, description string) error

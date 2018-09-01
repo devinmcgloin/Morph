@@ -6,8 +6,9 @@ import (
 	"github.com/Sirupsen/logrus"
 )
 
-var logrusger = logrus.New()
-
 func WithContext(ctx context.Context) *logrus.Entry {
-	return logrusger.WithField("request-id", ctx.Value(IDKey))
+	return logrus.WithFields(logrus.Fields{
+		"request-id": ctx.Value(IDKey),
+		"request-ip": ctx.Value(IPKey),
+	})
 }

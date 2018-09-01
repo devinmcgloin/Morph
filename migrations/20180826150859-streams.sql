@@ -1,6 +1,7 @@
 -- +migrate Up
 CREATE TABLE content.streams (
   id          serial                                                          NOT NULL CONSTRAINT streams_pkey PRIMARY KEY,
+  shortcode   varchar(12)                                                     NOT NULL,
   title       varchar(50)                                                     NOT NULL,
   description varchar(100),
   user_id     integer                                                         NOT NULL CONSTRAINT user_stream_id_fk REFERENCES content.users (id),

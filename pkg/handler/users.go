@@ -4,6 +4,8 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/fokal/fokal-core/pkg/log"
+	"github.com/fokal/fokal-core/pkg/services/permission"
 	"github.com/fokal/fokal-core/pkg/services/user"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -18,6 +20,9 @@ import (
 func RegisterHandlers(state *State, api *mux.Router, chain alice.Chain) {
 	post := api.Methods("POST").Subrouter()
 	opts := api.Methods("OPTIONS").Subrouter()
+	get := api.Methods("GET").Subrouter()
+	put := api.Methods("PUT").Subrouter()
+	del := api.Methods("DELETE").Subrouter()
 
 	post.Handle("/users", chain.Then(Handler{
 		State: state,
@@ -25,6 +30,27 @@ func RegisterHandlers(state *State, api *mux.Router, chain alice.Chain) {
 	}))
 	opts.Handle("/users", chain.Then(Options("POST")))
 
+	get.Handle("/users/{ID}", chain.Then(Handler{State: state, H: User}))
+	opts.Handle("/users/{ID}", chain.Then(Options("GET")))
+
+	put.Handle("/users/{ID}/featured",
+		chain.Append(
+			Middleware{State: state, M: Authenticate}.Handler,
+			Permission{State: state,
+				T:          permission.CanEdit,
+				TargetType: permission.UserClass,
+				M:          PermissionMiddle}.Handler).
+			Then(Handler{State: state, H: FeatureUser}))
+	del.Handle("/users/{ID}/featured",
+		chain.Append(
+			Middleware{State: state, M: Authenticate}.Handler,
+			Permission{State: state,
+				T:          permission.CanEdit,
+				TargetType: permission.UserClass,
+				M:          PermissionMiddle}.Handler).
+			Then(Handler{State: state, H: UnFeatureUser}))
+
+	opts.Handle("/users/{ID}/featured", chain.Then(Options("DELETE", "PUT")))
 }
 
 func CreateUser(s *State, w http.ResponseWriter, r *http.Request) (*Response, error) {
@@ -70,9 +96,62 @@ func CreateUser(s *State, w http.ResponseWriter, r *http.Request) (*Response, er
 		Code: http.StatusOK,
 	}, nil
 }
+func User(s *State, w http.ResponseWriter, r *http.Request) (*Response, error) {
+	username := mux.Vars(r)["ID"]
+	ctx := r.Context()
+	user, err := s.UserService.UserByUsername(ctx, username)
+	if err != nil {
+		return nil, StatusError{
+			Code: http.StatusInternalServerError,
+			Err:  errors.New("unable to reach user service"),
+		}
+	}
+
+	return &Response{Code: http.StatusOK, Data: user}, nil
+}
 
 // func PatchUser(s *State, w http.ResponseWriter, r *http.Request) (Response, error)     {}
 // func DeleteUser(s *State, w http.ResponseWriter, r *http.Request) (Response, error)    {}
 // func UploadAvatar(s *State, w http.ResponseWriter, r *http.Request) (Response, error)  {}
-// func FeatureUser(s *State, w http.ResponseWriter, r *http.Request) (Response, error)   {}
-// func UnFeatureUser(s *State, w http.ResponseWriter, r *http.Request) (Response, error) {}
+func FeatureUser(s *State, w http.ResponseWriter, r *http.Request) (*Response, error) {
+	id := mux.Vars(r)["ID"]
+	ctx := r.Context()
+
+	log.WithContext(ctx).Debug("fetching user by username")
+	user, err := s.UserService.UserByUsername(ctx, id)
+	if err != nil {
+		return nil, StatusError{
+			Code: http.StatusInternalServerError,
+			Err:  errors.New("unable to reach user service"),
+		}
+	}
+	log.WithContext(ctx).Debug("setting user featured")
+	err = s.UserService.Feature(ctx, user.ID)
+	if err != nil {
+		return nil, StatusError{
+			Code: http.StatusInternalServerError,
+			Err:  errors.New("unable to reach user service"),
+		}
+	}
+	return &Response{Code: http.StatusAccepted}, nil
+}
+func UnFeatureUser(s *State, w http.ResponseWriter, r *http.Request) (*Response, error) {
+	id := mux.Vars(r)["ID"]
+	ctx := r.Context()
+
+	user, err := s.UserService.UserByUsername(ctx, id)
+	if err != nil {
+		return nil, StatusError{
+			Code: http.StatusInternalServerError,
+			Err:  errors.New("unable to reach user service"),
+		}
+	}
+	err = s.UserService.UnFeature(ctx, user.ID)
+	if err != nil {
+		return nil, StatusError{
+			Code: http.StatusInternalServerError,
+			Err:  errors.New("unable to reach user service"),
+		}
+	}
+	return &Response{Code: http.StatusAccepted}, nil
+}

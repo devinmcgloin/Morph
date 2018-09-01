@@ -12,7 +12,6 @@ import (
 
 	"github.com/fokal/fokal-core/pkg/conn"
 	"github.com/fokal/fokal-core/pkg/handler"
-	"github.com/fokal/fokal-core/pkg/middleware"
 	"github.com/fokal/fokal-core/pkg/services/authentication"
 	"github.com/fokal/fokal-core/pkg/services/cache"
 	"github.com/fokal/fokal-core/pkg/services/color"
@@ -25,7 +24,6 @@ import (
 	"github.com/fokal/fokal-core/pkg/services/user"
 	"github.com/fokal/fokal-core/pkg/services/vision"
 	raven "github.com/getsentry/raven-go"
-	"github.com/gorilla/context"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/justinas/alice"
@@ -42,7 +40,7 @@ type Config struct {
 	PostgresURL        string
 	RedisURL           string
 	GoogleToken        string
-	AWSAccessKeyId     string
+	AWSAccessKeyID     string
 	AWSSecretAccessKey string
 
 	SentryURL string
@@ -52,10 +50,17 @@ var AppState handler.State
 
 func main() {
 	cfg := ProcessFlags()
+
 	Formatter := new(logrus.TextFormatter)
 	Formatter.TimestampFormat = "02-01-2006 15:04:05"
 	Formatter.FullTimestamp = true
 	logrus.SetFormatter(Formatter)
+
+	if cfg.Local {
+		logrus.Info("setting local configuration state")
+		logrus.SetLevel(logrus.DebugLevel)
+		cfg.PostgresURL = cfg.PostgresURL + "?sslmode=disable"
+	}
 
 	router := mux.NewRouter()
 	api := router.PathPrefix("/v0/").Subrouter()
@@ -64,11 +69,6 @@ func main() {
 	err := raven.SetDSN(cfg.SentryURL)
 	if err != nil {
 		logrus.Fatal("Sentry IO not configured")
-	}
-
-	if cfg.Local {
-		logrus.SetLevel(logrus.DebugLevel)
-		cfg.PostgresURL = cfg.PostgresURL + "?sslmode=disable"
 	}
 
 	VisionService, _, _ := conn.DialGoogleServices(cfg.GoogleToken)
@@ -127,13 +127,16 @@ func main() {
 	})
 
 	var base = alice.New(
-		middleware.SentryRecovery,
-		middleware.RateLimit,
+		handler.SentryRecovery,
+		handler.RateLimit,
 		crs.Handler,
-		middleware.Timeout,
-		middleware.IP, middleware.UUID, secureMiddleware.Handler,
-		context.ClearHandler, handlers.CompressHandler,
-		middleware.ContentTypeJSON)
+		handler.Timeout,
+		handler.IP, handler.UUID,
+		secureMiddleware.Handler,
+		handlers.CompressHandler,
+		handler.ContentTypeJSON,
+		handler.SetUser,
+	)
 
 	//  ROUTES
 
@@ -193,7 +196,7 @@ func ProcessFlags() *Config {
 	cfg.GoogleToken = googleToken
 	cfg.PostgresURL = postgresURL
 	cfg.RedisURL = redisURL
-	cfg.AWSAccessKeyId = AWSAccessKey
+	cfg.AWSAccessKeyID = AWSAccessKey
 	cfg.AWSSecretAccessKey = AWSSecret
 	cfg.SentryURL = SentryURL
 	return cfg

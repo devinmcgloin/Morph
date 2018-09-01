@@ -30,6 +30,16 @@ func (stream *PGStreamService) StreamByID(ctx context.Context, id uint64) (*Stre
 	return retrieved, nil
 }
 
+func (stream *PGStreamService) StreamByShortcode(ctx context.Context, shortcode string) (*Stream, error) {
+	var retrieved *Stream
+	err := stream.db.GetContext(ctx, retrieved, "SELECT * FROM content.streams WHERE shortcode = $1", shortcode)
+	if err != nil {
+		logrus.Error(err)
+		return nil, err
+	}
+	return retrieved, nil
+}
+
 func (stream *PGStreamService) StreamsByCreator(ctx context.Context, userID uint64) (*[]Stream, error) {
 	var streams *[]Stream
 	err := stream.db.SelectContext(ctx, streams, "SELECT * FROM content.streams WHERE user_id = $1", userID)

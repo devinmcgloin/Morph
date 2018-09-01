@@ -1,8 +1,10 @@
 package log
 
+type ContextKey string
+
 const (
-	IDKey     = "fokal-id-key"
-	IPKey     = "fokal-ip-key"
-	JWTID     = "fokal-jwt-key"
-	UserIDKey = "fokal-user-key"
+	IDKey     = ContextKey("fokal-id-key")
+	IPKey     = ContextKey("fokal-ip-key")
+	JWTID     = ContextKey("fokal-jwt-key")
+	UserIDKey = ContextKey("fokal-user-key")
 )

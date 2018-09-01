@@ -1,4 +1,4 @@
-package middleware
+package handler
 
 import (
 	"context"
@@ -14,15 +14,14 @@ import (
 	jwtreq "github.com/dgrijalva/jwt-go/request"
 	"github.com/didip/tollbooth"
 	"github.com/didip/tollbooth/limiter"
-	"github.com/fokal/fokal-core/pkg/handler"
 	"github.com/fokal/fokal-core/pkg/log"
 	raven "github.com/getsentry/raven-go"
 	"github.com/satori/go.uuid"
 )
 
 type Middleware struct {
-	*handler.State
-	M func(state *handler.State, next http.Handler) http.Handler
+	*State
+	M func(state *State, next http.Handler) http.Handler
 }
 
 func (m Middleware) Handler(next http.Handler) http.Handler {
@@ -69,7 +68,7 @@ func ContentTypeJSON(h http.Handler) http.Handler {
 	})
 }
 
-func Cache(state *handler.State, next http.Handler) http.Handler {
+func Cache(state *State, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if state.Local {
 			next.ServeHTTP(w, r)
@@ -103,9 +102,10 @@ func Cache(state *handler.State, next http.Handler) http.Handler {
 	})
 }
 
-func SetJWT(next http.Handler) http.Handler {
+func SetUser(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
+		log.WithContext(ctx).Debug("setting jwt for user")
 		tokenStrings, err := jwtreq.HeaderExtractor{"Authorization"}.ExtractToken(r)
 		if err != nil {
 			next.ServeHTTP(w, r)
@@ -117,17 +117,26 @@ func SetJWT(next http.Handler) http.Handler {
 	})
 }
 
-func Authenticate(state *handler.State, next http.Handler) http.Handler {
+func Authenticate(state *State, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
+		log.WithContext(ctx).Debug("authenticating user")
+
 		jwt, ok := ctx.Value(log.JWTID).(string)
 		if !ok {
+			log.WithContext(ctx).Error("unable to retrieve jwt")
+			w.WriteHeader(http.StatusUnauthorized)
+			j, _ := json.Marshal(map[string]interface{}{
+				"code": http.StatusText(http.StatusUnauthorized),
+				"err":  http.StatusUnauthorized,
+			})
+			w.Write(j)
 			return
 		}
 		valid, userID, err := state.AuthService.VerifyToken(ctx, jwt)
 		if err != nil {
 			switch e := err.(type) {
-			case handler.Error:
+			case Error:
 				// We can retrieve the status here and write out a specific
 				// HTTP status code.
 				logrus.Printf("HTTP %d - %s", e.Status(), e.Error())
@@ -146,14 +155,14 @@ func Authenticate(state *handler.State, next http.Handler) http.Handler {
 		} else if !valid {
 			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		} else {
-			ctx = context.WithValue(ctx, log.UserIDKey, userID)
+			log.WithContext(ctx).Info("setting user id value in context")
+			ctx = context.WithValue(ctx, log.UserIDKey, *userID)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		}
-
 	})
 }
 
-func SetAuthenticatedUser(state *handler.State, next http.Handler) http.Handler {
+func SetAuthenticatedUser(state *State, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		jwt, ok := ctx.Value(log.JWTID).(string)
