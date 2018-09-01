@@ -89,8 +89,8 @@ func main() {
 	AppState.CacheService = cache.New(RD, "cache:", CacheExpiryTime)
 	AppState.ColorService = color.New(DB)
 	AppState.StorageService = handler.StorageState{
-		Content: storage.New("fokal-content", "us-west-1", "content"),
-		Avatar:  storage.New("fokal-content", "us-west-1", "avatar"),
+		Content: storage.New("fokal-content", "us-east-1", "content"),
+		Avatar:  storage.New("fokal-content", "us-east-1", "avatar"),
 	}
 	AppState.PermissionService = permission.New(DB)
 	AppState.TagService = tag.New(DB)

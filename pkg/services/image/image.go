@@ -113,3 +113,15 @@ type Point struct {
 	Lat float64 `json:"lat"`
 	Lng float64 `json:"lng"`
 }
+
+func ImageSources(shortcode, location string) ImageSource {
+	var prefix = "https://images.fok.al/" + location + "/"
+	var resourceBaseURL = prefix + shortcode
+	return ImageSource{
+		Raw:    resourceBaseURL,
+		Large:  resourceBaseURL + "?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy",
+		Medium: resourceBaseURL + "?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&w=1080&fit=max",
+		Small:  resourceBaseURL + "?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&w=400&fit=max",
+		Thumb:  resourceBaseURL + "?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&w=200&fit=max",
+	}
+}

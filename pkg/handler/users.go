@@ -2,11 +2,15 @@ package handler
 
 import (
 	"errors"
+	img "image"
 	"net/http"
 
 	"github.com/fokal/fokal-core/pkg/log"
+	"github.com/fokal/fokal-core/pkg/services/image"
 	"github.com/fokal/fokal-core/pkg/services/permission"
+
 	"github.com/fokal/fokal-core/pkg/services/user"
+	uuid "github.com/satori/go.uuid"
 
 	jwt "github.com/dgrijalva/jwt-go"
 
@@ -51,6 +55,16 @@ func RegisterHandlers(state *State, api *mux.Router, chain alice.Chain) {
 			Then(Handler{State: state, H: UnFeatureUser}))
 
 	opts.Handle("/users/{ID}/featured", chain.Then(Options("DELETE", "PUT")))
+
+	put.Handle("/users/me/avatar", chain.Append(
+		Middleware{
+			State: state,
+			M:     Authenticate,
+		}.Handler).Then(Handler{
+		State: state,
+		H:     UploadAvatar,
+	}))
+	opts.Handle("/users/me/avatar", chain.Then(Options("PUT")))
 }
 
 func CreateUser(s *State, w http.ResponseWriter, r *http.Request) (*Response, error) {
@@ -112,7 +126,43 @@ func User(s *State, w http.ResponseWriter, r *http.Request) (*Response, error) {
 
 // func PatchUser(s *State, w http.ResponseWriter, r *http.Request) (Response, error)     {}
 // func DeleteUser(s *State, w http.ResponseWriter, r *http.Request) (Response, error)    {}
-// func UploadAvatar(s *State, w http.ResponseWriter, r *http.Request) (Response, error)  {}
+func UploadAvatar(s *State, w http.ResponseWriter, r *http.Request) (*Response, error) {
+	ctx := r.Context()
+	log.WithContext(ctx).Debug("uploading avatar")
+	userID := ctx.Value(log.UserIDKey).(uint64)
+	id := uuid.NewV4()
+
+	uploadedImage, _, err := img.Decode(r.Body)
+	if err != nil {
+		return nil, StatusError{
+			Err:  errors.New("unable to read image body"),
+			Code: http.StatusBadRequest}
+	}
+
+	if uploadedImage.Bounds().Dx() == 0 {
+		return nil, StatusError{
+			Err:  errors.New("cannot upload file with 0 bytes"),
+			Code: http.StatusBadRequest}
+	}
+
+	err = s.StorageService.Avatar.UploadImage(ctx, uploadedImage, id.String())
+	if err != nil {
+		return nil, StatusError{
+			Err:  errors.New("unable to upload image"),
+			Code: http.StatusInternalServerError}
+	}
+
+	err = s.UserService.SetAvatarID(ctx, userID, id.String())
+	if err != nil {
+		return nil, StatusError{Code: http.StatusInternalServerError, Err: errors.New("Unable to update avatar id")}
+	}
+
+	return &Response{
+		Code: http.StatusAccepted,
+		Data: map[string]interface{}{"links": image.ImageSources(id.String(), "avatar")},
+	}, nil
+}
+
 func FeatureUser(s *State, w http.ResponseWriter, r *http.Request) (*Response, error) {
 	id := mux.Vars(r)["ID"]
 	ctx := r.Context()

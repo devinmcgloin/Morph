@@ -8,6 +8,7 @@ CREATE TABLE content.users (
     url varchar(50),
     twitter text,
     instagram text,
+    avatar_id UUID,
     featured boolean DEFAULT FALSE NOT NULL,
     admin boolean DEFAULT FALSE NOT NULL,
     created_at timestamp WITH time zone DEFAULT timezone('UTC'::text, now()) NOT NULL, last_modified timestamp WITH time zone DEFAULT timezone('UTC'::text, now()) NOT NULL, LOCATION text);
