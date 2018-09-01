@@ -42,7 +42,7 @@ func (store *UserStore) CreateUser(ctx context.Context, user *User) error {
 	}
 
 	if exists {
-		return fmt.Errorf("User with email %s already exists", user.Email)
+		return fmt.Errorf("user with email %s already exists", user.Email)
 	}
 
 	exists, err = store.ExistsByUsername(ctx, user.Username)
