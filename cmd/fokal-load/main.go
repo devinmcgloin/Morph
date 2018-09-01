@@ -36,7 +36,7 @@ func main() {
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s <path-to-file>\n", filepath.Base(os.Args[0]))
 	}
-	flag.StringVar(&contentType, "type", "", "Type of colors loaded")
+	flag.StringVar(&contentType, "type", "", "Type of colors loaded (shade|specific)")
 	flag.StringVar(&path, "path", "", "Path to load")
 
 	flag.Parse()
@@ -46,15 +46,25 @@ func main() {
 		os.Exit(1)
 	}
 
+	var content uint8
+	if contentType == "specific" {
+		content = color.SpecificColor
+	} else if contentType == "shade" {
+		content = color.Shade
+	} else {
+		flag.Usage()
+		os.Exit(1)
+	}
+
 	fmt.Println(path, contentType)
-	if err := run(db, path, contentType); err != nil {
+	if err := run(db, path, content); err != nil {
 		fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 		os.Exit(1)
 	}
 
 }
 
-func run(db *sqlx.DB, file, t string) error {
+func run(db *sqlx.DB, file string, t uint8) error {
 	var c colors
 	toAdd := make(map[string]string)
 
@@ -71,7 +81,7 @@ func run(db *sqlx.DB, file, t string) error {
 		toAdd[clr.Hex] = clr.Name
 	}
 
-	table := color.NewWithType(db, color.ColorCatagory(t))
+	table := color.NewWithType(db, t)
 
 	err = table.AddColors(toAdd)
 	return err

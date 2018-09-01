@@ -6,8 +6,7 @@ import (
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
-
-	"github.com/fokal/fokal-core/pkg/domain"
+	"github.com/fokal/fokal-core/pkg/services/image"
 
 	"io"
 
@@ -24,8 +23,8 @@ func GetExif(img io.Reader) (*exif.Exif, error) {
 	return exifDat, nil
 }
 
-func GetMetadata(ctx context.Context, img io.Reader) (*domain.ImageMetadata, error) {
-	meta := &domain.ImageMetadata{Location: &domain.Location{}}
+func GetMetadata(ctx context.Context, img io.Reader) (*image.ImageMetadata, error) {
+	meta := &image.ImageMetadata{Location: &image.Location{}}
 	x, err := GetExif(img)
 	if err != nil {
 		log.Error(err)

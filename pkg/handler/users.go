@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/fokal/fokal-core/pkg/services/user"
+
 	log "github.com/Sirupsen/logrus"
 	jwt "github.com/dgrijalva/jwt-go"
 
-	"github.com/fokal/fokal-core/pkg/domain"
 	"github.com/gorilla/mux"
 	"github.com/justinas/alice"
 
@@ -86,7 +87,7 @@ func CreateUser(s *State, w http.ResponseWriter, r *http.Request) (*Response, er
 		}
 	}
 
-	user := &domain.User{
+	user := &user.User{
 		Email:    email,
 		Name:     &name,
 		Username: createRequest.Username,

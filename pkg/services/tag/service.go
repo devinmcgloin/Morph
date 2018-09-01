@@ -4,14 +4,14 @@ import (
 	"context"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/fokal/fokal-core/pkg/services/image"
 
-	"github.com/fokal/fokal-core/pkg/domain"
 	"github.com/jmoiron/sqlx"
 )
 
 type TagStore struct {
 	db    *sqlx.DB
-	image domain.ImageService
+	image image.Service
 }
 
 func New(db *sqlx.DB) *TagStore {
@@ -20,8 +20,8 @@ func New(db *sqlx.DB) *TagStore {
 	}
 }
 
-func (store *TagStore) TagByID(ctx context.Context, id uint64) (*domain.Tag, error) {
-	var tag *domain.Tag
+func (store *TagStore) TagByID(ctx context.Context, id uint64) (*Tag, error) {
+	var tag *Tag
 	err := store.db.GetContext(ctx, tag, "SELECT id, description FROM content.image_tags WHERE id = $1", id)
 	if err != nil {
 		log.Error(err)
@@ -30,8 +30,8 @@ func (store *TagStore) TagByID(ctx context.Context, id uint64) (*domain.Tag, err
 	return tag, nil
 }
 
-func (store *TagStore) TagByDescription(ctx context.Context, desc string) (*domain.Tag, error) {
-	var tag *domain.Tag
+func (store *TagStore) TagByDescription(ctx context.Context, desc string) (*Tag, error) {
+	var tag *Tag
 	err := store.db.GetContext(ctx, tag, "SELECT id, description FROM content.image_tags WHERE description = $1", desc)
 	if err != nil {
 		log.Error(err)
@@ -40,8 +40,8 @@ func (store *TagStore) TagByDescription(ctx context.Context, desc string) (*doma
 	return tag, nil
 }
 
-func (store *TagStore) CreateTag(ctx context.Context, desc string) (*domain.Tag, error) {
-	tag := &domain.Tag{
+func (store *TagStore) CreateTag(ctx context.Context, desc string) (*Tag, error) {
+	tag := &Tag{
 		Description: desc,
 	}
 
@@ -66,14 +66,14 @@ func (store *TagStore) CreateTag(ctx context.Context, desc string) (*domain.Tag,
 	return tag, nil
 }
 
-func (store *TagStore) ImagesForTag(ctx context.Context, id uint64) (*[]domain.Image, error) {
+func (store *TagStore) ImagesForTag(ctx context.Context, id uint64) (*[]image.Image, error) {
 	var imageIDs []uint64
 	err := store.db.SelectContext(ctx, &imageIDs, "SELECT image_id FROM content.image_tag_bridge WHERE tag_id = $1", id)
 	if err != nil {
 		log.Error(err)
 		return nil, err
 	}
-	var images []domain.Image
+	var images []image.Image
 	for _, id := range imageIDs {
 		image, err := store.image.ImageByID(ctx, id)
 		if err != nil {

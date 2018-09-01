@@ -1,10 +1,10 @@
-package domain
+package cache
 
 import (
 	"time"
 )
 
-type CacheService interface {
+type Service interface {
 	Get(key string) ([]byte, error)
 	Set(key string, content []byte) error
 	Invalidate(key string) error

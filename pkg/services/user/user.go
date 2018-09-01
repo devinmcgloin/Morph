@@ -1,4 +1,4 @@
-package domain
+package user
 
 import (
 	"context"
@@ -30,7 +30,7 @@ type User struct {
 
 //go:generate moq -out user_service_runner.go . UserService
 
-type UserService interface {
+type Service interface {
 	UserByID(ctx context.Context, id uint64) (*User, error)
 	UserByUsername(ctx context.Context, username string) (*User, error)
 	UserByEmail(ctx context.Context, username string) (*User, error)

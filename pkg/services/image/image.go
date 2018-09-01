@@ -1,4 +1,4 @@
-package domain
+package image
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 
 //go:generate moq -out image_service_runner.go . ImageService
 
-type ImageService interface {
+type Service interface {
 	ImageByID(ctx context.Context, id uint64) (*Image, error)
 	ImageByShortcode(ctx context.Context, shortcode string) (*Image, error)
 	ExistsByShortcode(ctx context.Context, shortcode string) (bool, error)

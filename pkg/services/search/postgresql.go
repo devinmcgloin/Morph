@@ -8,21 +8,23 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/fokal/fokal-core/pkg/services/image"
+	"github.com/fokal/fokal-core/pkg/services/tag"
+	"github.com/fokal/fokal-core/pkg/services/user"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/devinmcgloin/clr/clr"
-	"github.com/fokal/fokal-core/pkg/domain"
 	"github.com/jmoiron/sqlx"
 )
 
 type PGSearchService struct {
 	db    *sqlx.DB
-	user  domain.UserService
-	tag   domain.TagService
-	image domain.ImageService
+	user  user.Service
+	tag   tag.Service
+	image image.Service
 }
 
-func New(db *sqlx.DB, user domain.UserService, tag domain.TagService, image domain.ImageService) *PGSearchService {
+func New(db *sqlx.DB, user user.Service, tag tag.Service, image image.Service) *PGSearchService {
 	search := &PGSearchService{
 		db:    db,
 		user:  user,
@@ -46,7 +48,7 @@ func (pgs *PGSearchService) RefreshMaterializedView() {
 	}()
 }
 
-func (pgs *PGSearchService) FullSearch(ctx context.Context, req domain.SearchRequest) (*[]domain.Rank, error) {
+func (pgs *PGSearchService) FullSearch(ctx context.Context, req SearchRequest) (*[]Rank, error) {
 
 	if req.Color != nil && (len(req.Color.HexCode) != 7 || req.Color.HexCode[0] != '#') {
 		log.Println(req.Color.HexCode)
@@ -62,7 +64,7 @@ func (pgs *PGSearchService) FullSearch(ctx context.Context, req domain.SearchReq
 		}
 	}
 
-	var ids []domain.Rank
+	var ids []Rank
 
 	tsQuery := formatQueryString(req.RequiredTerms, req.OptionalTerms, req.ExcludedTerms)
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
@@ -84,7 +86,7 @@ func (pgs *PGSearchService) FullSearch(ctx context.Context, req domain.SearchReq
 
 		q = q.Where(`ST_Covers(ST_MakeEnvelope(
         ?, ?,
-        ?, ?, 
+        ?, ?,
         ?), geo.loc) `, geo.SW.Lng, geo.SW.Lat, geo.NE.Lng, geo.NE.Lat, 4326)
 	}
 

@@ -1,8 +1,6 @@
 package search
 
-import "github.com/fokal/fokal-core/pkg/domain"
-
-type ByRankColor []domain.Rank
+type ByRankColor []Rank
 
 func (a ByRankColor) Len() int {
 	return len(a)

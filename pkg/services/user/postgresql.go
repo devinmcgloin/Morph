@@ -8,18 +8,18 @@ import (
 
 	"github.com/fatih/structs"
 	"github.com/fokal/fokal-core/pkg/request"
+	"github.com/fokal/fokal-core/pkg/services/image"
+	"github.com/fokal/fokal-core/pkg/services/permission"
 	"github.com/jmoiron/sqlx"
-
-	"github.com/fokal/fokal-core/pkg/domain"
 )
 
 type UserStore struct {
 	db          *sqlx.DB
-	permissions domain.PermissionService
-	images      domain.ImageService
+	permissions permission.Service
+	images      image.Service
 }
 
-func New(db *sqlx.DB, permissions domain.PermissionService, images domain.ImageService) *UserStore {
+func New(db *sqlx.DB, permissions permission.Service, images image.Service) *UserStore {
 	return &UserStore{
 		db:          db,
 		permissions: permissions,
@@ -27,7 +27,7 @@ func New(db *sqlx.DB, permissions domain.PermissionService, images domain.ImageS
 	}
 }
 
-func (store *UserStore) CreateUser(ctx context.Context, user *domain.User) error {
+func (store *UserStore) CreateUser(ctx context.Context, user *User) error {
 	var userID uint64
 	tx, err := store.db.Beginx()
 	if err != nil {
@@ -53,6 +53,22 @@ func (store *UserStore) CreateUser(ctx context.Context, user *domain.User) error
 		}
 	}
 
+	err = store.permissions.AddScope(ctx, tx, userID, userID, permission.UserClass, permission.CanEdit)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	err = store.permissions.Public(ctx, tx, userID, permission.UserClass)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	err = store.permissions.AddScope(ctx, tx, userID, userID, permission.UserClass, permission.CanDelete)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
 	err = tx.Commit()
 	if err != nil {
 		log.Error(err)
@@ -62,28 +78,11 @@ func (store *UserStore) CreateUser(ctx context.Context, user *domain.User) error
 		}
 		return err
 	}
-
-	err = store.permissions.AddScope(ctx, userID, userID, domain.UserClass, domain.CanEdit)
-	if err != nil {
-		log.Error(err)
-		return err
-	}
-	err = store.permissions.Public(ctx, userID, domain.UserClass)
-	if err != nil {
-		log.Error(err)
-		return err
-	}
-	err = store.permissions.AddScope(ctx, userID, userID, domain.UserClass, domain.CanDelete)
-	if err != nil {
-		log.Error(err)
-		return err
-	}
-
 	return nil
 }
 
-func (store UserStore) UserByID(ctx context.Context, id uint64) (*domain.User, error) {
-	var user *domain.User
+func (store UserStore) UserByID(ctx context.Context, id uint64) (*User, error) {
+	var user *User
 	err := store.db.GetContext(ctx, user, "SELECT * FROM content.users WHERE id = $1", id)
 	if err != nil {
 		log.Error(err)
@@ -92,8 +91,8 @@ func (store UserStore) UserByID(ctx context.Context, id uint64) (*domain.User, e
 	return user, nil
 }
 
-func (store UserStore) UserByUsername(ctx context.Context, username string) (*domain.User, error) {
-	var user *domain.User
+func (store UserStore) UserByUsername(ctx context.Context, username string) (*User, error) {
+	var user *User
 	err := store.db.GetContext(ctx, user, "SELECT * FROM content.users WHERE username = $1", username)
 	if err != nil {
 		log.Error(err)
@@ -101,8 +100,8 @@ func (store UserStore) UserByUsername(ctx context.Context, username string) (*do
 	}
 	return user, nil
 }
-func (store UserStore) UserByEmail(ctx context.Context, email string) (*domain.User, error) {
-	var user *domain.User
+func (store UserStore) UserByEmail(ctx context.Context, email string) (*User, error) {
+	var user *User
 	err := store.db.GetContext(ctx, user, "SELECT * FROM content.users WHERE email = $1", email)
 	if err != nil {
 		log.Error(err)
@@ -131,8 +130,8 @@ func (store UserStore) ExistsByUsername(ctx context.Context, username string) (b
 	return exists, nil
 }
 
-func (store UserStore) Users(ctx context.Context, limit int) (*[]domain.User, error) {
-	var users *[]domain.User
+func (store UserStore) Users(ctx context.Context, limit int) (*[]User, error) {
+	var users *[]User
 
 	err := store.db.SelectContext(ctx, users, "SELECT * FROM content.users ORDER BY last_modified LIMIT $1", limit)
 	if err != nil {
@@ -142,8 +141,8 @@ func (store UserStore) Users(ctx context.Context, limit int) (*[]domain.User, er
 	return users, nil
 }
 
-func (store UserStore) Admins(ctx context.Context) (*[]domain.User, error) {
-	var users *[]domain.User
+func (store UserStore) Admins(ctx context.Context) (*[]User, error) {
+	var users *[]User
 
 	err := store.db.SelectContext(ctx, users, "SELECT * FROM content.users WHERE admin = true ORDER BY last_modified")
 	if err != nil {
@@ -163,8 +162,8 @@ func (store UserStore) IsAdmin(ctx context.Context, id uint64) (bool, error) {
 	return exists, nil
 }
 
-func (store UserStore) Featured(ctx context.Context) (*[]domain.User, error) {
-	var users *[]domain.User
+func (store UserStore) Featured(ctx context.Context) (*[]User, error) {
+	var users *[]User
 
 	err := store.db.SelectContext(ctx, users, "SELECT * FROM content.users WHERE featured = true ORDER BY last_modified")
 	if err != nil {

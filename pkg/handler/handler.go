@@ -5,8 +5,17 @@ import (
 	"net/http"
 
 	log "github.com/Sirupsen/logrus"
-
-	"github.com/fokal/fokal-core/pkg/domain"
+	"github.com/fokal/fokal-core/pkg/services/authentication"
+	"github.com/fokal/fokal-core/pkg/services/cache"
+	"github.com/fokal/fokal-core/pkg/services/color"
+	"github.com/fokal/fokal-core/pkg/services/image"
+	"github.com/fokal/fokal-core/pkg/services/permission"
+	"github.com/fokal/fokal-core/pkg/services/search"
+	"github.com/fokal/fokal-core/pkg/services/storage"
+	"github.com/fokal/fokal-core/pkg/services/stream"
+	"github.com/fokal/fokal-core/pkg/services/tag"
+	"github.com/fokal/fokal-core/pkg/services/user"
+	"github.com/fokal/fokal-core/pkg/services/vision"
 
 	"bytes"
 	"encoding/json"
@@ -64,20 +73,20 @@ type State struct {
 	Port  int
 
 	StorageService    StorageState
-	AuthService       domain.AuthenticationService
-	CacheService      domain.CacheService
-	ColorService      domain.ColorService
-	PermissionService domain.PermissionService
-	SearchService     domain.SearchService
-	StreamService     domain.StreamService
-	TagService        domain.TagService
-	UserService       domain.UserService
-	VisionService     domain.VisionService
-	ImageService      domain.ImageService
+	AuthService       authentication.Service
+	CacheService      cache.Service
+	ColorService      color.Service
+	PermissionService permission.Service
+	SearchService     search.Service
+	StreamService     stream.Service
+	TagService        tag.Service
+	UserService       user.Service
+	VisionService     vision.Service
+	ImageService      image.Service
 }
 type StorageState struct {
-	Avatar  domain.StorageService
-	Content domain.StorageService
+	Avatar  storage.Service
+	Content storage.Service
 }
 
 // Handler struct that takes a configured Env and a function matching

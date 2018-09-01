@@ -5,22 +5,23 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/fokal/fokal-core/pkg/domain"
+	"github.com/fokal/fokal-core/pkg/services/image"
+	"github.com/fokal/fokal-core/pkg/services/permission"
 	"github.com/jmoiron/sqlx"
 )
 
 type PGStreamService struct {
 	db          *sqlx.DB
-	images      domain.ImageService
-	permissions domain.PermissionService
+	images      image.Service
+	permissions permission.Service
 }
 
-func New(db *sqlx.DB, imageService domain.ImageService, permissionService domain.PermissionService) *PGStreamService {
+func New(db *sqlx.DB, imageService image.Service, permissionService permission.Service) *PGStreamService {
 	return &PGStreamService{db: db, images: imageService, permissions: permissionService}
 }
 
-func (stream *PGStreamService) StreamByID(ctx context.Context, id uint64) (*domain.Stream, error) {
-	var retrieved *domain.Stream
+func (stream *PGStreamService) StreamByID(ctx context.Context, id uint64) (*Stream, error) {
+	var retrieved *Stream
 	err := stream.db.GetContext(ctx, retrieved, "SELECT * FROM content.streams WHERE id = $1", id)
 	if err != nil {
 		log.Error(err)
@@ -29,8 +30,8 @@ func (stream *PGStreamService) StreamByID(ctx context.Context, id uint64) (*doma
 	return retrieved, nil
 }
 
-func (stream *PGStreamService) StreamsByCreator(ctx context.Context, userID uint64) (*[]domain.Stream, error) {
-	var streams *[]domain.Stream
+func (stream *PGStreamService) StreamsByCreator(ctx context.Context, userID uint64) (*[]Stream, error) {
+	var streams *[]Stream
 	err := stream.db.SelectContext(ctx, streams, "SELECT * FROM content.streams WHERE user_id = $1", userID)
 	if err != nil {
 		log.Error(err)
@@ -40,7 +41,7 @@ func (stream *PGStreamService) StreamsByCreator(ctx context.Context, userID uint
 }
 
 func (stream *PGStreamService) CreateStream(ctx context.Context, creator uint64, title string) error {
-	newStream := domain.Stream{
+	newStream := Stream{
 		Creator:     creator,
 		Title:       title,
 		Description: nil,
@@ -71,6 +72,22 @@ func (stream *PGStreamService) CreateStream(ctx context.Context, creator uint64,
 		}
 	}
 
+	err = stream.permissions.AddScope(ctx, tx, creator, newStream.ID, permission.StreamClass, permission.CanEdit)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	err = stream.permissions.Public(ctx, tx, newStream.ID, permission.StreamClass)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	err = stream.permissions.AddScope(ctx, tx, creator, newStream.ID, permission.StreamClass, permission.CanDelete)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
 	err = tx.Commit()
 	if err != nil {
 		log.Error(err)
@@ -80,23 +97,6 @@ func (stream *PGStreamService) CreateStream(ctx context.Context, creator uint64,
 		}
 		return err
 	}
-
-	err = stream.permissions.AddScope(ctx, creator, newStream.ID, domain.StreamClass, domain.CanEdit)
-	if err != nil {
-		log.Error(err)
-		return err
-	}
-	err = stream.permissions.Public(ctx, newStream.ID, domain.StreamClass)
-	if err != nil {
-		log.Error(err)
-		return err
-	}
-	err = stream.permissions.AddScope(ctx, creator, newStream.ID, domain.StreamClass, domain.CanDelete)
-	if err != nil {
-		log.Error(err)
-		return err
-	}
-
 	return nil
 }
 
@@ -139,14 +139,14 @@ func (stream *PGStreamService) RemoveImage(ctx context.Context, id, imageID uint
 	return nil
 }
 
-func (stream *PGStreamService) Images(ctx context.Context, id uint64) (*[]domain.Image, error) {
+func (stream *PGStreamService) Images(ctx context.Context, id uint64) (*[]image.Image, error) {
 	var imageIDs *[]uint64
 	err := stream.db.SelectContext(ctx, imageIDs, "SELECT image_id FROM content.image_stream_bridge WHERE id = $1", id)
 	if err != nil {
 		log.Error(err)
 		return nil, err
 	}
-	images := []domain.Image{}
+	images := []image.Image{}
 	for _, id := range *imageIDs {
 		img, err := stream.images.ImageByID(ctx, id)
 		if err != nil {

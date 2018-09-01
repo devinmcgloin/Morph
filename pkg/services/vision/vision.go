@@ -7,11 +7,11 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/cridenour/go-postgis"
 	"github.com/devinmcgloin/clr/clr"
-	"github.com/fokal/fokal-core/pkg/domain"
 	"github.com/fokal/fokal-core/pkg/services/color"
+	"github.com/fokal/fokal-core/pkg/services/image"
 	"github.com/jmoiron/sqlx"
 
-	"image"
+	img "image"
 
 	"bytes"
 	"image/jpeg"
@@ -29,7 +29,7 @@ func New(db *sqlx.DB, vision *vision.Service) *VisionService {
 	return &VisionService{db: db, vision: vision}
 }
 
-func (vs VisionService) AnnotateImage(ctx context.Context, img image.Image) (*domain.ImageAnnotation, error) {
+func (vs VisionService) AnnotateImage(ctx context.Context, img img.Image) (*ImageAnnotation, error) {
 	m := resize.Resize(300, 0, img, resize.Bilinear)
 	buf := new(bytes.Buffer)
 	err := jpeg.Encode(buf, m, nil)
@@ -64,7 +64,7 @@ func (vs VisionService) AnnotateImage(ctx context.Context, img image.Image) (*do
 	}
 
 	r := res.Responses[0]
-	rsp := &domain.ImageAnnotation{Safe: true}
+	rsp := &ImageAnnotation{Safe: true}
 
 	shade := color.NewWithType(vs.db, color.Shade)
 	specific := color.NewWithType(vs.db, color.SpecificColor)
@@ -76,7 +76,7 @@ func (vs VisionService) AnnotateImage(ctx context.Context, img image.Image) (*do
 			B: uint8(col.Color.Blue)}
 
 		h, s, v := sRGB.HSV()
-		rsp.ColorProperties = append(rsp.ColorProperties, domain.Color{
+		rsp.ColorProperties = append(rsp.ColorProperties, image.Color{
 			SRGB:          sRGB,
 			PixelFraction: col.PixelFraction,
 			Score:         col.Score,
@@ -108,7 +108,7 @@ func (vs VisionService) AnnotateImage(ctx context.Context, img image.Image) (*do
 
 	for _, label := range r.LabelAnnotations {
 		if _, ok := unique[label.Description]; !ok {
-			rsp.Labels = append(rsp.Labels, domain.Label{
+			rsp.Labels = append(rsp.Labels, image.Label{
 				Description: label.Description,
 				Score:       label.Score,
 			})
@@ -117,7 +117,7 @@ func (vs VisionService) AnnotateImage(ctx context.Context, img image.Image) (*do
 	}
 
 	for _, landmark := range r.LandmarkAnnotations {
-		rsp.Landmark = append(rsp.Landmark, domain.Landmark{
+		rsp.Landmark = append(rsp.Landmark, image.Landmark{
 			Description: landmark.Description,
 			Score:       landmark.Score,
 			Location: postgis.PointS{

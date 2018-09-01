@@ -1,10 +1,12 @@
-package domain
+package search
 
 import (
 	"context"
+
+	"github.com/fokal/fokal-core/pkg/services/image"
 )
 
-type SearchService interface {
+type Service interface {
 	FullSearch(ctx context.Context, req SearchRequest) (*[]Rank, error)
 	// GeoSearch(geo GeoParams) Response
 	// ColorSearch(color ColorParams) Response
@@ -27,8 +29,8 @@ type SearchRequest struct {
 }
 
 type GeoParams struct {
-	NE Point `json:"ne"`
-	SW Point `json:"sw"`
+	NE image.Point `json:"ne"`
+	SW image.Point `json:"sw"`
 }
 
 type ColorParams struct {

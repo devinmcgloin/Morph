@@ -1,6 +1,10 @@
-package domain
+package permission
 
-import "context"
+import (
+	"context"
+
+	"github.com/jmoiron/sqlx"
+)
 
 type Scope uint8
 
@@ -27,9 +31,10 @@ type Permission struct {
 
 //go:generate moq -out permission_service_runner.go . PermissionService
 
-type PermissionService interface {
-	Public(ctx context.Context, ResourceID uint64, class ResourceClass) error
-	AddScope(ctx context.Context, userID, ResouceID uint64, class ResourceClass, scope Scope) error
+type Service interface {
 	ValidScope(ctx context.Context, userID, ResourceID uint64, class ResourceClass, scope Scope) (bool, error)
-	RemoveScope(ctx context.Context, userID, ResourceID uint64, class ResourceClass, scope Scope) error
+
+	Public(ctx context.Context, tx *sqlx.Tx, ResourceID uint64, class ResourceClass) error
+	AddScope(ctx context.Context, tx *sqlx.Tx, userID, ResouceID uint64, class ResourceClass, scope Scope) error
+	RemoveScope(ctx context.Context, tx *sqlx.Tx, userID, ResourceID uint64, class ResourceClass, scope Scope) error
 }

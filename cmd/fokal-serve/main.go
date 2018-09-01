@@ -16,9 +16,10 @@ import (
 	"github.com/fokal/fokal-core/pkg/services/color"
 	"github.com/fokal/fokal-core/pkg/services/permission"
 	"github.com/fokal/fokal-core/pkg/services/search"
+	"github.com/fokal/fokal-core/pkg/services/storage"
 	"github.com/fokal/fokal-core/pkg/services/stream"
+
 	"github.com/fokal/fokal-core/pkg/services/tag"
-	"github.com/fokal/fokal-core/pkg/services/upload"
 	"github.com/fokal/fokal-core/pkg/services/user"
 	"github.com/fokal/fokal-core/pkg/services/vision"
 	raven "github.com/getsentry/raven-go"
@@ -87,8 +88,8 @@ func main() {
 	AppState.CacheService = cache.New(RD, "cache:", CacheExpiryTime)
 	AppState.ColorService = color.New(DB)
 	AppState.StorageService = handler.StorageState{
-		Content: upload.New("fokal-content", "us-west-1", "content"),
-		Avatar:  upload.New("fokal-content", "us-west-1", "avatar"),
+		Content: storage.New("fokal-content", "us-west-1", "content"),
+		Avatar:  storage.New("fokal-content", "us-west-1", "avatar"),
 	}
 	AppState.PermissionService = permission.New(DB)
 	AppState.TagService = tag.New(DB)
