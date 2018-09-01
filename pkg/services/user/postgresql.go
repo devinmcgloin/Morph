@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	log "github.com/Sirupsen/logrus"
@@ -33,6 +34,24 @@ func (store *UserStore) CreateUser(ctx context.Context, user *User) error {
 	if err != nil {
 		log.Println(err)
 		return err
+	}
+
+	exists, err := store.ExistsByEmail(ctx, user.Email)
+	if err != nil {
+		return errors.New("unable to reach user service")
+	}
+
+	if exists {
+		return fmt.Errorf("User with email %s already exists", user.Email)
+	}
+
+	exists, err = store.ExistsByUsername(ctx, user.Username)
+	if err != nil {
+		return errors.New("unable to reach user service")
+	}
+
+	if exists {
+		return fmt.Errorf("user with username %s already exists", user.Username)
 	}
 
 	rows, err := tx.QueryContext(ctx, `

@@ -72,14 +72,13 @@ func (auth *pgAuthService) ParseToken(ctx context.Context, token string) (*jwt.T
 
 		interkid, ok := token.Header["kid"]
 		if !ok {
-			return nil, fmt.Errorf("Missing kid header in token.\n")
+			return nil, fmt.Errorf("missing kid header in token")
 		}
 
 		kid, ok := interkid.(string)
 		if !ok || kid == "" {
-			return nil, fmt.Errorf("Invalid kid type.\n")
+			return nil, fmt.Errorf("invalid kid type")
 		}
-
 		valid := false
 		for k := range auth.publicKeys {
 			if k == kid {
@@ -88,8 +87,7 @@ func (auth *pgAuthService) ParseToken(ctx context.Context, token string) (*jwt.T
 			}
 		}
 		if !valid {
-			return nil, fmt.Errorf("Invalid kid type.\n")
-
+			return nil, fmt.Errorf("invalid kid type")
 		}
 
 		return auth.publicKeys[kid], nil
@@ -152,6 +150,8 @@ func (auth *pgAuthService) PublicKey(ctx context.Context) (string, error) {
 }
 
 func (auth *pgAuthService) LoadKeys() {
+	log.Println("Loading Google Auth Keys")
+
 	resp, err := http.Get("https://www.googleapis.com/oauth2/v1/certs")
 	if err != nil {
 		log.Fatal(err)
@@ -191,6 +191,7 @@ func (auth *pgAuthService) LoadKeys() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Println("Succesfully loaded Google Auth Keys")
 
 }
 

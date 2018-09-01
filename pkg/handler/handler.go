@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/fokal/fokal-core/pkg/request"
 	"github.com/fokal/fokal-core/pkg/services/authentication"
 	"github.com/fokal/fokal-core/pkg/services/cache"
 	"github.com/fokal/fokal-core/pkg/services/color"
@@ -99,6 +100,7 @@ type Handler struct {
 // ServeHTTP allows our Handler type to satisfy http.Handler.
 func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	res, err := h.H(h.State, w, r)
+	ctx := r.Context()
 	if err != nil {
 		switch e := err.(type) {
 		case Error:
@@ -108,7 +110,11 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 			// We can retrieve the status here and write out a specific
 			// HTTP status code.
-			log.Printf("HTTP %d - %s", e.Status(), e)
+			log.WithFields(log.Fields{
+				"request-id":  ctx.Value(request.IDKey),
+				"status-code": e.Status(),
+				"error":       e,
+			}).Infof("unable to fulfill request")
 			w.WriteHeader(e.Status())
 			j, _ := json.Marshal(map[string]interface{}{
 				"code": e.Status(),
@@ -121,7 +127,11 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			// to serving a HTTP 500
 			log.Printf("Generating Tags: %+v", RavenTags(h.State, r))
 			raven.CaptureError(err, RavenTags(h.State, r))
-			log.Printf("HTTP %d - %s", http.StatusInternalServerError, e.Error())
+			log.WithFields(log.Fields{
+				"request-id":  ctx.Value(request.IDKey),
+				"status-code": http.StatusInternalServerError,
+				"error":       e,
+			}).Infof("unable to fulfill request")
 			http.Error(w, http.StatusText(http.StatusInternalServerError),
 				http.StatusInternalServerError)
 		}

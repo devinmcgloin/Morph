@@ -23,12 +23,9 @@ import (
 	"github.com/fokal/fokal-core/pkg/services/user"
 	"github.com/fokal/fokal-core/pkg/services/vision"
 	raven "github.com/getsentry/raven-go"
-	"github.com/gorilla/context"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/justinas/alice"
-	"github.com/rs/cors"
-	"github.com/unrolled/secure"
 
 	"strconv"
 )
@@ -101,37 +98,38 @@ func main() {
 	AppState.StreamService = stream.New(DB, AppState.ImageService, AppState.PermissionService)
 	AppState.SearchService = search.New(DB, AppState.UserService, AppState.TagService, AppState.ImageService)
 
-	var secureMiddleware = secure.New(secure.Options{
-		AllowedHosts:          []string{"api.fok.al", "alpha.fok.al", "beta.fok.al", "fok.al"},
-		HostsProxyHeaders:     []string{"X-Forwarded-Host"},
-		SSLRedirect:           true,
-		SSLHost:               "api.fok.al",
-		SSLProxyHeaders:       map[string]string{"X-Forwarded-Proto": "https"},
-		STSSeconds:            315360000,
-		STSIncludeSubdomains:  true,
-		STSPreload:            true,
-		FrameDeny:             true,
-		ContentTypeNosniff:    true,
-		BrowserXssFilter:      true,
-		ContentSecurityPolicy: "default-src 'self'",
-		IsDevelopment:         AppState.Local,
-	})
+	// var secureMiddleware = secure.New(secure.Options{
+	// 	AllowedHosts:          []string{"api.fok.al", "alpha.fok.al", "beta.fok.al", "fok.al"},
+	// 	HostsProxyHeaders:     []string{"X-Forwarded-Host"},
+	// 	SSLRedirect:           true,
+	// 	SSLHost:               "api.fok.al",
+	// 	SSLProxyHeaders:       map[string]string{"X-Forwarded-Proto": "https"},
+	// 	STSSeconds:            315360000,
+	// 	STSIncludeSubdomains:  true,
+	// 	STSPreload:            true,
+	// 	FrameDeny:             true,
+	// 	ContentTypeNosniff:    true,
+	// 	BrowserXssFilter:      true,
+	// 	ContentSecurityPolicy: "default-src 'self'",
+	// 	IsDevelopment:         AppState.Local,
+	// })
 
-	var crs = cors.New(cors.Options{
-		AllowedOrigins:     []string{"https://fok.al", "https://beta.fok.al", "https://alpha.fok.al", "http://localhost:3000"},
-		AllowCredentials:   true,
-		OptionsPassthrough: true,
-		AllowedHeaders:     []string{"Authorization", "Content-Type"},
-		AllowedMethods:     []string{"GET", "PUT", "OPTIONS", "PATCH", "POST", "DELETE"},
-	})
+	// var crs = cors.New(cors.Options{
+	// 	AllowedOrigins:     []string{"https://fok.al", "https://beta.fok.al", "https://alpha.fok.al", "http://localhost:3000"},
+	// 	AllowCredentials:   true,
+	// 	OptionsPassthrough: true,
+	// 	AllowedHeaders:     []string{"Authorization", "Content-Type"},
+	// 	AllowedMethods:     []string{"GET", "PUT", "OPTIONS", "PATCH", "POST", "DELETE"},
+	// })
 
 	var base = alice.New(
-		middleware.SentryRecovery,
-		middleware.RateLimit,
-		crs.Handler,
-		middleware.Timeout,
-		middleware.IP, middleware.UUID, secureMiddleware.Handler,
-		context.ClearHandler, handlers.CompressHandler, middleware.ContentTypeJSON)
+		// middleware.SentryRecovery,
+		// middleware.RateLimit,
+		// crs.Handler,
+		// middleware.Timeout,
+		// middleware.IP, middleware.UUID, secureMiddleware.Handler,
+		// context.ClearHandler, handlers.CompressHandler,
+		middleware.ContentTypeJSON)
 
 	//  ROUTES
 
@@ -162,14 +160,14 @@ func ProcessFlags() *Config {
 		log.Fatal("Postgres URL not set at DATABASE_URL")
 	}
 
-	googleToken := os.Getenv("GOOGLE_API_TOKEN")
-	if googleToken == "" {
-		log.Fatal("Google API Token not set at GOOGLE_API_TOKEN")
-	}
-
 	redisURL := os.Getenv("REDIS_URL")
 	if redisURL == "" {
 		log.Fatal("Redis URL not set at REDIS_URL")
+	}
+
+	googleToken := os.Getenv("GOOGLE_API_TOKEN")
+	if googleToken == "" {
+		log.Fatal("Google API Token not set at GOOGLE_API_TOKEN")
 	}
 
 	// AWS auth

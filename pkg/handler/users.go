@@ -2,12 +2,10 @@ package handler
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/fokal/fokal-core/pkg/services/user"
 
-	log "github.com/Sirupsen/logrus"
 	jwt "github.com/dgrijalva/jwt-go"
 
 	"github.com/gorilla/mux"
@@ -34,7 +32,6 @@ func CreateUser(s *State, w http.ResponseWriter, r *http.Request) (*Response, er
 	createRequest := &request.CreateUser{}
 
 	if errs := binding.Bind(r, createRequest); errs != nil {
-		log.Error(errs.Error())
 		return nil, StatusError{
 			Code: http.StatusBadRequest,
 			Err:  errors.New("invalid Request: body missing required fields"),
@@ -55,37 +52,7 @@ func CreateUser(s *State, w http.ResponseWriter, r *http.Request) (*Response, er
 	}
 
 	email := claims["email"].(string)
-	name := claims["name"].(string)
-
-	exists, err := s.UserService.ExistsByEmail(ctx, email)
-	if err != nil {
-		return nil, StatusError{
-			Code: http.StatusInternalServerError,
-			Err:  errors.New("unable to reach user service"),
-		}
-	}
-
-	if exists {
-		return nil, StatusError{
-			Code: http.StatusBadRequest,
-			Err:  fmt.Errorf("User with email %s already exists", email),
-		}
-	}
-
-	exists, err = s.UserService.ExistsByUsername(ctx, createRequest.Username)
-	if err != nil {
-		return nil, StatusError{
-			Code: http.StatusInternalServerError,
-			Err:  errors.New("unable to reach user service"),
-		}
-	}
-
-	if exists {
-		return nil, StatusError{
-			Code: http.StatusBadRequest,
-			Err:  fmt.Errorf("user with username %s already exists", createRequest.Username),
-		}
-	}
+	name := claims["sub"].(string)
 
 	user := &user.User{
 		Email:    email,
@@ -96,7 +63,7 @@ func CreateUser(s *State, w http.ResponseWriter, r *http.Request) (*Response, er
 	if err != nil {
 		return nil, &StatusError{
 			Code: http.StatusInternalServerError,
-			Err:  errors.New("unable to create user"),
+			Err:  err,
 		}
 	}
 	return &Response{
