@@ -7,7 +7,7 @@ import (
 	"sort"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
+	"github.com/Sirupsen/logrus"
 	"github.com/fokal/fokal-core/pkg/services/image"
 	"github.com/fokal/fokal-core/pkg/services/tag"
 	"github.com/fokal/fokal-core/pkg/services/user"
@@ -39,10 +39,10 @@ func (pgs *PGSearchService) RefreshMaterializedView() {
 	tick := time.NewTicker(time.Minute * 10)
 	go func() {
 		for range tick.C {
-			log.Println("Refreshing Materialized View")
+			logrus.Println("Refreshing Materialized View")
 			_, err := pgs.db.Exec("REFRESH MATERIALIZED VIEW CONCURRENTLY searches;")
 			if err != nil {
-				log.Println(err)
+				logrus.Println(err)
 			}
 		}
 	}()
@@ -51,7 +51,7 @@ func (pgs *PGSearchService) RefreshMaterializedView() {
 func (pgs *PGSearchService) FullSearch(ctx context.Context, req SearchRequest) (*[]Rank, error) {
 
 	if req.Color != nil && (len(req.Color.HexCode) != 7 || req.Color.HexCode[0] != '#') {
-		log.Println(req.Color.HexCode)
+		logrus.Println(req.Color.HexCode)
 		return nil, errors.New("invalid Hex Code")
 	}
 
@@ -100,13 +100,13 @@ func (pgs *PGSearchService) FullSearch(ctx context.Context, req SearchRequest) (
 
 	sqlString, args, err := q.ToSql()
 	if err != nil {
-		log.Error(err)
+		logrus.Error(err)
 		return nil, err
 	}
 
 	err = pgs.db.Select(&ids, sqlString, args...)
 	if err != nil {
-		log.Error(err)
+		logrus.Error(err)
 		return nil, err
 	}
 

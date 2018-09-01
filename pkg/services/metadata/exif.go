@@ -5,7 +5,7 @@ import (
 	"errors"
 	"strings"
 
-	log "github.com/Sirupsen/logrus"
+	"github.com/Sirupsen/logrus"
 	"github.com/fokal/fokal-core/pkg/services/image"
 
 	"io"
@@ -27,7 +27,7 @@ func GetMetadata(ctx context.Context, img io.Reader) (*image.ImageMetadata, erro
 	meta := &image.ImageMetadata{Location: &image.Location{}}
 	x, err := GetExif(img)
 	if err != nil {
-		log.Error(err)
+		logrus.Error(err)
 		return nil, err
 	}
 
@@ -64,7 +64,7 @@ func GetMetadata(ctx context.Context, img io.Reader) (*image.ImageMetadata, erro
 			et := float64(num) / float64(den)
 			meta.ExposureTime = &et
 		} else {
-			log.Println(err)
+			logrus.Println(err)
 		}
 	}
 

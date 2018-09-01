@@ -1,11 +1,11 @@
 package conn
 
 import (
-	log "github.com/Sirupsen/logrus"
 	"time"
 
 	"net/http"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/garyburd/redigo/redis"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -19,11 +19,11 @@ func DialPostgres(postgresURL string) (db *sqlx.DB) {
 
 	db, err = sqlx.Open("postgres", postgresURL)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 	err = db.Ping()
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 	return
 }
@@ -37,12 +37,12 @@ func DialRedis(server string) *redis.Pool {
 		Dial: func() (redis.Conn, error) {
 			c, err := redis.DialURL(server)
 			if err != nil {
-				log.Println(err)
+				logrus.Println(err)
 				return nil, err
 			}
 			if _, err := c.Do("PING"); err != nil {
 				c.Close()
-				log.Println(err)
+				logrus.Println(err)
 				return nil, err
 			}
 			return c, nil
@@ -65,12 +65,12 @@ func DialGoogleServices(apiKey string) (*vision.Service, *maps.Client, error) {
 	}
 	visionService, err := vision.New(client)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 
 	mapsClient, err := maps.NewClient(maps.WithAPIKey(apiKey))
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 
 	return visionService, mapsClient, nil

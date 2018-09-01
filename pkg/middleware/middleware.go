@@ -7,16 +7,15 @@ import (
 	"net/http/httptest"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
-
 	"net"
 	"strings"
 
+	"github.com/Sirupsen/logrus"
 	jwtreq "github.com/dgrijalva/jwt-go/request"
 	"github.com/didip/tollbooth"
 	"github.com/didip/tollbooth/limiter"
 	"github.com/fokal/fokal-core/pkg/handler"
-	"github.com/fokal/fokal-core/pkg/request"
+	"github.com/fokal/fokal-core/pkg/log"
 	raven "github.com/getsentry/raven-go"
 	"github.com/satori/go.uuid"
 )
@@ -33,7 +32,7 @@ func (m Middleware) Handler(next http.Handler) http.Handler {
 func UUID(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		ctx = context.WithValue(ctx, request.IDKey, uuid.NewV4())
+		ctx = context.WithValue(ctx, log.IDKey, uuid.NewV4())
 		h.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -53,7 +52,7 @@ func IP(h http.Handler) http.Handler {
 					// bad address, go to next
 					continue
 				}
-				ctx = context.WithValue(ctx, request.IPKey, realIP.String())
+				ctx = context.WithValue(ctx, log.IPKey, realIP.String())
 				break
 			}
 		}
@@ -90,12 +89,12 @@ func Cache(state *handler.State, next http.Handler) http.Handler {
 				w.Write(content)
 
 				if c.Code == http.StatusOK {
-					log.Printf("Cache: Setting Handler URL: %s\n", url)
+					logrus.Printf("Cache: Setting Handler URL: %s\n", url)
 					state.CacheService.Set(url, content)
 				}
 				return
 			}
-			log.Printf("Cache: Retrieving Handler URL: %s\n", url)
+			logrus.Printf("Cache: Retrieving Handler URL: %s\n", url)
 			w.Write(b)
 			w.WriteHeader(http.StatusOK)
 			return
@@ -112,7 +111,7 @@ func SetJWT(next http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 		} else {
 			tokenStr := strings.Replace(tokenStrings, "Bearer ", "", 1)
-			ctx = context.WithValue(ctx, request.JWTID, tokenStr)
+			ctx = context.WithValue(ctx, log.JWTID, tokenStr)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		}
 	})
@@ -121,7 +120,7 @@ func SetJWT(next http.Handler) http.Handler {
 func Authenticate(state *handler.State, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		jwt, ok := ctx.Value(request.JWTID).(string)
+		jwt, ok := ctx.Value(log.JWTID).(string)
 		if !ok {
 			return
 		}
@@ -131,7 +130,7 @@ func Authenticate(state *handler.State, next http.Handler) http.Handler {
 			case handler.Error:
 				// We can retrieve the status here and write out a specific
 				// HTTP status code.
-				log.Printf("HTTP %d - %s", e.Status(), e.Error())
+				logrus.Printf("HTTP %d - %s", e.Status(), e.Error())
 				w.WriteHeader(e.Status())
 				j, _ := json.Marshal(map[string]interface{}{
 					"code": e.Status(),
@@ -147,7 +146,7 @@ func Authenticate(state *handler.State, next http.Handler) http.Handler {
 		} else if !valid {
 			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		} else {
-			ctx = context.WithValue(ctx, request.UserIDKey, userID)
+			ctx = context.WithValue(ctx, log.UserIDKey, userID)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		}
 
@@ -157,7 +156,7 @@ func Authenticate(state *handler.State, next http.Handler) http.Handler {
 func SetAuthenticatedUser(state *handler.State, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		jwt, ok := ctx.Value(request.JWTID).(string)
+		jwt, ok := ctx.Value(log.JWTID).(string)
 		if !ok {
 			next.ServeHTTP(w, r)
 		}
@@ -165,7 +164,7 @@ func SetAuthenticatedUser(state *handler.State, next http.Handler) http.Handler 
 		if !valid || err == nil {
 			next.ServeHTTP(w, r)
 		} else {
-			ctx = context.WithValue(ctx, request.UserIDKey, userID)
+			ctx = context.WithValue(ctx, log.UserIDKey, userID)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		}
 	})

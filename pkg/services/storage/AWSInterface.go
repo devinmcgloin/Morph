@@ -8,8 +8,7 @@ import (
 	"image/png"
 	"strings"
 
-	log "github.com/Sirupsen/logrus"
-
+	"github.com/Sirupsen/logrus"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -32,13 +31,13 @@ func (ss *AWSStorageService) UploadImage(ctx context.Context, img image.Image, s
 	buf := new(bytes.Buffer)
 	err = png.Encode(buf, img)
 	if err != nil {
-		log.Error(err)
+		logrus.Error(err)
 		return err
 	}
 
 	err = ss.imageAWS(buf, "png", path)
 	if err != nil {
-		log.Error(err)
+		logrus.Error(err)
 		err := errors.New("Error while uploading image")
 		return err
 	}
@@ -53,7 +52,7 @@ func (ss *AWSStorageService) imageAWS(img *bytes.Buffer, format string, filename
 
 	sess, err := session.NewSession(&aws.Config{Region: aws.String(ss.region)})
 	if err != nil {
-		log.Printf("error while constructing new aws session %s", err)
+		logrus.Printf("error while constructing new aws session %s", err)
 		return err
 	}
 	svc := s3.New(sess)
@@ -61,13 +60,13 @@ func (ss *AWSStorageService) imageAWS(img *bytes.Buffer, format string, filename
 	params, err := ss.formatParams(img, int64(img.Len()), format, filename)
 
 	if err != nil {
-		log.Printf("Error while creating AWS params %s", err)
+		logrus.Printf("Error while creating AWS params %s", err)
 		return err
 	}
 
 	_, err = svc.PutObject(params)
 	if err != nil {
-		log.Printf("Error while uploading to aws %s", err)
+		logrus.Printf("Error while uploading to aws %s", err)
 		return err
 	}
 
@@ -78,7 +77,7 @@ func (ss *AWSStorageService) formatParams(buffer *bytes.Buffer, size int64, file
 
 	fileBytes := bytes.NewReader(buffer.Bytes())
 
-	log.Printf("Uploading %s to %s with size %d and type %s", path, ss.bucketURI, size, filetype)
+	logrus.Printf("Uploading %s to %s with size %d and type %s", path, ss.bucketURI, size, filetype)
 
 	params := &s3.PutObjectInput{
 		Bucket:        aws.String(ss.bucketURI),

@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
-	log "github.com/Sirupsen/logrus"
-	"github.com/fokal/fokal-core/pkg/request"
+	"github.com/Sirupsen/logrus"
+	"github.com/fokal/fokal-core/pkg/log"
+
 	"github.com/fokal/fokal-core/pkg/services/authentication"
 	"github.com/fokal/fokal-core/pkg/services/cache"
 	"github.com/fokal/fokal-core/pkg/services/color"
@@ -105,13 +106,12 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		switch e := err.(type) {
 		case Error:
 			if e.Status() >= 500 {
-				log.Info("Capturing raven error")
+				logrus.Info("Capturing raven error")
 				raven.CaptureError(err, RavenTags(h.State, r))
 			}
 			// We can retrieve the status here and write out a specific
 			// HTTP status code.
-			log.WithFields(log.Fields{
-				"request-id":  ctx.Value(request.IDKey),
+			log.WithContext(ctx).WithFields(logrus.Fields{
 				"status-code": e.Status(),
 				"error":       e,
 			}).Infof("unable to fulfill request")
@@ -125,10 +125,9 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		default:
 			// Any error types we don't specifically look out for default
 			// to serving a HTTP 500
-			log.Printf("Generating Tags: %+v", RavenTags(h.State, r))
+			logrus.Printf("Generating Tags: %+v", RavenTags(h.State, r))
 			raven.CaptureError(err, RavenTags(h.State, r))
-			log.WithFields(log.Fields{
-				"request-id":  ctx.Value(request.IDKey),
+			log.WithContext(ctx).WithFields(logrus.Fields{
 				"status-code": http.StatusInternalServerError,
 				"error":       e,
 			}).Infof("unable to fulfill request")
@@ -144,7 +143,7 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func Options(opts ...string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println("Inside Options")
+		logrus.Println("Inside Options")
 		w.Header().Set("Allow", strings.Join(opts, ", "))
 		w.WriteHeader(http.StatusOK)
 	})

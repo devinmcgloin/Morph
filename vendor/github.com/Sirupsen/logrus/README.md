@@ -73,7 +73,7 @@ The simplest way to use Logrus is simply the package-level exported logger:
 package main
 
 import (
-  log "github.com/sirupsen/logrus"
+
 )
 
 func main() {
@@ -84,7 +84,7 @@ func main() {
 ```
 
 Note that it's completely api-compatible with the stdlib logger, so you can
-replace your `log` imports everywhere with `log "github.com/sirupsen/logrus"`
+replace your `log` imports everywhere with ``
 and you'll now have the flexibility of Logrus. You can customize it all you
 want:
 
@@ -93,7 +93,7 @@ package main
 
 import (
   "os"
-  log "github.com/sirupsen/logrus"
+
 )
 
 func init() {
@@ -219,7 +219,7 @@ Logrus comes with [built-in hooks](hooks/). Add those, or your custom hook, in
 
 ```go
 import (
-  log "github.com/sirupsen/logrus"
+
   "gopkg.in/gemnasium/logrus-airbrake-hook.v2" // the package is named "airbrake"
   logrus_syslog "github.com/sirupsen/logrus/hooks/syslog"
   "log/syslog"
@@ -291,7 +291,7 @@ could do:
 
 ```go
 import (
-  log "github.com/sirupsen/logrus"
+
 )
 
 init() {

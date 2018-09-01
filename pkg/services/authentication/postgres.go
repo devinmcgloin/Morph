@@ -13,7 +13,7 @@ import (
 	"os"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
+	"github.com/Sirupsen/logrus"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/fokal/fokal-core/pkg/services/user"
 	"github.com/jmoiron/sqlx"
@@ -42,7 +42,7 @@ type pgAuthService struct {
 func (auth *pgAuthService) CreateToken(ctx context.Context, userID uint64) (*string, error) {
 	user, err := auth.userService.UserByID(ctx, userID)
 	if err != nil {
-		log.Error(err)
+		logrus.Error(err)
 		return nil, err
 	}
 
@@ -58,7 +58,7 @@ func (auth *pgAuthService) CreateToken(ctx context.Context, userID uint64) (*str
 	token.Header["kid"] = KeyHash
 	ss, err := token.SignedString(auth.privateKey)
 	if err != nil {
-		log.Error(err)
+		logrus.Error(err)
 		return nil, err
 	}
 	return &ss, nil
@@ -97,7 +97,7 @@ func (auth *pgAuthService) ParseToken(ctx context.Context, token string) (*jwt.T
 func (auth *pgAuthService) VerifyToken(ctx context.Context, stringToken string) (bool, *uint64, error) {
 	token, err := auth.ParseToken(ctx, stringToken)
 	if err != nil {
-		log.Error(err)
+		logrus.Error(err)
 	}
 
 	if token.Valid {
@@ -137,7 +137,7 @@ func (auth *pgAuthService) RefreshToken(ctx context.Context, stringToken string)
 func (auth *pgAuthService) PublicKey(ctx context.Context) (string, error) {
 	keyBytes, err := x509.MarshalPKIXPublicKey(auth.publicKeys[KeyHash])
 	if err != nil {
-		log.Error(err)
+		logrus.Error(err)
 		return "", err
 	}
 
@@ -150,23 +150,23 @@ func (auth *pgAuthService) PublicKey(ctx context.Context) (string, error) {
 }
 
 func (auth *pgAuthService) LoadKeys() {
-	log.Println("Loading Google Auth Keys")
+	logrus.Println("Loading Google Auth Keys")
 
 	resp, err := http.Get("https://www.googleapis.com/oauth2/v1/certs")
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 
 	keys := make(map[string]string)
 	err = json.Unmarshal(body, &keys)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 
 	parsedKeys := make(map[string]*rsa.PublicKey)
@@ -174,14 +174,14 @@ func (auth *pgAuthService) LoadKeys() {
 	for kid, pem := range keys {
 		publicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(pem))
 		if err != nil {
-			log.Fatal(err)
+			logrus.Fatal(err)
 		}
 		parsedKeys[kid] = publicKey
 	}
 
 	fokalPublicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(PublicKey))
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 	parsedKeys[KeyHash] = fokalPublicKey
 	auth.publicKeys = parsedKeys
@@ -189,9 +189,9 @@ func (auth *pgAuthService) LoadKeys() {
 	privateStr := os.Getenv("PRIVATE_KEY")
 	auth.privateKey, err = jwt.ParseRSAPrivateKeyFromPEM([]byte(privateStr))
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
-	log.Println("Succesfully loaded Google Auth Keys")
+	logrus.Println("Succesfully loaded Google Auth Keys")
 
 }
 
@@ -199,27 +199,27 @@ func (auth *pgAuthService) RefreshGoogleOauthKeys() {
 	tick := time.NewTicker(time.Minute * 10)
 	go func() {
 		for range tick.C {
-			log.Println("Refreshing Google Auth Keys")
+			logrus.Println("Refreshing Google Auth Keys")
 			resp, err := http.Get("https://www.googleapis.com/oauth2/v1/certs")
 			if err != nil {
-				log.Fatal(err)
+				logrus.Fatal(err)
 			}
 
 			body, err := ioutil.ReadAll(resp.Body)
 			if err != nil {
-				log.Fatal(err)
+				logrus.Fatal(err)
 			}
 			resp.Body.Close()
 
 			keys := make(map[string]string)
 			err = json.Unmarshal(body, &keys)
 			if err != nil {
-				log.Fatal(err)
+				logrus.Fatal(err)
 			}
 			for kid, pem := range keys {
 				publicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(pem))
 				if err != nil {
-					log.Fatal(err)
+					logrus.Fatal(err)
 				}
 				auth.publicKeys[kid] = publicKey
 			}

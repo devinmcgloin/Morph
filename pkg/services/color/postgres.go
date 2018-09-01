@@ -1,8 +1,7 @@
 package color
 
 import (
-	log "github.com/Sirupsen/logrus"
-
+	"github.com/Sirupsen/logrus"
 	"github.com/devinmcgloin/clr/clr"
 	"github.com/getsentry/raven-go"
 	"github.com/jmoiron/sqlx"
@@ -36,7 +35,7 @@ func (spc FokalColorTable) Iterate() []clr.Color {
 	err := spc.db.Select(&hexColors, `SELECT hex FROM colors.clr WHERE type = $1`, spc.Type)
 
 	if err != nil {
-		log.Println(err)
+		logrus.Println(err)
 		raven.CaptureError(err, map[string]string{"type": "postgresql", "module": "color"})
 		return []clr.Color{}
 	}
@@ -53,7 +52,7 @@ func (spc FokalColorTable) Lookup(hex string) clr.ColorSpace {
 	var name string
 	err := spc.db.Get(&name, `SELECT name FROM colors.clr WHERE hex = $1`, hex)
 	if err != nil {
-		log.Println(err)
+		logrus.Println(err)
 		raven.CaptureError(err, map[string]string{"type": "postgresql", "module": "color"})
 		return ""
 	}
@@ -86,7 +85,7 @@ func (spc FokalColorTable) AddColors(colors map[string]string) error {
 	for hex, name := range colors {
 		_, err = stmt.Exec(name, hex, spc.Type)
 		if err != nil {
-			log.Println(err)
+			logrus.Println(err)
 			raven.CaptureError(err, map[string]string{"type": "postgresql", "module": "color"})
 			return err
 		}
@@ -94,7 +93,7 @@ func (spc FokalColorTable) AddColors(colors map[string]string) error {
 
 	_, err = stmt.Exec()
 	if err != nil {
-		log.Println(err)
+		logrus.Println(err)
 		raven.CaptureError(err, map[string]string{"type": "postgresql", "module": "color"})
 
 		return err
@@ -102,14 +101,14 @@ func (spc FokalColorTable) AddColors(colors map[string]string) error {
 
 	err = stmt.Close()
 	if err != nil {
-		log.Println(err)
+		logrus.Println(err)
 		raven.CaptureError(err, map[string]string{"type": "postgresql", "module": "color"})
 		return err
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		log.Println(err)
+		logrus.Println(err)
 		raven.CaptureError(err, map[string]string{"type": "postgresql", "module": "color"})
 		return err
 	}
@@ -124,7 +123,7 @@ func (spc FokalColorTable) Colors() (map[string]string, error) {
 	}
 	err := spc.db.Select(&hex, "SELECT name, hex FROM colors.clr WHERE type = $1", spc.Type)
 	if err != nil {
-		log.Println(err)
+		logrus.Println(err)
 		raven.CaptureError(err, map[string]string{"type": "postgresql", "module": "color"})
 		return clrs, err
 	}

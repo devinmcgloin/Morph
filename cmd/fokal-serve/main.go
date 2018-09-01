@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
+	"github.com/Sirupsen/logrus"
 	"github.com/rs/cors"
 	"github.com/unrolled/secure"
 
@@ -52,21 +52,22 @@ var AppState handler.State
 
 func main() {
 	cfg := ProcessFlags()
-	Formatter := new(log.TextFormatter)
+	Formatter := new(logrus.TextFormatter)
 	Formatter.TimestampFormat = "02-01-2006 15:04:05"
 	Formatter.FullTimestamp = true
-	log.SetFormatter(Formatter)
+	logrus.SetFormatter(Formatter)
 
 	router := mux.NewRouter()
 	api := router.PathPrefix("/v0/").Subrouter()
 
-	log.Infof("Serving at http://%s:%d", cfg.Host, cfg.Port)
+	logrus.Infof("Serving at http://%s:%d", cfg.Host, cfg.Port)
 	err := raven.SetDSN(cfg.SentryURL)
 	if err != nil {
-		log.Fatal("Sentry IO not configured")
+		logrus.Fatal("Sentry IO not configured")
 	}
 
 	if cfg.Local {
+		logrus.SetLevel(logrus.DebugLevel)
 		cfg.PostgresURL = cfg.PostgresURL + "?sslmode=disable"
 	}
 
@@ -139,7 +140,7 @@ func main() {
 	handler.RegisterHandlers(&AppState, api, base)
 	api.NotFoundHandler = base.Then(http.HandlerFunc(handler.NotFound))
 
-	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(cfg.Port),
+	logrus.Fatal(http.ListenAndServe(":"+strconv.Itoa(cfg.Port),
 		handlers.LoggingHandler(os.Stdout, router)))
 }
 
@@ -160,33 +161,33 @@ func ProcessFlags() *Config {
 
 	postgresURL := os.Getenv("DATABASE_URL")
 	if postgresURL == "" {
-		log.Fatal("Postgres URL not set at DATABASE_URL")
+		logrus.Fatal("Postgres URL not set at DATABASE_URL")
 	}
 
 	redisURL := os.Getenv("REDIS_URL")
 	if redisURL == "" {
-		log.Fatal("Redis URL not set at REDIS_URL")
+		logrus.Fatal("Redis URL not set at REDIS_URL")
 	}
 
 	googleToken := os.Getenv("GOOGLE_API_TOKEN")
 	if googleToken == "" {
-		log.Fatal("Google API Token not set at GOOGLE_API_TOKEN")
+		logrus.Fatal("Google API Token not set at GOOGLE_API_TOKEN")
 	}
 
 	// AWS auth
 	AWSAccessKey := os.Getenv("AWS_ACCESS_KEY_ID")
 	if AWSAccessKey == "" {
-		log.Fatal("AWS Access Key Id not set at AWS_ACCESS_KEY_ID")
+		logrus.Fatal("AWS Access Key Id not set at AWS_ACCESS_KEY_ID")
 	}
 
 	AWSSecret := os.Getenv("AWS_SECRET_ACCESS_KEY")
 	if AWSSecret == "" {
-		log.Fatal("AWS Secret Access Key not set at AWS_SECRET_ACCESS_KEY")
+		logrus.Fatal("AWS Secret Access Key not set at AWS_SECRET_ACCESS_KEY")
 	}
 
 	SentryURL := os.Getenv("SENTRY_URL")
 	if SentryURL == "" {
-		log.Fatal("Sentry URL not set at SENTRY_URL")
+		logrus.Fatal("Sentry URL not set at SENTRY_URL")
 	}
 
 	cfg.GoogleToken = googleToken

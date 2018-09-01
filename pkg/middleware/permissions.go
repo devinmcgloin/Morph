@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strconv"
 
-	log "github.com/Sirupsen/logrus"
-	"github.com/fokal/fokal-core/pkg/request"
+	"github.com/Sirupsen/logrus"
+	"github.com/fokal/fokal-core/pkg/log"
 	"github.com/fokal/fokal-core/pkg/services/permission"
 
 	"github.com/fokal/fokal-core/pkg/handler"
@@ -25,15 +25,15 @@ func (m Permission) Handler(next http.Handler) http.Handler {
 	return m.M(m.State, m.T, m.TargetType, next)
 }
 
-// PermissionMiddle implements the logic for deciding if a user can interact with a resource.
+// PermissionMiddle implements the logrusic for deciding if a user can interact with a resource.
 func PermissionMiddle(state *handler.State, scope permission.Scope, resouceClass permission.ResourceClass, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		id, err := strconv.ParseUint(mux.Vars(r)["ID"], 10, 64)
 		if err != nil {
-			log.Error(err)
+			logrus.Error(err)
 		}
-		userID, ok := ctx.Value(request.UserIDKey).(uint64)
+		userID, ok := ctx.Value(log.UserIDKey).(uint64)
 
 		if scope != permission.CanView {
 			if !ok {

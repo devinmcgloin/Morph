@@ -3,7 +3,7 @@ package permission
 import (
 	"context"
 
-	log "github.com/Sirupsen/logrus"
+	"github.com/Sirupsen/logrus"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -29,7 +29,7 @@ func (pgp *PGPermission) AddScope(ctx context.Context, tx *sqlx.Tx, userID, reso
 	}
 	_, err := tx.ExecContext(ctx, query, userID, resourceID, class)
 	if err != nil {
-		log.Error(err)
+		logrus.Error(err)
 		return err
 	}
 	return nil
@@ -47,7 +47,7 @@ func (pgp *PGPermission) ValidScope(ctx context.Context, userID, resourceID uint
 	}
 	_, err := pgp.db.ExecContext(ctx, query, userID, resourceID, class)
 	if err != nil {
-		log.Error(err)
+		logrus.Error(err)
 		return false, err
 	}
 	return false, nil
@@ -65,7 +65,7 @@ func (pgp *PGPermission) RemoveScope(ctx context.Context, tx *sqlx.Tx, userID, r
 	}
 	_, err := tx.ExecContext(ctx, query, userID, resourceID, class)
 	if err != nil {
-		log.Error(err)
+		logrus.Error(err)
 		return err
 	}
 	return nil
@@ -74,7 +74,7 @@ func (pgp *PGPermission) RemoveScope(ctx context.Context, tx *sqlx.Tx, userID, r
 func (pgp *PGPermission) Public(ctx context.Context, tx *sqlx.Tx, resourceID uint64, class ResourceClass) error {
 	_, err := tx.ExecContext(ctx, "INSERT INTO permissions.can_view (user_id, o_id, class) VALUES ($1, $2, $3)", -1, resourceID, class)
 	if err != nil {
-		log.Error(err)
+		logrus.Error(err)
 		return err
 	}
 	return nil

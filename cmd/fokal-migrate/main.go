@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	log "github.com/Sirupsen/logrus"
-
+	"github.com/Sirupsen/logrus"
 	"github.com/fokal/fokal-core/pkg/conn"
 	migrate "github.com/rubenv/sql-migrate"
 )
@@ -24,7 +23,7 @@ func main() {
 	if local {
 		postgresURL = postgresURL + "?sslmode=disable"
 	}
-	log.WithField("url", postgresURL).Info("Connecting with credentials")
+	logrus.WithField("url", postgresURL).Info("Connecting with credentials")
 	db := conn.DialPostgres(postgresURL)
 
 	migrations := &migrate.FileMigrationSource{
