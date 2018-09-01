@@ -27,7 +27,7 @@ func (m Permission) Handler(next http.Handler) http.Handler {
 func PermissionMiddle(state *State, scope permission.Scope, resouceClass permission.ResourceClass, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		log.WithContext(ctx).Debug("checking permissions for user")
+
 		sc := mux.Vars(r)["ID"]
 
 		userID, ok := ctx.Value(log.UserIDKey).(uint64)
@@ -42,13 +42,19 @@ func PermissionMiddle(state *State, scope permission.Scope, resouceClass permiss
 		var id uint64
 		switch resouceClass {
 		case permission.UserClass:
-			user, err := state.UserService.UserByUsername(ctx, sc)
-			if err != nil {
-				w.WriteHeader(http.StatusBadRequest)
-				return
+			log.WithContext(ctx).Debug("fetching user for permissions")
+			if sc == "me" {
+				id = userID
+			} else {
+				user, err := state.UserService.UserByUsername(ctx, sc)
+				if err != nil {
+					w.WriteHeader(http.StatusBadRequest)
+					return
+				}
+				id = user.ID
 			}
-			id = user.ID
 		case permission.StreamClass:
+			log.WithContext(ctx).Debug("fetching stream for permissions")
 			stream, err := state.StreamService.StreamByShortcode(ctx, sc)
 			if err != nil {
 				w.WriteHeader(http.StatusBadRequest)
@@ -56,6 +62,7 @@ func PermissionMiddle(state *State, scope permission.Scope, resouceClass permiss
 			}
 			id = stream.ID
 		case permission.ImageClass:
+			log.WithContext(ctx).Debug("fetching image for permissions")
 			img, err := state.ImageService.ImageByShortcode(ctx, sc)
 			if err != nil {
 				w.WriteHeader(http.StatusBadRequest)
@@ -66,6 +73,13 @@ func PermissionMiddle(state *State, scope permission.Scope, resouceClass permiss
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
+
+		log.WithContext(ctx).WithFields(logrus.Fields{
+			"user-id":        userID,
+			"scope":          scope,
+			"resource-class": resouceClass,
+			"resource-id":    id,
+		}).Info("user does not have access to resource")
 
 		valid, err := state.PermissionService.ValidScope(ctx, userID, id, resouceClass, scope)
 		if err != nil {

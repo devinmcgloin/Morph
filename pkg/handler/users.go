@@ -27,6 +27,7 @@ func RegisterHandlers(state *State, api *mux.Router, chain alice.Chain) {
 	get := api.Methods("GET").Subrouter()
 	put := api.Methods("PUT").Subrouter()
 	del := api.Methods("DELETE").Subrouter()
+	patch := api.Methods("PATCH").Subrouter()
 
 	post.Handle("/users", chain.Then(Handler{
 		State: state,
@@ -65,6 +66,17 @@ func RegisterHandlers(state *State, api *mux.Router, chain alice.Chain) {
 		H:     UploadAvatar,
 	}))
 	opts.Handle("/users/me/avatar", chain.Then(Options("PUT")))
+
+	patch.Handle("/users/me",
+		chain.Append(
+			Middleware{State: state, M: Authenticate}.Handler,
+			Permission{State: state,
+				T:          permission.CanEdit,
+				TargetType: permission.UserClass,
+				M:          PermissionMiddle}.Handler).
+			Then(Handler{State: state, H: PatchUser}))
+
+	opts.Handle("/users/me", chain.Then(Options("PATCH")))
 }
 
 func CreateUser(s *State, w http.ResponseWriter, r *http.Request) (*Response, error) {
@@ -124,8 +136,29 @@ func User(s *State, w http.ResponseWriter, r *http.Request) (*Response, error) {
 	return &Response{Code: http.StatusOK, Data: user}, nil
 }
 
-// func PatchUser(s *State, w http.ResponseWriter, r *http.Request) (Response, error)     {}
-// func DeleteUser(s *State, w http.ResponseWriter, r *http.Request) (Response, error)    {}
+func PatchUser(s *State, w http.ResponseWriter, r *http.Request) (*Response, error) {
+	ctx := r.Context()
+	userID := ctx.Value(log.UserIDKey).(uint64)
+	patchRequest := &request.PatchUser{}
+
+	if errs := binding.Bind(r, patchRequest); errs != nil {
+		return nil, StatusError{
+			Code: http.StatusBadRequest,
+			Err:  errors.New("invalid Request: body missing required fields"),
+		}
+	}
+
+	err := s.UserService.PatchUser(ctx, userID, *patchRequest)
+	if err != nil {
+		return nil, StatusError{
+			Code: http.StatusInternalServerError,
+			Err:  errors.New("unable to reach user service"),
+		}
+	}
+	return &Response{Code: http.StatusAccepted}, nil
+}
+
+// func DeleteUser(s *State, w http.ResponseWriter, r *http.Request) (*Response, error)    {}
 func UploadAvatar(s *State, w http.ResponseWriter, r *http.Request) (*Response, error) {
 	ctx := r.Context()
 	log.WithContext(ctx).Debug("uploading avatar")
@@ -185,6 +218,7 @@ func FeatureUser(s *State, w http.ResponseWriter, r *http.Request) (*Response, e
 	}
 	return &Response{Code: http.StatusAccepted}, nil
 }
+
 func UnFeatureUser(s *State, w http.ResponseWriter, r *http.Request) (*Response, error) {
 	id := mux.Vars(r)["ID"]
 	ctx := r.Context()

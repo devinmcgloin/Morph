@@ -262,7 +262,7 @@ func (store UserStore) PatchUser(ctx context.Context, id uint64, changes request
 	}
 
 	for key, val := range structs.Map(changes) {
-		log.WithContext(ctx).Printf("UPDATE content.users SET %s = %s WHERE id = %d", key, val, id)
+		log.WithContext(ctx).Debugf("UPDATE content.users SET %s = '%s' WHERE id = %d", key, val, id)
 		stmt := fmt.Sprintf("UPDATE content.users SET %s = $1 WHERE id = $2", key)
 		_, err = tx.Exec(stmt, val, id)
 		if err != nil {
