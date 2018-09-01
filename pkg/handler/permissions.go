@@ -79,7 +79,7 @@ func PermissionMiddle(state *State, scope permission.Scope, resouceClass permiss
 			"scope":          scope,
 			"resource-class": resouceClass,
 			"resource-id":    id,
-		}).Info("user does not have access to resource")
+		}).Info("checking permissions for fields")
 
 		valid, err := state.PermissionService.ValidScope(ctx, userID, id, resouceClass, scope)
 		if err != nil {

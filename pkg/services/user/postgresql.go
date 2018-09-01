@@ -232,26 +232,13 @@ func (store UserStore) SetAvatarID(ctx context.Context, id uint64, avatarID stri
 }
 
 func (store UserStore) DeleteUser(ctx context.Context, id uint64) error {
-	images, err := store.images.ImagesForUser(ctx, id)
-	if err != nil {
-		log.WithContext(ctx).Error(err)
-		return err
-	}
-	for _, image := range *images {
-		err := store.images.DeleteImage(ctx, image.ID)
-		if err != nil {
-			log.WithContext(ctx).Error(err)
-			return err
-		}
-	}
-
-	_, err = store.db.ExecContext(ctx, "DELETE FROM content.users WHERE id = $2", id)
+	log.WithContext(ctx).WithField("user-id", id).Warn("performing distructive action: deleting user")
+	_, err := store.db.ExecContext(ctx, "DELETE FROM content.users WHERE id = $1", id)
 	if err != nil {
 		log.WithContext(ctx).Error(err)
 		return err
 	}
 	return nil
-
 }
 
 func (store UserStore) PatchUser(ctx context.Context, id uint64, changes request.PatchUser) error {

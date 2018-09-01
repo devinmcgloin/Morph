@@ -76,7 +76,16 @@ func RegisterHandlers(state *State, api *mux.Router, chain alice.Chain) {
 				M:          PermissionMiddle}.Handler).
 			Then(Handler{State: state, H: PatchUser}))
 
-	opts.Handle("/users/me", chain.Then(Options("PATCH")))
+	del.Handle("/users/me",
+		chain.Append(
+			Middleware{State: state, M: Authenticate}.Handler,
+			Permission{State: state,
+				T:          permission.CanEdit,
+				TargetType: permission.UserClass,
+				M:          PermissionMiddle}.Handler).
+			Then(Handler{State: state, H: DeleteUser}))
+
+	opts.Handle("/users/me", chain.Then(Options("PATCH", "DELETE")))
 }
 
 func CreateUser(s *State, w http.ResponseWriter, r *http.Request) (*Response, error) {
@@ -158,7 +167,20 @@ func PatchUser(s *State, w http.ResponseWriter, r *http.Request) (*Response, err
 	return &Response{Code: http.StatusAccepted}, nil
 }
 
-// func DeleteUser(s *State, w http.ResponseWriter, r *http.Request) (*Response, error)    {}
+func DeleteUser(s *State, w http.ResponseWriter, r *http.Request) (*Response, error) {
+	ctx := r.Context()
+	userID := ctx.Value(log.UserIDKey).(uint64)
+
+	err := s.UserService.DeleteUser(ctx, userID)
+	if err != nil {
+		return nil, StatusError{
+			Code: http.StatusInternalServerError,
+			Err:  errors.New("unable to reach user service"),
+		}
+	}
+	return &Response{Code: http.StatusAccepted}, nil
+}
+
 func UploadAvatar(s *State, w http.ResponseWriter, r *http.Request) (*Response, error) {
 	ctx := r.Context()
 	log.WithContext(ctx).Debug("uploading avatar")
