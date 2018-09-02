@@ -18,6 +18,7 @@ type Service interface {
 	TagByDescription(ctx context.Context, desc string) (*Tag, error)
 	CreateTag(ctx context.Context, desc string) (*Tag, error)
 	ImagesForTag(ctx context.Context, id uint64) (*[]image.Image, error)
+	TagsForImage(ctx context.Context, id uint64) (*[]Tag, error)
 	TagImage(ctx context.Context, id uint64, imageID uint64) error
 	UnTagImage(ctx context.Context, id uint64, imageID uint64) error
 }

@@ -85,6 +85,25 @@ func (store *TagStore) ImagesForTag(ctx context.Context, id uint64) (*[]image.Im
 	return &images, nil
 }
 
+func (store *TagStore) TagsForImage(ctx context.Context, id uint64) (*[]Tag, error) {
+	var tagIDs []uint64
+	err := store.db.SelectContext(ctx, &tagIDs, "SELECT tag_id FROM content.image_tag_bridge WHERE image_id = $1", id)
+	if err != nil {
+		logrus.Error(err)
+		return nil, err
+	}
+	var tags []Tag
+	for _, id := range tagIDs {
+		tag, err := store.TagByID(ctx, id)
+		if err != nil {
+			logrus.Error(err)
+			return nil, err
+		}
+		tags = append(tags, *tag)
+	}
+	return &tags, nil
+}
+
 func (store *TagStore) TagImage(ctx context.Context, id uint64, imageID uint64) error {
 	_, err := store.db.ExecContext(ctx, "INSERT INTO content.image_tag_bridge (tag_id, image_id) VALUES ($1, $2);", id, imageID)
 	if err != nil {

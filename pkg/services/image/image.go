@@ -8,6 +8,11 @@ import (
 	"github.com/devinmcgloin/clr/clr"
 )
 
+const (
+	Views = iota
+	Downloads
+)
+
 //go:generate moq -out image_service_runner.go . ImageService
 
 type Service interface {
@@ -26,14 +31,12 @@ type Service interface {
 	ImagesForUser(ctx context.Context, id uint64) (*[]Image, error)
 
 	ImageStats(ctx context.Context, id uint64) (*ImageStats, error)
-	ImageSource(ctx context.Context, id uint64) (*ImageSource, error)
 	ImageMetadata(ctx context.Context, id uint64) (*ImageMetadata, error)
 	SetImageMetadata(ctx context.Context, id uint64, metadata ImageMetadata) error
 	ImageLocation(ctx context.Context, id uint64) (*Location, error)
 	SetImageLocation(ctx context.Context, id uint64, location Location) error
 	ImageColors(ctx context.Context, id uint64) (*[]Color, error)
 	SetImageColors(ctx context.Context, id uint64, colors []Color) error
-	ImageTags(ctx context.Context, id uint64) (*[]string, error)
 	ImageLabels(ctx context.Context, id uint64) (*[]Label, error)
 }
 
@@ -56,6 +59,8 @@ type ImageStats struct {
 	Downloads uint64
 	Favorites uint64
 }
+
+type StatType uint8
 
 type ImageSource struct {
 	Thumb  string `json:"thumb"`
