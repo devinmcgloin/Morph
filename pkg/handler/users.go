@@ -21,7 +21,7 @@ import (
 	"github.com/mholt/binding"
 )
 
-func RegisterHandlers(state *State, api *mux.Router, chain alice.Chain) {
+func registerUserHandlers(state *State, api *mux.Router, chain alice.Chain) {
 	post := api.Methods("POST").Subrouter()
 	opts := api.Methods("OPTIONS").Subrouter()
 	get := api.Methods("GET").Subrouter()
@@ -131,6 +131,7 @@ func CreateUser(s *State, w http.ResponseWriter, r *http.Request) (*Response, er
 		Code: http.StatusOK,
 	}, nil
 }
+
 func User(s *State, w http.ResponseWriter, r *http.Request) (*Response, error) {
 	username := mux.Vars(r)["ID"]
 	ctx := r.Context()

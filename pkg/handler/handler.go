@@ -6,6 +6,7 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/fokal/fokal-core/pkg/log"
+	"github.com/justinas/alice"
 
 	"github.com/fokal/fokal-core/pkg/services/authentication"
 	"github.com/fokal/fokal-core/pkg/services/cache"
@@ -26,7 +27,13 @@ import (
 
 	raven "github.com/getsentry/raven-go"
 	"github.com/gorilla/context"
+	"github.com/gorilla/mux"
 )
+
+func RegisterHandlers(state *State, api *mux.Router, chain alice.Chain) {
+	registerUserHandlers(state, api, chain)
+	registerImageHandlers(state, api, chain)
+}
 
 // Error represents a handler error. It provides methods for a HTTP status
 // code and embeds the built-in error interface.

@@ -22,6 +22,7 @@ func (pg *PGImageService) ImageByID(ctx context.Context, id uint64) (*Image, err
 	}
 	return image, nil
 }
+
 func (pg *PGImageService) ImageByShortcode(ctx context.Context, shortcode string) (*Image, error) {
 	image := new(Image)
 	err := pg.db.GetContext(ctx, image, "SELECT * FROM content.images WHERE shortcode = $1", shortcode)

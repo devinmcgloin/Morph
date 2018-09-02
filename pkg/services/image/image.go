@@ -20,6 +20,7 @@ type Service interface {
 	ImageByShortcode(ctx context.Context, shortcode string) (*Image, error)
 	ExistsByShortcode(ctx context.Context, shortcode string) (bool, error)
 	CreateImage(ctx context.Context, i *Image) error
+	NextShortcode(ctx context.Context) (string, error)
 	DeleteImage(ctx context.Context, id uint64) error
 
 	RandomImage(ctx context.Context) (*Image, error)
