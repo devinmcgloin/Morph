@@ -39,7 +39,7 @@ func (pgs *PGSearchService) RefreshMaterializedView() {
 	tick := time.NewTicker(time.Minute * 10)
 	go func() {
 		for range tick.C {
-			logrus.Println("Refreshing Materialized View")
+			logrus.Info("refreshing materialized view searches")
 			_, err := pgs.db.Exec("REFRESH MATERIALIZED VIEW CONCURRENTLY searches;")
 			if err != nil {
 				logrus.Println(err)

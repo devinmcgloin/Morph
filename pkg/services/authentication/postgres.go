@@ -15,6 +15,7 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/fokal/fokal-core/pkg/log"
 	"github.com/fokal/fokal-core/pkg/services/user"
 	"github.com/jmoiron/sqlx"
 )
@@ -97,7 +98,7 @@ func (auth *pgAuthService) ParseToken(ctx context.Context, token string) (*jwt.T
 func (auth *pgAuthService) VerifyToken(ctx context.Context, stringToken string) (bool, *uint64, error) {
 	token, err := auth.ParseToken(ctx, stringToken)
 	if err != nil {
-		logrus.Error(err)
+		log.WithContext(ctx).Error(err)
 	}
 
 	if token.Valid {
